@@ -1,6 +1,7 @@
 * text=auto !eol
 Delivery/bench/bitmaps/bmp/bm_About.bmp -text
 Delivery/bench/bitmaps/bmp/bm_wizard_blue.bmp -text
+Delivery/bench/bitmaps/bmp/bm_wizard_profiler_icon.bmp -text
 Delivery/bench/bitmaps/bmp/breakpt.bmp -text
 Delivery/bench/bitmaps/bmp/class.bmp -text
 Delivery/bench/bitmaps/bmp/classdot.bmp -text
@@ -1396,6 +1397,7 @@ Delivery/newdocs/technologies/elight/reflection/code_generator_diagram.png -text
 Delivery/newdocs/technologies/elight/reflection/interactions_diagram.png -text
 Delivery/studio/bitmaps/bmp/bm_About.bmp -text
 Delivery/studio/bitmaps/bmp/bm_wizard_blue.bmp -text
+Delivery/studio/bitmaps/bmp/bm_wizard_profiler_icon.bmp -text
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
 Delivery/studio/bitmaps/bmp/classdot.bmp -text
