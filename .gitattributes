@@ -2105,6 +2105,8 @@ Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance.png 
 Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/method1/diamond_inheritance_on_dotnet-method1.png -text
 Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/method2/diamond_inheritance_on_dotnet-method2.png -text
 Src/bench/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
+Src/bench/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#application/octet-stream
+Src/bench/Eiffel/doc/debugging/debugger_files/image002.gif -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/Eiffel/interface/new_graphical/help/Clib/htmlhelp.lib -text
 Src/bench/com_compiler/ace_file/cec.ico -text
