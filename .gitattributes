@@ -3279,6 +3279,9 @@ Src/resource_bench/toolbar.bmp svneol=native#unset
 Src/tools/doc_builder/resources/icons/icon_back_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_close_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_close_folder.ico -text
+Src/tools/doc_builder/resources/icons/icon_code_class.ico -text
+Src/tools/doc_builder/resources/icons/icon_code_cluster.ico -text
+Src/tools/doc_builder/resources/icons/icon_code_feature.ico -text
 Src/tools/doc_builder/resources/icons/icon_copy_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_cut_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_envision.ico -text
@@ -3287,6 +3290,8 @@ Src/tools/doc_builder/resources/icons/icon_format_text_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_forth_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_ie.ico -text
 Src/tools/doc_builder/resources/icons/icon_info.ico -text
+Src/tools/doc_builder/resources/icons/icon_maximize_color.png -text
+Src/tools/doc_builder/resources/icons/icon_minimize_color.png -text
 Src/tools/doc_builder/resources/icons/icon_new.ico -text
 Src/tools/doc_builder/resources/icons/icon_new_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_new_doc.ico -text
@@ -3295,10 +3300,13 @@ Src/tools/doc_builder/resources/icons/icon_open_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_paste.ico -text
 Src/tools/doc_builder/resources/icons/icon_properties_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_redo.ico -text
+Src/tools/doc_builder/resources/icons/icon_refresh.ico -text
+Src/tools/doc_builder/resources/icons/icon_restore_color.png -text
 Src/tools/doc_builder/resources/icons/icon_save.ico -text
 Src/tools/doc_builder/resources/icons/icon_search.ico -text
 Src/tools/doc_builder/resources/icons/icon_settings.ico -text
 Src/tools/doc_builder/resources/icons/icon_studio.ico -text
+Src/tools/doc_builder/resources/icons/icon_toc_exclude.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_file_node.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_closed.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_open.ico -text
