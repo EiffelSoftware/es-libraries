@@ -2480,9 +2480,7 @@ Src/help/wizards/estore1/bmp/essai2.bmp -text
 Src/help/wizards/estore2/bmp/Eiffel_wizard_new.bmp svneol=native#unset
 Src/help/wizards/estore2/bmp/database_small.bmp svneol=native#unset
 Src/help/wizards/estore2/pixmaps/eiffel_wizard.bmp -text
-Src/help/wizards/estore2/pixmaps/eiffel_wizard.png -text svneol=unset#application/octet-stream
 Src/help/wizards/estore2/pixmaps/eiffel_wizard_icon.bmp svneol=native#unset
-Src/help/wizards/estore2/pixmaps/eiffel_wizard_icon.png -text svneol=unset#application/octet-stream
 Src/help/wizards/eweb/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/wizard.ico -text
