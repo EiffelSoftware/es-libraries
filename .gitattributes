@@ -2358,6 +2358,7 @@ Src/dotnet/reflection_interface/docs/images/view_menu.png -text
 Src/dotnet/reflection_interface/docs/images/view_menu_in_import_tool.png -text
 Src/dotnet/reflection_interface/docs/images/warning_import.png -text
 Src/dotnet/reflection_interface/docs/images/warning_remove.png -text
+Src/examples/Eiffel2Java/test.class -text
 Src/examples/base/desc-32/test.ico svneol=native#unset
 Src/examples/base/desc-32/testdesc.dll -text
 Src/examples/base/desc-32/testdesc.lib -text
