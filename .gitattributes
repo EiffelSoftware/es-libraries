@@ -1591,6 +1591,7 @@ Delivery/studio/bitmaps/ico/icon_supplier_color.ico -text
 Delivery/studio/bitmaps/ico/icon_system_color.ico -text
 Delivery/studio/bitmaps/ico/icon_system_info_color.ico -text
 Delivery/studio/bitmaps/ico/icon_toggle_clusters_color.ico -text
+Delivery/studio/bitmaps/ico/icon_toggle_signature_vsmall_color.ico -text
 Delivery/studio/bitmaps/ico/icon_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_toolbar_separator.ico -text
 Delivery/studio/bitmaps/ico/icon_undo_color.ico -text
@@ -1894,6 +1895,7 @@ Delivery/studio/bitmaps/png/icon_supplier_color.png -text
 Delivery/studio/bitmaps/png/icon_system_color.png -text
 Delivery/studio/bitmaps/png/icon_system_info_color.png -text
 Delivery/studio/bitmaps/png/icon_toggle_clusters_color.png -text
+Delivery/studio/bitmaps/png/icon_toggle_signature_vsmall_color.png -text
 Delivery/studio/bitmaps/png/icon_tool_color.png -text
 Delivery/studio/bitmaps/png/icon_toolbar_separator.png -text
 Delivery/studio/bitmaps/png/icon_undo_color.png -text
