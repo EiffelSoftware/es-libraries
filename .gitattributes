@@ -3215,11 +3215,7 @@ Src/dotnet/codedom_provider/manager/icons/new.png -text
 Src/dotnet/codedom_provider/manager/icons/new_wizard.png -text
 Src/dotnet/codedom_provider/manager/icons/revert.png -text
 Src/dotnet/codedom_provider/manager/icons/save.png -text
-Src/dotnet/codedom_provider/test/tester/icons/compile_unit.png -text
-Src/dotnet/codedom_provider/test/tester/icons/expression.png -text
-Src/dotnet/codedom_provider/test/tester/icons/namespace.png -text
-Src/dotnet/codedom_provider/test/tester/icons/statement.png -text
-Src/dotnet/codedom_provider/test/tester/icons/type.png -text
+Src/dotnet/codedom_provider/test/tester/icons/tester.png -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_all_features.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_ancestors.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_assembly.ico -text
