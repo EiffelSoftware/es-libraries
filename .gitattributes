@@ -2075,6 +2075,8 @@ Delivery/vision2_tour/bitmaps/ico/size_up.ico -text
 Delivery/vision2_tour/bitmaps/ico/testing.ico -text
 Delivery/vision2_tour/bitmaps/png/documentation.png -text
 Delivery/vision2_tour/bitmaps/png/properties.png -text
+Delivery/vision2_tour/bitmaps/png/size_down.png -text
+Delivery/vision2_tour/bitmaps/png/size_up.png -text
 Delivery/vision2_tour/bitmaps/png/testing.png -text
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text svneol=unset#application/octet-stream
