@@ -3397,8 +3397,11 @@ Src/tools/doc_builder/resources/icons/icon_settings.ico -text
 Src/tools/doc_builder/resources/icons/icon_sorter.ico -text
 Src/tools/doc_builder/resources/icons/icon_studio.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_exclude.ico -text
+Src/tools/doc_builder/resources/icons/icon_toc_file.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_file_node.ico -text
+Src/tools/doc_builder/resources/icons/icon_toc_folder_closed.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_closed.ico -text
+Src/tools/doc_builder/resources/icons/icon_toc_folder_open.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_open.ico -text
 Src/tools/doc_builder/resources/icons/icon_undo.ico -text
 Src/tools/doc_builder/resources/icons/icon_validate.ico -text
