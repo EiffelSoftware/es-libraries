@@ -2068,6 +2068,12 @@ Delivery/studio/wizards/others/precompile/pixmaps/wizard.png -text
 Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard_icon.png -text
 Delivery/studio/wizards/precompile/pixmaps/wizard.png -text
+Delivery/vision2_tour/bitmaps/ico/documentation.ico -text
+Delivery/vision2_tour/bitmaps/ico/properties.ico -text
+Delivery/vision2_tour/bitmaps/ico/testing.ico -text
+Delivery/vision2_tour/bitmaps/png/documentation.png -text
+Delivery/vision2_tour/bitmaps/png/properties.png -text
+Delivery/vision2_tour/bitmaps/png/testing.png -text
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text svneol=unset#application/octet-stream
 Src/C_library/libpng/contrib/visupng/VisualPng.ico svneol=native#unset
