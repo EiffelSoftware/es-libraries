@@ -2235,6 +2235,7 @@ Src/com_wizard/project/gui/binaries/Wizard3.bmp -text
 Src/com_wizard/project/gui/binaries/Wizard4.bmp -text
 Src/com_wizard/project/gui/binaries/WizardSplash.bmp -text
 Src/com_wizard/project/gui/binaries/toolbar.bmp -text
+Src/dotnet/codedom_provider/manager/ecdpman.ico -text
 Src/dotnet/codedom_provider/manager/icons/application.png -text
 Src/dotnet/codedom_provider/manager/icons/configuration.png -text
 Src/dotnet/codedom_provider/manager/icons/configuration_properties.png -text
