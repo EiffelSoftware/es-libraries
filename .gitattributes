@@ -186,7 +186,6 @@ Delivery/bench/bitmaps/ico/icon_exec_stop_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_expanded_object.ico -text
 Delivery/bench/bitmaps/ico/icon_export_to_png_color.ico -text
 Delivery/bench/bitmaps/ico/icon_export_to_png_gray.ico -text
-Delivery/bench/bitmaps/ico/icon_externals_color.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_folder_gray.ico -text
@@ -1361,7 +1360,6 @@ Delivery/studio/bitmaps/ico/icon_exec_stop_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_expanded_object.ico -text
 Delivery/studio/bitmaps/ico/icon_export_to_png_color.ico -text
 Delivery/studio/bitmaps/ico/icon_export_to_png_gray.ico -text
-Delivery/studio/bitmaps/ico/icon_externals_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_gray.ico -text
