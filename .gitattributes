@@ -516,6 +516,7 @@ Delivery/case/Non_configurable/postscript.zip svneol=native#unset
 Delivery/case/Non_configurable/resources.zip svneol=native#unset
 Delivery/docs/images/bottom.gif -text
 Delivery/docs/images/creation.gif -text
+Delivery/docs/images/danger.gif -text
 Delivery/docs/images/debugg10.gif -text
 Delivery/docs/images/debugg11.gif -text
 Delivery/docs/images/debugg12.gif -text
