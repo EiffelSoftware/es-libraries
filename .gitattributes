@@ -514,6 +514,14 @@ Delivery/case/Non_configurable/bmp/yellow.bm svneol=native#unset
 Delivery/case/Non_configurable/filters.zip svneol=native#unset
 Delivery/case/Non_configurable/postscript.zip svneol=native#unset
 Delivery/case/Non_configurable/resources.zip svneol=native#unset
+Delivery/docs/Eiffel/language/classes.maker.fig_1.gif -text
+Delivery/docs/Eiffel/language/deferred.maker.fig_1.gif -text
+Delivery/docs/Eiffel/language/fm2html-next.gif -text
+Delivery/docs/Eiffel/language/fm2html-previous.gif -text
+Delivery/docs/Eiffel/language/fm2html-table.gif -text
+Delivery/docs/Eiffel/language/fm2html-toc.gif -text
+Delivery/docs/Eiffel/language/inheritance.maker.fig_1.gif -text
+Delivery/docs/Eiffel/language/types.maker.fig_1.gif -text
 Delivery/docs/images/bottom.gif -text
 Delivery/docs/images/creation.gif -text
 Delivery/docs/images/danger.gif -text
