@@ -1971,6 +1971,7 @@ Src/build2/bitmaps/png/icon_redo_color.png -text
 Src/build2/bitmaps/png/icon_save_color.png -text
 Src/build2/bitmaps/png/icon_system_color.png -text
 Src/build2/bitmaps/png/icon_undo_color.png -text
+Src/build2/build.ico -text
 Src/com_wizard/Doc/com.book -text
 Src/com_wizard/Doc/com.fm -text
 Src/com_wizard/Doc/comTOC.fm -text
