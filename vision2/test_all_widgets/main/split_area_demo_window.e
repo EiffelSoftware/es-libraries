@@ -1,14 +1,14 @@
 indexing
 
 	description: 
-	"SPLIT_DEMO_WINDOW, demo window to test split_area widget. Belongs to EiffelVision example."
+	"SPLIT_AREA_DEMO_WINDOW, demo window to test split_area widget. Belongs to EiffelVision example."
 	status: "See notice at end of class"
 	id: "$Id$"
 	date: "$Date$"
 	revision: "$Revision$"
 	
 class 
-	SPLIT_DEMO_WINDOW
+	SPLIT_AREA_DEMO_WINDOW
 
 inherit
 
@@ -20,13 +20,13 @@ creation
 
 feature -- Access
 
-	main_widget: EV_VERTICAL_SPLIT is
+	main_widget: EV_VERTICAL_SPLIT_AREA is
 		once
 			!!Result.make (Current)
 		end
 	
 	
-	h: EV_HORIZONTAL_SPLIT
+	h: EV_HORIZONTAL_SPLIT_AREA
 	
 			
 			-- Push buttons
@@ -39,16 +39,17 @@ feature -- Status setting
 			b: EV_BUTTON
 			t: EV_TEXT_AREA
 		do
-			-- The first child of the vertical split is a 
-			-- horizontal split
+			-- The first child of the vertical split area
+			-- is a horizontal split area
 			!!h.make (main_widget)
-			-- The first child of the horizontal split is a button
+			-- The first child of the horizontal split
+			-- area is a button
 			!!b.make_with_text (h, "Hello")
 			-- There is no second child for the horizontal
-			-- split (this is acceptable)
+			-- split area (this is acceptable)
 			
-			-- The second child of the vertical split is a
-			-- text area
+			-- The second child of the vertical split area
+			-- is a text area
 			!!t.make (main_widget)
 		end
 	
@@ -56,7 +57,7 @@ feature -- Status setting
 	
 	set_values is
 		do
-			set_title ("Split demo")
+			set_title ("Split area demo")
 		end
 
 end
