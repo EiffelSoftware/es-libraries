@@ -2096,6 +2096,7 @@ Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitte
 Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Formatter/ISE.Reflection.Formatter.dll svneol=native#unset
 Src/dotnet/reflection_interface/assembly_manager/folder_dialog/Core/FolderDialog.key -text
 Src/dotnet/reflection_interface/assembly_manager/folder_dialog/folder_browser.epr svneol=native#unset
+Src/dotnet/reflection_interface/assembly_manager/gac_browser/ISE.AssemblyManager.WindowsDirectoryExtractor.dll svneol=native#unset
 Src/dotnet/reflection_interface/assembly_manager/gac_browser/WindowsDirectoryExtractor.key -text
 Src/dotnet/reflection_interface/docs/images/about_ise_assembly_manager.png -text
 Src/dotnet/reflection_interface/docs/images/assembly_view.png -text
