@@ -1426,6 +1426,8 @@ Delivery/studio/bitmaps/ico/icon_copy_color.ico -text
 Delivery/studio/bitmaps/ico/icon_crop_color.ico -text
 Delivery/studio/bitmaps/ico/icon_cut_color.ico -text
 Delivery/studio/bitmaps/ico/icon_debug_run_color.ico -text
+Delivery/studio/bitmaps/ico/icon_debug_run_continue_color.ico -text
+Delivery/studio/bitmaps/ico/icon_debug_run_continue_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_debug_run_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_deferred_class_symbol_color.ico -text
 Delivery/studio/bitmaps/ico/icon_deferred_feature.ico -text
@@ -1727,6 +1729,8 @@ Delivery/studio/bitmaps/png/icon_copy_color.png -text
 Delivery/studio/bitmaps/png/icon_crop_color.png -text
 Delivery/studio/bitmaps/png/icon_cut_color.png -text
 Delivery/studio/bitmaps/png/icon_debug_run_color.png -text
+Delivery/studio/bitmaps/png/icon_debug_run_continue_color.png -text
+Delivery/studio/bitmaps/png/icon_debug_run_continue_text_color.png -text
 Delivery/studio/bitmaps/png/icon_debug_run_text_color.png -text
 Delivery/studio/bitmaps/png/icon_deferred_class_symbol_color.png -text
 Delivery/studio/bitmaps/png/icon_deferred_feature.png -text
