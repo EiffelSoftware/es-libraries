@@ -1,6 +1,12 @@
 * text=auto !eol
 Delivery/bench/bitmaps/xpm/expldot.xpm svneol=native#unset
-Delivery/bench/bitmaps/xpm/save.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/general.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/graph.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/project.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/sclients.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/sflat.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/ssupplie.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/stext.xpm svneol=native#unset
 Delivery/build/bitmaps/bmp/align.bmp -text
 Delivery/build/bitmaps/bmp/arrow_b.bmp -text
 Delivery/build/bitmaps/bmp/attrib.bmp -text
@@ -163,7 +169,13 @@ Delivery/build/bitmaps/bmp/wastbskt.bmp -text
 Delivery/build/bitmaps/bmp/wdgt_dst.bmp -text
 Delivery/build/bitmaps/bmp/windows.bmp -text
 Delivery/studio/bitmaps/xpm/expldot.xpm svneol=native#unset
-Delivery/studio/bitmaps/xpm/save.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/general.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/graph.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/project.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/sclients.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/sflat.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/ssupplie.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/stext.xpm svneol=native#unset
 Src/bench/C/ipc/daemon/ebench.ico -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/Eiffel/extra/finish_freezing/finish_freezing.ico svneol=native#unset
