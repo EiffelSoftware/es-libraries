@@ -681,10 +681,12 @@ Src/com_wizard/Doc/com.fm -text
 Src/com_wizard/Doc/comTOC.fm -text
 Src/com_wizard/Doc/wizard.fm -text
 Src/com_wizard/project/gui/binaries/Wizard.ico -text
+Src/com_wizard/project/gui/binaries/Wizard0.bmp -text
 Src/com_wizard/project/gui/binaries/Wizard1.bmp -text
 Src/com_wizard/project/gui/binaries/Wizard2.bmp -text
 Src/com_wizard/project/gui/binaries/Wizard3.bmp -text
 Src/com_wizard/project/gui/binaries/Wizard4.bmp -text
+Src/com_wizard/project/gui/binaries/WizardSplash.bmp -text
 Src/com_wizard/project/gui/binaries/toolbar.bmp -text
 Src/examples/base/desc-32/test.ico svneol=native#unset
 Src/examples/base/desc-32/testdesc.dll -text
