@@ -1351,6 +1351,8 @@ Delivery/studio/bitmaps/ico/icon_crop_color.ico -text
 Delivery/studio/bitmaps/ico/icon_cut_color.ico -text
 Delivery/studio/bitmaps/ico/icon_debug_run_color.ico -text
 Delivery/studio/bitmaps/ico/icon_debug_run_text_color.ico -text
+Delivery/studio/bitmaps/ico/icon_deferred_class_symbol_color.ico -text
+Delivery/studio/bitmaps/ico/icon_deferred_feature.ico -text
 Delivery/studio/bitmaps/ico/icon_degree-1.ico -text
 Delivery/studio/bitmaps/ico/icon_degree-2.ico -text
 Delivery/studio/bitmaps/ico/icon_degree-3.ico -text
@@ -1387,6 +1389,7 @@ Delivery/studio/bitmaps/ico/icon_exec_step_color.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_stop_color.ico -text
 Delivery/studio/bitmaps/ico/icon_expanded_object.ico -text
 Delivery/studio/bitmaps/ico/icon_export_to_png_color.ico -text
+Delivery/studio/bitmaps/ico/icon_external_feature.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_text_color.ico -text
@@ -1432,6 +1435,7 @@ Delivery/studio/bitmaps/ico/icon_inherit_color.ico -text
 Delivery/studio/bitmaps/ico/icon_light_class_color.ico -text
 Delivery/studio/bitmaps/ico/icon_light_class_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_light_cluster_color.ico -text
+Delivery/studio/bitmaps/ico/icon_light_deferred_class_color.ico -text
 Delivery/studio/bitmaps/ico/icon_maximize_color.ico -text
 Delivery/studio/bitmaps/ico/icon_mini_back_color.ico -text
 Delivery/studio/bitmaps/ico/icon_mini_forth_color.ico -text
