@@ -955,8 +955,6 @@ Src/help/wizards/estore1/bmp/essai.bmp -text
 Src/help/wizards/estore1/bmp/essai2.bmp -text
 Src/help/wizards/estore2/bmp/Eiffel_wizard_new.bmp svneol=native#unset
 Src/help/wizards/estore2/bmp/database_small.bmp svneol=native#unset
-Src/help/wizards/estore2/pixmaps/Eiffel_wizard_new.bmp -text
-Src/help/wizards/estore2/pixmaps/database_small.bmp -text
 Src/help/wizards/eweb/bmp/essai.bmp -text
 Src/help/wizards/eweb/bmp/essai2.bmp -text
 Src/help/wizards/eweb/bmp/small_essai.bmp -text
