@@ -1248,10 +1248,6 @@ Src/help/wizards/estore2/pixmaps/eiffel_wizard.bmp -text
 Src/help/wizards/estore2/pixmaps/eiffel_wizard_icon.bmp svneol=native#unset
 Src/help/wizards/eweb/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/eweb/pixmaps/database_small.bmp -text
-Src/help/wizards/ewel/pixmaps/dialog_application.bmp -text
-Src/help/wizards/ewel/pixmaps/eiffel_wizard.bmp svneol=native#unset
-Src/help/wizards/ewel/pixmaps/eiffel_wizard_icon.bmp -text
-Src/help/wizards/ewel/pixmaps/frame_application.bmp -text
 Src/help/wizards/ewizard/pixmaps/eiffel_wizard.bmp -text
 Src/help/wizards/ewizard/pixmaps/eiffel_wizard_icon.bmp -text
 Src/help/wizards/ewizard/resources/eiffel_wizard.bmp -text
