@@ -514,6 +514,9 @@ Delivery/case/Non_configurable/bmp/yellow.bm svneol=native#unset
 Delivery/case/Non_configurable/filters.zip svneol=native#unset
 Delivery/case/Non_configurable/postscript.zip svneol=native#unset
 Delivery/case/Non_configurable/resources.zip svneol=native#unset
+Delivery/docs/pdf/active.pdf -text
+Delivery/docs/pdf/case_guide.pdf -text
+Delivery/docs/pdf/guided_tour.pdf -text
 Delivery/docs/styles/bottom.gif -text
 Delivery/docs/styles/creation.gif -text
 Delivery/docs/styles/defdyn.gif -text
