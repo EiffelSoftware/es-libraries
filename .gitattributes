@@ -1702,6 +1702,15 @@ Delivery/newdocs/images/eiffelstudio/metrics_png/sratio.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/unit.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text
 Delivery/newdocs/images/eiffelstudio/open_existing_ace.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/advanced_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/clusters_exclude_include_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/clusters_options_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/clusters_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/clusters_visible_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/debug_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/externals_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/general_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/general_tab_first.png -text
 Delivery/newdocs/invitation.pdf -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
