@@ -3281,6 +3281,7 @@ Src/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#unset
 Src/resource_bench/rb.ico svneol=native#unset
 Src/resource_bench/toolbar.bmp svneol=native#unset
 Src/tools/doc_builder/resources/icons/icon_back_color.ico -text
+Src/tools/doc_builder/resources/icons/icon_bitmap_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_close_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_close_folder.ico -text
 Src/tools/doc_builder/resources/icons/icon_code_class.ico -text
@@ -3292,6 +3293,7 @@ Src/tools/doc_builder/resources/icons/icon_envision.ico -text
 Src/tools/doc_builder/resources/icons/icon_file_close.ico -text
 Src/tools/doc_builder/resources/icons/icon_format_text_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_forth_color.ico -text
+Src/tools/doc_builder/resources/icons/icon_html_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_ie.ico -text
 Src/tools/doc_builder/resources/icons/icon_info.ico -text
 Src/tools/doc_builder/resources/icons/icon_maximize_color.png -text
