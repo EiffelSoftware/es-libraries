@@ -709,6 +709,8 @@ Src/build/Clib/openlook/efb_openlook svneol=native#unset
 Src/com_wizard/Doc/com.book -text
 Src/com_wizard/Doc/com.fm -text
 Src/com_wizard/Doc/comTOC.fm -text
+Src/com_wizard/Doc/getting_started.fm -text
+Src/com_wizard/Doc/library.fm -text
 Src/com_wizard/Doc/wizard.fm -text
 Src/com_wizard/project/gui/binaries/Wizard.ico -text
 Src/com_wizard/project/gui/binaries/Wizard0.bmp -text
