@@ -666,6 +666,7 @@ Delivery/studio/bitmaps/xpm/system.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/up_stack.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/update.xpm svneol=native#unset
 Src/bench/C/ipc/daemon/ebench.ico -text
+Src/bench/C/ipc/daemon/splash.bmp -text
 Src/bench/Eiffel/Ace/es4.ico -text
 Src/bench/Eiffel/Ace/logo.bmp -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
