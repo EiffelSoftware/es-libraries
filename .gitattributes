@@ -1702,6 +1702,7 @@ Delivery/newdocs/images/eiffelstudio/metrics_png/sratio.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/unit.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text
 Delivery/newdocs/images/eiffelstudio/open_existing_ace.png -text
+Delivery/newdocs/invitation.pdf -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
@@ -1845,6 +1846,8 @@ Delivery/newdocs/tools/wizards/com/images/wizard-1.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-12.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-13.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-8.gif -text
+Delivery/newdocs/tour.pdf -text
+Delivery/newdocs/tutorial.pdf -text
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
 Delivery/studio/bitmaps/bmp/classdot.bmp -text
