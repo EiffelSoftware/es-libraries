@@ -2407,6 +2407,7 @@ Src/library/vision2/release/test/vision.png svneol=native#unset
 Src/library/wel/extra/h2e.ico svneol=native#unset
 Src/library/wel/extra/h2e1.ico svneol=native#unset
 Src/library/wel/extra/h2e2.ico svneol=native#unset
+Src/library/wizard/help/Clib/htmlhelp.lib -text
 Src/resource_bench/RB_documentation/docrb/ANALYZ.gif svneol=native#unset
 Src/resource_bench/RB_documentation/docrb/BROWSE.gif svneol=native#unset
 Src/resource_bench/RB_documentation/docrb/Browse.bmp svneol=native#unset
