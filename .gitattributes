@@ -29,6 +29,7 @@ Delivery/bench/bitmaps/bmp/graph.bmp -text
 Delivery/bench/bitmaps/bmp/gstoppt.bmp -text
 Delivery/bench/bitmaps/bmp/histback.bmp -text
 Delivery/bench/bitmaps/bmp/histfort.bmp -text
+Delivery/bench/bitmaps/bmp/isepower.bmp -text
 Delivery/bench/bitmaps/bmp/modified.bmp -text
 Delivery/bench/bitmaps/bmp/obj_down.bmp -text
 Delivery/bench/bitmaps/bmp/obj_up.bmp -text
@@ -543,6 +544,7 @@ Delivery/studio/bitmaps/bmp/graph.bmp -text
 Delivery/studio/bitmaps/bmp/gstoppt.bmp -text
 Delivery/studio/bitmaps/bmp/histback.bmp -text
 Delivery/studio/bitmaps/bmp/histfort.bmp -text
+Delivery/studio/bitmaps/bmp/isepower.bmp -text
 Delivery/studio/bitmaps/bmp/modified.bmp -text
 Delivery/studio/bitmaps/bmp/obj_down.bmp -text
 Delivery/studio/bitmaps/bmp/obj_up.bmp -text
