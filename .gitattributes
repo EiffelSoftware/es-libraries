@@ -3608,6 +3608,8 @@ Src/tools/doc_builder/resources/icons/icon_unchecked.png -text
 Src/tools/doc_builder/resources/icons/icon_undo.ico -text
 Src/tools/doc_builder/resources/icons/icon_validate.ico -text
 Src/tools/doc_builder/resources/icons/icon_widget_edit.ico -text
+Src/tools/doc_builder/resources/icons/spacer.gif -text
+Src/tools/doc_builder/resources/icons/sync_button.gif -text
 Src/tools/doc_builder/resources/templates/header_mainarea.jpg -text
 free_add_ons/gobo/gobo_33_unix.tgz -text
 free_add_ons/gobo/gobo_33_win.tgz -text
