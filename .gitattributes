@@ -222,6 +222,10 @@ Delivery/bench/bitmaps/ico/icon_light_class_color.ico -text
 Delivery/bench/bitmaps/ico/icon_light_cluster_color.ico -text
 Delivery/bench/bitmaps/ico/icon_maximize_color.ico -text
 Delivery/bench/bitmaps/ico/icon_maximize_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_mini_back_color.ico -text
+Delivery/bench/bitmaps/ico/icon_mini_back_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_mini_forth_color.ico -text
+Delivery/bench/bitmaps/ico/icon_mini_forth_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_minimize_all_color.ico -text
 Delivery/bench/bitmaps/ico/icon_minimize_all_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_minimize_color.ico -text
@@ -913,6 +917,10 @@ Delivery/studio/bitmaps/ico/icon_light_class_color.ico -text
 Delivery/studio/bitmaps/ico/icon_light_cluster_color.ico -text
 Delivery/studio/bitmaps/ico/icon_maximize_color.ico -text
 Delivery/studio/bitmaps/ico/icon_maximize_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_mini_back_color.ico -text
+Delivery/studio/bitmaps/ico/icon_mini_back_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_mini_forth_color.ico -text
+Delivery/studio/bitmaps/ico/icon_mini_forth_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_minimize_all_color.ico -text
 Delivery/studio/bitmaps/ico/icon_minimize_all_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_minimize_color.ico -text
