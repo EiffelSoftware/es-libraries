@@ -318,6 +318,7 @@ Delivery/bench/bitmaps/png/bon_deferred.png -text
 Delivery/bench/bitmaps/png/bon_effective.png -text
 Delivery/bench/bitmaps/png/bon_interfaced.png -text
 Delivery/bench/bitmaps/png/bon_persistent.png -text
+Delivery/bench/bitmaps/png/borland_logo.png -text
 Delivery/bench/bitmaps/png/breakpt.png -text
 Delivery/bench/bitmaps/png/case_change_color.png -text
 Delivery/bench/bitmaps/png/case_change_name.png -text
@@ -1776,6 +1777,7 @@ Delivery/studio/bitmaps/png/bon_deferred.png -text
 Delivery/studio/bitmaps/png/bon_effective.png -text
 Delivery/studio/bitmaps/png/bon_interfaced.png -text
 Delivery/studio/bitmaps/png/bon_persistent.png -text
+Delivery/studio/bitmaps/png/borland_logo.png -text
 Delivery/studio/bitmaps/png/breakpt.png -text
 Delivery/studio/bitmaps/png/case_change_color.png -text
 Delivery/studio/bitmaps/png/case_change_name.png -text
