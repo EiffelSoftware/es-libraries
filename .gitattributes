@@ -2094,6 +2094,7 @@ Delivery/vision2_tour/bitmaps/png/size_up.png -text
 Delivery/vision2_tour/bitmaps/png/testing.png -text
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text svneol=unset#application/octet-stream
+Src/C_library/expat/expat.suo -text
 Src/C_library/libpng/contrib/visupng/VisualPng.ico svneol=native#unset
 Src/C_library/libpng/pngbar.jpg svneol=native#unset
 Src/bench/C/ipc/daemon/estudio.ico -text
