@@ -3556,6 +3556,9 @@ Src/tools/doc_builder/documentation/project/xml/schemavalidatortoolbar.png -text
 Src/tools/doc_builder/documentation/project/xml/taglist.png -text
 Src/tools/doc_builder/documentation/project/xml/validatortool.png -text
 Src/tools/doc_builder/resources/icons/10x10spacer.png -text
+Src/tools/doc_builder/resources/icons/file.gif -text
+Src/tools/doc_builder/resources/icons/folder.gif -text
+Src/tools/doc_builder/resources/icons/go_up.gif -text
 Src/tools/doc_builder/resources/icons/icon_back_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_bitmap_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_checked.png -text
