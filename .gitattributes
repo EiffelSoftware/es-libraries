@@ -84,6 +84,7 @@ Delivery/bench/bitmaps/cursor/Xclientlnk.ico -text
 Delivery/bench/bitmaps/cursor/Xcluster.ico -text
 Delivery/bench/bitmaps/cursor/Xfeature.ico -text
 Delivery/bench/bitmaps/cursor/Xinheritlnk.ico -text
+Delivery/bench/bitmaps/cursor/Xinterro.ico -text
 Delivery/bench/bitmaps/cursor/Xobject.ico -text
 Delivery/bench/bitmaps/cursor/Xstopexec.ico -text
 Delivery/bench/bitmaps/cursor/class.ico -text
@@ -93,6 +94,7 @@ Delivery/bench/bitmaps/cursor/favorites_folder.ico -text
 Delivery/bench/bitmaps/cursor/feature.ico -text
 Delivery/bench/bitmaps/cursor/hourglass.ico -text
 Delivery/bench/bitmaps/cursor/inheritlnk.ico -text
+Delivery/bench/bitmaps/cursor/interro.ico -text
 Delivery/bench/bitmaps/cursor/object.ico -text
 Delivery/bench/bitmaps/cursor/stopexec.ico -text
 Delivery/bench/bitmaps/ico/icon_attribute_symbol.ico -text
@@ -744,6 +746,7 @@ Delivery/studio/bitmaps/cursor/Xclientlnk.ico -text
 Delivery/studio/bitmaps/cursor/Xcluster.ico -text
 Delivery/studio/bitmaps/cursor/Xfeature.ico -text
 Delivery/studio/bitmaps/cursor/Xinheritlnk.ico -text
+Delivery/studio/bitmaps/cursor/Xinterro.ico -text
 Delivery/studio/bitmaps/cursor/Xobject.ico -text
 Delivery/studio/bitmaps/cursor/Xstopexec.ico -text
 Delivery/studio/bitmaps/cursor/class.ico -text
@@ -753,6 +756,7 @@ Delivery/studio/bitmaps/cursor/favorites_folder.ico -text
 Delivery/studio/bitmaps/cursor/feature.ico -text
 Delivery/studio/bitmaps/cursor/hourglass.ico -text
 Delivery/studio/bitmaps/cursor/inheritlnk.ico -text
+Delivery/studio/bitmaps/cursor/interro.ico -text
 Delivery/studio/bitmaps/cursor/object.ico -text
 Delivery/studio/bitmaps/cursor/stopexec.ico -text
 Delivery/studio/bitmaps/ico/icon_attribute_symbol.ico -text
