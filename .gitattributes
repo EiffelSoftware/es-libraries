@@ -1094,6 +1094,7 @@ Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/feature-wizard.png -tex
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/history-tool.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/new_class_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/new_cluster_dialog.png -text
+Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/new_exported_feature.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/preferences_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_process.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_query_window.png -text
@@ -1104,6 +1105,7 @@ Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_wizard_second_
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_wizard_third_state.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/set_default_slice_size_dlg.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/set_slice_size_dlg.png -text
+Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/shared_library_window.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/startup_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/toolbar_customization_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/xmi_wizard_cluster_selection.png -text
