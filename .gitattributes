@@ -2900,7 +2900,6 @@ Delivery/xmldoc/images/eiffelstudio/metrics_png/unit.png -text
 Delivery/xmldoc/images/eiffelstudio/metrics_png/update.png -text
 Delivery/xmldoc/images/eiffelstudio/open_existing_ace.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/advanced_tab.png -text
-Delivery/xmldoc/images/eiffelstudio/project_settings/advanced_tab_error_loading_ace.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/advanced_tab_finalization_options.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/advanced_tab_standard_options.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/advanced_tab_standard_options_dotnet.png -text
@@ -2911,7 +2910,6 @@ Delivery/xmldoc/images/eiffelstudio/project_settings/clusters_tab.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/clusters_visible_tab.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/debug_args.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/debug_debug.png -text
-Delivery/xmldoc/images/eiffelstudio/project_settings/debug_tab.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/dotnet_assembly_tab.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/dotnet_assembly_tab_editing.png -text
 Delivery/xmldoc/images/eiffelstudio/project_settings/dotnet_base_path.png -text
