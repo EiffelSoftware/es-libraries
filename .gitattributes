@@ -389,6 +389,8 @@ Delivery/bench/bitmaps/png/icon_cmd_history_color.png -text
 Delivery/bench/bitmaps/png/icon_color_color.png -text
 Delivery/bench/bitmaps/png/icon_compile_color.png -text
 Delivery/bench/bitmaps/png/icon_compile_text_color.png -text
+Delivery/bench/bitmaps/png/icon_context_tool_color.png -text
+Delivery/bench/bitmaps/png/icon_context_tool_text_color.png -text
 Delivery/bench/bitmaps/png/icon_copy_color.png -text
 Delivery/bench/bitmaps/png/icon_cut_color.png -text
 Delivery/bench/bitmaps/png/icon_debug_run_color.png -text
@@ -1835,6 +1837,8 @@ Delivery/studio/bitmaps/png/icon_cmd_history_color.png -text
 Delivery/studio/bitmaps/png/icon_color_color.png -text
 Delivery/studio/bitmaps/png/icon_compile_color.png -text
 Delivery/studio/bitmaps/png/icon_compile_text_color.png -text
+Delivery/studio/bitmaps/png/icon_context_tool_color.png -text
+Delivery/studio/bitmaps/png/icon_context_tool_text_color.png -text
 Delivery/studio/bitmaps/png/icon_copy_color.png -text
 Delivery/studio/bitmaps/png/icon_cut_color.png -text
 Delivery/studio/bitmaps/png/icon_debug_run_color.png -text
