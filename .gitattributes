@@ -1,7 +1,4 @@
 * text=auto !eol
-Delivery/bench/bitmaps/bmp/bm_About.bmp -text
-Delivery/bench/bitmaps/bmp/bm_wizard_blue.bmp -text
-Delivery/bench/bitmaps/bmp/bm_wizard_profiler_icon.bmp -text
 Delivery/bench/bitmaps/bmp/breakpt.bmp -text
 Delivery/bench/bitmaps/bmp/class.bmp -text
 Delivery/bench/bitmaps/bmp/classdot.bmp -text
@@ -1460,9 +1457,6 @@ Delivery/newdocs/tools/wizards/com/images/wizard-1.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-12.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-13.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-8.gif -text
-Delivery/studio/bitmaps/bmp/bm_About.bmp -text
-Delivery/studio/bitmaps/bmp/bm_wizard_blue.bmp -text
-Delivery/studio/bitmaps/bmp/bm_wizard_profiler_icon.bmp -text
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
 Delivery/studio/bitmaps/bmp/classdot.bmp -text
