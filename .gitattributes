@@ -79,6 +79,7 @@ Delivery/build/bitmaps/bmp/menu_ent.bmp -text
 Delivery/build/bitmaps/bmp/menu_pll.bmp -text
 Delivery/build/bitmaps/bmp/menus.bmp -text
 Delivery/build/bitmaps/bmp/merge.bmp -text
+Delivery/build/bitmaps/bmp/modified.bmp svneol=native#unset
 Delivery/build/bitmaps/bmp/mouse.bmp -text
 Delivery/build/bitmaps/bmp/mouse1d.bmp -text
 Delivery/build/bitmaps/bmp/mouse1u.bmp -text
@@ -162,7 +163,6 @@ Delivery/build/bitmaps/bmp/top_shll.bmp -text
 Delivery/build/bitmaps/bmp/transitn.bmp -text
 Delivery/build/bitmaps/bmp/transltn.bmp -text
 Delivery/build/bitmaps/bmp/type.bmp -text
-Delivery/build/bitmaps/bmp/unsave.bmp -text
 Delivery/build/bitmaps/bmp/user_cmd.bmp -text
 Delivery/build/bitmaps/bmp/user_def.bmp -text
 Delivery/build/bitmaps/bmp/wastbskt.bmp -text
