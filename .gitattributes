@@ -729,6 +729,8 @@ Delivery/bench/wizards/new_projects/wizard/pixmaps/eiffel_wizard.bmp -text
 Delivery/bench/wizards/new_projects/wizard/pixmaps/eiffel_wizard_icon.bmp -text
 Delivery/bench/wizards/new_projects/wizard/resources/eiffel_wizard.bmp -text
 Delivery/bench/wizards/new_projects/wizard/resources/eiffel_wizard_icon.bmp -text
+Delivery/bench/wizards/precompile/pixmaps/eiffel_wizard.bmp -text
+Delivery/bench/wizards/precompile/pixmaps/eiffel_wizard_icon.bmp -text
 Delivery/build/bitmaps/bmp/align.bmp -text
 Delivery/build/bitmaps/bmp/arrow_b.bmp -text
 Delivery/build/bitmaps/bmp/attrib.bmp -text
@@ -1794,6 +1796,10 @@ Delivery/studio/wizards/new_projects/wizard/pixmaps/eiffel_wizard.bmp -text
 Delivery/studio/wizards/new_projects/wizard/pixmaps/eiffel_wizard_icon.bmp -text
 Delivery/studio/wizards/new_projects/wizard/resources/eiffel_wizard.bmp -text
 Delivery/studio/wizards/new_projects/wizard/resources/eiffel_wizard_icon.bmp -text
+Delivery/studio/wizards/others/precompile/pixmaps/eiffel_wizard.bmp -text
+Delivery/studio/wizards/others/precompile/pixmaps/eiffel_wizard_icon.bmp -text
+Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard.bmp -text
+Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard_icon.bmp -text
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text
 Delivery/wizards/com/eiffelcom.GID -text
