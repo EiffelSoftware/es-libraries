@@ -332,6 +332,11 @@ Delivery/bench/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_gray.ico -text
+Delivery/bench/wizards/new_projects/wel/pixmaps/dialog_application.bmp -text
+Delivery/bench/wizards/new_projects/wel/pixmaps/eiffel_wizard.bmp -text
+Delivery/bench/wizards/new_projects/wel/pixmaps/eiffel_wizard_icon.bmp -text
+Delivery/bench/wizards/new_projects/wel/pixmaps/frame_application.bmp -text
+Delivery/bench/wizards/new_projects/wel/resources/eiffel.ico -text
 Delivery/build/bitmaps/bmp/align.bmp -text
 Delivery/build/bitmaps/bmp/arrow_b.bmp -text
 Delivery/build/bitmaps/bmp/attrib.bmp -text
@@ -998,6 +1003,11 @@ Delivery/studio/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_gray.ico -text
+Delivery/studio/wizards/new_projects/wel/pixmaps/dialog_application.bmp -text
+Delivery/studio/wizards/new_projects/wel/pixmaps/eiffel_wizard.bmp -text
+Delivery/studio/wizards/new_projects/wel/pixmaps/eiffel_wizard_icon.bmp -text
+Delivery/studio/wizards/new_projects/wel/pixmaps/frame_application.bmp -text
+Delivery/studio/wizards/new_projects/wel/resources/eiffel.ico -text
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text
 Delivery/wizards/com/eiffelcom.GID -text
