@@ -1,4 +1,5 @@
 * text=auto !eol
+Delivery/bench/bitmaps/bmp/bm_About.bmp -text
 Delivery/bench/bitmaps/bmp/clr_bp.bmp -text
 Delivery/bench/bitmaps/bmp/dis_bp.bmp -text
 Delivery/bench/bitmaps/bmp/open.bmp -text
@@ -683,6 +684,7 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
+Delivery/studio/bitmaps/bmp/bm_About.bmp -text
 Delivery/studio/bitmaps/bmp/clr_bp.bmp -text
 Delivery/studio/bitmaps/bmp/dis_bp.bmp -text
 Delivery/studio/bitmaps/bmp/open.bmp -text
