@@ -1,6 +1,7 @@
 * text=auto !eol
 Delivery/build/bitmaps/png/bm_about.png -text
 Delivery/build/bitmaps/png/containers.png -text
+Delivery/build/bitmaps/png/directory_search_small.png -text
 Delivery/build/bitmaps/png/ev_button.png -text
 Delivery/build/bitmaps/png/ev_cell.png -text
 Delivery/build/bitmaps/png/ev_check_button.png -text
