@@ -1301,16 +1301,16 @@ Delivery/newdocs/images/eiffelstudio/metrics_png/edit.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/fields.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/import.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/linear.png -text
-Delivery/newdocs/images/eiffelstudio/metrics_png/manage.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/metric_tool.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/metricmenu.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/mratio.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/plus.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/reorder_drop.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/save.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/scopecombobox.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/manage.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/metric_tool.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/metricmenu.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/mratio.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/plus.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/reorder_drop.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/save.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/scopecombobox.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/sratio.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
