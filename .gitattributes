@@ -2,3 +2,5 @@
 Src/build/Clib/motif/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb_openlook svneol=native#unset
+Src/library/wel/extra/h2e1.ico svneol=native#unset
+Src/library/wel/extra/h2e2.ico svneol=native#unset
