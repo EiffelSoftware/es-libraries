@@ -674,6 +674,7 @@ Src/bench/Eiffel/interface/graphical/resource_file/es4.ico svneol=native#unset
 Src/build/Clib/motif/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb_openlook svneol=native#unset
+Src/com_wizard/root/toolbar.bmp svneol=native#unset
 Src/examples/base/desc-32/test.ico svneol=native#unset
 Src/examples/base/desc-32/testdesc.dll -text
 Src/examples/base/desc-32/testdesc.lib -text
