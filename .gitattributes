@@ -2070,6 +2070,8 @@ Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard_icon.png -text
 Delivery/studio/wizards/precompile/pixmaps/wizard.png -text
 Delivery/vision2_tour/bitmaps/ico/documentation.ico -text
 Delivery/vision2_tour/bitmaps/ico/properties.ico -text
+Delivery/vision2_tour/bitmaps/ico/size_down.ico -text
+Delivery/vision2_tour/bitmaps/ico/size_up.ico -text
 Delivery/vision2_tour/bitmaps/ico/testing.ico -text
 Delivery/vision2_tour/bitmaps/png/documentation.png -text
 Delivery/vision2_tour/bitmaps/png/properties.png -text
