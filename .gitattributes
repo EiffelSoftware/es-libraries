@@ -2633,6 +2633,8 @@ Src/bench/C/rt_converter.exe -text
 Src/bench/Eiffel/Ace/ec.ico -text
 Src/bench/Eiffel/Ace/ecdoc.ico -text
 Src/bench/Eiffel/Ace/logo.bmp -text
+Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance.png -text
+Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance_on_dotnet.png -text
 Src/bench/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/bench/Eiffel/eiffel/com_il_generation/Core/core.key -text
 Src/bench/Eiffel/eiffel/com_il_generation/Core/ise_runtime.key -text
