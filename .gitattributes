@@ -1988,6 +1988,7 @@ Src/tools/doc_builder/resources/icons/file.gif -text
 Src/tools/doc_builder/resources/icons/folder.gif -text
 Src/tools/doc_builder/resources/icons/folder_open.gif -text
 Src/tools/doc_builder/resources/icons/go_up.gif -text
+Src/tools/doc_builder/resources/icons/header_close_cross.png -text
 Src/tools/doc_builder/resources/icons/icon_back_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_bitmap_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_checked.png -text
@@ -2046,6 +2047,8 @@ Src/tools/doc_builder/resources/icons/icon_unchecked.png -text
 Src/tools/doc_builder/resources/icons/icon_undo.ico -text
 Src/tools/doc_builder/resources/icons/icon_validate.ico -text
 Src/tools/doc_builder/resources/icons/icon_widget_edit.ico -text
+Src/tools/doc_builder/resources/icons/left_scroll_arrow.png -text
+Src/tools/doc_builder/resources/icons/right_scroll_arrow.png -text
 Src/tools/doc_builder/resources/icons/spacer.gif -text
 Src/tools/doc_builder/resources/icons/spacer_line.gif -text
 Src/tools/doc_builder/resources/icons/sync_button.gif -text
