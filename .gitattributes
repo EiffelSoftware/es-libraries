@@ -1,10 +1,6 @@
 * text=auto !eol
-Delivery/bench/bitmaps/xpm/dbgrun.bmp svneol=native#unset
-Delivery/bench/bitmaps/xpm/dexplain.xpm svneol=native#unset
 Delivery/bench/bitmaps/xpm/expldot.xpm svneol=native#unset
 Delivery/bench/bitmaps/xpm/save.xpm svneol=native#unset
-Delivery/studio/bitmaps/xpm/dbgrun.bmp svneol=native#unset
-Delivery/studio/bitmaps/xpm/dexplain.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/expldot.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/save.xpm svneol=native#unset
 Src/bench/C/ipc/daemon/ebench.ico -text
