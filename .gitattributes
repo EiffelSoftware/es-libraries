@@ -1132,8 +1132,12 @@ Delivery/newdocs/images/eiffelstudio/link-tool-three-right.png -text
 Delivery/newdocs/images/eiffelstudio/link-tool-two-left.png -text
 Delivery/newdocs/images/eiffelstudio/link-tool-two-right.png -text
 Delivery/newdocs/images/eiffelstudio/link-tool.png -text
-Delivery/newdocs/libraries/base/content/structures/binary_tree.gif -text
-Delivery/newdocs/libraries/base/content/structures/tree.gif -text
+Delivery/newdocs/libraries/base/content/structures/bilinear.png -text
+Delivery/newdocs/libraries/base/content/structures/binary_tree.png -text
+Delivery/newdocs/libraries/base/content/structures/linear.png -text
+Delivery/newdocs/libraries/base/content/structures/linked_list.png -text
+Delivery/newdocs/libraries/base/content/structures/tree.png -text
+Delivery/newdocs/libraries/base/content/structures/two_way_list.png -text
 Delivery/studio/bitmaps/bmp/bm_About.bmp -text
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
