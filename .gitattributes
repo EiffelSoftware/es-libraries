@@ -2540,6 +2540,8 @@ Delivery/studio/bitmaps/png/system.png -text
 Delivery/studio/bitmaps/png/test.png -text
 Delivery/studio/bitmaps/png/up_stack.png -text
 Delivery/studio/bitmaps/png/update.png -text
+Delivery/studio/config/windows/bcb/appl.ico -text
+Delivery/studio/config/windows/msc/appl.ico -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
