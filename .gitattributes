@@ -700,7 +700,10 @@ Delivery/studio/bitmaps/bmp/systdot.BMP -text
 Delivery/studio/bitmaps/bmp/system.bmp -text
 Delivery/studio/bitmaps/bmp/up_stack.bmp -text
 Delivery/studio/bitmaps/bmp/update.bmp -text
+Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text
+Delivery/wizards/com/eiffelcom.GID -text
+Delivery/wizards/com/eiffelcom.fts -text
 Src/bench/C/ipc/daemon/ebench.ico -text
 Src/bench/C/ipc/daemon/splash.bmp -text
 Src/bench/C/rt_converter.exe -text
