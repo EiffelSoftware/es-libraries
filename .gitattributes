@@ -255,6 +255,7 @@ Delivery/bench/bitmaps/ico/icon_object_symbol.ico -text
 Delivery/bench/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/bench/bitmaps/ico/icon_open_file_color.ico -text
 Delivery/bench/bitmaps/ico/icon_open_file_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_open_project.ico -text
 Delivery/bench/bitmaps/ico/icon_past_color.ico -text
 Delivery/bench/bitmaps/ico/icon_past_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_profiler_window.ico -text
@@ -322,6 +323,9 @@ Delivery/bench/bitmaps/ico/icon_windows_color.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_text_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_wizard_ace_project.ico -text
+Delivery/bench/bitmaps/ico/icon_wizard_blank_project.ico -text
+Delivery/bench/bitmaps/ico/icon_wizard_project.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_in.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_in_color.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_in_gray.ico -text
@@ -917,6 +921,7 @@ Delivery/studio/bitmaps/ico/icon_object_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_open_file_color.ico -text
 Delivery/studio/bitmaps/ico/icon_open_file_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_open_project.ico -text
 Delivery/studio/bitmaps/ico/icon_past_color.ico -text
 Delivery/studio/bitmaps/ico/icon_past_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_profiler_window.ico -text
@@ -984,6 +989,9 @@ Delivery/studio/bitmaps/ico/icon_windows_color.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_text_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_wizard_ace_project.ico -text
+Delivery/studio/bitmaps/ico/icon_wizard_blank_project.ico -text
+Delivery/studio/bitmaps/ico/icon_wizard_project.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_in.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_in_color.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_in_gray.ico -text
