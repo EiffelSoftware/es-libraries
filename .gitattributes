@@ -212,7 +212,11 @@ Delivery/bench/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_text_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_in.ico -text
+Delivery/bench/bitmaps/ico/icon_zoom_in_color.ico -text
+Delivery/bench/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out.ico -text
+Delivery/bench/bitmaps/ico/icon_zoom_out_color.ico -text
+Delivery/bench/bitmaps/ico/icon_zoom_out_gray.ico -text
 Delivery/build/bitmaps/bmp/align.bmp -text
 Delivery/build/bitmaps/bmp/arrow_b.bmp -text
 Delivery/build/bitmaps/bmp/attrib.bmp -text
@@ -953,7 +957,11 @@ Delivery/studio/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_text_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_in.ico -text
+Delivery/studio/bitmaps/ico/icon_zoom_in_color.ico -text
+Delivery/studio/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out.ico -text
+Delivery/studio/bitmaps/ico/icon_zoom_out_color.ico -text
+Delivery/studio/bitmaps/ico/icon_zoom_out_gray.ico -text
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text
 Delivery/wizards/com/eiffelcom.GID -text
