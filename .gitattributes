@@ -138,6 +138,7 @@ Delivery/bench/bitmaps/ico/icon_bpenabled_top.ico -text
 Delivery/bench/bitmaps/ico/icon_bpslot.ico -text
 Delivery/bench/bitmaps/ico/icon_bpslot_stopped.ico -text
 Delivery/bench/bitmaps/ico/icon_bpslot_top.ico -text
+Delivery/bench/bitmaps/ico/icon_center_diagram_color.ico -text
 Delivery/bench/bitmaps/ico/icon_check_exports_color.ico -text
 Delivery/bench/bitmaps/ico/icon_class.ico -text
 Delivery/bench/bitmaps/ico/icon_class_color.ico -text
@@ -259,6 +260,7 @@ Delivery/bench/bitmaps/ico/icon_new_metric_color.ico -text
 Delivery/bench/bitmaps/ico/icon_new_small_color.ico -text
 Delivery/bench/bitmaps/ico/icon_new_supplier_color.ico -text
 Delivery/bench/bitmaps/ico/icon_no_stop_color.ico -text
+Delivery/bench/bitmaps/ico/icon_nothing.ico -text
 Delivery/bench/bitmaps/ico/icon_object_symbol.ico -text
 Delivery/bench/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/bench/bitmaps/ico/icon_open_file_color.ico -text
@@ -295,6 +297,7 @@ Delivery/bench/bitmaps/ico/icon_sorter_color.ico -text
 Delivery/bench/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/bench/bitmaps/ico/icon_step_out_color.ico -text
 Delivery/bench/bitmaps/ico/icon_straight_arrows_color.ico -text
+Delivery/bench/bitmaps/ico/icon_super_cluster_color.ico -text
 Delivery/bench/bitmaps/ico/icon_supplier_color.ico -text
 Delivery/bench/bitmaps/ico/icon_system_color.ico -text
 Delivery/bench/bitmaps/ico/icon_system_info_color.ico -text
@@ -2022,6 +2025,7 @@ Delivery/studio/bitmaps/ico/icon_bpenabled_top.ico -text
 Delivery/studio/bitmaps/ico/icon_bpslot.ico -text
 Delivery/studio/bitmaps/ico/icon_bpslot_stopped.ico -text
 Delivery/studio/bitmaps/ico/icon_bpslot_top.ico -text
+Delivery/studio/bitmaps/ico/icon_center_diagram_color.ico -text
 Delivery/studio/bitmaps/ico/icon_check_exports_color.ico -text
 Delivery/studio/bitmaps/ico/icon_class.ico -text
 Delivery/studio/bitmaps/ico/icon_class_color.ico -text
@@ -2143,6 +2147,7 @@ Delivery/studio/bitmaps/ico/icon_new_metric_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_small_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_supplier_color.ico -text
 Delivery/studio/bitmaps/ico/icon_no_stop_color.ico -text
+Delivery/studio/bitmaps/ico/icon_nothing.ico -text
 Delivery/studio/bitmaps/ico/icon_object_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_open_file_color.ico -text
@@ -2179,6 +2184,7 @@ Delivery/studio/bitmaps/ico/icon_sorter_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_out_color.ico -text
 Delivery/studio/bitmaps/ico/icon_straight_arrows_color.ico -text
+Delivery/studio/bitmaps/ico/icon_super_cluster_color.ico -text
 Delivery/studio/bitmaps/ico/icon_supplier_color.ico -text
 Delivery/studio/bitmaps/ico/icon_system_color.ico -text
 Delivery/studio/bitmaps/ico/icon_system_info_color.ico -text
