@@ -713,6 +713,8 @@ Delivery/bench/bitmaps/png/system.png -text
 Delivery/bench/bitmaps/png/test.png -text
 Delivery/bench/bitmaps/png/up_stack.png -text
 Delivery/bench/bitmaps/png/update.png -text
+Delivery/bench/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.bmp -text
+Delivery/bench/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.bmp -text
 Delivery/bench/wizards/new_projects/vision2/pixmaps/dialog_application.bmp -text
 Delivery/bench/wizards/new_projects/vision2/pixmaps/eiffel_wizard.bmp -text
 Delivery/bench/wizards/new_projects/vision2/pixmaps/eiffel_wizard_icon.bmp -text
@@ -1854,6 +1856,8 @@ Delivery/studio/bitmaps/png/system.png -text
 Delivery/studio/bitmaps/png/test.png -text
 Delivery/studio/bitmaps/png/up_stack.png -text
 Delivery/studio/bitmaps/png/update.png -text
+Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.bmp -text
+Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.bmp -text
 Delivery/studio/wizards/new_projects/vision2/pixmaps/dialog_application.bmp -text
 Delivery/studio/wizards/new_projects/vision2/pixmaps/eiffel_wizard.bmp -text
 Delivery/studio/wizards/new_projects/vision2/pixmaps/eiffel_wizard_icon.bmp -text
