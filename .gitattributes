@@ -962,6 +962,8 @@ Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/ewel/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/ewel/pixmaps/database_small.bmp -text
 Src/help/wizards/ewel/resources/eiffel.ico -text
+Src/help/wizards/ewizard/pixmaps/Eiffel_wizard_new.bmp -text
+Src/help/wizards/ewizard/pixmaps/database_small.bmp -text
 Src/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
 Src/library/gobo/bin/gelex.exe -text
 Src/library/gobo/bin/gepp.exe -text
