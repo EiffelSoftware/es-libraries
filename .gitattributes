@@ -207,6 +207,7 @@ Delivery/bench/bitmaps/ico/icon_features_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_features_text_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_fill_cluster_color.ico -text
 Delivery/bench/bitmaps/ico/icon_fill_cluster_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_finalize_color.ico -text
 Delivery/bench/bitmaps/ico/icon_folders_color.ico -text
 Delivery/bench/bitmaps/ico/icon_folders_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_format_ancestors_color.ico -text
@@ -231,6 +232,7 @@ Delivery/bench/bitmaps/ico/icon_format_suppliers_color.ico -text
 Delivery/bench/bitmaps/ico/icon_format_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_forth_color.ico -text
 Delivery/bench/bitmaps/ico/icon_forth_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_freeze_color.ico -text
 Delivery/bench/bitmaps/ico/icon_global_search_color.ico -text
 Delivery/bench/bitmaps/ico/icon_global_search_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_green_arrow.ico -text
@@ -1706,6 +1708,7 @@ Delivery/studio/bitmaps/ico/icon_features_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_features_text_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_fill_cluster_color.ico -text
 Delivery/studio/bitmaps/ico/icon_fill_cluster_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_finalize_color.ico -text
 Delivery/studio/bitmaps/ico/icon_folders_color.ico -text
 Delivery/studio/bitmaps/ico/icon_folders_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_format_ancestors_color.ico -text
@@ -1730,6 +1733,7 @@ Delivery/studio/bitmaps/ico/icon_format_suppliers_color.ico -text
 Delivery/studio/bitmaps/ico/icon_format_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_forth_color.ico -text
 Delivery/studio/bitmaps/ico/icon_forth_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_freeze_color.ico -text
 Delivery/studio/bitmaps/ico/icon_global_search_color.ico -text
 Delivery/studio/bitmaps/ico/icon_global_search_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_green_arrow.ico -text
