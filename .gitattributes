@@ -1053,6 +1053,9 @@ Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
 Delivery/newdocs/PDF/invitation.pdf -text
 Delivery/newdocs/PDF/tour.pdf -text
 Delivery/newdocs/PDF/tutorial.pdf -text
+Delivery/newdocs/general/guided_tour/environment/index-1.png -text
+Delivery/newdocs/general/guided_tour/environment/power.gif -text
+Delivery/newdocs/general/guided_tour/environment/topdoc.gif -text
 Delivery/newdocs/general/guided_tour/firstdoc.gif -text
 Delivery/newdocs/general/guided_tour/greenball.gif -text
 Delivery/newdocs/general/guided_tour/language/firstdoc.gif -text
