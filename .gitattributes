@@ -2621,8 +2621,8 @@ Src/resource_bench/RB_documentation/examples/icon_2.ico svneol=native#unset
 Src/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#unset
 Src/resource_bench/rb.ico svneol=native#unset
 Src/resource_bench/toolbar.bmp svneol=native#unset
-free_add_ons/gobo/gobo30.tar.gz -text
-free_add_ons/gobo/gobo30win.tgz -text
+free_add_ons/gobo/gobo_unix.tgz -text
+free_add_ons/gobo/gobo_win.tgz -text
 free_add_ons/micoe/adt/doc/doc.ps.gz svneol=native#unset
 free_add_ons/micoe/doc/manual/manual.ps.gz svneol=native#unset
 free_add_ons/micoe/idl/doc/doc.ps.gz svneol=native#unset
