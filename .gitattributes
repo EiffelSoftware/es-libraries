@@ -2259,11 +2259,13 @@ Src/dotnet/eac_browser/ressources/eac_ico/icon_inherited_features.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_interface_class.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_namespace.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_private_attribute.ico -text
+Src/dotnet/eac_browser/ressources/eac_ico/icon_private_constant.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_private_event.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_private_feature.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_private_property.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_procedure.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_protected_attribute.ico -text
+Src/dotnet/eac_browser/ressources/eac_ico/icon_protected_constant.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_protected_event.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_protected_feature.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_protected_property.ico -text
