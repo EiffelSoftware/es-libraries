@@ -2621,6 +2621,7 @@ Delivery/xmldoc/images/eiffelstudio/icons/feature.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/hourglass.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_add_exported_feature_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_attribute_symbol.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_auto_slice_limits_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_back_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_back_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_bkpt_info_color.gif -text
@@ -2733,9 +2734,11 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_exec_stop_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_exec_stop_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_expand_string_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_expanded_object.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_expanded_object.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_export_to_png_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_export_to_png_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_external_feature.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_external_symbol.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_favorites_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_favorites_folder_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_favorites_folder_gray.gif -text
@@ -2838,7 +2841,10 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_new_supplier_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_no_stop_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_no_stop_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_nothing.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_numeric_format_very_small_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_object_symbol.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_object_symbol.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_on_off_very_small_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_once_symbol.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_open_file_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_open_file_gray.gif -text
@@ -2895,6 +2901,8 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_shell_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_slice_limits_vsmall_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_slice_limits_vsmall_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_sorter_color.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_static_external_symbol.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_static_object_symbol.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_step_into_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_step_into_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_step_out_color.gif -text
@@ -2927,6 +2935,7 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_view_measure_plus_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_view_small_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_view_small_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_void_pointer.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_void_pointer.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_void_pointer_old.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_windows_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_windows_gray.gif -text
@@ -2935,6 +2944,7 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_windows_text_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_wizard_ace_project.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_wizard_blank_project.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_wizard_project.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_word_wrap_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_zoom_in.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_zoom_in_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_zoom_in_gray.gif -text
