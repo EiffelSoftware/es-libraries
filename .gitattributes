@@ -96,6 +96,8 @@ Delivery/bench/bitmaps/cursor/object.ico -text
 Delivery/bench/bitmaps/cursor/stopexec.ico -text
 Delivery/bench/bitmaps/ico/icon_back_color.ico -text
 Delivery/bench/bitmaps/ico/icon_back_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_bkpt_info_color.ico -text
+Delivery/bench/bitmaps/ico/icon_bkpt_info_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_bon_deferred.ico -text
 Delivery/bench/bitmaps/ico/icon_bon_effective.ico -text
 Delivery/bench/bitmaps/ico/icon_bon_interfaced.ico -text
@@ -732,6 +734,8 @@ Delivery/studio/bitmaps/cursor/object.ico -text
 Delivery/studio/bitmaps/cursor/stopexec.ico -text
 Delivery/studio/bitmaps/ico/icon_back_color.ico -text
 Delivery/studio/bitmaps/ico/icon_back_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_bkpt_info_color.ico -text
+Delivery/studio/bitmaps/ico/icon_bkpt_info_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_bon_deferred.ico -text
 Delivery/studio/bitmaps/ico/icon_bon_effective.ico -text
 Delivery/studio/bitmaps/ico/icon_bon_interfaced.ico -text
