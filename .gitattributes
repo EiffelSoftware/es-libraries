@@ -177,6 +177,7 @@ Delivery/build/template/groups svneol=native#unset
 Delivery/build/template/namer svneol=native#unset
 Delivery/build/template/states svneol=native#unset
 Delivery/build/template/trans svneol=native#unset
+Delivery/case/Non_configurable/filters.zip svneol=native#unset
 Delivery/case/Non_configurable/postscript.zip svneol=native#unset
 Delivery/case/Non_configurable/resources.zip svneol=native#unset
 Delivery/studio/bitmaps/xpm/expldot.xpm svneol=native#unset
