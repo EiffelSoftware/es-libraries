@@ -1005,6 +1005,9 @@ Src/resource_bench/RB_documentation/examples/icon_2.ico svneol=native#unset
 Src/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#unset
 Src/resource_bench/rb.ico svneol=native#unset
 Src/resource_bench/toolbar.bmp svneol=native#unset
+free_add_ons/gobo/bin/gelex.exe -text
+free_add_ons/gobo/bin/gepp.exe -text
+free_add_ons/gobo/bin/geyacc.exe -text
 free_add_ons/gobo/doc/image/book/compiler_design.gif svneol=native#unset
 free_add_ons/gobo/doc/image/book/compilers.gif svneol=native#unset
 free_add_ons/gobo/doc/image/book/design_patterns.gif svneol=native#unset
