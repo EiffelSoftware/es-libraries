@@ -1865,6 +1865,8 @@ Delivery/xmldoc/tools/wizards/com/images/wizard-8.gif -text
 Src/C_library/expat/expat.suo -text
 Src/C_library/libpng/contrib/visupng/VisualPng.ico svneol=native#unset
 Src/C_library/libpng/pngbar.jpg svneol=native#unset
+Src/C_library/libpng/projects/beos/x86-shared.proj svneol=native#unset
+Src/C_library/libpng/projects/beos/x86-static.proj svneol=native#unset
 Src/bench/C/ipc/daemon/estudio.ico -text
 Src/bench/C/ipc/daemon/splash.bmp -text
 Src/bench/C/rt_converter.exe -text
