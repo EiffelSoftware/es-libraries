@@ -2242,6 +2242,8 @@ Src/com_wizard/project/gui/binaries/Wizard3.bmp -text
 Src/com_wizard/project/gui/binaries/Wizard4.bmp -text
 Src/com_wizard/project/gui/binaries/WizardSplash.bmp -text
 Src/com_wizard/project/gui/binaries/toolbar.bmp -text
+Src/dotnet/eac_browser/ressources/eac_ico/icon_all_features.ico -text
+Src/dotnet/eac_browser/ressources/eac_ico/icon_ancestors.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_assembly.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_attribute_symbol.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_class.ico -text
