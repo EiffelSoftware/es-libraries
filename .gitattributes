@@ -1378,6 +1378,13 @@ Delivery/newdocs/images/eiffelstudio/metrics_png/scopecombobox.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/sratio.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/unit.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text
+Delivery/newdocs/images/eiffelstudio/profiler_process.png -text
+Delivery/newdocs/images/eiffelstudio/profiler_query_window.png -text
+Delivery/newdocs/images/eiffelstudio/profiler_wizard_first_state.png -text
+Delivery/newdocs/images/eiffelstudio/profiler_wizard_fourth_state.png -text
+Delivery/newdocs/images/eiffelstudio/profiler_wizard_rtir_error_state.png -text
+Delivery/newdocs/images/eiffelstudio/profiler_wizard_second_state.png -text
+Delivery/newdocs/images/eiffelstudio/profiler_wizard_third_state.png -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
