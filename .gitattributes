@@ -366,6 +366,7 @@ Delivery/bench/bitmaps/png/header_open.png -text
 Delivery/bench/bitmaps/png/header_open_highlight.png -text
 Delivery/bench/bitmaps/png/histback.png -text
 Delivery/bench/bitmaps/png/histfort.png -text
+Delivery/bench/bitmaps/png/icon_add_exported_feature_color.png -text
 Delivery/bench/bitmaps/png/icon_attribute_symbol.png -text
 Delivery/bench/bitmaps/png/icon_back_color.png -text
 Delivery/bench/bitmaps/png/icon_bkpt_info_color.png -text
@@ -384,6 +385,7 @@ Delivery/bench/bitmaps/png/icon_bpenabled_top.png -text
 Delivery/bench/bitmaps/png/icon_bpslot.png -text
 Delivery/bench/bitmaps/png/icon_bpslot_stopped.png -text
 Delivery/bench/bitmaps/png/icon_bpslot_top.png -text
+Delivery/bench/bitmaps/png/icon_check_exports_color.png -text
 Delivery/bench/bitmaps/png/icon_class.png -text
 Delivery/bench/bitmaps/png/icon_class_color.png -text
 Delivery/bench/bitmaps/png/icon_class_header_color.png -text
@@ -428,6 +430,7 @@ Delivery/bench/bitmaps/png/icon_dotnet_import_color.png -text
 Delivery/bench/bitmaps/png/icon_down_triangle.png -text
 Delivery/bench/bitmaps/png/icon_dummy.png -text
 Delivery/bench/bitmaps/png/icon_dynamiclib_window.png -text
+Delivery/bench/bitmaps/png/icon_edit_exported_feature_color.png -text
 Delivery/bench/bitmaps/png/icon_enable_bkpt_color.png -text
 Delivery/bench/bitmaps/png/icon_exec_quit_color.png -text
 Delivery/bench/bitmaps/png/icon_exec_step_color.png -text
@@ -489,7 +492,10 @@ Delivery/bench/bitmaps/png/icon_new_class_color.png -text
 Delivery/bench/bitmaps/png/icon_new_class_small_color.png -text
 Delivery/bench/bitmaps/png/icon_new_cluster_color.png -text
 Delivery/bench/bitmaps/png/icon_new_cluster_small_color.png -text
+Delivery/bench/bitmaps/png/icon_new_context_window_color.png -text
 Delivery/bench/bitmaps/png/icon_new_development_tool_color.png -text
+Delivery/bench/bitmaps/png/icon_new_dynamic_lib_color.png -text
+Delivery/bench/bitmaps/png/icon_new_editor_color.png -text
 Delivery/bench/bitmaps/png/icon_new_feature_color.png -text
 Delivery/bench/bitmaps/png/icon_new_feature_small_color.png -text
 Delivery/bench/bitmaps/png/icon_new_inherit_color.png -text
@@ -507,11 +513,13 @@ Delivery/bench/bitmaps/png/icon_preferences_folder.png -text
 Delivery/bench/bitmaps/png/icon_preferences_root.png -text
 Delivery/bench/bitmaps/png/icon_pretty_print_16.png -text
 Delivery/bench/bitmaps/png/icon_pretty_print_8.png -text
+Delivery/bench/bitmaps/png/icon_print_color.png -text
 Delivery/bench/bitmaps/png/icon_profiler_window.png -text
 Delivery/bench/bitmaps/png/icon_progress_dialog.png -text
 Delivery/bench/bitmaps/png/icon_recycle_bin_color.png -text
 Delivery/bench/bitmaps/png/icon_red_cross.png -text
 Delivery/bench/bitmaps/png/icon_redo_color.png -text
+Delivery/bench/bitmaps/png/icon_remove_exported_feature_color.png -text
 Delivery/bench/bitmaps/png/icon_reset_diagram_color.png -text
 Delivery/bench/bitmaps/png/icon_restore_all_color.png -text
 Delivery/bench/bitmaps/png/icon_restore_color.png -text
@@ -1830,6 +1838,7 @@ Delivery/studio/bitmaps/png/header_open.png -text
 Delivery/studio/bitmaps/png/header_open_highlight.png -text
 Delivery/studio/bitmaps/png/histback.png -text
 Delivery/studio/bitmaps/png/histfort.png -text
+Delivery/studio/bitmaps/png/icon_add_exported_feature_color.png -text
 Delivery/studio/bitmaps/png/icon_attribute_symbol.png -text
 Delivery/studio/bitmaps/png/icon_back_color.png -text
 Delivery/studio/bitmaps/png/icon_bkpt_info_color.png -text
@@ -1848,6 +1857,7 @@ Delivery/studio/bitmaps/png/icon_bpenabled_top.png -text
 Delivery/studio/bitmaps/png/icon_bpslot.png -text
 Delivery/studio/bitmaps/png/icon_bpslot_stopped.png -text
 Delivery/studio/bitmaps/png/icon_bpslot_top.png -text
+Delivery/studio/bitmaps/png/icon_check_exports_color.png -text
 Delivery/studio/bitmaps/png/icon_class.png -text
 Delivery/studio/bitmaps/png/icon_class_color.png -text
 Delivery/studio/bitmaps/png/icon_class_header_color.png -text
@@ -1892,6 +1902,7 @@ Delivery/studio/bitmaps/png/icon_dotnet_import_color.png -text
 Delivery/studio/bitmaps/png/icon_down_triangle.png -text
 Delivery/studio/bitmaps/png/icon_dummy.png -text
 Delivery/studio/bitmaps/png/icon_dynamiclib_window.png -text
+Delivery/studio/bitmaps/png/icon_edit_exported_feature_color.png -text
 Delivery/studio/bitmaps/png/icon_enable_bkpt_color.png -text
 Delivery/studio/bitmaps/png/icon_exec_quit_color.png -text
 Delivery/studio/bitmaps/png/icon_exec_step_color.png -text
@@ -1953,7 +1964,10 @@ Delivery/studio/bitmaps/png/icon_new_class_color.png -text
 Delivery/studio/bitmaps/png/icon_new_class_small_color.png -text
 Delivery/studio/bitmaps/png/icon_new_cluster_color.png -text
 Delivery/studio/bitmaps/png/icon_new_cluster_small_color.png -text
+Delivery/studio/bitmaps/png/icon_new_context_window_color.png -text
 Delivery/studio/bitmaps/png/icon_new_development_tool_color.png -text
+Delivery/studio/bitmaps/png/icon_new_dynamic_lib_color.png -text
+Delivery/studio/bitmaps/png/icon_new_editor_color.png -text
 Delivery/studio/bitmaps/png/icon_new_feature_color.png -text
 Delivery/studio/bitmaps/png/icon_new_feature_small_color.png -text
 Delivery/studio/bitmaps/png/icon_new_inherit_color.png -text
@@ -1971,11 +1985,13 @@ Delivery/studio/bitmaps/png/icon_preferences_folder.png -text
 Delivery/studio/bitmaps/png/icon_preferences_root.png -text
 Delivery/studio/bitmaps/png/icon_pretty_print_16.png -text
 Delivery/studio/bitmaps/png/icon_pretty_print_8.png -text
+Delivery/studio/bitmaps/png/icon_print_color.png -text
 Delivery/studio/bitmaps/png/icon_profiler_window.png -text
 Delivery/studio/bitmaps/png/icon_progress_dialog.png -text
 Delivery/studio/bitmaps/png/icon_recycle_bin_color.png -text
 Delivery/studio/bitmaps/png/icon_red_cross.png -text
 Delivery/studio/bitmaps/png/icon_redo_color.png -text
+Delivery/studio/bitmaps/png/icon_remove_exported_feature_color.png -text
 Delivery/studio/bitmaps/png/icon_reset_diagram_color.png -text
 Delivery/studio/bitmaps/png/icon_restore_all_color.png -text
 Delivery/studio/bitmaps/png/icon_restore_color.png -text
