@@ -1001,6 +1001,8 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/browsing_tools/main_toolbars.png -text
+Delivery/newdocs/images/eiffelstudio/browsing_tools/toolbar_customization_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/color-dialog-windows.png -text
 Delivery/newdocs/images/eiffelstudio/context-dialog-class.png -text
 Delivery/newdocs/images/eiffelstudio/context-dialog-cluster.png -text
@@ -1061,6 +1063,9 @@ Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_wizard_fourth_
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_wizard_rtir_error_state.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_wizard_second_state.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/profiler_wizard_third_state.png -text
+Delivery/newdocs/images/eiffelstudio/editor_auto_completion_window.png -text
+Delivery/newdocs/images/eiffelstudio/editor_pick_and_drop.png -text
+Delivery/newdocs/images/eiffelstudio/general_edition_mode.png -text
 Delivery/newdocs/images/eiffelstudio/history-tool.png -text
 Delivery/newdocs/images/eiffelstudio/icons/Xclass.gif -text
 Delivery/newdocs/images/eiffelstudio/icons/Xclientlnk.gif -text
@@ -1404,6 +1409,7 @@ Delivery/newdocs/images/eiffelstudio/metrics_png/scopecombobox.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/sratio.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/unit.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text
+Delivery/newdocs/images/eiffelstudio/preferences_dialog.png -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
