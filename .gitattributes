@@ -1,1 +1,4 @@
 * text=auto !eol
+Src/build/Clib/motif/efb.a svneol=native#unset
+Src/build/Clib/openlook/efb.a svneol=native#unset
+Src/build/Clib/openlook/efb_openlook svneol=native#unset
