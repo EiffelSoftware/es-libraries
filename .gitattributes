@@ -122,6 +122,8 @@ Delivery/bench/bitmaps/ico/icon_cluster_tool_color.ico -text
 Delivery/bench/bitmaps/ico/icon_cluster_tool_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_cluster_tool_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_cluster_tool_text_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_cmd_history_color.ico -text
+Delivery/bench/bitmaps/ico/icon_cmd_history_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_color_color.ico -text
 Delivery/bench/bitmaps/ico/icon_color_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_compile_color.ico -text
@@ -731,6 +733,8 @@ Delivery/studio/bitmaps/ico/icon_cluster_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_cluster_tool_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_cluster_tool_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_cluster_tool_text_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_cmd_history_color.ico -text
+Delivery/studio/bitmaps/ico/icon_cmd_history_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_color_color.ico -text
 Delivery/studio/bitmaps/ico/icon_color_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_compile_color.ico -text
