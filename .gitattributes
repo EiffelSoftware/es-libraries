@@ -257,6 +257,7 @@ Delivery/bench/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/bench/bitmaps/ico/icon_open_file_color.ico -text
 Delivery/bench/bitmaps/ico/icon_open_project.ico -text
 Delivery/bench/bitmaps/ico/icon_past_color.ico -text
+Delivery/bench/bitmaps/ico/icon_preference_window.ico -text
 Delivery/bench/bitmaps/ico/icon_preferences_folder.ico -text
 Delivery/bench/bitmaps/ico/icon_preferences_root.ico -text
 Delivery/bench/bitmaps/ico/icon_pretty_print_16.ico -text
@@ -1729,6 +1730,7 @@ Delivery/studio/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_open_file_color.ico -text
 Delivery/studio/bitmaps/ico/icon_open_project.ico -text
 Delivery/studio/bitmaps/ico/icon_past_color.ico -text
+Delivery/studio/bitmaps/ico/icon_preference_window.ico -text
 Delivery/studio/bitmaps/ico/icon_preferences_folder.ico -text
 Delivery/studio/bitmaps/ico/icon_preferences_root.ico -text
 Delivery/studio/bitmaps/ico/icon_pretty_print_16.ico -text
