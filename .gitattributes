@@ -534,13 +534,16 @@ Delivery/docs/_vti_pvt/service.lck -text svneol=unset#application/octet-stream
 Delivery/docs/_vti_pvt/services.cnf -text svneol=unset#application/octet-stream
 Delivery/docs/_vti_pvt/structure.cnf -text svneol=unset#application/octet-stream
 Delivery/docs/_vti_pvt/writeto.cnf -text svneol=unset#application/octet-stream
+Delivery/docs/images/analyz.gif -text
 Delivery/docs/images/banner.gif -text
 Delivery/docs/images/books-right.gif -text
 Delivery/docs/images/boosc.gif -text
 Delivery/docs/images/bottom.gif -text
+Delivery/docs/images/browse.gif -text
 Delivery/docs/images/bullet1.gif -text
 Delivery/docs/images/bullet2.gif -text
 Delivery/docs/images/bullet3.gif -text
+Delivery/docs/images/collaps.gif -text
 Delivery/docs/images/creation.gif -text
 Delivery/docs/images/danger.gif -text
 Delivery/docs/images/debugg10.gif -text
@@ -560,6 +563,7 @@ Delivery/docs/images/dynicon.gif -text
 Delivery/docs/images/dyntool.gif -text
 Delivery/docs/images/environment.gif -text
 Delivery/docs/images/etl.gif -text
+Delivery/docs/images/expand.gif -text
 Delivery/docs/images/format.gif -text
 Delivery/docs/images/icons/back.gif -text
 Delivery/docs/images/icons/down.gif -text
@@ -636,6 +640,7 @@ Delivery/docs/images/icons/web_mail.gif -text
 Delivery/docs/images/instal16.gif -text
 Delivery/docs/images/instal17.gif -text
 Delivery/docs/images/ise-left.gif -text
+Delivery/docs/images/linked_list.gif -text
 Delivery/docs/images/logo.gif -text
 Delivery/docs/images/objsuccess.gif -text
 Delivery/docs/images/ooapp.gif -text
@@ -646,9 +651,12 @@ Delivery/docs/images/opendyn.gif -text
 Delivery/docs/images/opensave.gif -text
 Delivery/docs/images/oue-small.jpg -text
 Delivery/docs/images/power.gif -text
+Delivery/docs/images/prepro.gif -text
 Delivery/docs/images/profil1.gif -text
 Delivery/docs/images/profil3.gif -text
 Delivery/docs/images/profil4.gif -text
+Delivery/docs/images/rb.gif -text
+Delivery/docs/images/retriev.gif -text
 Delivery/docs/images/reuse.gif -text
 Delivery/docs/images/rist.gif -text
 Delivery/docs/images/seamless.gif -text
