@@ -2122,6 +2122,7 @@ Src/build2/bitmaps/ico/icon_build_window_color.ico -text
 Src/build2/bitmaps/ico/icon_builder_window_color.ico -text
 Src/build2/bitmaps/ico/icon_close_color.ico -text
 Src/build2/bitmaps/ico/icon_cmd_history_color.ico -text
+Src/build2/bitmaps/ico/icon_cmd_history_title_color.ico -text
 Src/build2/bitmaps/ico/icon_code_generation_color.ico -text
 Src/build2/bitmaps/ico/icon_component_build_view_color.ico -text
 Src/build2/bitmaps/ico/icon_component_display_view_color.ico -text
@@ -2199,6 +2200,7 @@ Src/build2/bitmaps/png/icon_build_window_color.png -text
 Src/build2/bitmaps/png/icon_builder_window_color.png -text
 Src/build2/bitmaps/png/icon_close_color.png -text
 Src/build2/bitmaps/png/icon_cmd_history_color.png -text
+Src/build2/bitmaps/png/icon_cmd_history_title_color.png -text
 Src/build2/bitmaps/png/icon_code_generation_color.png -text
 Src/build2/bitmaps/png/icon_component_build_view_color.png -text
 Src/build2/bitmaps/png/icon_component_display_view_color.png -text
