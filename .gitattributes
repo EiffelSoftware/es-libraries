@@ -1447,6 +1447,7 @@ Delivery/studio/bitmaps/ico/icon_expand_string_color.ico -text
 Delivery/studio/bitmaps/ico/icon_expanded_object.ico -text
 Delivery/studio/bitmaps/ico/icon_export_to_png_color.ico -text
 Delivery/studio/bitmaps/ico/icon_external_feature.ico -text
+Delivery/studio/bitmaps/ico/icon_external_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_text_color.ico -text
@@ -1743,6 +1744,7 @@ Delivery/studio/bitmaps/png/icon_expand_string_color.png -text
 Delivery/studio/bitmaps/png/icon_expanded_object.png -text
 Delivery/studio/bitmaps/png/icon_export_to_png_color.png -text
 Delivery/studio/bitmaps/png/icon_external_feature.png -text
+Delivery/studio/bitmaps/png/icon_external_symbol.png -text
 Delivery/studio/bitmaps/png/icon_favorites_color.png -text
 Delivery/studio/bitmaps/png/icon_favorites_folder_color.png -text
 Delivery/studio/bitmaps/png/icon_favorites_text_color.png -text
