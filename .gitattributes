@@ -1918,11 +1918,6 @@ Src/help/wizards/eweb/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/wizard.ico -text
 Src/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
-Src/library/editor/bitmaps/copy_selection.png -text
-Src/library/editor/bitmaps/cut_selection.png -text
-Src/library/editor/bitmaps/icon_close_color.png -text
-Src/library/editor/bitmaps/left_scroll_arrow.png -text
-Src/library/editor/bitmaps/right_scroll_arrow.png -text
 Src/library/vision2/Clib/default_vision2_icon.ico -text
 Src/library/wel/extra/h2e.ico svneol=native#unset
 Src/library/wel/extra/h2e1.ico svneol=native#unset
