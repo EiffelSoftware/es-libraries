@@ -3370,6 +3370,7 @@ Src/tools/doc_builder/resources/icons/icon_code_feature.ico -text
 Src/tools/doc_builder/resources/icons/icon_code_format.ico -text
 Src/tools/doc_builder/resources/icons/icon_copy_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_cut_color.ico -text
+Src/tools/doc_builder/resources/icons/icon_down_triangle.ico -text
 Src/tools/doc_builder/resources/icons/icon_envision.ico -text
 Src/tools/doc_builder/resources/icons/icon_file_close.ico -text
 Src/tools/doc_builder/resources/icons/icon_format_text_color.ico -text
@@ -3378,6 +3379,7 @@ Src/tools/doc_builder/resources/icons/icon_html_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_ie.ico -text
 Src/tools/doc_builder/resources/icons/icon_info.ico -text
 Src/tools/doc_builder/resources/icons/icon_maximize_color.png -text
+Src/tools/doc_builder/resources/icons/icon_merge.ico -text
 Src/tools/doc_builder/resources/icons/icon_minimize_color.png -text
 Src/tools/doc_builder/resources/icons/icon_new.ico -text
 Src/tools/doc_builder/resources/icons/icon_new_color.ico -text
@@ -3392,6 +3394,7 @@ Src/tools/doc_builder/resources/icons/icon_restore_color.png -text
 Src/tools/doc_builder/resources/icons/icon_save.ico -text
 Src/tools/doc_builder/resources/icons/icon_search.ico -text
 Src/tools/doc_builder/resources/icons/icon_settings.ico -text
+Src/tools/doc_builder/resources/icons/icon_sorter.ico -text
 Src/tools/doc_builder/resources/icons/icon_studio.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_exclude.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_file_node.ico -text
