@@ -1115,6 +1115,8 @@ Delivery/newdocs/images/eiffelstudio/project_settings/clusters_options_tab.png -
 Delivery/newdocs/images/eiffelstudio/project_settings/clusters_options_tab_active.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/clusters_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/clusters_visible_tab.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/debug_args.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/debug_debug.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/debug_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/dotnet_assembly_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/dotnet_assembly_tab_editing.png -text
@@ -1124,6 +1126,13 @@ Delivery/newdocs/images/eiffelstudio/project_settings/externals_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/externals_tab_wel.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/general_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/general_tab_first.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/ildasm_dotnet_naming.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/ildasm_no_dotnet_naming.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/naming_guidelines_checked.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/naming_guidelines_unchecked.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/use_cluster_names.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/use_full_cluster_names.png -text
+Delivery/newdocs/images/eiffelstudio/project_settings/use_namespace_name.png -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
