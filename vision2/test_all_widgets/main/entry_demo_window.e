@@ -1,14 +1,14 @@
 indexing
 
 	description: 
-	"ENTRY_DEMO_WINDOW, demo window to test entry widget. Belongs to EiffelVision example."
+	"TEXT_FIELD_DEMO_WINDOW, demo window to test text_field widget. Belongs to EiffelVision example."
 	status: "See notice at end of class"
 	id: "$Id$"
 	date: "$Date$"
 	revision: "$Revision$"
 	
 class 
-	ENTRY_DEMO_WINDOW
+	TEXT_FIELD_DEMO_WINDOW
 
 inherit
 
@@ -21,7 +21,7 @@ creation
 
 feature -- Access
 
-	main_widget: EV_ENTRY is
+	main_widget: EV_TEXT_FIELD is
 		once
 			!!Result.make (Current)
 		end
@@ -36,7 +36,7 @@ feature -- Status setting
 	
 	set_values is
 		do
-			set_title ("Entry demo")
+			set_title ("Text field demo")
 		end
 	
 end
