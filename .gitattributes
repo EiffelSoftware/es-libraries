@@ -1999,6 +1999,7 @@ Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/method2/diamond_inherita
 Src/bench/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/bench/Eiffel/eiffel/com_il_generation/Core/core.key -text
 Src/bench/Eiffel/eiffel/com_il_generation/Core/ise_runtime.key -text
+Src/bench/Eiffel/eiffel/com_il_generation/Core/run-time/ise_runtime.key -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/Eiffel/interface/new_graphical/help/Clib/htmlhelp.lib -text
 Src/bench/com_compiler/ace_file/Eif_compiler.tlb -text
