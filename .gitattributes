@@ -185,7 +185,6 @@ Src/bench/Eiffel/interface/graphical/resource_file/es4.ico svneol=native#unset
 Src/build/Clib/motif/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb_openlook svneol=native#unset
-Src/examples/math/test_a02/cplx_tst.ico svneol=native#unset
 Src/examples/math/test_c02/tpoly.ico svneol=native#unset
 Src/examples/math/test_c05/tinteg.ico svneol=native#unset
 Src/examples/math/test_c06/fourie_t.ico svneol=native#unset
