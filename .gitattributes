@@ -343,6 +343,7 @@ Delivery/bench/bitmaps/ico/icon_toggle_clusters_color.ico -text
 Delivery/bench/bitmaps/ico/icon_toggle_clusters_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_tool_color.ico -text
 Delivery/bench/bitmaps/ico/icon_tool_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_toolbar_separator.ico -text
 Delivery/bench/bitmaps/ico/icon_undo_color.ico -text
 Delivery/bench/bitmaps/ico/icon_undo_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_unify_stone_color.ico -text
@@ -1544,6 +1545,7 @@ Delivery/studio/bitmaps/ico/icon_toggle_clusters_color.ico -text
 Delivery/studio/bitmaps/ico/icon_toggle_clusters_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_tool_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_toolbar_separator.ico -text
 Delivery/studio/bitmaps/ico/icon_undo_color.ico -text
 Delivery/studio/bitmaps/ico/icon_undo_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_unify_stone_color.ico -text
