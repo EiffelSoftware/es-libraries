@@ -696,6 +696,9 @@ Delivery/docs/pdf/active.pdf -text
 Delivery/docs/pdf/case_guide.pdf -text
 Delivery/docs/pdf/guided_tour.pdf -text
 Delivery/docs/pdf/style.pdf -text
+Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
+Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
+Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/casestor.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
