@@ -75,6 +75,9 @@ Delivery/build/bitmaps/ico/icon_new_editor_color.ico -text
 Delivery/build/bitmaps/ico/icon_object_editor_color.ico -text
 Delivery/build/bitmaps/ico/icon_object_symbol.ico -text
 Delivery/build/bitmaps/ico/icon_object_window_color.ico -text
+Delivery/build/bitmaps/ico/icon_preference_window.ico -text
+Delivery/build/bitmaps/ico/icon_preferences_folder.ico -text
+Delivery/build/bitmaps/ico/icon_preferences_root.ico -text
 Delivery/build/bitmaps/ico/icon_redo_color.ico -text
 Delivery/build/bitmaps/ico/icon_restore_color.ico -text
 Delivery/build/bitmaps/ico/icon_save_color.ico -text
@@ -161,6 +164,9 @@ Delivery/build/bitmaps/png/icon_new_editor_color.png -text
 Delivery/build/bitmaps/png/icon_object_editor_color.png -text
 Delivery/build/bitmaps/png/icon_object_symbol.png -text
 Delivery/build/bitmaps/png/icon_object_window_color.png -text
+Delivery/build/bitmaps/png/icon_preference_window.png -text
+Delivery/build/bitmaps/png/icon_preferences_folder.png -text
+Delivery/build/bitmaps/png/icon_preferences_root.png -text
 Delivery/build/bitmaps/png/icon_redo_color.png -text
 Delivery/build/bitmaps/png/icon_restore_color.png -text
 Delivery/build/bitmaps/png/icon_save_color.png -text
