@@ -247,6 +247,12 @@ Delivery/bench/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_gray.ico -text
+Delivery/bench/bitmaps/xpm/icon_zoom_in.gif svneol=native#unset
+Delivery/bench/bitmaps/xpm/icon_zoom_in_color.gif svneol=native#unset
+Delivery/bench/bitmaps/xpm/icon_zoom_in_gray.gif svneol=native#unset
+Delivery/bench/bitmaps/xpm/icon_zoom_out.gif svneol=native#unset
+Delivery/bench/bitmaps/xpm/icon_zoom_out_color.gif svneol=native#unset
+Delivery/bench/bitmaps/xpm/icon_zoom_out_gray.gif svneol=native#unset
 Delivery/build/bitmaps/bmp/align.bmp -text
 Delivery/build/bitmaps/bmp/arrow_b.bmp -text
 Delivery/build/bitmaps/bmp/attrib.bmp -text
@@ -1022,6 +1028,12 @@ Delivery/studio/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_gray.ico -text
+Delivery/studio/bitmaps/xpm/icon_zoom_in.gif svneol=native#unset
+Delivery/studio/bitmaps/xpm/icon_zoom_in_color.gif svneol=native#unset
+Delivery/studio/bitmaps/xpm/icon_zoom_in_gray.gif svneol=native#unset
+Delivery/studio/bitmaps/xpm/icon_zoom_out.gif svneol=native#unset
+Delivery/studio/bitmaps/xpm/icon_zoom_out_color.gif svneol=native#unset
+Delivery/studio/bitmaps/xpm/icon_zoom_out_gray.gif svneol=native#unset
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text
 Delivery/wizards/com/eiffelcom.GID -text
