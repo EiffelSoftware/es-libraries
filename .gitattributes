@@ -1290,17 +1290,17 @@ Delivery/newdocs/images/eiffelstudio/metrics_png/archive_compare.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/archive_compare_result.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/archive_create.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/archive_update.png -text
-Delivery/newdocs/images/eiffelstudio/metrics_png/calculate.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/dclasses.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/ddependents.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/delete.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/derived.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/details.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/dfeatures.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/edit.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/fields.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/import.png -text svneol=unset#application/octet-stream
-Delivery/newdocs/images/eiffelstudio/metrics_png/linear.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/calculate.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/dclasses.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/ddependents.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/delete.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/derived.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/details.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/dfeatures.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/edit.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/fields.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/import.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/linear.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/manage.png -text svneol=unset#application/octet-stream
 Delivery/newdocs/images/eiffelstudio/metrics_png/metric_tool.png -text svneol=unset#application/octet-stream
 Delivery/newdocs/images/eiffelstudio/metrics_png/metricmenu.png -text svneol=unset#application/octet-stream
