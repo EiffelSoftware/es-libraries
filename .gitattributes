@@ -90,6 +90,7 @@ Delivery/bench/bitmaps/cursor/clientlnk.ico -text
 Delivery/bench/bitmaps/cursor/cluster.ico -text
 Delivery/bench/bitmaps/cursor/favorites_folder.ico -text
 Delivery/bench/bitmaps/cursor/feature.ico -text
+Delivery/bench/bitmaps/cursor/hourglass.ico -text
 Delivery/bench/bitmaps/cursor/inheritlnk.ico -text
 Delivery/bench/bitmaps/cursor/object.ico -text
 Delivery/bench/bitmaps/cursor/stopexec.ico -text
@@ -683,6 +684,7 @@ Delivery/studio/bitmaps/cursor/clientlnk.ico -text
 Delivery/studio/bitmaps/cursor/cluster.ico -text
 Delivery/studio/bitmaps/cursor/favorites_folder.ico -text
 Delivery/studio/bitmaps/cursor/feature.ico -text
+Delivery/studio/bitmaps/cursor/hourglass.ico -text
 Delivery/studio/bitmaps/cursor/inheritlnk.ico -text
 Delivery/studio/bitmaps/cursor/object.ico -text
 Delivery/studio/bitmaps/cursor/stopexec.ico -text
