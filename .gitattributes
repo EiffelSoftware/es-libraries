@@ -2087,6 +2087,13 @@ Src/com_wizard/project/gui/binaries/WizardSplash.bmp -text
 Src/com_wizard/project/gui/binaries/toolbar.bmp -text
 Src/dotnet/reflection_interface/ISE.Reflection.Emitter/Formatter.key -text
 Src/dotnet/reflection_interface/ISE.Reflection.Emitter/Key -text
+Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitter/Emitter.key svneol=native#unset
+Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitter/Formatter.key svneol=native#unset
+Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitter/ISE.Reflection.Emitter.exe -text
+Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitter/ISE.Reflection.Formatter.dll svneol=native#unset
+Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitter/Tester.key svneol=native#unset
+Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitter/key svneol=native#unset
+Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Formatter/ISE.Reflection.Formatter.dll svneol=native#unset
 Src/dotnet/reflection_interface/assembly_manager/folder_dialog/Core/FolderDialog.key -text
 Src/dotnet/reflection_interface/assembly_manager/gac_browser/WindowsDirectoryExtractor.key -text
 Src/dotnet/reflection_interface/docs/images/about_ise_assembly_manager.png -text
