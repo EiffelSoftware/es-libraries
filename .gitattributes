@@ -152,6 +152,7 @@ Delivery/bench/bitmaps/ico/icon_development_window.ico -text
 Delivery/bench/bitmaps/ico/icon_disable_bkpt_color.ico -text
 Delivery/bench/bitmaps/ico/icon_display_labels_color.ico -text
 Delivery/bench/bitmaps/ico/icon_document_color.ico -text
+Delivery/bench/bitmaps/ico/icon_dotnet_import_color.ico -text
 Delivery/bench/bitmaps/ico/icon_down_triangle.ico -text
 Delivery/bench/bitmaps/ico/icon_dummy.ico -text
 Delivery/bench/bitmaps/ico/icon_dynamiclib_window.ico -text
@@ -1564,6 +1565,7 @@ Delivery/studio/bitmaps/ico/icon_development_window.ico -text
 Delivery/studio/bitmaps/ico/icon_disable_bkpt_color.ico -text
 Delivery/studio/bitmaps/ico/icon_display_labels_color.ico -text
 Delivery/studio/bitmaps/ico/icon_document_color.ico -text
+Delivery/studio/bitmaps/ico/icon_dotnet_import_color.ico -text
 Delivery/studio/bitmaps/ico/icon_down_triangle.ico -text
 Delivery/studio/bitmaps/ico/icon_dummy.ico -text
 Delivery/studio/bitmaps/ico/icon_dynamiclib_window.ico -text
