@@ -2073,7 +2073,6 @@ Src/build2/bitmaps/ico/ev_cell.ico -text
 Src/build2/bitmaps/ico/ev_check_button.ico -text
 Src/build2/bitmaps/ico/ev_check_menu_item.ico -text
 Src/build2/bitmaps/ico/ev_combo_box.ico -text
-Src/build2/bitmaps/ico/ev_combobox.ico -text
 Src/build2/bitmaps/ico/ev_container.ico -text
 Src/build2/bitmaps/ico/ev_drawing_area.ico -text
 Src/build2/bitmaps/ico/ev_fixed.ico -text
@@ -2117,7 +2116,6 @@ Src/build2/bitmaps/ico/ev_vertical_range.ico -text
 Src/build2/bitmaps/ico/ev_vertical_scroll_bar.ico -text
 Src/build2/bitmaps/ico/ev_vertical_separator.ico -text
 Src/build2/bitmaps/ico/ev_vertical_split_area.ico -text
-Src/build2/bitmaps/ico/ev_vertital_split_area.ico -text
 Src/build2/bitmaps/ico/ev_viewport.ico -text
 Src/build2/bitmaps/ico/icon_build_window_color.ico -text
 Src/build2/bitmaps/ico/icon_builder_window_color.ico -text
