@@ -1024,6 +1024,12 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
+Delivery/newdocs/general/guided_tour/firstdoc.gif -text
+Delivery/newdocs/general/guided_tour/greenball.gif -text
+Delivery/newdocs/general/guided_tour/lastdoc.gif -text
+Delivery/newdocs/general/guided_tour/normaldoc.gif -text
+Delivery/newdocs/general/guided_tour/power.gif -text
+Delivery/newdocs/general/guided_tour/topdoc.gif -text
 Delivery/newdocs/greenball.gif -text
 Delivery/newdocs/images/eiffelstudio/browsing_tools/cluster_tool.png -text
 Delivery/newdocs/images/eiffelstudio/browsing_tools/cluster_tree.png -text
