@@ -2215,12 +2215,15 @@ Src/dotnet/reflection_interface/docs/images/eiffel_generation_dialog.png -text
 Src/dotnet/reflection_interface/docs/images/eiffel_generation_editable_dialog.png -text
 Src/dotnet/reflection_interface/docs/images/eiffel_generation_message_box.png -text
 Src/dotnet/reflection_interface/docs/images/eiffel_generation_toolbar_button.png -text
+Src/dotnet/reflection_interface/docs/images/eiffel_studio_toolbar_button.png -text
+Src/dotnet/reflection_interface/docs/images/eiffel_studio_tools_menu.png -text
 Src/dotnet/reflection_interface/docs/images/errors_type_view.png -text
 Src/dotnet/reflection_interface/docs/images/file_menu.png -text
 Src/dotnet/reflection_interface/docs/images/file_menu_in_import_tool.png -text
 Src/dotnet/reflection_interface/docs/images/help_menu.png -text
 Src/dotnet/reflection_interface/docs/images/help_menu_in_import_tool.png -text
 Src/dotnet/reflection_interface/docs/images/help_toolbar_button.png -text
+Src/dotnet/reflection_interface/docs/images/help_window.png -text
 Src/dotnet/reflection_interface/docs/images/import_dialog.png -text
 Src/dotnet/reflection_interface/docs/images/import_dialog_toolbar_button.png -text
 Src/dotnet/reflection_interface/docs/images/import_editable_dialog.png -text
