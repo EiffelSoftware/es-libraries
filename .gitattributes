@@ -1574,6 +1574,7 @@ Delivery/xmldoc/technologies/unicode/windows9x/lastdoc.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/normaldoc.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/power.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/topdoc.gif -text
+Delivery/xmldoc/tools/wizards/com/images/client_inheritance.png -text
 Delivery/xmldoc/tools/wizards/com/images/com_image10.gif -text
 Delivery/xmldoc/tools/wizards/com/images/com_image11.gif -text
 Delivery/xmldoc/tools/wizards/com/images/com_image12.gif -text
@@ -1599,6 +1600,12 @@ Delivery/xmldoc/tools/wizards/com/images/com_image6.gif -text
 Delivery/xmldoc/tools/wizards/com/images/com_image7.gif -text
 Delivery/xmldoc/tools/wizards/com/images/com_image8.gif -text
 Delivery/xmldoc/tools/wizards/com/images/com_image9.gif -text
+Delivery/xmldoc/tools/wizards/com/images/exception_raising.png -text
+Delivery/xmldoc/tools/wizards/com/images/folders.png -text
+Delivery/xmldoc/tools/wizards/com/images/implemented_interface.png -text
+Delivery/xmldoc/tools/wizards/com/images/implemented_interface_server.png -text
+Delivery/xmldoc/tools/wizards/com/images/interface_inheritance.png -text
+Delivery/xmldoc/tools/wizards/com/images/interface_inheritance_server.png -text
 Delivery/xmldoc/tools/wizards/com/images/wizard-1.gif -text
 Delivery/xmldoc/tools/wizards/com/images/wizard-12.gif -text
 Delivery/xmldoc/tools/wizards/com/images/wizard-13.gif -text
