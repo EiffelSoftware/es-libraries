@@ -3555,6 +3555,7 @@ Src/tools/doc_builder/resources/icons/icon_html_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_ie.ico -text
 Src/tools/doc_builder/resources/icons/icon_info.ico -text
 Src/tools/doc_builder/resources/icons/icon_jpeg_file.ico -text
+Src/tools/doc_builder/resources/icons/icon_link_check_ico.ico -text
 Src/tools/doc_builder/resources/icons/icon_maximize_color.png -text
 Src/tools/doc_builder/resources/icons/icon_merge.ico -text
 Src/tools/doc_builder/resources/icons/icon_minimize_color.png -text
