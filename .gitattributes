@@ -170,13 +170,6 @@ Delivery/build/bitmaps/bmp/wdgt_dst.bmp -text
 Delivery/build/bitmaps/bmp/windows.bmp -text
 Delivery/build/bitmaps/xpm/common/save.xpm svneol=native#unset
 Delivery/build/bitmaps/xpm/save.xpm svneol=native#unset
-Delivery/build/template/application svneol=native#unset
-Delivery/build/template/commands svneol=native#unset
-Delivery/build/template/contexts svneol=native#unset
-Delivery/build/template/groups svneol=native#unset
-Delivery/build/template/namer svneol=native#unset
-Delivery/build/template/states svneol=native#unset
-Delivery/build/template/trans svneol=native#unset
 Delivery/studio/bitmaps/xpm/expldot.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/general.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/graph.xpm svneol=native#unset
