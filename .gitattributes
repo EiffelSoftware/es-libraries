@@ -1953,6 +1953,7 @@ Src/build2/bitmaps/ico/icon_object_editor_color.ico -text
 Src/build2/bitmaps/ico/icon_object_symbol.ico -text
 Src/build2/bitmaps/ico/icon_object_window_color.ico -text
 Src/build2/bitmaps/ico/icon_redo_color.ico -text
+Src/build2/bitmaps/ico/icon_restore_color.ico -text
 Src/build2/bitmaps/ico/icon_save_color.ico -text
 Src/build2/bitmaps/ico/icon_system_color.ico -text
 Src/build2/bitmaps/ico/icon_undo_color.ico -text
@@ -1977,6 +1978,7 @@ Src/build2/bitmaps/png/icon_object_editor_color.png -text
 Src/build2/bitmaps/png/icon_object_symbol.png -text
 Src/build2/bitmaps/png/icon_object_window_color.png -text
 Src/build2/bitmaps/png/icon_redo_color.png -text
+Src/build2/bitmaps/png/icon_restore_color.png -text
 Src/build2/bitmaps/png/icon_save_color.png -text
 Src/build2/bitmaps/png/icon_system_color.png -text
 Src/build2/bitmaps/png/icon_undo_color.png -text
