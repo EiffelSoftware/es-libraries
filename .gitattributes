@@ -1024,6 +1024,9 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
+Delivery/newdocs/PDF/invitation.pdf -text
+Delivery/newdocs/PDF/tour.pdf -text
+Delivery/newdocs/PDF/tutorial.pdf -text
 Delivery/newdocs/general/guided_tour/firstdoc.gif -text
 Delivery/newdocs/general/guided_tour/greenball.gif -text
 Delivery/newdocs/general/guided_tour/language/firstdoc.gif -text
@@ -1711,7 +1714,6 @@ Delivery/newdocs/images/eiffelstudio/project_settings/debug_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/externals_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/general_tab.png -text
 Delivery/newdocs/images/eiffelstudio/project_settings/general_tab_first.png -text
-Delivery/newdocs/invitation.pdf -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
@@ -1855,8 +1857,6 @@ Delivery/newdocs/tools/wizards/com/images/wizard-1.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-12.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-13.gif -text
 Delivery/newdocs/tools/wizards/com/images/wizard-8.gif -text
-Delivery/newdocs/tour.pdf -text
-Delivery/newdocs/tutorial.pdf -text
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
 Delivery/studio/bitmaps/bmp/classdot.bmp -text
