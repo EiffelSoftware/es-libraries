@@ -1958,6 +1958,8 @@ Src/resource_bench/RB_documentation/examples/icon_2.ico svneol=native#unset
 Src/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#unset
 Src/resource_bench/rb.ico svneol=native#unset
 Src/resource_bench/toolbar.bmp svneol=native#unset
+Src/tools/doc_builder/Assemblies_10/AxShDocVw.dll -text
+Src/tools/doc_builder/Assemblies_10/SHDocVw.dll -text
 Src/tools/doc_builder/Clib/htmlhelp.lib -text
 Src/tools/doc_builder/NetSpell.SpellChecker.DLL -text
 Src/tools/doc_builder/documentation/help.chm svneol=native#unset
