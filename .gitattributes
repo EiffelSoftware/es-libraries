@@ -1046,6 +1046,7 @@ Delivery/newdocs/images/eiffelstudio/feature-wizard-tupletype2.png -text
 Delivery/newdocs/images/eiffelstudio/feature-wizard-typeselection.png -text
 Delivery/newdocs/images/eiffelstudio/feature-wizard.png -text
 Delivery/newdocs/images/eiffelstudio/history-tool.png -text
+Delivery/newdocs/images/eiffelstudio/icon_add_exported_feature_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_attribute_symbol.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_back_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_back_gray.gif -text
@@ -1066,6 +1067,7 @@ Delivery/newdocs/images/eiffelstudio/icon_bpenabled_top.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_bpslot.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_bpslot_stopped.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_bpslot_top.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_check_exports_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_class.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_class_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_class_gray.gif -text
@@ -1121,6 +1123,7 @@ Delivery/newdocs/images/eiffelstudio/icon_delete_view_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_delete_view_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_descendants_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_development_window.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_dialog_window.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_disable_bkpt_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_disable_bkpt_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_display_labels_color.gif -text
@@ -1131,6 +1134,7 @@ Delivery/newdocs/images/eiffelstudio/icon_dotnet_import_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_down_triangle.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_dummy.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_dynamiclib_window.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_edit_exported_feature_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_enable_bkpt_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_enable_bkpt_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_exec_quit_color.gif -text
@@ -1189,6 +1193,7 @@ Delivery/newdocs/images/eiffelstudio/icon_global_search_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_global_search_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_green_arrow.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_green_tick.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_help_tool_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_history_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_history_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_history_text_color.gif -text
@@ -1219,8 +1224,11 @@ Delivery/newdocs/images/eiffelstudio/icon_new_cluster_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_cluster_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_cluster_small_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_cluster_small_gray.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_new_context_window_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_development_tool_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_development_tool_gray.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_new_dynamic_lib_color.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_new_editor_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_feature_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_feature_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_new_feature_small_color.gif -text
@@ -1244,10 +1252,12 @@ Delivery/newdocs/images/eiffelstudio/icon_open_file_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_open_project.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_past_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_past_gray.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_preference_window.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_preferences_folder.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_preferences_root.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_pretty_print_16.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_pretty_print_8.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_print_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_profiler_window.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_progress_dialog.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_recycle_bin_color.gif -text
@@ -1255,6 +1265,7 @@ Delivery/newdocs/images/eiffelstudio/icon_recycle_bin_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_red_cross.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_redo_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_redo_gray.gif -text
+Delivery/newdocs/images/eiffelstudio/icon_remove_exported_feature_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_reset_diagram_color.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_reset_diagram_gray.gif -text
 Delivery/newdocs/images/eiffelstudio/icon_restore_all_color.gif -text
