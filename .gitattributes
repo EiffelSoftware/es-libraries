@@ -682,6 +682,7 @@ Delivery/bench/bitmaps/png/icon_toggle_clusters_color.png -text
 Delivery/bench/bitmaps/png/icon_toggle_clusters_gray.png svneol=native#unset
 Delivery/bench/bitmaps/png/icon_tool_color.png -text
 Delivery/bench/bitmaps/png/icon_tool_gray.png svneol=native#unset
+Delivery/bench/bitmaps/png/icon_toolbar_separator.png -text
 Delivery/bench/bitmaps/png/icon_undo_color.png -text
 Delivery/bench/bitmaps/png/icon_undo_gray.png svneol=native#unset
 Delivery/bench/bitmaps/png/icon_unify_stone_color.png -text
@@ -1882,6 +1883,7 @@ Delivery/studio/bitmaps/png/icon_toggle_clusters_color.png -text
 Delivery/studio/bitmaps/png/icon_toggle_clusters_gray.png svneol=native#unset
 Delivery/studio/bitmaps/png/icon_tool_color.png -text
 Delivery/studio/bitmaps/png/icon_tool_gray.png svneol=native#unset
+Delivery/studio/bitmaps/png/icon_toolbar_separator.png -text
 Delivery/studio/bitmaps/png/icon_undo_color.png -text
 Delivery/studio/bitmaps/png/icon_undo_gray.png svneol=native#unset
 Delivery/studio/bitmaps/png/icon_unify_stone_color.png -text
