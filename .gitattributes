@@ -634,8 +634,10 @@ Delivery/bench/wizards/new_projects/wel/pixmaps/frame_application.png -text
 Delivery/bench/wizards/new_projects/wel/resources/eiffel.ico -text
 Delivery/bench/wizards/new_projects/wizard/pixmaps/eiffel_wizard.png -text
 Delivery/bench/wizards/new_projects/wizard/pixmaps/eiffel_wizard_icon.png -text
-Delivery/bench/wizards/new_projects/wizard/resources/eiffel_wizard.bmp -text
-Delivery/bench/wizards/new_projects/wizard/resources/eiffel_wizard_icon.bmp -text
+Delivery/bench/wizards/new_projects/wizard/resources/eiffel_wizard.png -text
+Delivery/bench/wizards/new_projects/wizard/resources/eiffel_wizard_icon.png -text
+Delivery/bench/wizards/new_projects/wizard/unix_resources/eiffel_wizard.png svneol=native#unset
+Delivery/bench/wizards/new_projects/wizard/unix_resources/eiffel_wizard_icon.png svneol=native#unset
 Delivery/bench/wizards/precompile/pixmaps/eiffel_wizard.png -text
 Delivery/bench/wizards/precompile/pixmaps/eiffel_wizard_icon.png -text
 Delivery/build/bitmaps/bmp/align.bmp -text
@@ -2083,8 +2085,10 @@ Delivery/studio/wizards/new_projects/wel/pixmaps/frame_application.png -text
 Delivery/studio/wizards/new_projects/wel/resources/eiffel.ico -text
 Delivery/studio/wizards/new_projects/wizard/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/wizard/pixmaps/eiffel_wizard_icon.png -text
-Delivery/studio/wizards/new_projects/wizard/resources/eiffel_wizard.bmp -text
-Delivery/studio/wizards/new_projects/wizard/resources/eiffel_wizard_icon.bmp -text
+Delivery/studio/wizards/new_projects/wizard/resources/eiffel_wizard.png -text
+Delivery/studio/wizards/new_projects/wizard/resources/eiffel_wizard_icon.png -text
+Delivery/studio/wizards/new_projects/wizard/unix_resources/eiffel_wizard.png svneol=native#unset
+Delivery/studio/wizards/new_projects/wizard/unix_resources/eiffel_wizard_icon.png svneol=native#unset
 Delivery/studio/wizards/others/precompile/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/others/precompile/pixmaps/eiffel_wizard_icon.png -text
 Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard.png -text
