@@ -1276,6 +1276,32 @@ Delivery/newdocs/images/eiffelstudio/link-tool-three-right.png -text
 Delivery/newdocs/images/eiffelstudio/link-tool-two-left.png -text
 Delivery/newdocs/images/eiffelstudio/link-tool-two-right.png -text
 Delivery/newdocs/images/eiffelstudio/link-tool.png -text
+Delivery/newdocs/images/eiffelstudio/metrics_png/archive.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/archive_compare.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/archive_compare_result.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/archive_create.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/archive_update.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/calculate.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/dclasses.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/ddependents.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/delete.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/derived.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/details.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/dfeatures.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/edit.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/fields.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/import.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/linear.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/manage.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/metric_tool.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/metricmenu.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/mratio.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/plus.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/reorder_drop.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/save.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/scopecombobox.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/sratio.png -text svneol=unset#application/octet-stream
+Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text svneol=unset#application/octet-stream
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
