@@ -84,6 +84,7 @@ Delivery/bench/bitmaps/cursor/Xclientlnk.ico -text
 Delivery/bench/bitmaps/cursor/Xclientlnk.png -text
 Delivery/bench/bitmaps/cursor/Xcluster.ico -text
 Delivery/bench/bitmaps/cursor/Xcluster.png -text
+Delivery/bench/bitmaps/cursor/Xfavorites_folder.ico -text
 Delivery/bench/bitmaps/cursor/Xfeature.ico -text
 Delivery/bench/bitmaps/cursor/Xfeature.png -text
 Delivery/bench/bitmaps/cursor/Xinheritlnk.ico -text
@@ -1598,6 +1599,7 @@ Delivery/studio/bitmaps/cursor/Xclientlnk.ico -text
 Delivery/studio/bitmaps/cursor/Xclientlnk.png -text
 Delivery/studio/bitmaps/cursor/Xcluster.ico -text
 Delivery/studio/bitmaps/cursor/Xcluster.png -text
+Delivery/studio/bitmaps/cursor/Xfavorites_folder.ico -text
 Delivery/studio/bitmaps/cursor/Xfeature.ico -text
 Delivery/studio/bitmaps/cursor/Xfeature.png -text
 Delivery/studio/bitmaps/cursor/Xinheritlnk.ico -text
