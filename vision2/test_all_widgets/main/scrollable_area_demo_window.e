@@ -30,10 +30,10 @@ feature -- Status setting
 	
 	set_widgets is
 		local
-			t: EV_TEXT_AREA
+			p: EV_PIXMAP
 		do
-			!!t.make (main_widget)
-			t.set_size (3000, 400)
+			!!p.make (main_widget)
+			p.read_from_file ("../pixmaps/vision.xpm")
 		end
 	
 feature -- Status setting
