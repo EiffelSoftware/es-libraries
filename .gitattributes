@@ -55,6 +55,7 @@ Delivery/build/bitmaps/ico/ev_viewport.ico -text
 Delivery/build/bitmaps/ico/icon_build_window_color.ico -text
 Delivery/build/bitmaps/ico/icon_builder_window_color.ico -text
 Delivery/build/bitmaps/ico/icon_close_color.ico -text
+Delivery/build/bitmaps/ico/icon_cluster_symbol_color.ico -text
 Delivery/build/bitmaps/ico/icon_cmd_history_color.ico -text
 Delivery/build/bitmaps/ico/icon_cmd_history_title_color.ico -text
 Delivery/build/bitmaps/ico/icon_code_generation_color.ico -text
@@ -139,6 +140,7 @@ Delivery/build/bitmaps/png/ev_viewport.png -text
 Delivery/build/bitmaps/png/icon_build_window_color.png -text
 Delivery/build/bitmaps/png/icon_builder_window_color.png -text
 Delivery/build/bitmaps/png/icon_close_color.png -text
+Delivery/build/bitmaps/png/icon_cluster_symbol_color.png -text
 Delivery/build/bitmaps/png/icon_cmd_history_color.png -text
 Delivery/build/bitmaps/png/icon_cmd_history_title_color.png -text
 Delivery/build/bitmaps/png/icon_code_generation_color.png -text
