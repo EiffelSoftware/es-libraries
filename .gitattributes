@@ -284,6 +284,8 @@ Delivery/bench/bitmaps/ico/icon_restore_color.ico -text
 Delivery/bench/bitmaps/ico/icon_restore_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_run_color.ico -text
 Delivery/bench/bitmaps/ico/icon_run_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_save_call_stack_color.ico -text
+Delivery/bench/bitmaps/ico/icon_save_call_stack_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_save_color.ico -text
 Delivery/bench/bitmaps/ico/icon_save_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_save_measure_color.ico -text
@@ -979,6 +981,8 @@ Delivery/studio/bitmaps/ico/icon_restore_color.ico -text
 Delivery/studio/bitmaps/ico/icon_restore_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_run_color.ico -text
 Delivery/studio/bitmaps/ico/icon_run_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_save_call_stack_color.ico -text
+Delivery/studio/bitmaps/ico/icon_save_call_stack_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_save_color.ico -text
 Delivery/studio/bitmaps/ico/icon_save_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_save_measure_color.ico -text
