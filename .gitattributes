@@ -385,6 +385,7 @@ Delivery/studio/bitmaps/cursor/object.png -text
 Delivery/studio/bitmaps/cursor/stopexec.ico -text
 Delivery/studio/bitmaps/cursor/stopexec.png -text
 Delivery/studio/bitmaps/ico/icon_add_exported_feature_color.ico -text
+Delivery/studio/bitmaps/ico/icon_arrow_empty.ico -text
 Delivery/studio/bitmaps/ico/icon_attribute_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_auto_slice_limits_color.ico -text
 Delivery/studio/bitmaps/ico/icon_back_color.ico -text
@@ -692,6 +693,7 @@ Delivery/studio/bitmaps/png/histback.png -text
 Delivery/studio/bitmaps/png/histfort.png -text
 Delivery/studio/bitmaps/png/hourglass.png -text
 Delivery/studio/bitmaps/png/icon_add_exported_feature_color.png -text
+Delivery/studio/bitmaps/png/icon_arrow_empty.png -text
 Delivery/studio/bitmaps/png/icon_attribute_symbol.png -text
 Delivery/studio/bitmaps/png/icon_auto_slice_limits_color.png -text
 Delivery/studio/bitmaps/png/icon_back_color.png -text
