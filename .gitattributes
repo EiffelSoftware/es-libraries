@@ -2074,7 +2074,6 @@ Src/bench/C/ipc/daemon/splash.bmp -text
 Src/bench/C/rt_converter.exe -text
 Src/bench/Eiffel/Ace/ec.ico -text
 Src/bench/Eiffel/Ace/ecdoc.ico -text
-Src/bench/Eiffel/Ace/logo.bmp -text
 Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance.png -text
 Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/method1/diamond_inheritance_on_dotnet-method1.png -text
 Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/method2/diamond_inheritance_on_dotnet-method2.png -text
