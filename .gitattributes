@@ -1583,6 +1583,8 @@ Delivery/studio/bitmaps/ico/icon_set_stack_depth_color.ico -text
 Delivery/studio/bitmaps/ico/icon_shell_color.ico -text
 Delivery/studio/bitmaps/ico/icon_slice_limits_vsmall_color.ico -text
 Delivery/studio/bitmaps/ico/icon_sorter_color.ico -text
+Delivery/studio/bitmaps/ico/icon_static_external_symbol.ico -text
+Delivery/studio/bitmaps/ico/icon_static_object_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_out_color.ico -text
 Delivery/studio/bitmaps/ico/icon_stopped.ico -text
@@ -1887,6 +1889,8 @@ Delivery/studio/bitmaps/png/icon_set_stack_depth_color.png -text
 Delivery/studio/bitmaps/png/icon_shell_color.png -text
 Delivery/studio/bitmaps/png/icon_slice_limits_vsmall_color.png -text
 Delivery/studio/bitmaps/png/icon_sorter_color.png -text
+Delivery/studio/bitmaps/png/icon_static_external_symbol.png -text
+Delivery/studio/bitmaps/png/icon_static_object_symbol.png -text
 Delivery/studio/bitmaps/png/icon_step_into_color.png -text
 Delivery/studio/bitmaps/png/icon_step_out_color.png -text
 Delivery/studio/bitmaps/png/icon_stopped.png -text
