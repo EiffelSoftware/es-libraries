@@ -82,6 +82,7 @@ Delivery/build/bitmaps/ico/icon_system_color.ico -text
 Delivery/build/bitmaps/ico/icon_titled_window_main_color.ico -text
 Delivery/build/bitmaps/ico/icon_titled_window_main_small_color.ico -text
 Delivery/build/bitmaps/ico/icon_undo_color.ico -text
+Delivery/build/bitmaps/ico/icon_view_small_color.ico -text
 Delivery/build/bitmaps/ico/items.ico -text
 Delivery/build/bitmaps/ico/widgets.ico -text
 Delivery/build/bitmaps/png/bm_about.png -text
@@ -167,6 +168,7 @@ Delivery/build/bitmaps/png/icon_system_color.png -text
 Delivery/build/bitmaps/png/icon_titled_window_main_color.png -text
 Delivery/build/bitmaps/png/icon_titled_window_main_small_color.png -text
 Delivery/build/bitmaps/png/icon_undo_color.png -text
+Delivery/build/bitmaps/png/icon_view_small_color.png -text
 Delivery/build/bitmaps/png/items.png -text
 Delivery/build/bitmaps/png/primitives.png -text
 Delivery/build/bitmaps/png/widgets.png -text
