@@ -156,6 +156,7 @@ Delivery/bench/bitmaps/ico/icon_compile_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_context_tool_color.ico -text
 Delivery/bench/bitmaps/ico/icon_context_tool_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_copy_color.ico -text
+Delivery/bench/bitmaps/ico/icon_crop.ico -text
 Delivery/bench/bitmaps/ico/icon_cut_color.ico -text
 Delivery/bench/bitmaps/ico/icon_debug_run_color.ico -text
 Delivery/bench/bitmaps/ico/icon_debug_run_text_color.ico -text
@@ -281,6 +282,7 @@ Delivery/bench/bitmaps/ico/icon_remove_exported_feature_color.ico -text
 Delivery/bench/bitmaps/ico/icon_reset_diagram_color.ico -text
 Delivery/bench/bitmaps/ico/icon_restore_all_color.ico -text
 Delivery/bench/bitmaps/ico/icon_restore_color.ico -text
+Delivery/bench/bitmaps/ico/icon_restore_view.ico -text
 Delivery/bench/bitmaps/ico/icon_run_color.ico -text
 Delivery/bench/bitmaps/ico/icon_save_call_stack_color.ico -text
 Delivery/bench/bitmaps/ico/icon_save_color.ico -text
