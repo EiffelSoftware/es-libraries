@@ -3292,6 +3292,8 @@ Src/tools/doc_builder/resources/icons/icon_toc_folder_open.ico -text
 Src/tools/doc_builder/resources/icons/icon_undo.ico -text
 Src/tools/doc_builder/resources/icons/icon_validate.ico -text
 Src/tools/doc_builder/resources/icons/icon_widget_edit.ico -text
+free_add_ons/gobo/gobo_33_unix.tgz -text
+free_add_ons/gobo/gobo_33_win.tgz -text
 free_add_ons/gobo/gobo_unix.tgz -text
 free_add_ons/gobo/gobo_win.tgz -text
 free_add_ons/micoe/adt/doc/doc.ps.gz svneol=native#unset
