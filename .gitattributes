@@ -7,6 +7,7 @@ Delivery/build/bitmaps/ico/ev_check_button.ico -text
 Delivery/build/bitmaps/ico/ev_check_menu_item.ico -text
 Delivery/build/bitmaps/ico/ev_checkable_list.ico -text
 Delivery/build/bitmaps/ico/ev_combo_box.ico -text
+Delivery/build/bitmaps/ico/ev_dialog.ico -text
 Delivery/build/bitmaps/ico/ev_drawing_area.ico -text
 Delivery/build/bitmaps/ico/ev_fixed.ico -text
 Delivery/build/bitmaps/ico/ev_frame.ico -text
@@ -64,6 +65,7 @@ Delivery/build/bitmaps/ico/icon_component_window_color.ico -text
 Delivery/build/bitmaps/ico/icon_delete_small_color.ico -text
 Delivery/build/bitmaps/ico/icon_display_window_color.ico -text
 Delivery/build/bitmaps/ico/icon_display_window_window_color.ico -text
+Delivery/build/bitmaps/ico/icon_expand_all_small_color.ico -text
 Delivery/build/bitmaps/ico/icon_maximize_color.ico -text
 Delivery/build/bitmaps/ico/icon_minimize_color.ico -text
 Delivery/build/bitmaps/ico/icon_new_class_color.ico -text
@@ -75,6 +77,8 @@ Delivery/build/bitmaps/ico/icon_redo_color.ico -text
 Delivery/build/bitmaps/ico/icon_restore_color.ico -text
 Delivery/build/bitmaps/ico/icon_save_color.ico -text
 Delivery/build/bitmaps/ico/icon_system_color.ico -text
+Delivery/build/bitmaps/ico/icon_titled_window_main_color.ico -text
+Delivery/build/bitmaps/ico/icon_titled_window_main_small_color.ico -text
 Delivery/build/bitmaps/ico/icon_undo_color.ico -text
 Delivery/build/bitmaps/ico/items.ico -text
 Delivery/build/bitmaps/ico/widgets.ico -text
@@ -87,6 +91,7 @@ Delivery/build/bitmaps/png/ev_check_menu_item.png -text
 Delivery/build/bitmaps/png/ev_checkable_list.png -text
 Delivery/build/bitmaps/png/ev_combo_box.png -text
 Delivery/build/bitmaps/png/ev_container.png -text
+Delivery/build/bitmaps/png/ev_dialog.png -text
 Delivery/build/bitmaps/png/ev_drawing_area.png -text
 Delivery/build/bitmaps/png/ev_fixed.png -text
 Delivery/build/bitmaps/png/ev_frame.png -text
@@ -143,6 +148,7 @@ Delivery/build/bitmaps/png/icon_component_window_color.png -text
 Delivery/build/bitmaps/png/icon_delete_small_color.png -text
 Delivery/build/bitmaps/png/icon_display_window_color.png -text
 Delivery/build/bitmaps/png/icon_display_window_window_color.png -text
+Delivery/build/bitmaps/png/icon_expand_all_small_color.png -text
 Delivery/build/bitmaps/png/icon_maximize_color.png -text
 Delivery/build/bitmaps/png/icon_minimize_color.png -text
 Delivery/build/bitmaps/png/icon_new_class_color.png -text
@@ -154,6 +160,8 @@ Delivery/build/bitmaps/png/icon_redo_color.png -text
 Delivery/build/bitmaps/png/icon_restore_color.png -text
 Delivery/build/bitmaps/png/icon_save_color.png -text
 Delivery/build/bitmaps/png/icon_system_color.png -text
+Delivery/build/bitmaps/png/icon_titled_window_main_color.png -text
+Delivery/build/bitmaps/png/icon_titled_window_main_small_color.png -text
 Delivery/build/bitmaps/png/icon_undo_color.png -text
 Delivery/build/bitmaps/png/items.png -text
 Delivery/build/bitmaps/png/primitives.png -text
