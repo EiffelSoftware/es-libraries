@@ -1,4 +1,5 @@
 * text=auto !eol
+Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/build/Clib/motif/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb_openlook svneol=native#unset
