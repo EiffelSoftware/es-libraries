@@ -223,6 +223,7 @@ Delivery/bench/bitmaps/ico/icon_freeze_color.ico -text
 Delivery/bench/bitmaps/ico/icon_global_search_color.ico -text
 Delivery/bench/bitmaps/ico/icon_green_arrow.ico -text
 Delivery/bench/bitmaps/ico/icon_green_tick.ico -text
+Delivery/bench/bitmaps/ico/icon_help_tool_color.ico -text
 Delivery/bench/bitmaps/ico/icon_history_color.ico -text
 Delivery/bench/bitmaps/ico/icon_history_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_immediate_value.ico -text
@@ -1697,6 +1698,7 @@ Delivery/studio/bitmaps/ico/icon_freeze_color.ico -text
 Delivery/studio/bitmaps/ico/icon_global_search_color.ico -text
 Delivery/studio/bitmaps/ico/icon_green_arrow.ico -text
 Delivery/studio/bitmaps/ico/icon_green_tick.ico -text
+Delivery/studio/bitmaps/ico/icon_help_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_history_color.ico -text
 Delivery/studio/bitmaps/ico/icon_history_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_immediate_value.ico -text
