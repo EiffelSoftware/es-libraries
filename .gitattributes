@@ -101,6 +101,8 @@ Delivery/bench/bitmaps/cursor/clientlnk.ico -text
 Delivery/bench/bitmaps/cursor/clientlnk.png -text
 Delivery/bench/bitmaps/cursor/cluster.ico -text
 Delivery/bench/bitmaps/cursor/cluster.png -text
+Delivery/bench/bitmaps/cursor/copy_selection.ico -text
+Delivery/bench/bitmaps/cursor/cut_selection.ico -text
 Delivery/bench/bitmaps/cursor/favorites_folder.ico -text
 Delivery/bench/bitmaps/cursor/favorites_folder.png -text
 Delivery/bench/bitmaps/cursor/feature.ico -text
@@ -1981,6 +1983,8 @@ Delivery/studio/bitmaps/cursor/clientlnk.ico -text
 Delivery/studio/bitmaps/cursor/clientlnk.png -text
 Delivery/studio/bitmaps/cursor/cluster.ico -text
 Delivery/studio/bitmaps/cursor/cluster.png -text
+Delivery/studio/bitmaps/cursor/copy_selection.ico -text
+Delivery/studio/bitmaps/cursor/cut_selection.ico -text
 Delivery/studio/bitmaps/cursor/favorites_folder.ico -text
 Delivery/studio/bitmaps/cursor/favorites_folder.png -text
 Delivery/studio/bitmaps/cursor/feature.ico -text
