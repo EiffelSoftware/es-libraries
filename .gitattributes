@@ -95,6 +95,7 @@ Delivery/bench/bitmaps/cursor/hourglass.ico -text
 Delivery/bench/bitmaps/cursor/inheritlnk.ico -text
 Delivery/bench/bitmaps/cursor/object.ico -text
 Delivery/bench/bitmaps/cursor/stopexec.ico -text
+Delivery/bench/bitmaps/ico/icon_attribute_symbol.ico -text
 Delivery/bench/bitmaps/ico/icon_back_color.ico -text
 Delivery/bench/bitmaps/ico/icon_back_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_bkpt_info_color.ico -text
@@ -177,6 +178,7 @@ Delivery/bench/bitmaps/ico/icon_exec_step_color.ico -text
 Delivery/bench/bitmaps/ico/icon_exec_step_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_exec_stop_color.ico -text
 Delivery/bench/bitmaps/ico/icon_exec_stop_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_expanded_object.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_folder_gray.ico -text
@@ -206,6 +208,7 @@ Delivery/bench/bitmaps/ico/icon_history_color.ico -text
 Delivery/bench/bitmaps/ico/icon_history_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_history_text_color.ico -text
 Delivery/bench/bitmaps/ico/icon_history_text_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_immediate_value.ico -text
 Delivery/bench/bitmaps/ico/icon_inherit_color.ico -text
 Delivery/bench/bitmaps/ico/icon_inherit_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_light_class_color.ico -text
@@ -246,6 +249,8 @@ Delivery/bench/bitmaps/ico/icon_new_supplier_color.ico -text
 Delivery/bench/bitmaps/ico/icon_new_supplier_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_no_stop_color.ico -text
 Delivery/bench/bitmaps/ico/icon_no_stop_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_object_symbol.ico -text
+Delivery/bench/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/bench/bitmaps/ico/icon_open_file_color.ico -text
 Delivery/bench/bitmaps/ico/icon_open_file_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_past_color.ico -text
@@ -299,6 +304,8 @@ Delivery/bench/bitmaps/ico/icon_tool_color.ico -text
 Delivery/bench/bitmaps/ico/icon_tool_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_undo_color.ico -text
 Delivery/bench/bitmaps/ico/icon_undo_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_unify_stone_color.ico -text
+Delivery/bench/bitmaps/ico/icon_unify_stone_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_view_measure_color.ico -text
 Delivery/bench/bitmaps/ico/icon_view_measure_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_view_measure_minus_color.ico -text
@@ -307,6 +314,8 @@ Delivery/bench/bitmaps/ico/icon_view_measure_plus_color.ico -text
 Delivery/bench/bitmaps/ico/icon_view_measure_plus_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_view_small_color.ico -text
 Delivery/bench/bitmaps/ico/icon_view_small_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_void_pointer.ico -text
+Delivery/bench/bitmaps/ico/icon_void_pointer_old.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_color.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_text_color.ico -text
@@ -746,6 +755,7 @@ Delivery/studio/bitmaps/cursor/hourglass.ico -text
 Delivery/studio/bitmaps/cursor/inheritlnk.ico -text
 Delivery/studio/bitmaps/cursor/object.ico -text
 Delivery/studio/bitmaps/cursor/stopexec.ico -text
+Delivery/studio/bitmaps/ico/icon_attribute_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_back_color.ico -text
 Delivery/studio/bitmaps/ico/icon_back_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_bkpt_info_color.ico -text
@@ -828,6 +838,7 @@ Delivery/studio/bitmaps/ico/icon_exec_step_color.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_step_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_stop_color.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_stop_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_expanded_object.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_gray.ico -text
@@ -857,6 +868,7 @@ Delivery/studio/bitmaps/ico/icon_history_color.ico -text
 Delivery/studio/bitmaps/ico/icon_history_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_history_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_history_text_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_immediate_value.ico -text
 Delivery/studio/bitmaps/ico/icon_inherit_color.ico -text
 Delivery/studio/bitmaps/ico/icon_inherit_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_light_class_color.ico -text
@@ -897,6 +909,8 @@ Delivery/studio/bitmaps/ico/icon_new_supplier_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_supplier_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_no_stop_color.ico -text
 Delivery/studio/bitmaps/ico/icon_no_stop_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_object_symbol.ico -text
+Delivery/studio/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_open_file_color.ico -text
 Delivery/studio/bitmaps/ico/icon_open_file_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_past_color.ico -text
@@ -950,6 +964,8 @@ Delivery/studio/bitmaps/ico/icon_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_tool_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_undo_color.ico -text
 Delivery/studio/bitmaps/ico/icon_undo_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_unify_stone_color.ico -text
+Delivery/studio/bitmaps/ico/icon_unify_stone_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_view_measure_color.ico -text
 Delivery/studio/bitmaps/ico/icon_view_measure_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_view_measure_minus_color.ico -text
@@ -958,6 +974,8 @@ Delivery/studio/bitmaps/ico/icon_view_measure_plus_color.ico -text
 Delivery/studio/bitmaps/ico/icon_view_measure_plus_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_view_small_color.ico -text
 Delivery/studio/bitmaps/ico/icon_view_small_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_void_pointer.ico -text
+Delivery/studio/bitmaps/ico/icon_void_pointer_old.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_color.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_text_color.ico -text
