@@ -2138,6 +2138,7 @@ Src/com_wizard/project/gui/binaries/Wizard3.bmp -text
 Src/com_wizard/project/gui/binaries/Wizard4.bmp -text
 Src/com_wizard/project/gui/binaries/WizardSplash.bmp -text
 Src/com_wizard/project/gui/binaries/toolbar.bmp -text
+Src/dotnet/helpers/isekey.snk -text
 Src/dotnet/reflection_interface/ISE.Reflection.Emitter/Formatter.key -text
 Src/dotnet/reflection_interface/ISE.Reflection.Emitter/Key -text
 Src/dotnet/reflection_interface/New.ISE.Reflection.Emitter/ISE.Reflection.Emitter/Emitter.key svneol=native#unset
