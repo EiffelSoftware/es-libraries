@@ -7,6 +7,7 @@ Delivery/bench/bitmaps/bmp/classico.bmp -text
 Delivery/bench/bitmaps/bmp/clckable.bmp -text
 Delivery/bench/bitmaps/bmp/clr_bp.bmp -text
 Delivery/bench/bitmaps/bmp/current.BMP -text
+Delivery/bench/bitmaps/bmp/dbg_dyneval.bmp -text
 Delivery/bench/bitmaps/bmp/dbgquit.bmp -text
 Delivery/bench/bitmaps/bmp/dbgrun.bmp -text
 Delivery/bench/bitmaps/bmp/dbgstatu.BMP -text
@@ -31,11 +32,17 @@ Delivery/bench/bitmaps/bmp/gbreakpt.bmp -text
 Delivery/bench/bitmaps/bmp/general.bmp -text
 Delivery/bench/bitmaps/bmp/graph.bmp -text
 Delivery/bench/bitmaps/bmp/gstoppt.bmp -text
+Delivery/bench/bitmaps/bmp/header_close.bmp -text
+Delivery/bench/bitmaps/bmp/header_close_highlight.bmp -text
+Delivery/bench/bitmaps/bmp/header_open.bmp -text
+Delivery/bench/bitmaps/bmp/header_open_highlight.bmp -text
 Delivery/bench/bitmaps/bmp/histback.bmp -text
 Delivery/bench/bitmaps/bmp/histfort.bmp -text
 Delivery/bench/bitmaps/bmp/icon_copy_color.ico -text
 Delivery/bench/bitmaps/bmp/icon_copy_gray.ico -text
+Delivery/bench/bitmaps/bmp/icon_cut_color.bmp -text
 Delivery/bench/bitmaps/bmp/icon_cut_color.ico -text
+Delivery/bench/bitmaps/bmp/icon_cut_gray.bmp -text
 Delivery/bench/bitmaps/bmp/icon_cut_gray.ico -text
 Delivery/bench/bitmaps/bmp/icon_delete_color.ico -text
 Delivery/bench/bitmaps/bmp/icon_delete_gray.ico -text
@@ -56,6 +63,7 @@ Delivery/bench/bitmaps/bmp/icon_tool_gray.ico -text
 Delivery/bench/bitmaps/bmp/icon_undo_color.ico -text
 Delivery/bench/bitmaps/bmp/icon_undo_gray.ico -text
 Delivery/bench/bitmaps/bmp/isepower.bmp -text
+Delivery/bench/bitmaps/bmp/magnify-slice.bmp -text
 Delivery/bench/bitmaps/bmp/modified.bmp -text
 Delivery/bench/bitmaps/bmp/obj_down.bmp -text
 Delivery/bench/bitmaps/bmp/obj_up.bmp -text
@@ -88,7 +96,9 @@ Delivery/bench/bitmaps/bmp/sdescend.bmp -text
 Delivery/bench/bitmaps/bmp/sdversio.bmp -text
 Delivery/bench/bitmaps/bmp/search.bmp -text
 Delivery/bench/bitmaps/bmp/setstop.bmp -text
+Delivery/bench/bitmaps/bmp/sexport1.bmp -text
 Delivery/bench/bitmaps/bmp/sexporte.bmp -text
+Delivery/bench/bitmaps/bmp/sexporte3.bmp -text
 Delivery/bench/bitmaps/bmp/sexterna.bmp -text
 Delivery/bench/bitmaps/bmp/sflat.bmp -text
 Delivery/bench/bitmaps/bmp/sfshort.bmp -text
@@ -643,6 +653,7 @@ Delivery/studio/bitmaps/bmp/classico.bmp -text
 Delivery/studio/bitmaps/bmp/clckable.bmp -text
 Delivery/studio/bitmaps/bmp/clr_bp.bmp -text
 Delivery/studio/bitmaps/bmp/current.BMP -text
+Delivery/studio/bitmaps/bmp/dbg_dyneval.bmp -text
 Delivery/studio/bitmaps/bmp/dbgquit.bmp -text
 Delivery/studio/bitmaps/bmp/dbgrun.bmp -text
 Delivery/studio/bitmaps/bmp/dbgstatu.BMP -text
@@ -667,11 +678,17 @@ Delivery/studio/bitmaps/bmp/gbreakpt.bmp -text
 Delivery/studio/bitmaps/bmp/general.bmp -text
 Delivery/studio/bitmaps/bmp/graph.bmp -text
 Delivery/studio/bitmaps/bmp/gstoppt.bmp -text
+Delivery/studio/bitmaps/bmp/header_close.bmp -text
+Delivery/studio/bitmaps/bmp/header_close_highlight.bmp -text
+Delivery/studio/bitmaps/bmp/header_open.bmp -text
+Delivery/studio/bitmaps/bmp/header_open_highlight.bmp -text
 Delivery/studio/bitmaps/bmp/histback.bmp -text
 Delivery/studio/bitmaps/bmp/histfort.bmp -text
 Delivery/studio/bitmaps/bmp/icon_copy_color.ico -text
 Delivery/studio/bitmaps/bmp/icon_copy_gray.ico -text
+Delivery/studio/bitmaps/bmp/icon_cut_color.bmp -text
 Delivery/studio/bitmaps/bmp/icon_cut_color.ico -text
+Delivery/studio/bitmaps/bmp/icon_cut_gray.bmp -text
 Delivery/studio/bitmaps/bmp/icon_cut_gray.ico -text
 Delivery/studio/bitmaps/bmp/icon_delete_color.ico -text
 Delivery/studio/bitmaps/bmp/icon_delete_gray.ico -text
@@ -692,6 +709,7 @@ Delivery/studio/bitmaps/bmp/icon_tool_gray.ico -text
 Delivery/studio/bitmaps/bmp/icon_undo_color.ico -text
 Delivery/studio/bitmaps/bmp/icon_undo_gray.ico -text
 Delivery/studio/bitmaps/bmp/isepower.bmp -text
+Delivery/studio/bitmaps/bmp/magnify-slice.bmp -text
 Delivery/studio/bitmaps/bmp/modified.bmp -text
 Delivery/studio/bitmaps/bmp/obj_down.bmp -text
 Delivery/studio/bitmaps/bmp/obj_up.bmp -text
@@ -724,7 +742,9 @@ Delivery/studio/bitmaps/bmp/sdescend.bmp -text
 Delivery/studio/bitmaps/bmp/sdversio.bmp -text
 Delivery/studio/bitmaps/bmp/search.bmp -text
 Delivery/studio/bitmaps/bmp/setstop.bmp -text
+Delivery/studio/bitmaps/bmp/sexport1.bmp -text
 Delivery/studio/bitmaps/bmp/sexporte.bmp -text
+Delivery/studio/bitmaps/bmp/sexporte3.bmp -text
 Delivery/studio/bitmaps/bmp/sexterna.bmp -text
 Delivery/studio/bitmaps/bmp/sflat.bmp -text
 Delivery/studio/bitmaps/bmp/sfshort.bmp -text
