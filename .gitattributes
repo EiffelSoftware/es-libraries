@@ -568,6 +568,7 @@ Delivery/bench/bitmaps/png/icon_zoom_in.png -text
 Delivery/bench/bitmaps/png/icon_zoom_in_color.png -text
 Delivery/bench/bitmaps/png/icon_zoom_out.png -text
 Delivery/bench/bitmaps/png/icon_zoom_out_color.png -text
+Delivery/bench/bitmaps/png/isepower.png -text
 Delivery/bench/bitmaps/png/magnify-slice.png -text
 Delivery/bench/bitmaps/png/modified.png -text
 Delivery/bench/bitmaps/png/obj_down.png -text
@@ -2045,6 +2046,7 @@ Delivery/studio/bitmaps/png/icon_zoom_in.png -text
 Delivery/studio/bitmaps/png/icon_zoom_in_color.png -text
 Delivery/studio/bitmaps/png/icon_zoom_out.png -text
 Delivery/studio/bitmaps/png/icon_zoom_out_color.png -text
+Delivery/studio/bitmaps/png/isepower.png -text
 Delivery/studio/bitmaps/png/magnify-slice.png -text
 Delivery/studio/bitmaps/png/modified.png -text
 Delivery/studio/bitmaps/png/obj_down.png -text
