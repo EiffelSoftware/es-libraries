@@ -426,6 +426,7 @@ Delivery/bench/bitmaps/png/icon_delete_very_small_color.png -text
 Delivery/bench/bitmaps/png/icon_delete_view_color.png -text
 Delivery/bench/bitmaps/png/icon_descendants_color.png -text
 Delivery/bench/bitmaps/png/icon_development_window.png -text
+Delivery/bench/bitmaps/png/icon_dialog_window.png -text
 Delivery/bench/bitmaps/png/icon_disable_bkpt_color.png -text
 Delivery/bench/bitmaps/png/icon_display_labels_color.png -text
 Delivery/bench/bitmaps/png/icon_document_color.png -text
@@ -477,6 +478,7 @@ Delivery/bench/bitmaps/png/icon_freeze_color.png -text
 Delivery/bench/bitmaps/png/icon_global_search_color.png -text
 Delivery/bench/bitmaps/png/icon_green_arrow.png -text
 Delivery/bench/bitmaps/png/icon_green_tick.png -text
+Delivery/bench/bitmaps/png/icon_help_tool_color.png -text
 Delivery/bench/bitmaps/png/icon_history_color.png -text
 Delivery/bench/bitmaps/png/icon_history_text_color.png -text
 Delivery/bench/bitmaps/png/icon_immediate_value.png -text
@@ -512,6 +514,7 @@ Delivery/bench/bitmaps/png/icon_once_symbol.png -text
 Delivery/bench/bitmaps/png/icon_open_file_color.png -text
 Delivery/bench/bitmaps/png/icon_open_project.png -text
 Delivery/bench/bitmaps/png/icon_past_color.png -text
+Delivery/bench/bitmaps/png/icon_preference_window.png -text
 Delivery/bench/bitmaps/png/icon_preferences_folder.png -text
 Delivery/bench/bitmaps/png/icon_preferences_root.png -text
 Delivery/bench/bitmaps/png/icon_pretty_print_16.png -text
@@ -1901,6 +1904,7 @@ Delivery/studio/bitmaps/png/icon_delete_very_small_color.png -text
 Delivery/studio/bitmaps/png/icon_delete_view_color.png -text
 Delivery/studio/bitmaps/png/icon_descendants_color.png -text
 Delivery/studio/bitmaps/png/icon_development_window.png -text
+Delivery/studio/bitmaps/png/icon_dialog_window.png -text
 Delivery/studio/bitmaps/png/icon_disable_bkpt_color.png -text
 Delivery/studio/bitmaps/png/icon_display_labels_color.png -text
 Delivery/studio/bitmaps/png/icon_document_color.png -text
@@ -1952,6 +1956,7 @@ Delivery/studio/bitmaps/png/icon_freeze_color.png -text
 Delivery/studio/bitmaps/png/icon_global_search_color.png -text
 Delivery/studio/bitmaps/png/icon_green_arrow.png -text
 Delivery/studio/bitmaps/png/icon_green_tick.png -text
+Delivery/studio/bitmaps/png/icon_help_tool_color.png -text
 Delivery/studio/bitmaps/png/icon_history_color.png -text
 Delivery/studio/bitmaps/png/icon_history_text_color.png -text
 Delivery/studio/bitmaps/png/icon_immediate_value.png -text
@@ -1987,6 +1992,7 @@ Delivery/studio/bitmaps/png/icon_once_symbol.png -text
 Delivery/studio/bitmaps/png/icon_open_file_color.png -text
 Delivery/studio/bitmaps/png/icon_open_project.png -text
 Delivery/studio/bitmaps/png/icon_past_color.png -text
+Delivery/studio/bitmaps/png/icon_preference_window.png -text
 Delivery/studio/bitmaps/png/icon_preferences_folder.png -text
 Delivery/studio/bitmaps/png/icon_preferences_root.png -text
 Delivery/studio/bitmaps/png/icon_pretty_print_16.png -text
