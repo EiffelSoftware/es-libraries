@@ -144,6 +144,7 @@ Delivery/bench/bitmaps/ico/icon_disable_bkpt_color.ico -text
 Delivery/bench/bitmaps/ico/icon_disable_bkpt_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_document_color.ico -text
 Delivery/bench/bitmaps/ico/icon_document_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_dummy.ico -text
 Delivery/bench/bitmaps/ico/icon_dynamiclib_window.ico -text
 Delivery/bench/bitmaps/ico/icon_enable_bkpt_color.ico -text
 Delivery/bench/bitmaps/ico/icon_enable_bkpt_gray.ico -text
@@ -752,6 +753,7 @@ Delivery/studio/bitmaps/ico/icon_disable_bkpt_color.ico -text
 Delivery/studio/bitmaps/ico/icon_disable_bkpt_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_document_color.ico -text
 Delivery/studio/bitmaps/ico/icon_document_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_dummy.ico -text
 Delivery/studio/bitmaps/ico/icon_dynamiclib_window.ico -text
 Delivery/studio/bitmaps/ico/icon_enable_bkpt_color.ico -text
 Delivery/studio/bitmaps/ico/icon_enable_bkpt_gray.ico -text
