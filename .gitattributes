@@ -3604,6 +3604,7 @@ Src/tools/doc_builder/resources/icons/icon_toc_file_node.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_file_top.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_closed.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_closed.ico -text
+Src/tools/doc_builder/resources/icons/icon_toc_folder_closed_top.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_open.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_open.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_open_top.gif -text
