@@ -3413,6 +3413,7 @@ Src/tools/doc_builder/resources/icons/icon_new_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_new_doc.ico -text
 Src/tools/doc_builder/resources/icons/icon_new_editor_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_open_file.ico -text
+Src/tools/doc_builder/resources/icons/icon_page_loading.gif -text
 Src/tools/doc_builder/resources/icons/icon_paste.ico -text
 Src/tools/doc_builder/resources/icons/icon_properties_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_redo.ico -text
