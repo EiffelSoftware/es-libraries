@@ -81,6 +81,8 @@ Delivery/bench/bitmaps/bmp/systdot.BMP -text
 Delivery/bench/bitmaps/bmp/system.bmp -text
 Delivery/bench/bitmaps/bmp/up_stack.bmp -text
 Delivery/bench/bitmaps/bmp/update.bmp -text
+Delivery/bench/bitmaps/xpm/dynlib.xpm svneol=native#unset
+Delivery/bench/bitmaps/xpm/dynlibico.xpm svneol=native#unset
 Delivery/bench/bitmaps/xpm/expldot.xpm svneol=native#unset
 Delivery/bench/bitmaps/xpm/general.xpm svneol=native#unset
 Delivery/bench/bitmaps/xpm/graph.xpm svneol=native#unset
@@ -535,6 +537,8 @@ Delivery/studio/bitmaps/bmp/systdot.BMP -text
 Delivery/studio/bitmaps/bmp/system.bmp -text
 Delivery/studio/bitmaps/bmp/up_stack.bmp -text
 Delivery/studio/bitmaps/bmp/update.bmp -text
+Delivery/studio/bitmaps/xpm/dynlib.xpm svneol=native#unset
+Delivery/studio/bitmaps/xpm/dynlibico.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/expldot.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/general.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/graph.xpm svneol=native#unset
