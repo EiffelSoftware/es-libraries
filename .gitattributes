@@ -269,6 +269,8 @@ Delivery/bench/bitmaps/ico/icon_open_file_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_open_project.ico -text
 Delivery/bench/bitmaps/ico/icon_past_color.ico -text
 Delivery/bench/bitmaps/ico/icon_past_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_preferences_folder.ico -text
+Delivery/bench/bitmaps/ico/icon_preferences_root.ico -text
 Delivery/bench/bitmaps/ico/icon_profiler_window.ico -text
 Delivery/bench/bitmaps/ico/icon_progress_dialog.ico -text
 Delivery/bench/bitmaps/ico/icon_recycle_bin_color.ico -text
@@ -1412,6 +1414,8 @@ Delivery/studio/bitmaps/ico/icon_open_file_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_open_project.ico -text
 Delivery/studio/bitmaps/ico/icon_past_color.ico -text
 Delivery/studio/bitmaps/ico/icon_past_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_preferences_folder.ico -text
+Delivery/studio/bitmaps/ico/icon_preferences_root.ico -text
 Delivery/studio/bitmaps/ico/icon_profiler_window.ico -text
 Delivery/studio/bitmaps/ico/icon_progress_dialog.ico -text
 Delivery/studio/bitmaps/ico/icon_recycle_bin_color.ico -text
