@@ -57,6 +57,7 @@ Delivery/build/bitmaps/png/ev_vertical_split_area.png -text
 Delivery/build/bitmaps/png/ev_viewport.png -text
 Delivery/build/bitmaps/png/icon_build_window_color.png -text
 Delivery/build/bitmaps/png/icon_builder_window_color.png -text
+Delivery/build/bitmaps/png/icon_clipboard_color.png -text
 Delivery/build/bitmaps/png/icon_close_color.png -text
 Delivery/build/bitmaps/png/icon_cluster_symbol_color.png -text
 Delivery/build/bitmaps/png/icon_cluster_symbol_gray.png -text
@@ -67,6 +68,8 @@ Delivery/build/bitmaps/png/icon_component_build_view_color.png -text
 Delivery/build/bitmaps/png/icon_component_display_view_color.png -text
 Delivery/build/bitmaps/png/icon_component_viewer_color.png -text
 Delivery/build/bitmaps/png/icon_component_window_color.png -text
+Delivery/build/bitmaps/png/icon_copy_color.png -text
+Delivery/build/bitmaps/png/icon_cut_color.png -text
 Delivery/build/bitmaps/png/icon_delete_small_color.png -text
 Delivery/build/bitmaps/png/icon_display_window_color.png -text
 Delivery/build/bitmaps/png/icon_display_window_window_color.png -text
@@ -86,6 +89,7 @@ Delivery/build/bitmaps/png/icon_object_editor_color.png -text
 Delivery/build/bitmaps/png/icon_object_symbol.png -text
 Delivery/build/bitmaps/png/icon_object_window_color.png -text
 Delivery/build/bitmaps/png/icon_open_file_color.png -text
+Delivery/build/bitmaps/png/icon_past_color.png -text
 Delivery/build/bitmaps/png/icon_preference_window.png -text
 Delivery/build/bitmaps/png/icon_preferences_folder.png -text
 Delivery/build/bitmaps/png/icon_preferences_root.png -text
