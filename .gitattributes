@@ -1336,8 +1336,14 @@ Delivery/studio/bitmaps/ico/icon_cluster_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_cluster_tool_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_cmd_history_color.ico -text
 Delivery/studio/bitmaps/ico/icon_color_color.ico -text
+Delivery/studio/bitmaps/ico/icon_compilation_error.ico -text
 Delivery/studio/bitmaps/ico/icon_compile_color.ico -text
 Delivery/studio/bitmaps/ico/icon_compile_text_color.ico -text
+Delivery/studio/bitmaps/ico/icon_compiled.ico -text
+Delivery/studio/bitmaps/ico/icon_compiling_1.ico -text
+Delivery/studio/bitmaps/ico/icon_compiling_2.ico -text
+Delivery/studio/bitmaps/ico/icon_compiling_3.ico -text
+Delivery/studio/bitmaps/ico/icon_compiling_4.ico -text
 Delivery/studio/bitmaps/ico/icon_context_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_context_tool_text_color.ico -text
 Delivery/studio/bitmaps/ico/icon_copy_color.ico -text
@@ -1373,7 +1379,9 @@ Delivery/studio/bitmaps/ico/icon_dummy.ico -text
 Delivery/studio/bitmaps/ico/icon_dynamiclib_window.ico -text
 Delivery/studio/bitmaps/ico/icon_edit_exported_feature_color.ico -text
 Delivery/studio/bitmaps/ico/icon_edit_expression_color.ico -text
+Delivery/studio/bitmaps/ico/icon_editing.ico -text
 Delivery/studio/bitmaps/ico/icon_enable_bkpt_color.ico -text
+Delivery/studio/bitmaps/ico/icon_exe_up_to_date.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_quit_color.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_step_color.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_stop_color.ico -text
@@ -1462,6 +1470,7 @@ Delivery/studio/bitmaps/ico/icon_pretty_print_8.ico -text
 Delivery/studio/bitmaps/ico/icon_print_color.ico -text
 Delivery/studio/bitmaps/ico/icon_profiler_window.ico -text
 Delivery/studio/bitmaps/ico/icon_progress_dialog.ico -text
+Delivery/studio/bitmaps/ico/icon_quick_compile_color.ico -text
 Delivery/studio/bitmaps/ico/icon_recycle_bin_color.ico -text
 Delivery/studio/bitmaps/ico/icon_red_cross.ico -text
 Delivery/studio/bitmaps/ico/icon_redo_color.ico -text
@@ -1471,6 +1480,9 @@ Delivery/studio/bitmaps/ico/icon_restore_all_color.ico -text
 Delivery/studio/bitmaps/ico/icon_restore_color.ico -text
 Delivery/studio/bitmaps/ico/icon_restore_view_color.ico -text
 Delivery/studio/bitmaps/ico/icon_run_color.ico -text
+Delivery/studio/bitmaps/ico/icon_running_1.ico -text
+Delivery/studio/bitmaps/ico/icon_running_2.ico -text
+Delivery/studio/bitmaps/ico/icon_running_3.ico -text
 Delivery/studio/bitmaps/ico/icon_save_call_stack_color.ico -text
 Delivery/studio/bitmaps/ico/icon_save_color.ico -text
 Delivery/studio/bitmaps/ico/icon_save_measure_color.ico -text
@@ -1486,6 +1498,7 @@ Delivery/studio/bitmaps/ico/icon_slice_limits_vsmall_color.ico -text
 Delivery/studio/bitmaps/ico/icon_sorter_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_out_color.ico -text
+Delivery/studio/bitmaps/ico/icon_stopped.ico -text
 Delivery/studio/bitmaps/ico/icon_straight_arrows_color.ico -text
 Delivery/studio/bitmaps/ico/icon_super_cluster_color.ico -text
 Delivery/studio/bitmaps/ico/icon_supplier_color.ico -text
