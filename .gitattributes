@@ -1,4 +1,7 @@
 * text=auto !eol
+Delivery/build/pixmaps/eiffel_wizard.png -text
+Delivery/build/pixmaps/eiffel_wizard_icon.png -text
+Delivery/build/pixmaps/wizard.png -text
 Delivery/docs/Eiffel/language/classes.maker.fig_1.gif -text
 Delivery/docs/Eiffel/language/deferred.maker.fig_1.gif -text
 Delivery/docs/Eiffel/language/fm2html-next.gif -text
