@@ -3367,6 +3367,7 @@ Src/tools/doc_builder/resources/icons/icon_close_folder.ico -text
 Src/tools/doc_builder/resources/icons/icon_code_class.ico -text
 Src/tools/doc_builder/resources/icons/icon_code_cluster.ico -text
 Src/tools/doc_builder/resources/icons/icon_code_feature.ico -text
+Src/tools/doc_builder/resources/icons/icon_code_format.ico -text
 Src/tools/doc_builder/resources/icons/icon_copy_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_cut_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_envision.ico -text
