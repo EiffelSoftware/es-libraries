@@ -1988,6 +1988,8 @@ Src/tools/doc_builder/documentation/project/xml/schematypeselector.png -text
 Src/tools/doc_builder/documentation/project/xml/schemavalidatortoolbar.png -text
 Src/tools/doc_builder/documentation/project/xml/taglist.png -text
 Src/tools/doc_builder/documentation/project/xml/validatortool.png -text
+Src/tools/doc_builder/resources/cursors/copy_selection.png -text
+Src/tools/doc_builder/resources/cursors/cut_selection.png -text
 Src/tools/doc_builder/resources/icons/10x10spacer.png -text
 Src/tools/doc_builder/resources/icons/file.gif -text
 Src/tools/doc_builder/resources/icons/folder.gif -text
