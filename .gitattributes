@@ -1062,6 +1062,8 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
+Delivery/newdocs/libraries/base/content/structures/binary_tree.gif -text
+Delivery/newdocs/libraries/base/content/structures/tree.gif -text
 Delivery/studio/bitmaps/bmp/bm_About.bmp -text
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
