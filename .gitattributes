@@ -1923,6 +1923,13 @@ Src/bench/Eiffel/interface/new_graphical/help/Clib/htmlhelp.lib -text
 Src/build/Clib/motif/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb_openlook svneol=native#unset
+Src/build2/bitmaps/ico/icon_cmd_history_color.ico -text
+Src/build2/bitmaps/ico/icon_delete_small_color.ico -text
+Src/build2/bitmaps/ico/icon_new_editor_color.ico -text
+Src/build2/bitmaps/ico/icon_object_symbol.ico -text
+Src/build2/bitmaps/ico/icon_redo_color.ico -text
+Src/build2/bitmaps/ico/icon_save_color.ico -text
+Src/build2/bitmaps/ico/icon_undo_color.ico -text
 Src/com_wizard/Doc/com.book -text
 Src/com_wizard/Doc/com.fm -text
 Src/com_wizard/Doc/comTOC.fm -text
