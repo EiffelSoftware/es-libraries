@@ -102,6 +102,9 @@ Delivery/build/bitmaps/png/widgets.png -text
 Delivery/build/pixmaps/eiffel_wizard.png -text
 Delivery/build/pixmaps/eiffel_wizard_icon.png -text
 Delivery/build/pixmaps/wizard.png -text
+Delivery/codedom_provider/install/banner.jpg -text
+Delivery/codedom_provider/install/dialog.jpg -text
+Delivery/codedom_provider/install/ecdp.ico -text
 Delivery/codedom_provider/md.reg svneol=native#unset
 Delivery/docs/Eiffel/language/classes.maker.fig_1.gif -text
 Delivery/docs/Eiffel/language/deferred.maker.fig_1.gif -text
