@@ -2738,6 +2738,7 @@ Src/examples/wel/xcell/xcell_demo.ico svneol=native#unset
 Src/help/bin/linux/help.gz -text
 Src/help/bin/windows/Helptool.zip -text
 Src/help/bin/windows/help.zip svneol=native#unset
+Src/help/wizards/edotnet/Clib/AMI.key -text
 Src/help/wizards/edotnet/docs/images/application_type_screen.png -text
 Src/help/wizards/edotnet/docs/images/assembly_selection_screen.png -text
 Src/help/wizards/edotnet/docs/images/assembly_selection_screen_with_selected_assemblies.png -text
