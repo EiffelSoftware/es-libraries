@@ -1370,6 +1370,7 @@ Delivery/studio/bitmaps/ico/icon_down_triangle.ico -text
 Delivery/studio/bitmaps/ico/icon_dummy.ico -text
 Delivery/studio/bitmaps/ico/icon_dynamiclib_window.ico -text
 Delivery/studio/bitmaps/ico/icon_edit_exported_feature_color.ico -text
+Delivery/studio/bitmaps/ico/icon_edit_expression_color.ico -text
 Delivery/studio/bitmaps/ico/icon_enable_bkpt_color.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_quit_color.ico -text
 Delivery/studio/bitmaps/ico/icon_exec_step_color.ico -text
@@ -1436,6 +1437,7 @@ Delivery/studio/bitmaps/ico/icon_new_context_window_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_development_tool_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_dynamic_lib_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_editor_color.ico -text
+Delivery/studio/bitmaps/ico/icon_new_expression_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_feature_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_feature_small_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_inherit_color.ico -text
