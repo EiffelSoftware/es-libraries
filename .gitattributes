@@ -341,6 +341,13 @@ Delivery/bench/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_gray.ico -text
+Delivery/bench/wizards/new_projects/vision2/pixmaps/dialog_application.bmp -text
+Delivery/bench/wizards/new_projects/vision2/pixmaps/eiffel_wizard.bmp -text
+Delivery/bench/wizards/new_projects/vision2/pixmaps/eiffel_wizard_icon.bmp -text
+Delivery/bench/wizards/new_projects/vision2/pixmaps/frame_application.bmp -text
+Delivery/bench/wizards/new_projects/vision2/resources/new.png -text
+Delivery/bench/wizards/new_projects/vision2/resources/open.png -text
+Delivery/bench/wizards/new_projects/vision2/resources/save.png -text
 Delivery/bench/wizards/new_projects/wel/pixmaps/dialog_application.bmp -text
 Delivery/bench/wizards/new_projects/wel/pixmaps/eiffel_wizard.bmp -text
 Delivery/bench/wizards/new_projects/wel/pixmaps/eiffel_wizard_icon.bmp -text
@@ -1025,6 +1032,13 @@ Delivery/studio/bitmaps/ico/icon_zoom_in_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_gray.ico -text
+Delivery/studio/wizards/new_projects/vision2/pixmaps/dialog_application.bmp -text
+Delivery/studio/wizards/new_projects/vision2/pixmaps/eiffel_wizard.bmp -text
+Delivery/studio/wizards/new_projects/vision2/pixmaps/eiffel_wizard_icon.bmp -text
+Delivery/studio/wizards/new_projects/vision2/pixmaps/frame_application.bmp -text
+Delivery/studio/wizards/new_projects/vision2/resources/new.png -text
+Delivery/studio/wizards/new_projects/vision2/resources/open.png -text
+Delivery/studio/wizards/new_projects/vision2/resources/save.png -text
 Delivery/studio/wizards/new_projects/wel/pixmaps/dialog_application.bmp -text
 Delivery/studio/wizards/new_projects/wel/pixmaps/eiffel_wizard.bmp -text
 Delivery/studio/wizards/new_projects/wel/pixmaps/eiffel_wizard_icon.bmp -text
