@@ -284,7 +284,6 @@ Delivery/scripts/windows/install/Binary/Repair.ico -text
 Delivery/scripts/windows/install/Binary/Up.ico -text
 Delivery/scripts/windows/install/Binary/free_license.rtf svneol=native#unset
 Delivery/scripts/windows/install/Binary/university_license.rtf svneol=native#unset
-Delivery/scripts/windows/install/Eiffel55.wsi -text
 Delivery/studio/bitmaps/cursor/Xclass.png -text
 Delivery/studio/bitmaps/cursor/Xclass_list.png -text
 Delivery/studio/bitmaps/cursor/Xclientlnk.png -text
