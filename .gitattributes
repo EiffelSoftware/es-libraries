@@ -851,8 +851,6 @@ Src/examples/wel/xcell/xcell_demo.ico svneol=native#unset
 Src/help/bin/linux/help.gz -text
 Src/help/bin/windows/Helptool.zip -text
 Src/help/bin/windows/help.zip svneol=native#unset
-Src/help/wizards/estore1/bmp/essai.bmp -text
-Src/help/wizards/estore1/bmp/essai2.bmp -text
 Src/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
 Src/library/gobo/bin/gelex.exe -text
 Src/library/gobo/bin/gepp.exe -text
