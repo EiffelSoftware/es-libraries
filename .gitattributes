@@ -153,6 +153,9 @@ Delivery/build/bitmaps/png/icon_restore_color.png -text
 Delivery/build/bitmaps/png/icon_save_color.png -text
 Delivery/build/bitmaps/png/icon_system_color.png -text
 Delivery/build/bitmaps/png/icon_undo_color.png -text
+Delivery/build/bitmaps/png/items.png -text
+Delivery/build/bitmaps/png/primitives.png -text
+Delivery/build/bitmaps/png/widgets.png -text
 Delivery/build/pixmaps/eiffel_wizard.png -text
 Delivery/build/pixmaps/eiffel_wizard_icon.png -text
 Delivery/build/pixmaps/wizard.png -text
