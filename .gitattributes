@@ -1541,6 +1541,7 @@ Delivery/studio/bitmaps/ico/icon_no_stop_color.ico -text
 Delivery/studio/bitmaps/ico/icon_nothing.ico -text
 Delivery/studio/bitmaps/ico/icon_numeric_format_very_small_color.ico -text
 Delivery/studio/bitmaps/ico/icon_object_symbol.ico -text
+Delivery/studio/bitmaps/ico/icon_on_off_very_small_color.ico -text
 Delivery/studio/bitmaps/ico/icon_once_symbol.ico -text
 Delivery/studio/bitmaps/ico/icon_open_file_color.ico -text
 Delivery/studio/bitmaps/ico/icon_open_project.ico -text
@@ -1841,6 +1842,7 @@ Delivery/studio/bitmaps/png/icon_no_stop_color.png -text
 Delivery/studio/bitmaps/png/icon_nothing.png -text
 Delivery/studio/bitmaps/png/icon_numeric_format_very_small_color.png -text
 Delivery/studio/bitmaps/png/icon_object_symbol.png -text
+Delivery/studio/bitmaps/png/icon_on_off_very_small_color.png -text
 Delivery/studio/bitmaps/png/icon_once_symbol.png -text
 Delivery/studio/bitmaps/png/icon_open_file_color.png -text
 Delivery/studio/bitmaps/png/icon_open_project.png -text
