@@ -220,6 +220,7 @@ Delivery/bench/bitmaps/ico/icon_new_feature_small_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_new_inherit_color.ico -text
 Delivery/bench/bitmaps/ico/icon_new_inherit_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_new_measure_color.ico -text
+Delivery/bench/bitmaps/ico/icon_new_measure_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_new_small_color.ico -text
 Delivery/bench/bitmaps/ico/icon_new_small_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_new_supplier_color.ico -text
@@ -842,6 +843,7 @@ Delivery/studio/bitmaps/ico/icon_new_feature_small_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_new_inherit_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_inherit_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_new_measure_color.ico -text
+Delivery/studio/bitmaps/ico/icon_new_measure_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_new_small_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_small_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_new_supplier_color.ico -text
