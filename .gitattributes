@@ -2579,6 +2579,7 @@ Src/tools/doc_builder/documentation/project/xml/validatortool.png -text
 Src/tools/doc_builder/resources/icons/10x10spacer.png -text
 Src/tools/doc_builder/resources/icons/file.gif -text
 Src/tools/doc_builder/resources/icons/folder.gif -text
+Src/tools/doc_builder/resources/icons/folder_open.gif -text
 Src/tools/doc_builder/resources/icons/go_up.gif -text
 Src/tools/doc_builder/resources/icons/icon_back_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_bitmap_file.ico -text
@@ -2597,6 +2598,7 @@ Src/tools/doc_builder/resources/icons/icon_file_close.ico -text
 Src/tools/doc_builder/resources/icons/icon_format_text_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_forth_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_gif_file.ico -text
+Src/tools/doc_builder/resources/icons/icon_highlight.png -text
 Src/tools/doc_builder/resources/icons/icon_html_file.ico -text
 Src/tools/doc_builder/resources/icons/icon_ie.ico -text
 Src/tools/doc_builder/resources/icons/icon_info.ico -text
