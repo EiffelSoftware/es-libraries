@@ -169,6 +169,7 @@ Delivery/build/template/groups svneol=native#unset
 Delivery/build/template/namer svneol=native#unset
 Delivery/build/template/states svneol=native#unset
 Delivery/build/template/trans svneol=native#unset
+Delivery/configure_all.exe -text
 Delivery/docs/Eiffel/language/classes.maker.fig_1.gif -text
 Delivery/docs/Eiffel/language/deferred.maker.fig_1.gif -text
 Delivery/docs/Eiffel/language/fm2html-next.gif -text
