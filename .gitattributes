@@ -221,6 +221,8 @@ Delivery/bench/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/bench/bitmaps/ico/icon_step_into_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_step_out_color.ico -text
 Delivery/bench/bitmaps/ico/icon_step_out_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_straight_arrows_color.ico -text
+Delivery/bench/bitmaps/ico/icon_straight_arrows_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_supplier_color.ico -text
 Delivery/bench/bitmaps/ico/icon_supplier_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_system_color.ico -text
@@ -990,6 +992,8 @@ Delivery/studio/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_into_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_step_out_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_out_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_straight_arrows_color.ico -text
+Delivery/studio/bitmaps/ico/icon_straight_arrows_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_supplier_color.ico -text
 Delivery/studio/bitmaps/ico/icon_supplier_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_system_color.ico -text
