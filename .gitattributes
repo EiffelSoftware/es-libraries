@@ -652,6 +652,7 @@ Delivery/bench/wizards/new_projects/wizard/unix_resources/eiffel_wizard.png svne
 Delivery/bench/wizards/new_projects/wizard/unix_resources/eiffel_wizard_icon.png svneol=native#unset
 Delivery/bench/wizards/precompile/pixmaps/eiffel_wizard.png -text
 Delivery/bench/wizards/precompile/pixmaps/eiffel_wizard_icon.png -text
+Delivery/bench/wizards/precompile/pixmaps/wizard.png -text
 Delivery/build/bitmaps/bmp/align.bmp -text
 Delivery/build/bitmaps/bmp/arrow_b.bmp -text
 Delivery/build/bitmaps/bmp/attrib.bmp -text
@@ -2115,8 +2116,10 @@ Delivery/studio/wizards/new_projects/wizard/unix_resources/eiffel_wizard.png svn
 Delivery/studio/wizards/new_projects/wizard/unix_resources/eiffel_wizard_icon.png svneol=native#unset
 Delivery/studio/wizards/others/precompile/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/others/precompile/pixmaps/eiffel_wizard_icon.png -text
+Delivery/studio/wizards/others/precompile/pixmaps/wizard.png -text
 Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/precompile/pixmaps/eiffel_wizard_icon.png -text
+Delivery/studio/wizards/precompile/pixmaps/wizard.png -text
 Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text
 Delivery/wizards/com/eiffelcom.GID -text
