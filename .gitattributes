@@ -1645,6 +1645,7 @@ Delivery/studio/bitmaps/png/Xinheritlnk.png -text
 Delivery/studio/bitmaps/png/Xinterro.png -text
 Delivery/studio/bitmaps/png/Xobject.png -text
 Delivery/studio/bitmaps/png/Xstopexec.png -text
+Delivery/studio/bitmaps/png/activation.png -text
 Delivery/studio/bitmaps/png/bm_About.png -text
 Delivery/studio/bitmaps/png/bm_wizard_blue.png -text
 Delivery/studio/bitmaps/png/bm_wizard_profiler_icon.png -text
@@ -1934,6 +1935,7 @@ Delivery/studio/bitmaps/png/icon_zoom_out_color.png -text
 Delivery/studio/bitmaps/png/inheritlnk.png -text
 Delivery/studio/bitmaps/png/interro.png -text
 Delivery/studio/bitmaps/png/isepower.png -text
+Delivery/studio/bitmaps/png/logo.png -text
 Delivery/studio/bitmaps/png/magnify-slice.png -text
 Delivery/studio/bitmaps/png/modified.png -text
 Delivery/studio/bitmaps/png/obj_down.png -text
