@@ -517,14 +517,6 @@ Delivery/case/Non_configurable/resources.zip svneol=native#unset
 Delivery/docs/pdf/active.pdf -text
 Delivery/docs/pdf/case_guide.pdf -text
 Delivery/docs/pdf/guided_tour.pdf -text
-Delivery/docs/styles/opendyn.gif -text
-Delivery/docs/styles/opensave.gif -text
-Delivery/docs/styles/power.gif -text
-Delivery/docs/styles/profil1.gif -text
-Delivery/docs/styles/profil3.gif -text
-Delivery/docs/styles/profil4.gif -text
-Delivery/docs/styles/tech-right.gif -text
-Delivery/docs/styles/top.gif -text
 Delivery/studio/bitmaps/bmp/breakpt.bmp -text
 Delivery/studio/bitmaps/bmp/casestor.bmp -text
 Delivery/studio/bitmaps/bmp/class.bmp -text
