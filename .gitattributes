@@ -5,6 +5,7 @@ Delivery/build/bitmaps/ico/ev_button.ico -text
 Delivery/build/bitmaps/ico/ev_cell.ico -text
 Delivery/build/bitmaps/ico/ev_check_button.ico -text
 Delivery/build/bitmaps/ico/ev_check_menu_item.ico -text
+Delivery/build/bitmaps/ico/ev_checkable_list.ico -text
 Delivery/build/bitmaps/ico/ev_combo_box.ico -text
 Delivery/build/bitmaps/ico/ev_drawing_area.ico -text
 Delivery/build/bitmaps/ico/ev_fixed.ico -text
@@ -83,6 +84,7 @@ Delivery/build/bitmaps/png/ev_button.png -text
 Delivery/build/bitmaps/png/ev_cell.png -text
 Delivery/build/bitmaps/png/ev_check_button.png -text
 Delivery/build/bitmaps/png/ev_check_menu_item.png -text
+Delivery/build/bitmaps/png/ev_checkable_list.png -text
 Delivery/build/bitmaps/png/ev_combo_box.png -text
 Delivery/build/bitmaps/png/ev_container.png -text
 Delivery/build/bitmaps/png/ev_drawing_area.png -text
