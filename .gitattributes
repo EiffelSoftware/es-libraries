@@ -134,6 +134,12 @@ Delivery/bench/bitmaps/ico/icon_development_window.ico -text
 Delivery/bench/bitmaps/ico/icon_document_color.ico -text
 Delivery/bench/bitmaps/ico/icon_document_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_dynamiclib_window.ico -text
+Delivery/bench/bitmaps/ico/icon_exec_quit_color.ico -text
+Delivery/bench/bitmaps/ico/icon_exec_quit_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_exec_step_color.ico -text
+Delivery/bench/bitmaps/ico/icon_exec_step_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_exec_stop_color.ico -text
+Delivery/bench/bitmaps/ico/icon_exec_stop_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/bench/bitmaps/ico/icon_favorites_folder_gray.ico -text
@@ -187,6 +193,8 @@ Delivery/bench/bitmaps/ico/icon_new_small_color.ico -text
 Delivery/bench/bitmaps/ico/icon_new_small_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_new_supplier_color.ico -text
 Delivery/bench/bitmaps/ico/icon_new_supplier_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_no_stop_color.ico -text
+Delivery/bench/bitmaps/ico/icon_no_stop_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_past_color.ico -text
 Delivery/bench/bitmaps/ico/icon_past_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_profiler_window.ico -text
@@ -209,6 +217,10 @@ Delivery/bench/bitmaps/ico/icon_select_depth_color.ico -text
 Delivery/bench/bitmaps/ico/icon_select_depth_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_shell_color.ico -text
 Delivery/bench/bitmaps/ico/icon_shell_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_step_into_color.ico -text
+Delivery/bench/bitmaps/ico/icon_step_into_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_step_out_color.ico -text
+Delivery/bench/bitmaps/ico/icon_step_out_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_supplier_color.ico -text
 Delivery/bench/bitmaps/ico/icon_supplier_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_system_color.ico -text
@@ -891,6 +903,12 @@ Delivery/studio/bitmaps/ico/icon_development_window.ico -text
 Delivery/studio/bitmaps/ico/icon_document_color.ico -text
 Delivery/studio/bitmaps/ico/icon_document_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_dynamiclib_window.ico -text
+Delivery/studio/bitmaps/ico/icon_exec_quit_color.ico -text
+Delivery/studio/bitmaps/ico/icon_exec_quit_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_exec_step_color.ico -text
+Delivery/studio/bitmaps/ico/icon_exec_step_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_exec_stop_color.ico -text
+Delivery/studio/bitmaps/ico/icon_exec_stop_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_color.ico -text
 Delivery/studio/bitmaps/ico/icon_favorites_folder_gray.ico -text
@@ -944,6 +962,8 @@ Delivery/studio/bitmaps/ico/icon_new_small_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_small_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_new_supplier_color.ico -text
 Delivery/studio/bitmaps/ico/icon_new_supplier_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_no_stop_color.ico -text
+Delivery/studio/bitmaps/ico/icon_no_stop_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_past_color.ico -text
 Delivery/studio/bitmaps/ico/icon_past_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_profiler_window.ico -text
@@ -966,6 +986,10 @@ Delivery/studio/bitmaps/ico/icon_select_depth_color.ico -text
 Delivery/studio/bitmaps/ico/icon_select_depth_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_shell_color.ico -text
 Delivery/studio/bitmaps/ico/icon_shell_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_step_into_color.ico -text
+Delivery/studio/bitmaps/ico/icon_step_into_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_step_out_color.ico -text
+Delivery/studio/bitmaps/ico/icon_step_out_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_supplier_color.ico -text
 Delivery/studio/bitmaps/ico/icon_supplier_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_system_color.ico -text
