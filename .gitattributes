@@ -1057,6 +1057,7 @@ Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/choose_existing_ace.png
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/color-dialog-windows.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/context-dialog-class.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/context-dialog-cluster.png -text
+Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/error_description_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/favorites_choose_folder_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/favorites_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/favorites_new_class_dialog.png -text
@@ -1099,6 +1100,7 @@ Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/set_slice_size_dlg.png 
 Delivery/newdocs/images/eiffelstudio/dialogs_and_wizards/toolbar_customization_dialog.png -text
 Delivery/newdocs/images/eiffelstudio/editor_auto_completion_window.png -text
 Delivery/newdocs/images/eiffelstudio/editor_pick_and_drop.png -text
+Delivery/newdocs/images/eiffelstudio/error_message.png -text
 Delivery/newdocs/images/eiffelstudio/feature_format_bar.png -text
 Delivery/newdocs/images/eiffelstudio/general_debug_mode.png -text
 Delivery/newdocs/images/eiffelstudio/general_edition_mode.png -text
@@ -1444,6 +1446,7 @@ Delivery/newdocs/images/eiffelstudio/metrics_png/scopecombobox.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/sratio.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/unit.png -text
 Delivery/newdocs/images/eiffelstudio/metrics_png/update.png -text
+Delivery/newdocs/images/eiffelstudio/open_existing_ace.png -text
 Delivery/newdocs/libraries/base/content/10_kernel/strings.png -text
 Delivery/newdocs/libraries/base/content/20_structures/bilinear.png -text
 Delivery/newdocs/libraries/base/content/20_structures/binary_tree.png -text
