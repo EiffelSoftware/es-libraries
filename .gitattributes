@@ -548,6 +548,8 @@ Delivery/newdocs/images/eiffelbuild/screenshots/complete_project_diagram.png -te
 Delivery/newdocs/images/eiffelbuild/screenshots/component_namer.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/component_selector.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/component_viewer.png -text
+Delivery/newdocs/images/eiffelbuild/screenshots/constant_in_use.png -text
+Delivery/newdocs/images/eiffelbuild/screenshots/constants_dialog.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/display_window.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/docked_external.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/docking_insert.png -text
@@ -566,6 +568,7 @@ Delivery/newdocs/images/eiffelbuild/screenshots/new_project.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/object_editor.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/open_project.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/overwrite_project.png -text
+Delivery/newdocs/images/eiffelbuild/screenshots/pixmap_selection_dialog.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/position_children_button.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/project_build.png -text
 Delivery/newdocs/images/eiffelbuild/screenshots/project_build_class.png -text
