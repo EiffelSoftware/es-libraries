@@ -185,6 +185,8 @@ Delivery/bench/bitmaps/ico/icon_forth_color.ico -text
 Delivery/bench/bitmaps/ico/icon_forth_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_global_search_color.ico -text
 Delivery/bench/bitmaps/ico/icon_global_search_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_green_arrow.ico -text
+Delivery/bench/bitmaps/ico/icon_green_tick.ico -text
 Delivery/bench/bitmaps/ico/icon_history_color.ico -text
 Delivery/bench/bitmaps/ico/icon_history_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_history_text_color.ico -text
@@ -195,6 +197,8 @@ Delivery/bench/bitmaps/ico/icon_light_class_color.ico -text
 Delivery/bench/bitmaps/ico/icon_light_cluster_color.ico -text
 Delivery/bench/bitmaps/ico/icon_maximize_color.ico -text
 Delivery/bench/bitmaps/ico/icon_maximize_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_minimize_all_color.ico -text
+Delivery/bench/bitmaps/ico/icon_minimize_all_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_minimize_color.ico -text
 Delivery/bench/bitmaps/ico/icon_minimize_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_new_agg_supplier_color.ico -text
@@ -231,10 +235,13 @@ Delivery/bench/bitmaps/ico/icon_past_color.ico -text
 Delivery/bench/bitmaps/ico/icon_past_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_profiler_window.ico -text
 Delivery/bench/bitmaps/ico/icon_progress_dialog.ico -text
+Delivery/bench/bitmaps/ico/icon_red_cross.ico -text
 Delivery/bench/bitmaps/ico/icon_redo_color.ico -text
 Delivery/bench/bitmaps/ico/icon_redo_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_reset_diagram_color.ico -text
 Delivery/bench/bitmaps/ico/icon_reset_diagram_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_restore_all_color.ico -text
+Delivery/bench/bitmaps/ico/icon_restore_all_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_restore_color.ico -text
 Delivery/bench/bitmaps/ico/icon_restore_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_run_color.ico -text
@@ -275,6 +282,10 @@ Delivery/bench/bitmaps/ico/icon_undo_color.ico -text
 Delivery/bench/bitmaps/ico/icon_undo_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_view_measure_color.ico -text
 Delivery/bench/bitmaps/ico/icon_view_measure_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_view_measure_minus_color.ico -text
+Delivery/bench/bitmaps/ico/icon_view_measure_minus_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_view_measure_plus_color.ico -text
+Delivery/bench/bitmaps/ico/icon_view_measure_plus_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_color.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_windows_text_color.ico -text
@@ -810,6 +821,8 @@ Delivery/studio/bitmaps/ico/icon_forth_color.ico -text
 Delivery/studio/bitmaps/ico/icon_forth_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_global_search_color.ico -text
 Delivery/studio/bitmaps/ico/icon_global_search_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_green_arrow.ico -text
+Delivery/studio/bitmaps/ico/icon_green_tick.ico -text
 Delivery/studio/bitmaps/ico/icon_history_color.ico -text
 Delivery/studio/bitmaps/ico/icon_history_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_history_text_color.ico -text
@@ -820,6 +833,8 @@ Delivery/studio/bitmaps/ico/icon_light_class_color.ico -text
 Delivery/studio/bitmaps/ico/icon_light_cluster_color.ico -text
 Delivery/studio/bitmaps/ico/icon_maximize_color.ico -text
 Delivery/studio/bitmaps/ico/icon_maximize_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_minimize_all_color.ico -text
+Delivery/studio/bitmaps/ico/icon_minimize_all_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_minimize_color.ico -text
 Delivery/studio/bitmaps/ico/icon_minimize_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_new_agg_supplier_color.ico -text
@@ -856,10 +871,13 @@ Delivery/studio/bitmaps/ico/icon_past_color.ico -text
 Delivery/studio/bitmaps/ico/icon_past_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_profiler_window.ico -text
 Delivery/studio/bitmaps/ico/icon_progress_dialog.ico -text
+Delivery/studio/bitmaps/ico/icon_red_cross.ico -text
 Delivery/studio/bitmaps/ico/icon_redo_color.ico -text
 Delivery/studio/bitmaps/ico/icon_redo_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_reset_diagram_color.ico -text
 Delivery/studio/bitmaps/ico/icon_reset_diagram_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_restore_all_color.ico -text
+Delivery/studio/bitmaps/ico/icon_restore_all_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_restore_color.ico -text
 Delivery/studio/bitmaps/ico/icon_restore_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_run_color.ico -text
@@ -900,6 +918,10 @@ Delivery/studio/bitmaps/ico/icon_undo_color.ico -text
 Delivery/studio/bitmaps/ico/icon_undo_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_view_measure_color.ico -text
 Delivery/studio/bitmaps/ico/icon_view_measure_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_view_measure_minus_color.ico -text
+Delivery/studio/bitmaps/ico/icon_view_measure_minus_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_view_measure_plus_color.ico -text
+Delivery/studio/bitmaps/ico/icon_view_measure_plus_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_color.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_windows_text_color.ico -text
