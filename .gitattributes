@@ -1313,9 +1313,11 @@ Delivery/studio/bitmaps/ico/icon_bon_persistent.ico -text
 Delivery/studio/bitmaps/ico/icon_bparrow.ico -text
 Delivery/studio/bitmaps/ico/icon_bparrow_color.ico -text
 Delivery/studio/bitmaps/ico/icon_bpdisabled.ico -text
+Delivery/studio/bitmaps/ico/icon_bpdisabled_condition.ico -text
 Delivery/studio/bitmaps/ico/icon_bpdisabled_stopped.ico -text
 Delivery/studio/bitmaps/ico/icon_bpdisabled_top.ico -text
 Delivery/studio/bitmaps/ico/icon_bpenabled.ico -text
+Delivery/studio/bitmaps/ico/icon_bpenabled_condition.ico -text
 Delivery/studio/bitmaps/ico/icon_bpenabled_stopped.ico -text
 Delivery/studio/bitmaps/ico/icon_bpenabled_top.ico -text
 Delivery/studio/bitmaps/ico/icon_bpslot.ico -text
@@ -1478,6 +1480,7 @@ Delivery/studio/bitmaps/ico/icon_select_depth_color.ico -text
 Delivery/studio/bitmaps/ico/icon_select_metrics_color.ico -text
 Delivery/studio/bitmaps/ico/icon_send_stone_down_color.ico -text
 Delivery/studio/bitmaps/ico/icon_set_arguments_color.ico -text
+Delivery/studio/bitmaps/ico/icon_set_stack_depth_color.ico -text
 Delivery/studio/bitmaps/ico/icon_shell_color.ico -text
 Delivery/studio/bitmaps/ico/icon_slice_limits_vsmall_color.ico -text
 Delivery/studio/bitmaps/ico/icon_sorter_color.ico -text
