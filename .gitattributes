@@ -2215,6 +2215,13 @@ Src/resource_bench/RB_documentation/docrb/RETRIEV.gif svneol=native#unset
 Src/resource_bench/RB_documentation/docrb/analyz.bmp svneol=native#unset
 Src/resource_bench/RB_documentation/docrb/collaps.bmp svneol=native#unset
 Src/resource_bench/RB_documentation/docrb/expand.bmp svneol=native#unset
+Src/resource_bench/RB_documentation/docrb/new_htmls/analyz.png -text
+Src/resource_bench/RB_documentation/docrb/new_htmls/browse.png -text
+Src/resource_bench/RB_documentation/docrb/new_htmls/collaps.png -text
+Src/resource_bench/RB_documentation/docrb/new_htmls/expand.png -text
+Src/resource_bench/RB_documentation/docrb/new_htmls/prepro.png -text
+Src/resource_bench/RB_documentation/docrb/new_htmls/rb.png -text
+Src/resource_bench/RB_documentation/docrb/new_htmls/retriev.png -text
 Src/resource_bench/RB_documentation/docrb/prepro.bmp svneol=native#unset
 Src/resource_bench/RB_documentation/docrb/rb.bmp svneol=native#unset
 Src/resource_bench/RB_documentation/docrb/retriev.bmp svneol=native#unset
