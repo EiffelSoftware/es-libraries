@@ -314,6 +314,8 @@ Delivery/bench/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/bench/bitmaps/png/Xclass.png -text
 Delivery/bench/bitmaps/png/bm_About.png -text
+Delivery/bench/bitmaps/png/bm_wizard_blue.png -text
+Delivery/bench/bitmaps/png/bm_wizard_profiler_icon.png -text
 Delivery/bench/bitmaps/png/bon_deferred.png -text
 Delivery/bench/bitmaps/png/bon_effective.png -text
 Delivery/bench/bitmaps/png/bon_interfaced.png -text
@@ -1773,6 +1775,8 @@ Delivery/studio/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/studio/bitmaps/png/Xclass.png -text
 Delivery/studio/bitmaps/png/bm_About.png -text
+Delivery/studio/bitmaps/png/bm_wizard_blue.png -text
+Delivery/studio/bitmaps/png/bm_wizard_profiler_icon.png -text
 Delivery/studio/bitmaps/png/bon_deferred.png -text
 Delivery/studio/bitmaps/png/bon_effective.png -text
 Delivery/studio/bitmaps/png/bon_interfaced.png -text
