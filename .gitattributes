@@ -1644,6 +1644,10 @@ Src/com_wizard/Doc/help/wizard_marshaling2.gif -text
 Src/com_wizard/Doc/help/wizard_output_type.gif -text
 Src/com_wizard/Doc/library.fm -text
 Src/com_wizard/Doc/wizard.fm -text
+Src/com_wizard/root/resources/eiffel_software.png -text
+Src/com_wizard/root/resources/help.png -text
+Src/com_wizard/root/resources/output.png -text
+Src/com_wizard/root/resources/settings.png -text
 Src/com_wizard/root/resources/wizard.ico -text
 Src/dotnet/codedom_provider/test/tester/icons/tester.png -text
 Src/dotnet/codedom_provider/tools/manager/ecdpman.ico -text
