@@ -315,6 +315,14 @@ Delivery/bench/bitmaps/ico/icon_zoom_in_color.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/bench/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/bench/bitmaps/png/Xclass.png -text
+Delivery/bench/bitmaps/png/Xclientlnk.png -text
+Delivery/bench/bitmaps/png/Xcluster.png -text
+Delivery/bench/bitmaps/png/Xfavorites_folder.png -text
+Delivery/bench/bitmaps/png/Xfeature.png -text
+Delivery/bench/bitmaps/png/Xinheritlnk.png -text
+Delivery/bench/bitmaps/png/Xinterro.png -text
+Delivery/bench/bitmaps/png/Xobject.png -text
+Delivery/bench/bitmaps/png/Xstopexec.png -text
 Delivery/bench/bitmaps/png/bm_About.png -text
 Delivery/bench/bitmaps/png/bm_wizard_blue.png -text
 Delivery/bench/bitmaps/png/bm_wizard_profiler_icon.png -text
@@ -335,7 +343,9 @@ Delivery/bench/bitmaps/png/class.png -text
 Delivery/bench/bitmaps/png/classdot.png -text
 Delivery/bench/bitmaps/png/classico.png -text
 Delivery/bench/bitmaps/png/clckable.png -text
+Delivery/bench/bitmaps/png/clientlnk.png -text
 Delivery/bench/bitmaps/png/clr_bp.png -text
+Delivery/bench/bitmaps/png/cluster.png -text
 Delivery/bench/bitmaps/png/current.png -text
 Delivery/bench/bitmaps/png/dbg_dyneval.png -text
 Delivery/bench/bitmaps/png/dbgquit.png -text
@@ -360,6 +370,7 @@ Delivery/bench/bitmaps/png/explain.png -text
 Delivery/bench/bitmaps/png/expldot.png -text
 Delivery/bench/bitmaps/png/explicon.png -text
 Delivery/bench/bitmaps/png/favorites_folder.png -text
+Delivery/bench/bitmaps/png/feature.png -text
 Delivery/bench/bitmaps/png/gbreakpt.png -text
 Delivery/bench/bitmaps/png/general.png -text
 Delivery/bench/bitmaps/png/graph.png -text
@@ -370,6 +381,7 @@ Delivery/bench/bitmaps/png/header_open.png -text
 Delivery/bench/bitmaps/png/header_open_highlight.png -text
 Delivery/bench/bitmaps/png/histback.png -text
 Delivery/bench/bitmaps/png/histfort.png -text
+Delivery/bench/bitmaps/png/hourglass.png -text
 Delivery/bench/bitmaps/png/icon_add_exported_feature_color.png -text
 Delivery/bench/bitmaps/png/icon_attribute_symbol.png -text
 Delivery/bench/bitmaps/png/icon_back_color.png -text
@@ -569,11 +581,14 @@ Delivery/bench/bitmaps/png/icon_zoom_in.png -text
 Delivery/bench/bitmaps/png/icon_zoom_in_color.png -text
 Delivery/bench/bitmaps/png/icon_zoom_out.png -text
 Delivery/bench/bitmaps/png/icon_zoom_out_color.png -text
+Delivery/bench/bitmaps/png/inheritlnk.png -text
+Delivery/bench/bitmaps/png/interro.png -text
 Delivery/bench/bitmaps/png/isepower.png -text
 Delivery/bench/bitmaps/png/magnify-slice.png -text
 Delivery/bench/bitmaps/png/modified.png -text
 Delivery/bench/bitmaps/png/obj_down.png -text
 Delivery/bench/bitmaps/png/obj_up.png -text
+Delivery/bench/bitmaps/png/object.png -text
 Delivery/bench/bitmaps/png/objicon.png -text
 Delivery/bench/bitmaps/png/open.png -text
 Delivery/bench/bitmaps/png/profiler.png -text
@@ -619,6 +634,7 @@ Delivery/bench/bitmaps/png/sshort.png -text
 Delivery/bench/bitmaps/png/sstatist.png -text
 Delivery/bench/bitmaps/png/ssupplie.png -text
 Delivery/bench/bitmaps/png/stext.png -text
+Delivery/bench/bitmaps/png/stopexec.png -text
 Delivery/bench/bitmaps/png/systdot.png -text
 Delivery/bench/bitmaps/png/system.png -text
 Delivery/bench/bitmaps/png/test.png -text
@@ -2179,6 +2195,14 @@ Delivery/studio/bitmaps/ico/icon_zoom_in_color.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out.ico -text
 Delivery/studio/bitmaps/ico/icon_zoom_out_color.ico -text
 Delivery/studio/bitmaps/png/Xclass.png -text
+Delivery/studio/bitmaps/png/Xclientlnk.png -text
+Delivery/studio/bitmaps/png/Xcluster.png -text
+Delivery/studio/bitmaps/png/Xfavorites_folder.png -text
+Delivery/studio/bitmaps/png/Xfeature.png -text
+Delivery/studio/bitmaps/png/Xinheritlnk.png -text
+Delivery/studio/bitmaps/png/Xinterro.png -text
+Delivery/studio/bitmaps/png/Xobject.png -text
+Delivery/studio/bitmaps/png/Xstopexec.png -text
 Delivery/studio/bitmaps/png/bm_About.png -text
 Delivery/studio/bitmaps/png/bm_wizard_blue.png -text
 Delivery/studio/bitmaps/png/bm_wizard_profiler_icon.png -text
@@ -2199,7 +2223,9 @@ Delivery/studio/bitmaps/png/class.png -text
 Delivery/studio/bitmaps/png/classdot.png -text
 Delivery/studio/bitmaps/png/classico.png -text
 Delivery/studio/bitmaps/png/clckable.png -text
+Delivery/studio/bitmaps/png/clientlnk.png -text
 Delivery/studio/bitmaps/png/clr_bp.png -text
+Delivery/studio/bitmaps/png/cluster.png -text
 Delivery/studio/bitmaps/png/current.png -text
 Delivery/studio/bitmaps/png/dbg_dyneval.png -text
 Delivery/studio/bitmaps/png/dbgquit.png -text
@@ -2224,6 +2250,7 @@ Delivery/studio/bitmaps/png/explain.png -text
 Delivery/studio/bitmaps/png/expldot.png -text
 Delivery/studio/bitmaps/png/explicon.png -text
 Delivery/studio/bitmaps/png/favorites_folder.png -text
+Delivery/studio/bitmaps/png/feature.png -text
 Delivery/studio/bitmaps/png/gbreakpt.png -text
 Delivery/studio/bitmaps/png/general.png -text
 Delivery/studio/bitmaps/png/graph.png -text
@@ -2234,6 +2261,7 @@ Delivery/studio/bitmaps/png/header_open.png -text
 Delivery/studio/bitmaps/png/header_open_highlight.png -text
 Delivery/studio/bitmaps/png/histback.png -text
 Delivery/studio/bitmaps/png/histfort.png -text
+Delivery/studio/bitmaps/png/hourglass.png -text
 Delivery/studio/bitmaps/png/icon_add_exported_feature_color.png -text
 Delivery/studio/bitmaps/png/icon_attribute_symbol.png -text
 Delivery/studio/bitmaps/png/icon_back_color.png -text
@@ -2433,11 +2461,14 @@ Delivery/studio/bitmaps/png/icon_zoom_in.png -text
 Delivery/studio/bitmaps/png/icon_zoom_in_color.png -text
 Delivery/studio/bitmaps/png/icon_zoom_out.png -text
 Delivery/studio/bitmaps/png/icon_zoom_out_color.png -text
+Delivery/studio/bitmaps/png/inheritlnk.png -text
+Delivery/studio/bitmaps/png/interro.png -text
 Delivery/studio/bitmaps/png/isepower.png -text
 Delivery/studio/bitmaps/png/magnify-slice.png -text
 Delivery/studio/bitmaps/png/modified.png -text
 Delivery/studio/bitmaps/png/obj_down.png -text
 Delivery/studio/bitmaps/png/obj_up.png -text
+Delivery/studio/bitmaps/png/object.png -text
 Delivery/studio/bitmaps/png/objicon.png -text
 Delivery/studio/bitmaps/png/open.png -text
 Delivery/studio/bitmaps/png/profiler.png -text
@@ -2483,6 +2514,7 @@ Delivery/studio/bitmaps/png/sshort.png -text
 Delivery/studio/bitmaps/png/sstatist.png -text
 Delivery/studio/bitmaps/png/ssupplie.png -text
 Delivery/studio/bitmaps/png/stext.png -text
+Delivery/studio/bitmaps/png/stopexec.png -text
 Delivery/studio/bitmaps/png/systdot.png -text
 Delivery/studio/bitmaps/png/system.png -text
 Delivery/studio/bitmaps/png/test.png -text
