@@ -408,6 +408,7 @@ Delivery/bench/bitmaps/png/icon_bpenabled_top.png -text
 Delivery/bench/bitmaps/png/icon_bpslot.png -text
 Delivery/bench/bitmaps/png/icon_bpslot_stopped.png -text
 Delivery/bench/bitmaps/png/icon_bpslot_top.png -text
+Delivery/bench/bitmaps/png/icon_center_diagram_color.png -text
 Delivery/bench/bitmaps/png/icon_check_exports_color.png -text
 Delivery/bench/bitmaps/png/icon_class.png -text
 Delivery/bench/bitmaps/png/icon_class_color.png -text
@@ -529,6 +530,7 @@ Delivery/bench/bitmaps/png/icon_new_metric_color.png -text
 Delivery/bench/bitmaps/png/icon_new_small_color.png -text
 Delivery/bench/bitmaps/png/icon_new_supplier_color.png -text
 Delivery/bench/bitmaps/png/icon_no_stop_color.png -text
+Delivery/bench/bitmaps/png/icon_nothing.png -text
 Delivery/bench/bitmaps/png/icon_object_symbol.png -text
 Delivery/bench/bitmaps/png/icon_once_symbol.png -text
 Delivery/bench/bitmaps/png/icon_open_file_color.png -text
@@ -565,6 +567,7 @@ Delivery/bench/bitmaps/png/icon_sorter_color.png -text
 Delivery/bench/bitmaps/png/icon_step_into_color.png -text
 Delivery/bench/bitmaps/png/icon_step_out_color.png -text
 Delivery/bench/bitmaps/png/icon_straight_arrows_color.png -text
+Delivery/bench/bitmaps/png/icon_super_cluster_color.png -text
 Delivery/bench/bitmaps/png/icon_supplier_color.png -text
 Delivery/bench/bitmaps/png/icon_system_color.png -text
 Delivery/bench/bitmaps/png/icon_system_info_color.png -text
@@ -2295,6 +2298,7 @@ Delivery/studio/bitmaps/png/icon_bpenabled_top.png -text
 Delivery/studio/bitmaps/png/icon_bpslot.png -text
 Delivery/studio/bitmaps/png/icon_bpslot_stopped.png -text
 Delivery/studio/bitmaps/png/icon_bpslot_top.png -text
+Delivery/studio/bitmaps/png/icon_center_diagram_color.png -text
 Delivery/studio/bitmaps/png/icon_check_exports_color.png -text
 Delivery/studio/bitmaps/png/icon_class.png -text
 Delivery/studio/bitmaps/png/icon_class_color.png -text
@@ -2416,6 +2420,7 @@ Delivery/studio/bitmaps/png/icon_new_metric_color.png -text
 Delivery/studio/bitmaps/png/icon_new_small_color.png -text
 Delivery/studio/bitmaps/png/icon_new_supplier_color.png -text
 Delivery/studio/bitmaps/png/icon_no_stop_color.png -text
+Delivery/studio/bitmaps/png/icon_nothing.png -text
 Delivery/studio/bitmaps/png/icon_object_symbol.png -text
 Delivery/studio/bitmaps/png/icon_once_symbol.png -text
 Delivery/studio/bitmaps/png/icon_open_file_color.png -text
@@ -2452,6 +2457,7 @@ Delivery/studio/bitmaps/png/icon_sorter_color.png -text
 Delivery/studio/bitmaps/png/icon_step_into_color.png -text
 Delivery/studio/bitmaps/png/icon_step_out_color.png -text
 Delivery/studio/bitmaps/png/icon_straight_arrows_color.png -text
+Delivery/studio/bitmaps/png/icon_super_cluster_color.png -text
 Delivery/studio/bitmaps/png/icon_supplier_color.png -text
 Delivery/studio/bitmaps/png/icon_system_color.png -text
 Delivery/studio/bitmaps/png/icon_system_info_color.png -text
