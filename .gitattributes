@@ -844,6 +844,8 @@ Delivery/wizards/com/EIFFELCOM.HLP -text
 Delivery/wizards/com/config/melted_path.reg -text
 Delivery/wizards/com/eiffelcom.GID -text
 Delivery/wizards/com/eiffelcom.fts -text
+Src/C_library/libpng/contrib/visupng/VisualPng.ico svneol=native#unset
+Src/C_library/libpng/pngbar.jpg svneol=native#unset
 Src/bench/C/ipc/daemon/ebench.ico -text
 Src/bench/C/ipc/daemon/splash.bmp -text
 Src/bench/C/rt_converter.exe -text
