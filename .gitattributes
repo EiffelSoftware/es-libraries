@@ -327,6 +327,7 @@ Delivery/bench/bitmaps/ico/icon_shell_color.ico -text
 Delivery/bench/bitmaps/ico/icon_shell_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_slice_limits_vsmall_color.ico -text
 Delivery/bench/bitmaps/ico/icon_slice_limits_vsmall_gray.ico -text
+Delivery/bench/bitmaps/ico/icon_sorter_color.ico -text
 Delivery/bench/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/bench/bitmaps/ico/icon_step_into_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_step_out_color.ico -text
@@ -1796,6 +1797,7 @@ Delivery/studio/bitmaps/ico/icon_shell_color.ico -text
 Delivery/studio/bitmaps/ico/icon_shell_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_slice_limits_vsmall_color.ico -text
 Delivery/studio/bitmaps/ico/icon_slice_limits_vsmall_gray.ico -text
+Delivery/studio/bitmaps/ico/icon_sorter_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_into_color.ico -text
 Delivery/studio/bitmaps/ico/icon_step_into_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_step_out_color.ico -text
