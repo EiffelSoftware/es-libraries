@@ -3537,6 +3537,7 @@ Src/tools/doc_builder/documentation/project/xml/validatortool.png -text
 Src/tools/doc_builder/resources/icons/10x10spacer.png -text
 Src/tools/doc_builder/resources/icons/icon_back_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_bitmap_file.ico -text
+Src/tools/doc_builder/resources/icons/icon_checked.png -text
 Src/tools/doc_builder/resources/icons/icon_close_color.ico -text
 Src/tools/doc_builder/resources/icons/icon_close_folder.ico -text
 Src/tools/doc_builder/resources/icons/icon_code_class.ico -text
@@ -3583,6 +3584,7 @@ Src/tools/doc_builder/resources/icons/icon_toc_folder_closed.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_closed.ico -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_open.gif -text
 Src/tools/doc_builder/resources/icons/icon_toc_folder_open.ico -text
+Src/tools/doc_builder/resources/icons/icon_unchecked.png -text
 Src/tools/doc_builder/resources/icons/icon_undo.ico -text
 Src/tools/doc_builder/resources/icons/icon_validate.ico -text
 Src/tools/doc_builder/resources/icons/icon_widget_edit.ico -text
