@@ -380,6 +380,7 @@ Delivery/studio/bitmaps/xpm/sflat.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/ssupplie.xpm svneol=native#unset
 Delivery/studio/bitmaps/xpm/stext.xpm svneol=native#unset
 Src/bench/C/ipc/daemon/ebench.ico -text
+Src/bench/Eiffel/Ace/es4.ico -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/Eiffel/extra/finish_freezing/finish_freezing.ico svneol=native#unset
 Src/bench/Eiffel/interface/graphical/resource_file/es4.ico svneol=native#unset
