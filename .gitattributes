@@ -684,6 +684,8 @@ Src/bench/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/Eiffel/extra/finish_freezing/finish_freezing.ico svneol=native#unset
 Src/bench/Eiffel/interface/graphical/resource_file/es4.ico svneol=native#unset
+Src/bench/Eiffel/interface/new_graphical/editor/app.ico svneol=native#unset
+Src/bench/Eiffel/interface/new_graphical/editor/child.ico svneol=native#unset
 Src/build/Clib/motif/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb_openlook svneol=native#unset
