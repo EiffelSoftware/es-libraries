@@ -81,6 +81,7 @@ Delivery/bench/bitmaps/bmp/up_stack.bmp -text
 Delivery/bench/bitmaps/bmp/update.bmp -text
 Delivery/bench/bitmaps/cursor/Xclass.ico -text
 Delivery/bench/bitmaps/cursor/Xclientlnk.ico -text
+Delivery/bench/bitmaps/cursor/Xcluster.ico -text
 Delivery/bench/bitmaps/cursor/Xfeature.ico -text
 Delivery/bench/bitmaps/cursor/Xinheritlnk.ico -text
 Delivery/bench/bitmaps/cursor/Xobject.ico -text
@@ -723,6 +724,7 @@ Delivery/studio/bitmaps/bmp/up_stack.bmp -text
 Delivery/studio/bitmaps/bmp/update.bmp -text
 Delivery/studio/bitmaps/cursor/Xclass.ico -text
 Delivery/studio/bitmaps/cursor/Xclientlnk.ico -text
+Delivery/studio/bitmaps/cursor/Xcluster.ico -text
 Delivery/studio/bitmaps/cursor/Xfeature.ico -text
 Delivery/studio/bitmaps/cursor/Xinheritlnk.ico -text
 Delivery/studio/bitmaps/cursor/Xobject.ico -text
