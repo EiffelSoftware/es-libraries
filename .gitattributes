@@ -670,6 +670,7 @@ Src/bench/C/ipc/daemon/splash.bmp -text
 Src/bench/C/rt_converter.exe -text
 Src/bench/Eiffel/Ace/es4.ico -text
 Src/bench/Eiffel/Ace/logo.bmp -text
+Src/bench/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/Eiffel/extra/finish_freezing/finish_freezing.ico svneol=native#unset
 Src/bench/Eiffel/interface/graphical/resource_file/es4.ico svneol=native#unset
