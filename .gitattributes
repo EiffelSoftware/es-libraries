@@ -110,10 +110,13 @@ Delivery/bench/bitmaps/ico/icon_bparrow.ico -text
 Delivery/bench/bitmaps/ico/icon_bparrow_color.ico -text
 Delivery/bench/bitmaps/ico/icon_bpdisabled.ico -text
 Delivery/bench/bitmaps/ico/icon_bpdisabled_stopped.ico -text
+Delivery/bench/bitmaps/ico/icon_bpdisabled_top.ico -text
 Delivery/bench/bitmaps/ico/icon_bpenabled.ico -text
 Delivery/bench/bitmaps/ico/icon_bpenabled_stopped.ico -text
+Delivery/bench/bitmaps/ico/icon_bpenabled_top.ico -text
 Delivery/bench/bitmaps/ico/icon_bpslot.ico -text
 Delivery/bench/bitmaps/ico/icon_bpslot_stopped.ico -text
+Delivery/bench/bitmaps/ico/icon_bpslot_top.ico -text
 Delivery/bench/bitmaps/ico/icon_class.ico -text
 Delivery/bench/bitmaps/ico/icon_class_gray.ico -text
 Delivery/bench/bitmaps/ico/icon_class_header_color.ico -text
@@ -781,10 +784,13 @@ Delivery/studio/bitmaps/ico/icon_bparrow.ico -text
 Delivery/studio/bitmaps/ico/icon_bparrow_color.ico -text
 Delivery/studio/bitmaps/ico/icon_bpdisabled.ico -text
 Delivery/studio/bitmaps/ico/icon_bpdisabled_stopped.ico -text
+Delivery/studio/bitmaps/ico/icon_bpdisabled_top.ico -text
 Delivery/studio/bitmaps/ico/icon_bpenabled.ico -text
 Delivery/studio/bitmaps/ico/icon_bpenabled_stopped.ico -text
+Delivery/studio/bitmaps/ico/icon_bpenabled_top.ico -text
 Delivery/studio/bitmaps/ico/icon_bpslot.ico -text
 Delivery/studio/bitmaps/ico/icon_bpslot_stopped.ico -text
+Delivery/studio/bitmaps/ico/icon_bpslot_top.ico -text
 Delivery/studio/bitmaps/ico/icon_class.ico -text
 Delivery/studio/bitmaps/ico/icon_class_gray.ico -text
 Delivery/studio/bitmaps/ico/icon_class_header_color.ico -text
