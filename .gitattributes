@@ -831,6 +831,7 @@ Delivery/xmldoc/images/dotnet_samples/simple_hello_world.png -text
 Delivery/xmldoc/images/dotnet_samples/text.png -text
 Delivery/xmldoc/images/dotnet_samples/tree_view.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/bm_About.png -text
+Delivery/xmldoc/images/eiffelbuild/icons/directory_search_small.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_build_window_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_builder_window_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_clipboard_color.png -text
@@ -860,6 +861,7 @@ Delivery/xmldoc/images/eiffelbuild/icons/icon_past_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_redo_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_restore_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_save_color.png -text
+Delivery/xmldoc/images/eiffelbuild/icons/icon_show_hide_directory_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_system_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_titled_window_main_small_color.png -text
 Delivery/xmldoc/images/eiffelbuild/icons/icon_undo_color.png -text
@@ -883,6 +885,7 @@ Delivery/xmldoc/images/eiffelbuild/screenshots/history_window.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/import_project.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/import_project_clashes.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/layout_constructor.png -text
+Delivery/xmldoc/images/eiffelbuild/screenshots/layout_constructor_locked.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/main_window.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/main_window_with_docked_tools.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/new_directory_dialog.png -text
@@ -900,6 +903,7 @@ Delivery/xmldoc/images/eiffelbuild/screenshots/recent_projects.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/table_child_positioner.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/toolbar.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/type_selector.png -text
+Delivery/xmldoc/images/eiffelbuild/screenshots/widget_selector_clients.PNG -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/window_selector.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/wizard_code_generation.png -text
 Delivery/xmldoc/images/eiffelbuild/screenshots/wizard_completion.png -text
