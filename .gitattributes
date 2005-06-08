@@ -1584,6 +1584,17 @@ Delivery/xmldoc/technologies/unicode/windows9x/lastdoc.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/normaldoc.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/power.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/topdoc.gif -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/assembly.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/assembly_static.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/build.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/eiffel_libraries.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/file_class_blue.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/file_class_ex.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/folder.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/folder_ex.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/project.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/project_items.ico -text
+Delivery/xmldoc/tools/eiffelenvision/images/icons/references.ico -text
 Delivery/xmldoc/tools/eiffelenvision/introduction/images/check.png -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/assembly/assembly.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/assembly/hier_reference_all.ico -text
