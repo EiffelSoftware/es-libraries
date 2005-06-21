@@ -14,6 +14,8 @@ Delivery/build/bitmaps/png/ev_dialog.png -text
 Delivery/build/bitmaps/png/ev_drawing_area.png -text
 Delivery/build/bitmaps/png/ev_fixed.png -text
 Delivery/build/bitmaps/png/ev_frame.png -text
+Delivery/build/bitmaps/png/ev_grid.png -text
+Delivery/build/bitmaps/png/ev_header.png -text
 Delivery/build/bitmaps/png/ev_horizontal_box.png -text
 Delivery/build/bitmaps/png/ev_horizontal_progress_bar.png -text
 Delivery/build/bitmaps/png/ev_horizontal_range.png -text
