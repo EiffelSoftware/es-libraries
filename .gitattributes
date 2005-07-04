@@ -733,8 +733,11 @@ Delivery/xmldoc/images/eiffelstudio/class_mini_format_bar.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/argument_dialog.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/argument_dialog_editing.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/breakpoint_context_menu.png -text
+Delivery/xmldoc/images/eiffelstudio/debugger/breakpoints_list.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/call_stack_tool.png -text
+Delivery/xmldoc/images/eiffelstudio/debugger/cond_breakpoint_context_menu.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/debugging_tools_preferences.png -text
+Delivery/xmldoc/images/eiffelstudio/debugger/exception_dialog.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/expanded_display_default.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/expression_evaluation_tool.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/locals_tree.png -text
@@ -814,6 +817,7 @@ Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/history-tool.png -text
 Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/new_class_dialog.png -text
 Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/new_cluster_dialog.png -text
 Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/new_exported_feature.png -text
+Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/new_expression_as_object_definition_dlg.png -text
 Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/new_expression_definition_dlg.png -text
 Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/preferences_dialog.png -text
 Delivery/xmldoc/images/eiffelstudio/dialogs_and_wizards/profiler_process.png -text
@@ -956,6 +960,7 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_dynamiclib_window.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_edit_exported_feature_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_edit_expression_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_editing.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_eiffel_stack.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_enable_bkpt_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_enable_bkpt_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_exe_up_to_date.gif -text
