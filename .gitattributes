@@ -735,6 +735,7 @@ Delivery/xmldoc/images/eiffelstudio/debugger/argument_dialog_editing.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/breakpoint_context_menu.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/breakpoints_list.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/call_stack_tool.png -text
+Delivery/xmldoc/images/eiffelstudio/debugger/call_stack_tool_with_threads.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/cond_breakpoint_context_menu.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/debugging_tools_preferences.png -text
 Delivery/xmldoc/images/eiffelstudio/debugger/exception_dialog.png -text
