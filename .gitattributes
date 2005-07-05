@@ -913,8 +913,12 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_development_window.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_dialog_window.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_disable_bkpt_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_disable_bkpt_gray.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_display_cluster_color.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_display_cluster_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_display_labels_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_display_labels_gray.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_display_legend_color.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_display_legend_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_document_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_document_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_dotnet_import_color.gif -text
@@ -1053,6 +1057,7 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_open_file_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_open_project.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_past_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_past_gray.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_physics_settings_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_preference_window.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_preferences_folder.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_preferences_root.gif -text
@@ -1067,6 +1072,7 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_recycle_bin_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_red_cross.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_redo_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_redo_gray.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_remove_anchor_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_remove_exported_feature_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_reset_diagram_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_reset_diagram_gray.gif -text
@@ -1121,9 +1127,12 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_system_info_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_system_info_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_toggle_clusters_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_toggle_clusters_gray.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_toggle_force_color.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_toggle_quality_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_tool_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_tool_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_toolbar_separator.gif -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_uml_color.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_undo_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_undo_gray.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_unify_stone_color.gif -text
@@ -1147,6 +1156,7 @@ Delivery/xmldoc/images/eiffelstudio/icons/icon_wizard_ace_project.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_wizard_blank_project.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_wizard_project.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_word_wrap_color.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/icon_zoom_fit_to_screen_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_zoom_in.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_zoom_in_color.gif -text
 Delivery/xmldoc/images/eiffelstudio/icons/icon_zoom_in_gray.gif -text
