@@ -1932,12 +1932,8 @@ Src/tools/doc_builder/resources/syntax_definitions/xml.syn_bin svneol=native#uns
 Src/tools/doc_builder/resources/templates/header_mainarea.jpg -text
 free_add_ons/eclop/doc/eclop.pdf -text
 free_add_ons/gobo/gobo_33_ise.tgz -text
-free_add_ons/gobo/gobo_33_unix.tgz -text
-free_add_ons/gobo/gobo_33_win.tgz -text
 free_add_ons/gobo/gobo_34_unix.tgz -text
 free_add_ons/gobo/gobo_34_win.tgz -text
-free_add_ons/gobo/gobo_unix.tgz -text
-free_add_ons/gobo/gobo_win.tgz -text
 free_add_ons/wex/examples/wex/Framework_example/TOOLBAR.BMP svneol=native#unset
 free_add_ons/wex/examples/wex/Framework_example/app.ico svneol=native#unset
 free_add_ons/wex/examples/wex/MCI_Splash/APP.ICO svneol=native#unset
