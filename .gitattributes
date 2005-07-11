@@ -1936,9 +1936,6 @@ free_add_ons/gobo/gobo_33_unix.tgz -text
 free_add_ons/gobo/gobo_33_win.tgz -text
 free_add_ons/gobo/gobo_unix.tgz -text
 free_add_ons/gobo/gobo_win.tgz -text
-free_add_ons/micoe/adt/doc/doc.ps.gz svneol=native#unset
-free_add_ons/micoe/doc/manual/manual.ps.gz svneol=native#unset
-free_add_ons/micoe/idl/doc/doc.ps.gz svneol=native#unset
 free_add_ons/wex/examples/wex/Framework_example/TOOLBAR.BMP svneol=native#unset
 free_add_ons/wex/examples/wex/Framework_example/app.ico svneol=native#unset
 free_add_ons/wex/examples/wex/MCI_Splash/APP.ICO svneol=native#unset
