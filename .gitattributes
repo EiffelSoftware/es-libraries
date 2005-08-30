@@ -1841,6 +1841,16 @@ Src/resource_bench/RB_documentation/examples/icon_2.ico svneol=native#unset
 Src/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#unset
 Src/resource_bench/rb.ico svneol=native#unset
 Src/resource_bench/toolbar.bmp svneol=native#unset
+Src/tools/compliance_checker/resources/blank.ico -text
+Src/tools/compliance_checker/resources/check.ico -text
+Src/tools/compliance_checker/resources/check_compliance.ico -text
+Src/tools/compliance_checker/resources/error.ico -text
+Src/tools/compliance_checker/resources/export.ico -text
+Src/tools/compliance_checker/resources/new.ico -text
+Src/tools/compliance_checker/resources/open.ico -text
+Src/tools/compliance_checker/resources/project.ico -text
+Src/tools/compliance_checker/resources/save.ico -text
+Src/tools/compliance_checker/resources/settings.ico -text
 Src/tools/doc_builder/Assemblies_10/AxShDocVw.dll -text
 Src/tools/doc_builder/Assemblies_10/SHDocVw.dll -text
 Src/tools/doc_builder/Assemblies_11/AxSHDocVw.dll -text
