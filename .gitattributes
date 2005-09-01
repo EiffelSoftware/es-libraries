@@ -1846,6 +1846,7 @@ Src/tools/compliance_checker/resources/check.ico -text
 Src/tools/compliance_checker/resources/check_compliance.ico -text
 Src/tools/compliance_checker/resources/error.ico -text
 Src/tools/compliance_checker/resources/export.ico -text
+Src/tools/compliance_checker/resources/help.ico -text
 Src/tools/compliance_checker/resources/new.ico -text
 Src/tools/compliance_checker/resources/open.ico -text
 Src/tools/compliance_checker/resources/project.ico -text
