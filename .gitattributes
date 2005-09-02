@@ -1844,6 +1844,7 @@ Src/resource_bench/toolbar.bmp svneol=native#unset
 Src/tools/compliance_checker/resources/blank.ico -text
 Src/tools/compliance_checker/resources/check.ico -text
 Src/tools/compliance_checker/resources/check_compliance.ico -text
+Src/tools/compliance_checker/resources/cross.ico -text
 Src/tools/compliance_checker/resources/error.ico -text
 Src/tools/compliance_checker/resources/export.ico -text
 Src/tools/compliance_checker/resources/help.ico -text
