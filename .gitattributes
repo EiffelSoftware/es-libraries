@@ -1390,6 +1390,15 @@ Delivery/xmldoc/technologies/unicode/windows9x/lastdoc.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/normaldoc.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/power.gif -text
 Delivery/xmldoc/technologies/unicode/windows9x/topdoc.gif -text
+Delivery/xmldoc/tools/compliance_checker/images/caution.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/check.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/check_compliance.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/cross.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/error.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/help.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/new.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/open.ico -text
+Delivery/xmldoc/tools/compliance_checker/images/save.ico -text
 Delivery/xmldoc/tools/eiffelenvision/images/icons/assembly.ico -text
 Delivery/xmldoc/tools/eiffelenvision/images/icons/assembly_static.ico -text
 Delivery/xmldoc/tools/eiffelenvision/images/icons/build.ico -text
