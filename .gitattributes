@@ -1447,13 +1447,17 @@ Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/c
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_attribute.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_attribute_frozen.ico -text
+Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_attribute_obsolete.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_deferred.ico -text
+Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_deferred_obsolete.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_external.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_external_frozen.ico -text
+Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_external_obsolete.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_frozen.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_obsolete.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_once.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_once_frozen.ico -text
+Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/feature_once_obsolete.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/hier_feature_all.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/hier_feature_ancestors.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/hier_feature_callers.ico -text
@@ -1461,6 +1465,7 @@ Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/f
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/hier_feature_descendents.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/hier_feature_implementers.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/hier_feature_inherited.ico -text
+Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/feature/locals.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/code_browsing/images/project.ico -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/eiffelenvision_for_eiffelstudio_developers/conversion_tool/images/aceimp_environment.png -text
 Delivery/xmldoc/tools/eiffelenvision/using_eiffelenvision/eiffelenvision_for_eiffelstudio_developers/conversion_tool/images/aceimp_error.png -text
