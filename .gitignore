@@ -1,3 +1,13 @@
+Src/bench/C/*.exe
+Src/bench/C/*.ilk
+Src/bench/C/*.lib
+Src/bench/C/*.obj
+Src/bench/C/*.pdb
+Src/bench/C/CONFIGS/*.exe
+Src/bench/C/CONFIGS/*.ilk
+Src/bench/C/CONFIGS/*.lib
+Src/bench/C/CONFIGS/*.obj
+Src/bench/C/CONFIGS/*.pdb
 Src/bench/C/U/*.exe
 Src/bench/C/U/*.ilk
 Src/bench/C/U/*.lib
