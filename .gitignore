@@ -68,11 +68,6 @@ Src/bench/C/ipc/shared/*.ilk
 Src/bench/C/ipc/shared/*.lib
 Src/bench/C/ipc/shared/*.obj
 Src/bench/C/ipc/shared/*.pdb
-Src/bench/C/minilzo/*.exe
-Src/bench/C/minilzo/*.ilk
-Src/bench/C/minilzo/*.lib
-Src/bench/C/minilzo/*.obj
-Src/bench/C/minilzo/*.pdb
 Src/bench/C/parsing/*.exe
 Src/bench/C/parsing/*.ilk
 Src/bench/C/parsing/*.lib
