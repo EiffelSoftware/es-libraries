@@ -220,3 +220,10 @@ Src/bench/Eiffel/eiffel/com_il_generation/Core/run-time/*.pdb
 Src/bench/Eiffel/library/cli_writer/Clib/*.lib
 Src/bench/Eiffel/library/cli_writer/Clib/*.obj
 Src/bench/Eiffel/library/cli_writer/Clib/*.pdb
+Src/library/gobo
+Src/library/net/spec
+Src/library/vision2/spec/msc
+Src/library/wel/clib/ilwel.lib
+Src/library/wel/clib/make.log
+Src/library/wel/clib/wel.lib
+Src/library/wel/spec/msc
