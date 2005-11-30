@@ -1528,6 +1528,8 @@ Src/bench/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/bench/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#application/octet-stream
 Src/bench/Eiffel/doc/debugging/debugger_files/image002.gif -text
 Src/bench/Eiffel/eiffel/byte_code/visitor/assignment_generator.e -text
+Src/bench/Eiffel/eiffel/byte_code/visitor/il_access_address_generator.e -text
+Src/bench/Eiffel/eiffel/byte_code/visitor/il_node_generator.e -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/com_compiler/ace_file/cec.ico -text
 Src/build/Clib/motif/efb.a svneol=native#unset
