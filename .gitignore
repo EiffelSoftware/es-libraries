@@ -147,6 +147,7 @@ Src/bench/C/run-time/wkbench/*.ilk
 Src/bench/C/run-time/wkbench/*.lib
 Src/bench/C/run-time/wkbench/*.obj
 Src/bench/C/run-time/wkbench/*.pdb
+Src/bench/Eiffel/common
 Src/bench/Eiffel/doc/GC/_private
 Src/bench/Eiffel/doc/GC/_vti_cnf
 Src/bench/Eiffel/doc/GC/_vti_pvt
