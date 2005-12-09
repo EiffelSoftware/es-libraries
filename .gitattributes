@@ -1827,6 +1827,11 @@ Src/help/wizards/eweb/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/wizard.ico -text
 Src/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
+Src/library/docking/implementation/common/sd_docking_manager_internal.e -text
+Src/library/docking/implementation/common/sd_docking_manager_internal_command.e -text
+Src/library/docking/implementation/common/sd_docking_manager_internal_property.e -text
+Src/library/docking/implementation/common/sd_docking_manager_internal_query.e -text
+Src/library/docking/implementation/common/sd_docking_manager_internal_zones.e -text
 Src/library/docking/implementation/controls/sd_notebook.e -text
 Src/library/docking/implementation/controls/sd_notebook_tab.e -text
 Src/library/docking/implementation/controls/sd_notebook_upper.e -text
