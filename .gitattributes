@@ -1546,6 +1546,7 @@ Src/com_wizard/root/resources/help.png -text
 Src/com_wizard/root/resources/output.png -text
 Src/com_wizard/root/resources/settings.png -text
 Src/com_wizard/root/resources/wizard.ico -text
+Src/dotnet/codedom_provider/common/code_internal.e -text
 Src/dotnet/codedom_provider/test/tester/icons/tester.png -text
 Src/dotnet/codedom_provider/tools/manager/ecdpman.ico -text
 Src/dotnet/codedom_provider/tools/manager/icons/application.png -text
