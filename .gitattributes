@@ -1533,6 +1533,7 @@ Src/bench/Eiffel/eiffel/byte_code/visitor/il_node_generator.e -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
 Src/bench/Eiffel/interface/new_graphical/managers/eb_text_output_factory.e -text
 Src/bench/Eiffel/interface/new_graphical/preference_tool/parameters/eb_search_tool_data.e -text
+Src/bench/Eiffel/interface/new_graphical/shared/eb_save_file.e -text
 Src/bench/Eiffel/interface/new_graphical/tools/eb_error_output_tool.e -text
 Src/bench/Eiffel/interface/new_graphical/tools/eb_warning_output_tool.e -text
 Src/bench/com_compiler/ace_file/cec.ico -text
