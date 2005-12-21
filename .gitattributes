@@ -124,7 +124,6 @@ Delivery/codedom_provider/files/installer.exe.config -text
 Delivery/codedom_provider/samples/code_behind/ace.ace -text
 Delivery/codedom_provider/samples/code_behind/efa_parser.e -text
 Delivery/codedom_provider/samples/default.htm -text
-Delivery/codedom_provider/samples/images/atb.gif -text
 Delivery/codedom_provider/samples/images/bot_lef.gif -text
 Delivery/codedom_provider/samples/images/bot_mid.gif -text
 Delivery/codedom_provider/samples/images/bot_rig.gif -text
