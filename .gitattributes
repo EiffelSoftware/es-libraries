@@ -1566,6 +1566,7 @@ Src/bench/Eiffel/roundtrip/factory/ast_roundtrip_factory.e -text
 Src/bench/Eiffel/roundtrip/shared_roundtrip_parser.e -text
 Src/bench/Eiffel/roundtrip/visitor/ast_roundtrip_iterator.e -text
 Src/bench/Eiffel/roundtrip/visitor/ast_roundtrip_printer_visitor.e -text
+Src/bench/Eiffel/switch/communication/status/debugger_manager.e -text
 Src/bench/com_compiler/ace_file/cec.ico -text
 Src/build/Clib/motif/efb.a svneol=native#unset
 Src/build/Clib/openlook/efb.a svneol=native#unset
