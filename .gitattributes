@@ -1567,9 +1567,9 @@ Src/bench/Eiffel/roundtrip/factory/ast_roundtrip_factory.e -text
 Src/bench/Eiffel/roundtrip/shared_roundtrip_parser.e -text
 Src/bench/Eiffel/roundtrip/visitor/ast_roundtrip_iterator.e -text
 Src/bench/Eiffel/roundtrip/visitor/ast_roundtrip_printer_visitor.e -text
+Src/bench/Eiffel/switch/communication/debug/debugger_manager.e -text
 Src/bench/Eiffel/switch/communication/spec/gtk/eb_debugger_manager_imp.e -text
 Src/bench/Eiffel/switch/communication/spec/mswin/eb_debugger_manager_imp.e -text
-Src/bench/Eiffel/switch/communication/status/debugger_manager.e -text
 Src/bench/Eiffel/switch/no_communication/debug/debugger_manager.e -text
 Src/bench/Eiffel/switch/no_communication/debug/shared_application_execution.e -text
 Src/bench/Eiffel/switch/no_communication/status/eb_shared_debug_tools.e -text
