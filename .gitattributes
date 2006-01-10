@@ -1595,11 +1595,13 @@ Src/common/parser/AST/instructions/bang_creation_as.e -text
 Src/common/parser/AST/instructions/create_creation_as.e -text
 Src/common/parser/AST/skeleton/agent_target_triple.e -text
 Src/common/parser/AST/skeleton/alias_triple.e -text
+Src/common/parser/AST/skeleton/break_as.e -text
 Src/common/parser/AST/skeleton/comment_as.e -text
 Src/common/parser/AST/skeleton/constraint_triple.e -text
 Src/common/parser/AST/skeleton/identifier_list.e -text
 Src/common/parser/AST/skeleton/keyword_as.e -text
 Src/common/parser/AST/skeleton/leaf_as_list.e -text
+Src/common/parser/AST/skeleton/leaf_stub_as.e -text
 Src/common/parser/AST/skeleton/new_line_as.e -text
 Src/common/parser/AST/skeleton/none_id_as.e -text
 Src/common/parser/AST/skeleton/pre_post_as.e -text
