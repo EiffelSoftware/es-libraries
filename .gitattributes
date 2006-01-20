@@ -1601,6 +1601,8 @@ Src/common/parser/AST/skeleton/symbol_as.e -text
 Src/common/parser/AST/skeleton/symbol_stub_as.e -text
 Src/common/parser/AST/skeleton/typed_char_as.e -text
 Src/common/parser/AST/utilities/assertion_filter.e -text
+Src/common/roundtrip/comment/eiffel_comment_line.e -text
+Src/common/roundtrip/comment/eiffel_comment_list.e -text
 Src/common/roundtrip/context/roundtrip_context.e -text
 Src/common/roundtrip/context/roundtrip_string_list_context.e -text
 Src/common/roundtrip/context/roundtrip_structured_text_context.e -text
