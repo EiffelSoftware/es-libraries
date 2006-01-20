@@ -1549,6 +1549,7 @@ Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/method2/diamond_inherita
 Src/bench/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/bench/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#application/octet-stream
 Src/bench/Eiffel/doc/debugging/debugger_files/image002.gif -text
+Src/bench/Eiffel/eiffel/AST/factory/ast_roundtrip_compiler_factory.e -text
 Src/bench/Eiffel/eiffel/byte_code/visitor/assignment_generator.e -text
 Src/bench/Eiffel/eiffel/byte_code/visitor/il_access_address_generator.e -text
 Src/bench/Eiffel/eiffel/byte_code/visitor/il_node_generator.e -text
