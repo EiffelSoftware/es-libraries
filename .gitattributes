@@ -1564,7 +1564,6 @@ Src/bench/Eiffel/interface/new_graphical/tools/eb_warning_output_tool.e -text
 Src/bench/Eiffel/roundtrip/context/roundtrip_context.e -text
 Src/bench/Eiffel/roundtrip/context/roundtrip_string_list_context.e -text
 Src/bench/Eiffel/roundtrip/context/roundtrip_structured_text_context.e -text
-Src/bench/Eiffel/roundtrip/factory/ast_roundtrip_compiler_factory.e -text
 Src/bench/Eiffel/roundtrip/factory/ast_roundtrip_factory.e -text
 Src/bench/Eiffel/roundtrip/refactoring/ast_modifier/ert_ast_modifier.e -text
 Src/bench/Eiffel/roundtrip/refactoring/ast_modifier/ert_parent_as_modifier.e -text
