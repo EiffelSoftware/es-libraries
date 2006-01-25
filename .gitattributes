@@ -1615,6 +1615,8 @@ Src/common/roundtrip/context/roundtrip_context.e -text
 Src/common/roundtrip/context/roundtrip_string_list_context.e -text
 Src/common/roundtrip/context/roundtrip_structured_text_context.e -text
 Src/common/roundtrip/factory/ast_roundtrip_factory.e -text
+Src/common/roundtrip/factory/ast_roundtrip_light_factory.e -text
+Src/common/roundtrip/factory/ast_roundtrip_scanner_factory.e -text
 Src/common/roundtrip/refactoring/ast_modifier/ert_ast_modifier.e -text
 Src/common/roundtrip/refactoring/ast_modifier/ert_parent_as_modifier.e -text
 Src/common/roundtrip/refactoring/ast_modifier/list_modifier/ert_basic_eiffel_list_modifier.e -text
@@ -1633,6 +1635,7 @@ Src/common/roundtrip/refactoring/text_modifier/ert_region_modifier.e -text
 Src/common/roundtrip/refactoring/text_modifier/ert_remove_region_modifier.e -text
 Src/common/roundtrip/refactoring/text_modifier/ert_replace_region_modifier.e -text
 Src/common/roundtrip/refactoring/text_modifier/ert_token_region.e -text
+Src/common/roundtrip/scanner/eiffel_roundtrip_scanner.e -text
 Src/common/roundtrip/shared_roundtrip_parser.e -text
 Src/common/roundtrip/visitor/ast_roundtrip_iterator.e -text
 Src/common/roundtrip/visitor/ast_roundtrip_printer_visitor.e -text
