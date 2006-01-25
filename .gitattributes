@@ -1597,16 +1597,13 @@ Src/common/parser/AST/instructions/create_creation_as.e -text
 Src/common/parser/AST/skeleton/agent_target_triple.e -text
 Src/common/parser/AST/skeleton/alias_triple.e -text
 Src/common/parser/AST/skeleton/break_as.e -text
-Src/common/parser/AST/skeleton/comment_as.e -text
 Src/common/parser/AST/skeleton/constraint_triple.e -text
 Src/common/parser/AST/skeleton/identifier_list.e -text
 Src/common/parser/AST/skeleton/keyword_as.e -text
 Src/common/parser/AST/skeleton/leaf_as_list.e -text
 Src/common/parser/AST/skeleton/leaf_stub_as.e -text
-Src/common/parser/AST/skeleton/new_line_as.e -text
 Src/common/parser/AST/skeleton/none_id_as.e -text
 Src/common/parser/AST/skeleton/pre_post_as.e -text
-Src/common/parser/AST/skeleton/separator_as.e -text
 Src/common/parser/AST/skeleton/symbol_as.e -text
 Src/common/parser/AST/skeleton/symbol_stub_as.e -text
 Src/common/parser/AST/skeleton/typed_char_as.e -text
@@ -1637,7 +1634,6 @@ Src/common/roundtrip/refactoring/text_modifier/ert_remove_region_modifier.e -tex
 Src/common/roundtrip/refactoring/text_modifier/ert_replace_region_modifier.e -text
 Src/common/roundtrip/refactoring/text_modifier/ert_token_region.e -text
 Src/common/roundtrip/scanner/eiffel_roundtrip_scanner.e -text
-Src/common/roundtrip/shared_roundtrip_parser.e -text
 Src/common/roundtrip/visitor/ast_roundtrip_iterator.e -text
 Src/common/roundtrip/visitor/ast_roundtrip_printer_visitor.e -text
 Src/dotnet/codedom_provider/common/code_internal.e -text
