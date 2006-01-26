@@ -1555,6 +1555,7 @@ Src/bench/Eiffel/eiffel/byte_code/visitor/assignment_generator.e -text
 Src/bench/Eiffel/eiffel/byte_code/visitor/il_access_address_generator.e -text
 Src/bench/Eiffel/eiffel/byte_code/visitor/il_node_generator.e -text
 Src/bench/Eiffel/extra/finish_freezing/appl.ico -text
+Src/bench/Eiffel/interface/new_graphical/commands/eb_add_class_figure_relations_command.e -text
 Src/bench/Eiffel/interface/new_graphical/managers/eb_text_output_factory.e -text
 Src/bench/Eiffel/interface/new_graphical/multi_search_tool/eb_search_report_grid.e -text
 Src/bench/Eiffel/interface/new_graphical/preference_tool/parameters/eb_search_tool_data.e -text
