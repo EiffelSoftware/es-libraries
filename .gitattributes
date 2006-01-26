@@ -1609,6 +1609,7 @@ Src/common/parser/AST/skeleton/symbol_as.e -text
 Src/common/parser/AST/skeleton/symbol_stub_as.e -text
 Src/common/parser/AST/skeleton/typed_char_as.e -text
 Src/common/parser/AST/utilities/assertion_filter.e -text
+Src/common/parser/external_parser/Makefile -text
 Src/common/roundtrip/comment/eiffel_comment_line.e -text
 Src/common/roundtrip/context/roundtrip_context.e -text
 Src/common/roundtrip/context/roundtrip_string_list_context.e -text
