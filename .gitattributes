@@ -1618,7 +1618,6 @@ Src/common/roundtrip/factory/ast_roundtrip_light_factory.e -text
 Src/common/roundtrip/factory/ast_roundtrip_scanner_factory.e -text
 Src/common/roundtrip/refactoring/ast_modifier/ert_ast_modifier.e -text
 Src/common/roundtrip/refactoring/ast_modifier/ert_client_set.e -text
-Src/common/roundtrip/refactoring/ast_modifier/ert_parent_as_modifier.e -text
 Src/common/roundtrip/refactoring/ast_modifier/list_modifier/ert_basic_eiffel_list_modifier.e -text
 Src/common/roundtrip/refactoring/ast_modifier/list_modifier/ert_eiffel_list_item_arguments.e -text
 Src/common/roundtrip/refactoring/ast_modifier/list_modifier/ert_eiffel_list_modifier.e -text
@@ -1632,6 +1631,7 @@ Src/common/roundtrip/refactoring/ast_modifier/parent_modifier/ert_export_feature
 Src/common/roundtrip/refactoring/ast_modifier/parent_modifier/ert_export_feature_set.e -text
 Src/common/roundtrip/refactoring/ast_modifier/parent_modifier/ert_export_item_list.e -text
 Src/common/roundtrip/refactoring/ast_modifier/parent_modifier/ert_parent_as_merge_modifier.e -text
+Src/common/roundtrip/refactoring/ast_modifier/parent_modifier/ert_parent_as_modifier.e -text
 Src/common/roundtrip/refactoring/text_modifier/ert_addition_region_modifier.e -text
 Src/common/roundtrip/refactoring/text_modifier/ert_append_region_modifier.e -text
 Src/common/roundtrip/refactoring/text_modifier/ert_prepend_region_modifier.e -text
