@@ -1613,7 +1613,6 @@ Src/common/parser/external_parser/Makefile -text
 Src/common/roundtrip/comment/eiffel_comment_line.e -text
 Src/common/roundtrip/context/roundtrip_context.e -text
 Src/common/roundtrip/context/roundtrip_string_list_context.e -text
-Src/common/roundtrip/context/roundtrip_structured_text_context.e -text
 Src/common/roundtrip/factory/ast_roundtrip_factory.e -text
 Src/common/roundtrip/factory/ast_roundtrip_light_factory.e -text
 Src/common/roundtrip/factory/ast_roundtrip_scanner_factory.e -text
