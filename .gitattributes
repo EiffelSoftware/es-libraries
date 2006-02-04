@@ -346,6 +346,8 @@ Delivery/studio/bitmaps/png/icon_matrix_16.png -text
 Delivery/studio/bitmaps/png/icon_matrix_32.png -text
 Delivery/studio/bitmaps/png/icon_matrix_8.png -text
 Delivery/studio/bitmaps/png/logo.png -text
+Delivery/studio/config/vxworks/templates/egc_dynlib.template -text
+Delivery/studio/config/vxworks/templates/emain.template -text
 Delivery/studio/config/windows/bcb/appl.ico -text
 Delivery/studio/config/windows/gnu/gnu.ico -text
 Delivery/studio/config/windows/msc/appl.ico -text
