@@ -2201,6 +2201,7 @@ Src/tools/eiffel_make/directory_sorter.e -text
 Src/tools/eiffel_make/eiffel_make.e -text
 Src/tools/eiffel_make/emake.ace -text
 Src/tools/eiffel_make/mt_action_queue.e -text
+Src/tools/partial_classes_merger/src/ace.ace -text
 free_add_ons/eclop/doc/eclop.pdf -text
 free_add_ons/gobo/gobo_33_ise.tgz -text
 free_add_ons/gobo/gobo_34_unix.tgz -text
