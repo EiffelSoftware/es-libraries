@@ -1608,7 +1608,6 @@ Src/common/parser/AST/skeleton/keyword_as.e -text
 Src/common/parser/AST/skeleton/leaf_as_list.e -text
 Src/common/parser/AST/skeleton/leaf_stub_as.e -text
 Src/common/parser/AST/skeleton/none_id_as.e -text
-Src/common/parser/AST/skeleton/pre_post_as.e -text
 Src/common/parser/AST/skeleton/symbol_as.e -text
 Src/common/parser/AST/skeleton/symbol_stub_as.e -text
 Src/common/parser/AST/skeleton/typed_char_as.e -text
