@@ -167,8 +167,10 @@ Src/bench/C/run-time/wkbench/*.ilk
 Src/bench/C/run-time/wkbench/*.lib
 Src/bench/C/run-time/wkbench/*.obj
 Src/bench/C/run-time/wkbench/*.pdb
+Src/bench/Eiffel/Ace/Ace.acex.user
 Src/bench/Eiffel/Ace/Diagrams
 Src/bench/Eiffel/Ace/EIFGEN
+Src/bench/Eiffel/Ace/EIFGENS
 Src/bench/Eiffel/Ace/Metrics
 Src/bench/Eiffel/common
 Src/bench/Eiffel/doc/GC/_private
