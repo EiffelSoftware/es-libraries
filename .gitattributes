@@ -1542,7 +1542,7 @@ Src/bench/C/ipc/daemon/estudio.ico -text
 Src/bench/C/ipc/daemon/splash.bmp -text
 Src/bench/C/rt_converter.exe -text
 Src/bench/C/run-time/include/gc_pthread_redirects.h -text
-Src/bench/Eiffel/Ace/Ace.acex -text
+Src/bench/Eiffel/Ace/ec.acex -text
 Src/bench/Eiffel/Ace/ec.ico -text
 Src/bench/Eiffel/Ace/ecdoc.ico -text
 Src/bench/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance.png -text
