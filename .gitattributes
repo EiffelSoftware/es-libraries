@@ -1583,6 +1583,14 @@ Src/bench/Eiffel/interface/new_graphical/widgets/es_grid_scrolling_behavior.e -t
 Src/bench/Eiffel/library/configuration/lace/lace_compile/classname_finder.l -text
 Src/bench/Eiffel/library/configuration/lace/lace_compile/lace.l -text
 Src/bench/Eiffel/library/configuration/lace/lace_compile/make.cmd -text
+Src/bench/Eiffel/parser/AST/expressions/agent_routine_creation_as.e -text
+Src/bench/Eiffel/parser/AST/expressions/bang_creation_expr_as.e -text
+Src/bench/Eiffel/parser/AST/expressions/create_creation_expr_as.e -text
+Src/bench/Eiffel/parser/AST/expressions/tilda_routine_creation_as.e -text
+Src/bench/Eiffel/parser/AST/instructions/bang_creation_as.e -text
+Src/bench/Eiffel/parser/AST/instructions/create_creation_as.e -text
+Src/bench/Eiffel/parser/AST/utilities/assertion_filter.e -text
+Src/bench/Eiffel/parser/external_parser/Makefile -text
 Src/bench/Eiffel/switch/communication/debug/debugger_manager.e -text
 Src/bench/Eiffel/switch/communication/spec/gtk/eb_debugger_manager_imp.e -text
 Src/bench/Eiffel/switch/communication/spec/mswin/eb_debugger_manager_imp.e -text
