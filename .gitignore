@@ -258,7 +258,6 @@ Src/bench/Eiffel/library/cli_writer/Clib/*.obj
 Src/bench/Eiffel/library/cli_writer/Clib/*.pdb
 Src/bench/Eiffel/library/cli_writer/spec
 Src/bench/Eiffel/parser/parser/output.txt
-Src/common/parser/parser/output.txt
 Src/library/gobo
 Src/library/net/spec
 Src/library/vision2/spec/msc

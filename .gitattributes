@@ -1604,14 +1604,6 @@ Src/com_wizard/root/resources/help.png -text
 Src/com_wizard/root/resources/output.png -text
 Src/com_wizard/root/resources/settings.png -text
 Src/com_wizard/root/resources/wizard.ico -text
-Src/common/parser/AST/expressions/agent_routine_creation_as.e -text
-Src/common/parser/AST/expressions/bang_creation_expr_as.e -text
-Src/common/parser/AST/expressions/create_creation_expr_as.e -text
-Src/common/parser/AST/expressions/tilda_routine_creation_as.e -text
-Src/common/parser/AST/instructions/bang_creation_as.e -text
-Src/common/parser/AST/instructions/create_creation_as.e -text
-Src/common/parser/AST/utilities/assertion_filter.e -text
-Src/common/parser/external_parser/Makefile -text
 Src/common/roundtrip/comment/eiffel_comment_line.e -text
 Src/common/roundtrip/context/roundtrip_context.e -text
 Src/common/roundtrip/context/roundtrip_string_list_context.e -text
