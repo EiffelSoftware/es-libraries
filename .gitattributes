@@ -1578,6 +1578,7 @@ Src/bench/Eiffel/interface/new_graphical/widgets/es_grid_scrolling_behavior.e -t
 Src/bench/Eiffel/library/configuration/lace/lace_compile/classname_finder.l -text
 Src/bench/Eiffel/library/configuration/lace/lace_compile/lace.l -text
 Src/bench/Eiffel/library/configuration/lace/lace_compile/make.cmd -text
+Src/bench/Eiffel/library/configuration/versioning/conversion-1-0-0.xsl -text
 Src/bench/Eiffel/parser/AST/expressions/agent_routine_creation_as.e -text
 Src/bench/Eiffel/parser/AST/expressions/bang_creation_expr_as.e -text
 Src/bench/Eiffel/parser/AST/expressions/create_creation_expr_as.e -text
