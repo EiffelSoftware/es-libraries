@@ -1627,11 +1627,6 @@ Src/Eiffel/switch/no_communication/debug/debugger_manager.e -text
 Src/Eiffel/switch/no_communication/debug/shared_application_execution.e -text
 Src/Eiffel/switch/no_communication/status/eb_shared_debug_tools.e -text
 Src/build/build.ico -text
-Src/com_wizard/root/resources/eiffel_software.png -text
-Src/com_wizard/root/resources/help.png -text
-Src/com_wizard/root/resources/output.png -text
-Src/com_wizard/root/resources/settings.png -text
-Src/com_wizard/root/resources/wizard.ico -text
 Src/dotnet/codedom_provider/common/code_internal.e -text
 Src/dotnet/codedom_provider/compiler/support/code_env_interp.e -text
 Src/dotnet/codedom_provider/test/tester/icons/tester.png -text
@@ -2034,6 +2029,11 @@ Src/resource_bench/RB_documentation/examples/icon_2.ico svneol=native#unset
 Src/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#unset
 Src/resource_bench/rb.ico svneol=native#unset
 Src/resource_bench/toolbar.bmp svneol=native#unset
+Src/tools/com_wizard/root/resources/eiffel_software.png -text
+Src/tools/com_wizard/root/resources/help.png -text
+Src/tools/com_wizard/root/resources/output.png -text
+Src/tools/com_wizard/root/resources/settings.png -text
+Src/tools/com_wizard/root/resources/wizard.ico -text
 Src/tools/compliance_checker/resources/blank.ico -text
 Src/tools/compliance_checker/resources/caution.ico -text
 Src/tools/compliance_checker/resources/check.ico -text
