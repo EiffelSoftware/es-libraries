@@ -1537,10 +1537,6 @@ Src/C_library/libpng/projects/beos/x86-shared.proj svneol=native#unset
 Src/C_library/libpng/projects/beos/x86-static.proj svneol=native#unset
 Src/C_library/zlib/contrib/blast/test.pk svneol=native#unset
 Src/C_library/zlib/contrib/puff/zeros.raw svneol=native#unset
-Src/bench/C/ipc/daemon/estudio.ico -text
-Src/bench/C/ipc/daemon/splash.bmp -text
-Src/bench/C/rt_converter.exe -text
-Src/bench/C/run-time/include/gc_pthread_redirects.h -text
 Src/bench/Eiffel/API/output/comment_scanner.l -text
 Src/bench/Eiffel/Ace/ec.ico -text
 Src/bench/Eiffel/Ace/ecdoc.ico -text
