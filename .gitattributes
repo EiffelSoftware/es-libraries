@@ -2127,7 +2127,6 @@ Src/tools/doc_builder/resources/syntax_definitions/xml.syn_bin svneol=native#uns
 Src/tools/doc_builder/resources/templates/header_mainarea.jpg -text
 Src/tools/eiffel_make/directory_sorter.e -text
 Src/tools/eiffel_make/eiffel_make.e -text
-Src/tools/eiffel_make/emake.ace -text
 Src/tools/eiffel_make/mt_action_queue.e -text
 Src/tools/partial_classes_merger/src/ace.ace -text
 Src/tools/partial_classes_merger/tests/howto.txt -text
