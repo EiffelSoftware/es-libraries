@@ -1552,7 +1552,6 @@ Src/Eiffel/eiffel/AST/factory/ast_roundtrip_compiler_light_factory.e -text
 Src/Eiffel/eiffel/byte_code/visitor/assignment_generator.e -text
 Src/Eiffel/eiffel/byte_code/visitor/il_access_address_generator.e -text
 Src/Eiffel/eiffel/byte_code/visitor/il_node_generator.e -text
-Src/Eiffel/extra/finish_freezing/appl.ico -text
 Src/Eiffel/interface/new_graphical/commands/eb_add_class_figure_relations_command.e -text
 Src/Eiffel/interface/new_graphical/managers/eb_text_output_factory.e -text
 Src/Eiffel/interface/new_graphical/multi_search_tool/build_project.bpr -text
@@ -2128,6 +2127,7 @@ Src/tools/doc_builder/resources/templates/header_mainarea.jpg -text
 Src/tools/eiffel_make/directory_sorter.e -text
 Src/tools/eiffel_make/eiffel_make.e -text
 Src/tools/eiffel_make/mt_action_queue.e -text
+Src/tools/finish_freezing/appl.ico -text
 Src/tools/partial_classes_merger/src/ace.ace -text
 Src/tools/partial_classes_merger/tests/howto.txt -text
 Src/tools/resource_bench/RB_documentation/docrb/ANALYZ.gif svneol=native#unset
