@@ -1527,6 +1527,10 @@ Delivery/xmldoc/tools/wizards/com/images/wizard-1.gif -text
 Delivery/xmldoc/tools/wizards/com/images/wizard-12.gif -text
 Delivery/xmldoc/tools/wizards/com/images/wizard-13.gif -text
 Delivery/xmldoc/tools/wizards/com/images/wizard-8.gif -text
+Src/C/ipc/daemon/estudio.ico -text
+Src/C/ipc/daemon/splash.bmp -text
+Src/C/rt_converter.exe -text
+Src/C/run-time/include/gc_pthread_redirects.h -text
 Src/C_library/libpng/contrib/visupng/VisualPng.ico svneol=native#unset
 Src/C_library/libpng/pngbar.jpg svneol=native#unset
 Src/C_library/libpng/projects/beos/x86-shared.proj svneol=native#unset
