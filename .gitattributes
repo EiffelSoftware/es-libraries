@@ -1581,6 +1581,7 @@ Src/Eiffel/library/configuration/lace/lace_compile/lace.l -text
 Src/Eiffel/library/configuration/lace/lace_compile/make.cmd -text
 Src/Eiffel/library/configuration/versioning/configuration-1-0-0.xsd -text
 Src/Eiffel/library/configuration/versioning/conversion-1-0-0.xsl -text
+Src/Eiffel/library/configuration/versioning/fix-eweasel-1-0-0.xsl -text
 Src/Eiffel/parser/AST/expressions/agent_routine_creation_as.e -text
 Src/Eiffel/parser/AST/expressions/bang_creation_expr_as.e -text
 Src/Eiffel/parser/AST/expressions/create_creation_expr_as.e -text
