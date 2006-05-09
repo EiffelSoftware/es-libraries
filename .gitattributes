@@ -301,7 +301,6 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
-Delivery/scripts/unix/set_version.sh -text
 Delivery/scripts/windows/install/Binary/Banner.bmp -text
 Delivery/scripts/windows/install/Binary/Dialog.bmp -text
 Delivery/scripts/windows/install/Binary/Exclam.ico -text
