@@ -1576,7 +1576,6 @@ Src/Eiffel/interface/new_graphical/tools/debugging/es_objects_grid_row.e -text
 Src/Eiffel/interface/new_graphical/tools/eb_error_output_tool.e -text
 Src/Eiffel/interface/new_graphical/tools/eb_warning_output_tool.e -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
-Src/Eiffel/interface/new_graphical/widgets/es_grid_scrolling_behavior.e -text
 Src/Eiffel/library/configuration/lace/lace_compile/classname_finder.l -text
 Src/Eiffel/library/configuration/lace/lace_compile/lace.l -text
 Src/Eiffel/library/configuration/lace/lace_compile/make.cmd -text
@@ -1912,6 +1911,7 @@ Src/examples/wel/xcell/spades9.bmp svneol=native#unset
 Src/examples/wel/xcell/start.bmp svneol=native#unset
 Src/examples/wel/xcell/xcell.bmp svneol=native#unset
 Src/examples/wel/xcell/xcell_demo.ico svneol=native#unset
+Src/framework/README.TXT -text
 Src/help/wizards/estore1/bmp/essai.bmp -text
 Src/help/wizards/estore1/bmp/essai2.bmp -text
 Src/help/wizards/estore2/bmp/Eiffel_wizard_new.bmp svneol=native#unset
