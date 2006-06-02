@@ -168,6 +168,7 @@ Src/C_library/zlib/zdll.exp
 Src/C_library/zlib/zlib1.dll
 Src/C_library/zlib/zlib1.res
 Src/Eiffel/Ace/*.epr
+Src/Eiffel/Ace/*.rc
 Src/Eiffel/Ace/*.user
 Src/Eiffel/Ace/*.wb
 Src/Eiffel/Ace/Diagrams
