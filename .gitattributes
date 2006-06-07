@@ -1928,6 +1928,7 @@ Src/examples/wel/xcell/start.bmp svneol=native#unset
 Src/examples/wel/xcell/xcell.bmp svneol=native#unset
 Src/examples/wel/xcell/xcell_demo.ico svneol=native#unset
 Src/framework/README.TXT -text
+Src/framework/framework.ecf -text
 Src/help/wizards/estore1/bmp/essai.bmp -text
 Src/help/wizards/estore1/bmp/essai2.bmp -text
 Src/help/wizards/estore2/bmp/Eiffel_wizard_new.bmp svneol=native#unset
