@@ -17,8 +17,10 @@ Src/C/bench/*.obj
 Src/C/bench/*.pdb
 Src/C/bench/Makefile
 Src/C/bench/Makefile.bak
+Src/C/bench/bytedump
 Src/C/bench/config.sh
 Src/C/bench/make.bat
+Src/C/bench/meltdump
 Src/C/config.sh
 Src/C/console/*.lib
 Src/C/console/*.obj
@@ -67,6 +69,7 @@ Src/C/ipc/daemon/*.pdb
 Src/C/ipc/daemon/Makefile
 Src/C/ipc/daemon/Makefile.bak
 Src/C/ipc/daemon/config.sh
+Src/C/ipc/daemon/estudio
 Src/C/ipc/daemon/estudio.RES
 Src/C/ipc/daemon/estudio.exe
 Src/C/ipc/daemon/estudio.lmk
@@ -137,6 +140,7 @@ Src/C/run-time/concurrency/library/*.obj
 Src/C/run-time/concurrency/library/*.pdb
 Src/C/run-time/config.sh
 Src/C/run-time/eif_config.h
+Src/C/run-time/eif_confmagic.h
 Src/C/run-time/eif_portable.h
 Src/C/run-time/eif_size.h
 Src/C/run-time/finalized/*.exe
@@ -160,6 +164,7 @@ Src/C/run-time/wkbench/*.ilk
 Src/C/run-time/wkbench/*.lib
 Src/C/run-time/wkbench/*.obj
 Src/C/run-time/wkbench/*.pdb
+Src/C/run-time/x2c
 Src/C_library/zlib/example.exe
 Src/C_library/zlib/example_d.exe
 Src/C_library/zlib/minigzip.exe
