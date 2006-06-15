@@ -2159,6 +2159,7 @@ Src/tools/doc_builder/resources/templates/header_mainarea.jpg -text
 Src/tools/eiffel_make/directory_sorter.e -text
 Src/tools/eiffel_make/eiffel_make.e -text
 Src/tools/eiffel_make/mt_action_queue.e -text
+Src/tools/eiffel_matrix_code_generator/example/pixmaps.ini -text
 Src/tools/eiffel_matrix_code_generator/frames/matrix.e.frame -text
 Src/tools/eiffel_matrix_code_generator/readme.txt -text
 Src/tools/finish_freezing/appl.ico -text
