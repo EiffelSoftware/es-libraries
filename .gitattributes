@@ -336,6 +336,7 @@ Delivery/scripts/windows/wix/winterop.dll-x86 -text
 Delivery/scripts/windows/wix/winterop.dll-x86-64 -text
 Delivery/scripts/windows/wix/wix.dll -text
 Delivery/studio/bitmaps/cursor/studio_cursor_matrix.png -text
+Delivery/studio/bitmaps/png/16x16.ini -text
 Delivery/studio/bitmaps/png/16x16.png -text
 Delivery/studio/bitmaps/png/activation.png -text
 Delivery/studio/bitmaps/png/bm_About.png -text
