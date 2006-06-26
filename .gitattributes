@@ -338,6 +338,8 @@ Delivery/scripts/windows/wix/wix.dll -text
 Delivery/studio/bitmaps/cursor/studio_cursor_matrix.png -text
 Delivery/studio/bitmaps/png/10x10.ini -text
 Delivery/studio/bitmaps/png/10x10.png -text
+Delivery/studio/bitmaps/png/12x12.ini -text
+Delivery/studio/bitmaps/png/12x12.png -text
 Delivery/studio/bitmaps/png/16x16.ini -text
 Delivery/studio/bitmaps/png/16x16.png -text
 Delivery/studio/bitmaps/png/activation.png -text
