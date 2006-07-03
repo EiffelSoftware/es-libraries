@@ -275,3 +275,14 @@ Src/library/wel/clib/ilwel.lib
 Src/library/wel/clib/make.log
 Src/library/wel/clib/wel.lib
 Src/library/wel/spec/msc
+Src/tools/com_wizard/root/*.wb
+Src/tools/com_wizard/root/EIFGENs
+Src/tools/doc_builder/*.wb
+Src/tools/doc_builder/resources/xml/*.wb
+Src/tools/doc_builder/resources/xml/EIFGENs
+Src/tools/estudio/*.wb
+Src/tools/estudio/EIFGENs
+Src/tools/estudio/estudio.rc
+Src/tools/quick_finalize/*.wb
+Src/tools/quick_finalize/EIFGENs
+Src/tools/quick_finalize/quick_finalize.rc
