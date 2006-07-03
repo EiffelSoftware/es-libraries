@@ -69,10 +69,10 @@ Src/C/ipc/daemon/*.pdb
 Src/C/ipc/daemon/Makefile
 Src/C/ipc/daemon/Makefile.bak
 Src/C/ipc/daemon/config.sh
-Src/C/ipc/daemon/estudio
-Src/C/ipc/daemon/estudio.RES
-Src/C/ipc/daemon/estudio.exe
-Src/C/ipc/daemon/estudio.lmk
+Src/C/ipc/daemon/ecdbgd
+Src/C/ipc/daemon/ecdbgd.RES
+Src/C/ipc/daemon/ecdbgd.exe
+Src/C/ipc/daemon/ecdbgd.lmk
 Src/C/ipc/daemon/make.bat
 Src/C/ipc/ewb/*.a
 Src/C/ipc/ewb/*.lib
