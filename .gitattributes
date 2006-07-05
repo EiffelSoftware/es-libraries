@@ -2171,8 +2171,6 @@ Src/tools/eiffel_matrix_code_generator/frames/studio.e.frame -text
 Src/tools/eiffel_matrix_code_generator/readme.txt -text
 Src/tools/estudio/config/estudio.ico -text
 Src/tools/estudio/config/estudio.rc -text
-Src/tools/estudio/config/estudio_with_splash.rc -text
-Src/tools/estudio/config/splash.bmp -text
 Src/tools/estudio/config/splash.png -text
 Src/tools/finish_freezing/appl.ico -text
 Src/tools/partial_classes_merger/src/ace.ace -text
