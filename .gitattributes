@@ -311,6 +311,7 @@ Delivery/scripts/windows/install/Binary/Repair.ico -text
 Delivery/scripts/windows/install/Binary/Up.ico -text
 Delivery/scripts/windows/install/Binary/gpl_license.rtf svneol=native#unset
 Delivery/scripts/windows/install/Binary/university_license.rtf svneol=native#unset
+Delivery/scripts/windows/install/gdiplus.wxs -text
 Delivery/scripts/windows/wix/ca/pcaexec.dll -text
 Delivery/scripts/windows/wix/ca/pcasched.dll -text
 Delivery/scripts/windows/wix/ca/scaexec.dll -text
