@@ -269,6 +269,7 @@ Src/Eiffel/parser/parser/output.txt
 Src/dotnet/consumer/*.wb
 Src/dotnet/consumer/EIFGENs
 Src/dotnet/consumer/EiffelSoftware.MetadataConsumer.rc
+Src/examples/docking/simple/EIFGENs
 Src/library/com/spec/msc
 Src/library/gobo
 Src/library/net/spec
