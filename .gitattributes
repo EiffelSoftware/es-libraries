@@ -360,6 +360,7 @@ Delivery/studio/config/vxworks/templates/emain.template -text
 Delivery/studio/config/windows/bcb/appl.ico -text
 Delivery/studio/config/windows/gnu/gnu.ico -text
 Delivery/studio/config/windows/msc/appl.ico -text
+Delivery/studio/help/errors/short/VD68 -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
