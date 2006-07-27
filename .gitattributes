@@ -301,6 +301,7 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
+Delivery/metrics/predefined_metrics.xml -text
 Delivery/scripts/windows/install/Binary/Banner.bmp -text
 Delivery/scripts/windows/install/Binary/Dialog.bmp -text
 Delivery/scripts/windows/install/Binary/Exclam.ico -text
@@ -342,6 +343,7 @@ Delivery/studio/bitmaps/png/12x12.ini -text
 Delivery/studio/bitmaps/png/12x12.png -text
 Delivery/studio/bitmaps/png/16x16.ini -text
 Delivery/studio/bitmaps/png/16x16.png -text
+Delivery/studio/bitmaps/png/Thumbs.db -text
 Delivery/studio/bitmaps/png/activation.png -text
 Delivery/studio/bitmaps/png/bm_About.png -text
 Delivery/studio/bitmaps/png/bm_wizard_blue.png -text
