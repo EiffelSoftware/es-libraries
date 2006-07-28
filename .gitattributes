@@ -301,7 +301,6 @@ Delivery/docs/pdf/style.pdf -text
 Delivery/docs/ps/body.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/front_page.ps -text svneol=unset#application/octet-stream
 Delivery/docs/ps/matisse_handle.ps -text svneol=unset#application/octet-stream
-Delivery/metrics/predefined_metrics.xml -text
 Delivery/scripts/windows/install/Binary/Banner.bmp -text
 Delivery/scripts/windows/install/Binary/Dialog.bmp -text
 Delivery/scripts/windows/install/Binary/Exclam.ico -text
@@ -362,6 +361,7 @@ Delivery/studio/config/windows/bcb/appl.ico -text
 Delivery/studio/config/windows/gnu/gnu.ico -text
 Delivery/studio/config/windows/msc/appl.ico -text
 Delivery/studio/help/errors/short/VD68 -text
+Delivery/studio/metrics/predefined_metrics.xml -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
