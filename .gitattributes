@@ -1597,7 +1597,6 @@ Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entiti
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_normal_completion_possibilities_provider.e -text
 Src/Eiffel/interface/new_graphical/text_window/text/support/eiffel_editor_cursor.e -text
 Src/Eiffel/interface/new_graphical/tools/debugging/es_objects_grid_row.e -text
-Src/Eiffel/interface/new_graphical/tools/eb_error_output_tool.e -text
 Src/Eiffel/interface/new_graphical/tools/eb_warning_output_tool.e -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
 Src/Eiffel/library/configuration/lace/lace_compile/classname_finder.l -text
