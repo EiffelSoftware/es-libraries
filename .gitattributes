@@ -1577,7 +1577,6 @@ Src/Eiffel/eiffel/AST/factory/ast_roundtrip_compiler_light_factory.e -text
 Src/Eiffel/eiffel/byte_code/visitor/assignment_generator.e -text
 Src/Eiffel/eiffel/byte_code/visitor/il_access_address_generator.e -text
 Src/Eiffel/eiffel/byte_code/visitor/il_node_generator.e -text
-Src/Eiffel/interface/new_graphical/commands/eb_add_class_figure_relations_command.e -text
 Src/Eiffel/interface/new_graphical/managers/eb_text_output_factory.e -text
 Src/Eiffel/interface/new_graphical/metric_tool/metric_interface/build_project.bpr -text
 Src/Eiffel/interface/new_graphical/metric_tool/metric_interface/system_interface.xml -text
