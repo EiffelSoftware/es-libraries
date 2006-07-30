@@ -1585,8 +1585,6 @@ Src/Eiffel/interface/new_graphical/multi_search_tool/eb_search_report_grid.e -te
 Src/Eiffel/interface/new_graphical/multi_search_tool/system_interface.xml -text
 Src/Eiffel/interface/new_graphical/preference_tool/parameters/eb_search_tool_data.e -text
 Src/Eiffel/interface/new_graphical/process_launcher/eb_process_manager.e -text
-Src/Eiffel/interface/new_graphical/shared/eb_save_file.e -text
-Src/Eiffel/interface/new_graphical/shared/es_pixmap_lookup_table.e -text
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_code_completable_grid_editable_item.e -text
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_code_completable_text_field.e -text
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_code_completion_window.e -text
