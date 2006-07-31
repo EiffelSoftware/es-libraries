@@ -172,6 +172,7 @@ Src/C_library/zlib/minigzip_d.exe
 Src/C_library/zlib/zdll.exp
 Src/C_library/zlib/zlib1.dll
 Src/C_library/zlib/zlib1.res
+Src/Delivery
 Src/Eiffel/Ace/*.epr
 Src/Eiffel/Ace/*.rc
 Src/Eiffel/Ace/*.user
@@ -270,7 +271,9 @@ Src/dotnet/consumer/*.wb
 Src/dotnet/consumer/EIFGENs
 Src/dotnet/consumer/EiffelSoftware.MetadataConsumer.rc
 Src/examples/docking/simple/EIFGENs
+Src/free_add_ons
 Src/library/com/spec/msc
+Src/library/event/spec
 Src/library/gobo
 Src/library/gobo/History.txt
 Src/library/gobo/License.txt
@@ -286,6 +289,7 @@ Src/library/gobo/misc
 Src/library/gobo/src
 Src/library/gobo/test
 Src/library/net/spec
+Src/library/vision2/spec/linux-x86-64
 Src/library/vision2/spec/msc
 Src/library/wel/clib/ilwel.lib
 Src/library/wel/clib/make.log
