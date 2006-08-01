@@ -349,11 +349,14 @@ Delivery/studio/bitmaps/png/bm_wizard_profiler_icon.png -text
 Delivery/studio/bitmaps/png/borland_logo.png -text
 Delivery/studio/bitmaps/png/cursors.ini -text
 Delivery/studio/bitmaps/png/cursors.png -text
+Delivery/studio/bitmaps/png/floating_tool_bar_icon.png -text
 Delivery/studio/bitmaps/png/icon_matrix_12.png -text
 Delivery/studio/bitmaps/png/icon_matrix_16.png -text
 Delivery/studio/bitmaps/png/icon_matrix_32.png -text
 Delivery/studio/bitmaps/png/icon_matrix_8.png -text
 Delivery/studio/bitmaps/png/logo.png -text
+Delivery/studio/bitmaps/png/smart_docking_icon_matrix_8_16.png -text
+Delivery/studio/bitmaps/png/smart_docking_icon_matrix_8_16_horizontal.png -text
 Delivery/studio/bitmaps/png/splash.png -text
 Delivery/studio/config/vxworks/templates/egc_dynlib.template -text
 Delivery/studio/config/vxworks/templates/emain.template -text
