@@ -178,11 +178,10 @@ Src/Eiffel/Ace/*.rc
 Src/Eiffel/Ace/*.user
 Src/Eiffel/Ace/*.wb
 Src/Eiffel/Ace/Diagrams
-Src/Eiffel/Ace/EIFGEN
-Src/Eiffel/Ace/EIFGENS
 Src/Eiffel/Ace/EIFGENs
 Src/Eiffel/Ace/Metrics
 Src/Eiffel/Ace/exception_trace.log
+Src/Eiffel/Ace/metrics
 Src/Eiffel/doc/GC/_private
 Src/Eiffel/doc/GC/_vti_cnf
 Src/Eiffel/doc/GC/_vti_pvt
