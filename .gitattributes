@@ -1559,12 +1559,14 @@ Src/dotnet/eac_browser/ressources/eac_ico/icon_public_feature.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_public_property.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_value_type_class.ico -text
 Src/dotnet/helpers/isekey.snk -text
+Src/examples/Eiffel2Java/README -text
 Src/examples/Eiffel2Java/test.class -text
 Src/examples/base/desc-32/test.ico svneol=native#unset
 Src/examples/base/desc-32/testdesc.dll -text
 Src/examples/base/desc-32/testdesc.lib -text
 Src/examples/com/compound/child.ico -text
 Src/examples/com/compound/compound.ico -text
+Src/examples/cpp/mystring/README -text
 Src/examples/cpp/mystring/test_cpp.ico svneol=native#unset
 Src/examples/docking/simple/images/center.png -text
 Src/examples/docking/simple/images/center_center_light.png -text
