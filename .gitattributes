@@ -201,6 +201,7 @@ Delivery/studio/config/windows/msc/appl.ico -text
 Delivery/studio/help/errors/VPIR -text
 Delivery/studio/help/errors/short/VD68 -text
 Delivery/studio/help/errors/short/VD86 -text
+Delivery/studio/help/errors/short/VD87 -text
 Delivery/studio/help/errors/short/VPIR1 -text
 Delivery/studio/help/errors/short/VPIR3 -text
 Delivery/studio/metrics/predefined_metrics.xml -text
