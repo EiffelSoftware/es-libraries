@@ -1801,7 +1801,7 @@ Src/help/wizards/estore2/src/odbc_primary_key_result.e -text
 Src/help/wizards/eweb/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/wizard.ico -text
-Src/library/Eiffel2Java/README -text
+Src/library/Eiffel2Java/README.txt -text
 Src/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
 Src/library/base_extension/base_extension.ecf -text
 Src/library/diff/diff.e -text
