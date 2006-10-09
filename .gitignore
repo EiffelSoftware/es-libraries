@@ -296,6 +296,7 @@ Src/library/wel/clib/wel.lib
 Src/library/wel/spec/msc
 Src/tools/com_wizard/root/*.wb
 Src/tools/com_wizard/root/EIFGENs
+Src/tools/compile_all/*.rc
 Src/tools/doc_builder/*.wb
 Src/tools/doc_builder/resources/xml/*.wb
 Src/tools/doc_builder/resources/xml/EIFGENs
