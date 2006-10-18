@@ -259,6 +259,7 @@ Src/Eiffel/doc/weasel_results/_vti_cnf
 Src/Eiffel/doc/weasel_results/_vti_pvt
 Src/Eiffel/eiffel/com_il_generation/Core/run-time/*.dll
 Src/Eiffel/eiffel/com_il_generation/Core/run-time/*.pdb
+Src/Eiffel/library/cli_writer/*.rc
 Src/Eiffel/library/cli_writer/Clib/*.lib
 Src/Eiffel/library/cli_writer/Clib/*.obj
 Src/Eiffel/library/cli_writer/Clib/*.pdb
