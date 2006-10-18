@@ -1417,6 +1417,7 @@ Src/Eiffel/doc/benchmarks/compile_times_solaris-x86-64 -text
 Src/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#application/octet-stream
 Src/Eiffel/doc/debugging/debugger_files/image002.gif -text
+Src/Eiffel/eiffel/AST/external_parser/Makefile -text
 Src/Eiffel/eiffel/AST/factory/ast_roundtrip_compiler_factory.e -text
 Src/Eiffel/eiffel/AST/factory/ast_roundtrip_compiler_light_factory.e -text
 Src/Eiffel/eiffel/byte_code/visitor/assignment_generator.e -text
@@ -1442,9 +1443,9 @@ Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_normal_compl
 Src/Eiffel/interface/new_graphical/text_window/text/support/eiffel_editor_cursor.e -text
 Src/Eiffel/interface/new_graphical/tools/debugging/es_objects_grid_row.e -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
-Src/Eiffel/library/configuration/lace/lace_compile/classname_finder.l -text
-Src/Eiffel/library/configuration/lace/lace_compile/lace.l -text
-Src/Eiffel/library/configuration/lace/lace_compile/make.cmd -text
+Src/Eiffel/library/configuration/parser/lace/lace_compile/classname_finder.l -text
+Src/Eiffel/library/configuration/parser/lace/lace_compile/lace.l -text
+Src/Eiffel/library/configuration/parser/lace/lace_compile/make.cmd -text
 Src/Eiffel/library/configuration/versioning/configuration-1-0-0.xsd -text
 Src/Eiffel/library/configuration/versioning/conversion-1-0-0.xsl -text
 Src/Eiffel/library/configuration/versioning/fix-eweasel-1-0-0.xsl -text
@@ -1455,7 +1456,6 @@ Src/Eiffel/parser/AST/expressions/tilda_routine_creation_as.e -text
 Src/Eiffel/parser/AST/instructions/bang_creation_as.e -text
 Src/Eiffel/parser/AST/instructions/create_creation_as.e -text
 Src/Eiffel/parser/AST/utilities/assertion_filter.e -text
-Src/Eiffel/parser/external_parser/Makefile -text
 Src/Eiffel/parser/roundtrip/comment/eiffel_comment_line.e -text
 Src/Eiffel/parser/roundtrip/context/roundtrip_context.e -text
 Src/Eiffel/parser/roundtrip/context/roundtrip_string_list_context.e -text
@@ -2028,8 +2028,6 @@ Src/tools/estudio/config/estudio.rc -text
 Src/tools/estudio/config/estudio_e.ico -text
 Src/tools/estudio/config/estudio_ecf.ico -text
 Src/tools/finish_freezing/appl.ico -text
-Src/tools/partial_classes_merger/src/ace.ace -text
-Src/tools/partial_classes_merger/tests/howto.txt -text
 Src/tools/resource_bench/RB_documentation/docrb/ANALYZ.gif svneol=native#unset
 Src/tools/resource_bench/RB_documentation/docrb/BROWSE.gif svneol=native#unset
 Src/tools/resource_bench/RB_documentation/docrb/Browse.bmp svneol=native#unset
