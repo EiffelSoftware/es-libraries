@@ -263,6 +263,8 @@ Src/dotnet/consumer/*.wb
 Src/dotnet/consumer/EIFGENs
 Src/dotnet/consumer/EiffelSoftware.MetadataConsumer.rc
 Src/examples/docking/simple/EIFGENs
+Src/framework/cli_debugger/Clib/OBJ
+Src/framework/cli_debugger/spec
 Src/framework/cli_writer/*.rc
 Src/framework/cli_writer/Clib/*.lib
 Src/framework/cli_writer/Clib/*.obj
