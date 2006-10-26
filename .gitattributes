@@ -791,10 +791,12 @@ Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_disable_assertions_icon.pn
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_exception_dialog_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_exception_handling_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_pause_icon.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_restart_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_resume_assertions_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_run_finalized_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_run_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_run_without_breakpoint_icon.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_show_execution_point_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_step_into_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_step_out_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/debug_step_over_icon.png -text
@@ -888,6 +890,10 @@ Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_config_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_features_all_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_features_none_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_features_some_icon.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_hidden_blank_icon.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_hidden_blank_readonly_icon.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_hidden_cluster_icon.png -text
+Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_hidden_cluster_readonly_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_library_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_library_readonly_icon.png -text
 Delivery/xmldoc/images/eiffelstudio/icons/16x16/folder_namespace_icon.png -text
