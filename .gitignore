@@ -303,6 +303,7 @@ Src/tools/compile_all/*.rc
 Src/tools/doc_builder/*.wb
 Src/tools/doc_builder/resources/xml/*.wb
 Src/tools/doc_builder/resources/xml/EIFGENs
+Src/tools/eiffel_matrix_code_generator/*.exe
 Src/tools/estudio/*.wb
 Src/tools/estudio/EIFGENs
 Src/tools/estudio/estudio.rc
