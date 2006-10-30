@@ -311,3 +311,6 @@ Src/tools/estudio/estudio.rc
 Src/tools/quick_finalize/*.wb
 Src/tools/quick_finalize/EIFGENs
 Src/tools/quick_finalize/quick_finalize.rc
+Src/tools/vms/ES5SH/*.wb
+Src/tools/vms/ES5SH/EIFGENs
+Src/tools/vms/ES5SH/quick_finalize.rc
