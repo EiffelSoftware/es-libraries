@@ -328,6 +328,7 @@ Src/library/wel/clib/ilwel.lib
 Src/library/wel/clib/make.log
 Src/library/wel/clib/wel.lib
 Src/library/wel/spec/msc
+Src/scripts/EIFGENs
 Src/tools/com_wizard/root/*.wb
 Src/tools/com_wizard/root/EIFGENs
 Src/tools/compile_all/*.exe
