@@ -242,6 +242,7 @@ Delivery/studio/help/errors/ECMA-VHPR -text
 Delivery/studio/help/errors/VPIR -text
 Delivery/studio/help/errors/VSRP -text
 Delivery/studio/help/errors/VSRT -text
+Delivery/studio/help/errors/short/VQUI2 -text
 Delivery/studio/metrics/predefined_metrics.xml -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
