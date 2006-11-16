@@ -260,6 +260,7 @@ Src/Eiffel/doc/weasel_results/_vti_cnf
 Src/Eiffel/doc/weasel_results/_vti_pvt
 Src/Eiffel/eiffel/com_il_generation/Core/run-time/*.dll
 Src/Eiffel/eiffel/com_il_generation/Core/run-time/*.pdb
+Src/dotnet/codedom_provider_2.0/configuration/*.rc
 Src/dotnet/consumer/*.wb
 Src/dotnet/consumer/EIFGENs
 Src/dotnet/consumer/EiffelSoftware.MetadataConsumer.rc
