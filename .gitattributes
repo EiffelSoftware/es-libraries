@@ -1919,8 +1919,6 @@ Src/tools/copyright_tool/build_project.bpr -text
 Src/tools/copyright_tool/eiffel_copyright.exe.manifest -text
 Src/tools/copyright_tool/eiffel_icon.png -text
 Src/tools/copyright_tool/system_interface.xml -text
-Src/tools/copyright_tool/texts/EFL_v2.cpr -text
-Src/tools/copyright_tool/texts/GPL.cpr -text
 Src/tools/doc_builder/Assemblies_10/AxShDocVw.dll -text
 Src/tools/doc_builder/Assemblies_10/SHDocVw.dll -text
 Src/tools/doc_builder/Assemblies_11/AxSHDocVw.dll -text
