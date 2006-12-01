@@ -2804,9 +2804,6 @@ eweasel/tests/lib003/notes -text
 eweasel/tests/lib004/notes -text
 eweasel/tests/lib005/notes -text
 eweasel/tests/lib007/file.txt -text
-eweasel/tests/lib008/file.txt -text
-eweasel/tests/lib008/output_unix -text
-eweasel/tests/lib008/output_windows -text
 eweasel/tests/lib009/file.txt -text
 eweasel/tests/lib010/file.txt -text
 eweasel/tests/lib011/file.txt -text
