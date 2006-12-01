@@ -2165,8 +2165,6 @@ eweasel/tests/ccomp048/notes -text
 eweasel/tests/ccomp050/notes -text
 eweasel/tests/ccomp051/notes -text
 eweasel/tests/ccomp052/notes -text
-eweasel/tests/config001/output_no -text
-eweasel/tests/config001/output_yes -text
 eweasel/tests/dotnet018/cas.cs -text
 eweasel/tests/dotnet018/cas.dll -text
 eweasel/tests/dotnet018/notes -text
