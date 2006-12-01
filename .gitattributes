@@ -2808,9 +2808,6 @@ eweasel/tests/lib009/file.txt -text
 eweasel/tests/lib010/file.txt -text
 eweasel/tests/lib012/file.txt -text
 eweasel/tests/lib013/file.txt -text
-eweasel/tests/lib014/file.txt -text
-eweasel/tests/lib014/output_unix -text
-eweasel/tests/lib014/output_windows -text
 eweasel/tests/lib015/file.txt -text
 eweasel/tests/lib016/file.txt -text
 eweasel/tests/lib017/file.txt -text
