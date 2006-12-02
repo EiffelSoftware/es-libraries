@@ -2067,6 +2067,7 @@ Src/tools/resource_bench/RB_documentation/examples/cursor_2.cur svneol=native#un
 Src/tools/resource_bench/RB_documentation/examples/icon_1.ico svneol=native#unset
 Src/tools/resource_bench/RB_documentation/examples/icon_2.ico svneol=native#unset
 Src/tools/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#unset
+Src/tools/resource_bench/bin/rb.exe -text
 Src/tools/resource_bench/rb.ico svneol=native#unset
 Src/tools/resource_bench/toolbar.bmp svneol=native#unset
 eweasel/BUGS -text
