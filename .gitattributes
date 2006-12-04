@@ -1448,7 +1448,6 @@ Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_normal_compl
 Src/Eiffel/interface/new_graphical/text_window/text/support/eiffel_editor_cursor.e -text
 Src/Eiffel/interface/new_graphical/tools/debugging/es_objects_grid_row.e -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
-Src/Eiffel/switch/communication/debug/debugger_manager.e -text
 Src/Eiffel/switch/communication/spec/gtk/eb_debugger_manager_imp.e -text
 Src/Eiffel/switch/communication/spec/mswin/eb_debugger_manager_imp.e -text
 Src/Eiffel/switch/no_communication/debug/debugger_manager.e -text
