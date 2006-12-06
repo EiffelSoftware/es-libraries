@@ -2783,6 +2783,7 @@ eweasel/tests/incr248/notes -text
 eweasel/tests/incr255/liba -text
 eweasel/tests/incr255/libb -text
 eweasel/tests/incr256/liba -text
+eweasel/tests/incr276/Ace -text
 eweasel/tests/lace003/notes -text
 eweasel/tests/lace007/notes -text
 eweasel/tests/lace011/notes -text
