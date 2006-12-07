@@ -2376,6 +2376,8 @@ eweasel/tests/exec213/x.dll -text
 eweasel/tests/exec263/expected_output_INTEGER -text
 eweasel/tests/exec263/expected_output_LIST_STRING -text
 eweasel/tests/exec263/expected_output_STRING -text
+eweasel/tests/exec264/Ace -text
+eweasel/tests/exec264/expected_output -text
 eweasel/tests/fake001/notes -text
 eweasel/tests/fake002/notes -text
 eweasel/tests/fake003/notes -text
