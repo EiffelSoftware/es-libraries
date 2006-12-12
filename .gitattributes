@@ -2179,6 +2179,8 @@ eweasel/tests/dotnet035/type1.dll -text
 eweasel/tests/dotnet035/type1.il -text
 eweasel/tests/dotnet035/type2.dll -text
 eweasel/tests/dotnet035/type2.il -text
+eweasel/tests/dotnet039/Ace -text
+eweasel/tests/dotnet039/VersionedInterfaceLibrary.dll -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
