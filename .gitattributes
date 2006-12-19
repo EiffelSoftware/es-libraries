@@ -2259,6 +2259,7 @@ eweasel/tests/dotnet039/VersionedInterfaceLibrary.dll -text
 eweasel/tests/dotnet040/Ace -text
 eweasel/tests/dotnet041/Ace -text
 eweasel/tests/dotnet042/ImplTest.dll -text
+eweasel/tests/dotnet043/Ace -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
