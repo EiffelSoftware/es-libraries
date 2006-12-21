@@ -248,6 +248,7 @@ Delivery/studio/lang/mo_files/fr.mo -text
 Delivery/studio/lang/mo_files/zh_CN.mo -text
 Delivery/studio/lang/po_files/de_CH.po -text
 Delivery/studio/lang/po_files/en.po -text
+Delivery/studio/lang/po_files/zh_CN.po -text
 Delivery/studio/metrics/predefined_metrics.xml -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
