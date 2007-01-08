@@ -2267,6 +2267,7 @@ eweasel/tests/dotnet044/Ace -text
 eweasel/tests/dotnet045/Ace -text
 eweasel/tests/dotnet045/VersionedComInterfaces.dll -text
 eweasel/tests/dotnet045/VersionedComInterfaces.il -text
+eweasel/tests/dotnet046/Ace -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
