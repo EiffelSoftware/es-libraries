@@ -2490,6 +2490,7 @@ eweasel/tests/exec263/expected_output_STRING -text
 eweasel/tests/exec264/Ace -text
 eweasel/tests/exec264/expected_output -text
 eweasel/tests/exec267/Ace -text
+eweasel/tests/exec268/Ace -text
 eweasel/tests/fake001/notes -text
 eweasel/tests/fake002/notes -text
 eweasel/tests/fake003/notes -text
