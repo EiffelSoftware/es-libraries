@@ -2131,6 +2131,10 @@ Src/tools/eiffel_matrix_code_generator/example/pixmaps.ini -text
 Src/tools/eiffel_matrix_code_generator/frames/matrix.e.frame -text
 Src/tools/eiffel_matrix_code_generator/frames/studio.e.frame -text
 Src/tools/eiffel_matrix_code_generator/readme.txt -text
+Src/tools/es_cleaner/escln.exe.manifest -text
+Src/tools/es_cleaner/escln.rc -text
+Src/tools/es_cleaner/main/graphical/build_project.bpr -text
+Src/tools/es_cleaner/main/graphical/system_interface.xml -text
 Src/tools/estudio/config/estudio.ico -text
 Src/tools/estudio/config/estudio.rc -text
 Src/tools/estudio/config/estudio_e.ico -text
