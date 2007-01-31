@@ -3378,6 +3378,8 @@ eweasel/tests/valid198/Ace -text
 eweasel/tests/valid199/Ace -text
 eweasel/tests/valid200/Ace -text
 eweasel/tests/valid201/Ace -text
+eweasel/tests/valid202/Ace -text
+eweasel/tests/valid203/Ace -text
 eweasel/tests/vd01001/file -text
 eweasel/tests/vd10001/weasel -text
 eweasel/tests/vd13001/weasel -text
