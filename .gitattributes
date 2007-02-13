@@ -1480,6 +1480,7 @@ Documentation/xmldoc/tools/wizards/com/images/interface_inheritance.png -text
 Documentation/xmldoc/tools/wizards/com/images/interface_inheritance_server.png -text
 Documentation/xmldoc/tools/wizards/com/images/introduction.png -text
 Src/C/CONFIGS/openbsd-x86 -text
+Src/C/CONFIGS/windows-msc-x86 eol=lf
 Src/C/eif_config_h.SH eol=lf
 Src/C/rt_converter.exe -text
 Src/C/run-time/eif_size_h.SH eol=lf
