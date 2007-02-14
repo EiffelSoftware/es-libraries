@@ -3073,9 +3073,12 @@ eweasel/tests/multicon009/output_integer_32_ref -text
 eweasel/tests/multicon010/Ace -text
 eweasel/tests/multicon010/output_integer_32 -text
 eweasel/tests/multicon010/output_integer_32_ref -text
+eweasel/tests/multicon011/Ace -text
+eweasel/tests/multicon012/Ace -text
 eweasel/tests/multicon013/Ace -text
 eweasel/tests/multicon014/Ace -text
 eweasel/tests/multicon015/Ace -text
+eweasel/tests/multicon019/Ace -text
 eweasel/tests/multicon020/Ace -text
 eweasel/tests/multicon021/Ace -text
 eweasel/tests/multicon022/Ace -text
