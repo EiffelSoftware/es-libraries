@@ -139,7 +139,6 @@ Delivery/esbuilder/pixmaps/wizard.png -text
 Delivery/scripts/unix/README.unix -text
 Delivery/scripts/unix/make_unix_layout -text
 Delivery/scripts/windows/install/Admin.txt -text
-Delivery/scripts/windows/install/AppSearches.wxs -text
 Delivery/scripts/windows/install/Binary/Banner.bmp -text
 Delivery/scripts/windows/install/Binary/Dialog.bmp -text
 Delivery/scripts/windows/install/Binary/Exclam.ico -text
