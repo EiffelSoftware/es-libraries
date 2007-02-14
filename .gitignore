@@ -1,3 +1,7 @@
+Delivery/studio/wizards/new_projects/dotnet/spec
+Delivery/studio/wizards/new_projects/vision2/spec
+Delivery/studio/wizards/new_projects/wel/spec
+Delivery/studio/wizards/others/precompile/spec
 Src/C/CONFIGS/*.exe
 Src/C/CONFIGS/*.ilk
 Src/C/CONFIGS/*.lib
