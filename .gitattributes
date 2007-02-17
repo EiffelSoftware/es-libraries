@@ -205,6 +205,8 @@ Delivery/scripts/windows/install/licenses/eiffelstudio/enterprise.rtf -text
 Delivery/scripts/windows/install/licenses/eiffelstudio/gpl.rtf -text
 Delivery/scripts/windows/install/package.sln -text
 Delivery/scripts/windows/install/package.wixproj -text
+Delivery/scripts/windows/install/redist/Redist.wxs -text
+Delivery/scripts/windows/install/redist/redist.wixproj -text
 Delivery/scripts/windows/wix/Bitmaps/New.ico -text
 Delivery/scripts/windows/wix/Bitmaps/Up.ico -text
 Delivery/scripts/windows/wix/Bitmaps/bannrbmp.bmp -text
