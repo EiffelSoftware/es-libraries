@@ -313,8 +313,10 @@ Delivery/studio/bitmaps/png/up.png -text
 Delivery/studio/bitmaps/png/up_light.png -text
 Delivery/studio/built_ins/classic/REAL_32.ceiling_real_32.code -text
 Delivery/studio/built_ins/classic/REAL_32.floor_real_32.code -text
+Delivery/studio/built_ins/classic/REAL_32.out.code -text
 Delivery/studio/built_ins/classic/REAL_64.ceiling_real_64.code -text
 Delivery/studio/built_ins/classic/REAL_64.floor_real_64.code -text
+Delivery/studio/built_ins/classic/REAL_64.out.code -text
 Delivery/studio/config/vxworks/templates/egc_dynlib.template -text
 Delivery/studio/config/windows/bcb/appl.ico -text
 Delivery/studio/config/windows/gnu/gnu.ico -text
