@@ -203,6 +203,7 @@ Delivery/scripts/windows/install/licenses/eiffelenvision/enterprise.rtf -text
 Delivery/scripts/windows/install/licenses/eiffelenvision/free.rtf -text
 Delivery/scripts/windows/install/licenses/eiffelstudio/enterprise.rtf -text
 Delivery/scripts/windows/install/licenses/eiffelstudio/gpl.rtf -text
+Delivery/scripts/windows/install/licenses/eiffelstudio/university.rtf -text svneol=unset#unset
 Delivery/scripts/windows/install/package.sln -text
 Delivery/scripts/windows/install/package.wixproj -text
 Delivery/scripts/windows/install/redist/Redist.wxs -text
