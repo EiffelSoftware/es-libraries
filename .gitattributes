@@ -139,15 +139,6 @@ Delivery/esbuilder/pixmaps/wizard.png -text
 Delivery/scripts/unix/README.unix -text
 Delivery/scripts/unix/make_unix_layout -text
 Delivery/scripts/windows/install/Admin.txt -text
-Delivery/scripts/windows/install/Binary/Banner.bmp -text
-Delivery/scripts/windows/install/Binary/Dialog.bmp -text
-Delivery/scripts/windows/install/Binary/Exclam.ico -text
-Delivery/scripts/windows/install/Binary/Info.ico -text
-Delivery/scripts/windows/install/Binary/New.ico -text
-Delivery/scripts/windows/install/Binary/Remove.ico -text
-Delivery/scripts/windows/install/Binary/Repair.ico -text
-Delivery/scripts/windows/install/Binary/Up.ico -text
-Delivery/scripts/windows/install/Binary/university_license.rtf svneol=native#unset
 Delivery/scripts/windows/install/CustomActions.wxs -text
 Delivery/scripts/windows/install/Package.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Bin64.wxs -text
@@ -177,7 +168,6 @@ Delivery/scripts/windows/install/content/eiffelstudio/studio_examples.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_gdiplus.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_gpl_ec.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_libraries.wxs -text
-Delivery/scripts/windows/install/gdiplus.wxs -text
 Delivery/scripts/windows/install/images/Thumbs.db -text
 Delivery/scripts/windows/install/images/app.ico -text
 Delivery/scripts/windows/install/images/eiffelenvision/backdrop.bmp -text
