@@ -1498,6 +1498,8 @@ Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entiti
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entities_finder_from_text.e -text
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_normal_completion_possibilities_provider.e -text
 Src/Eiffel/interface/new_graphical/text_window/text/support/eiffel_editor_cursor.e -text
+Src/Eiffel/interface/new_graphical/tools/customized_formatter/build_project.bpr -text
+Src/Eiffel/interface/new_graphical/tools/customized_formatter/system_interface.xml -text
 Src/Eiffel/interface/new_graphical/tools/debugging/es_objects_grid_row.e -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
 Src/Eiffel/switch/communication/spec/gtk/eb_debugger_manager_imp.e -text
