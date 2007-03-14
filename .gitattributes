@@ -3015,6 +3015,8 @@ eweasel/tests/multicon012/Ace -text
 eweasel/tests/multicon013/Ace -text
 eweasel/tests/multicon014/Ace -text
 eweasel/tests/multicon015/Ace -text
+eweasel/tests/multicon016/Ace -text
+eweasel/tests/multicon017/Ace -text
 eweasel/tests/multicon018/Ace -text
 eweasel/tests/multicon019/Ace -text
 eweasel/tests/multicon020/Ace -text
@@ -3023,6 +3025,8 @@ eweasel/tests/multicon022/Ace -text
 eweasel/tests/multicon023/Ace -text
 eweasel/tests/multicon024/Ace -text
 eweasel/tests/multicon025/Ace -text
+eweasel/tests/multicon026/Ace -text
+eweasel/tests/multicon027/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
