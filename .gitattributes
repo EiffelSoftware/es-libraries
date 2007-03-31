@@ -3028,6 +3028,9 @@ eweasel/tests/multicon024/Ace -text
 eweasel/tests/multicon025/Ace -text
 eweasel/tests/multicon026/Ace -text
 eweasel/tests/multicon027/Ace -text
+eweasel/tests/multicon028/Ace -text
+eweasel/tests/multicon029/Ace -text
+eweasel/tests/multicon030/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
