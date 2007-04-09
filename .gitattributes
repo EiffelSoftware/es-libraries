@@ -154,8 +154,7 @@ Delivery/scripts/windows/install/content/eiffelenvision/EiffelProjects.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Examples.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Libraries.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Libraries64.wxs -text
-Delivery/scripts/windows/install/content/eiffelenvision/Redist.wxi -text
-Delivery/scripts/windows/install/content/eiffelenvision/Redist64.wxi -text
+Delivery/scripts/windows/install/content/eiffelenvision/Redist.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Schema.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Snippets.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Specifications.wxs -text
