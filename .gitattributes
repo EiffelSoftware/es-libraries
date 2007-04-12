@@ -3376,6 +3376,7 @@ eweasel/tests/valid203/Ace -text
 eweasel/tests/valid204/Ace -text
 eweasel/tests/valid207/Ace -text
 eweasel/tests/valid208/Ace -text
+eweasel/tests/valid209/Ace -text
 eweasel/tests/vd01001/file -text
 eweasel/tests/vd10001/weasel -text
 eweasel/tests/vd13001/weasel -text
