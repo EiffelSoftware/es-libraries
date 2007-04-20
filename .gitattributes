@@ -210,6 +210,7 @@ Delivery/scripts/windows/install/interface/PromptBrowse.wxs -text
 Delivery/scripts/windows/install/interface/PromptCancelInstall.wxs -text
 Delivery/scripts/windows/install/interface/PromptCancelLicense.wxs -text
 Delivery/scripts/windows/install/interface/PromptError.wxs -text
+Delivery/scripts/windows/install/interface/PromptInvalidCdKey.wxs -text
 Delivery/scripts/windows/install/interface/PromptOutOfDiskSpace.wxs -text
 Delivery/scripts/windows/install/interface/PromptOutOfRollbackDiskSpace.wxs -text
 Delivery/scripts/windows/install/interface/PromptViewLicenseAgreement.wxs -text
