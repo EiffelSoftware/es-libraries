@@ -3040,6 +3040,7 @@ eweasel/tests/multicon032/Ace -text
 eweasel/tests/multicon033/Ace -text
 eweasel/tests/multicon034/Ace -text
 eweasel/tests/multicon035/Ace -text
+eweasel/tests/multicon036/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
