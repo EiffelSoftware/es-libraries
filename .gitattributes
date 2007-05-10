@@ -2283,6 +2283,7 @@ eweasel/tests/dotnet046/Ace -text
 eweasel/tests/dotnet047/Ace -text
 eweasel/tests/dotnet048/Ace -text
 eweasel/tests/dotnet052/Ace -text
+eweasel/tests/dotnet054/Ace -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
