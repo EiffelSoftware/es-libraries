@@ -2175,6 +2175,7 @@ eweasel/bin/run_eweasel_catalog -text
 eweasel/bin/run_eweasel_catalog.bat -text
 eweasel/bin/run_eweasel_filter -text
 eweasel/bin/run_eweasel_filter.bat -text
+eweasel/bin/run_eweasel_keyword.bat eol=crlf
 eweasel/bin/set_eweasel_env.bat -text
 eweasel/bin/update_file.sh -text
 eweasel/compilation/README -text
