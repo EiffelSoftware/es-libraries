@@ -2354,6 +2354,9 @@ eweasel/tests/dotnet065/output_nn_urcnn -text
 eweasel/tests/dotnet065/output_ucnn -text
 eweasel/tests/dotnet065/output_ucnn_urcnn -text
 eweasel/tests/dotnet065/output_urcnn -text
+eweasel/tests/dotnet066/Ace -text
+eweasel/tests/dotnet066/icon.ico -text
+eweasel/tests/dotnet066/resources.resx -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
