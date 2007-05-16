@@ -2361,6 +2361,7 @@ eweasel/tests/dotnet067/Ace -text
 eweasel/tests/dotnet067/resources.resources -text
 eweasel/tests/dotnet068/Ace -text
 eweasel/tests/dotnet068/document.dat -text
+eweasel/tests/dotnet069/Ace -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
