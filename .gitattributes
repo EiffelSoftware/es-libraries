@@ -2632,6 +2632,8 @@ eweasel/tests/exec276/Ace -text
 eweasel/tests/expanded001/Ace -text
 eweasel/tests/expanded002/Ace -text
 eweasel/tests/expanded003/Ace -text
+eweasel/tests/expanded004/Ace -text
+eweasel/tests/expanded005/Ace -text
 eweasel/tests/fake001/notes -text
 eweasel/tests/fake002/notes -text
 eweasel/tests/fake003/notes -text
@@ -3191,6 +3193,8 @@ eweasel/tests/multicon035/Ace -text
 eweasel/tests/multicon036/Ace -text
 eweasel/tests/multicon037/Ace -text
 eweasel/tests/multicon038/Ace -text
+eweasel/tests/multicon041/Ace -text
+eweasel/tests/multicon042/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
