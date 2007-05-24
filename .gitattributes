@@ -2440,6 +2440,7 @@ eweasel/tests/dotnet097/Ace -text
 eweasel/tests/dotnet098/Ace -text
 eweasel/tests/dotnet099/Ace -text
 eweasel/tests/dotnet100/Ace -text
+eweasel/tests/dotnet101/Ace -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
