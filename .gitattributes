@@ -3573,6 +3573,7 @@ eweasel/tests/valid211/Ace -text
 eweasel/tests/valid212/Ace -text
 eweasel/tests/valid213/Ace -text
 eweasel/tests/valid214/Ace -text
+eweasel/tests/valid215/Ace -text
 eweasel/tests/vd01001/file -text
 eweasel/tests/vd10001/weasel -text
 eweasel/tests/vd13001/weasel -text
