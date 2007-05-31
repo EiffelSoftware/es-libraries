@@ -605,8 +605,14 @@ Documentation/xmldoc/images/eiffelstudio/browsing_tools/main_address_bar.png -te
 Documentation/xmldoc/images/eiffelstudio/browsing_tools/main_toolbars.png -text
 Documentation/xmldoc/images/eiffelstudio/browsing_tools/search_tool.png -text
 Documentation/xmldoc/images/eiffelstudio/browsing_tools/windows_tool.png -text
+Documentation/xmldoc/images/eiffelstudio/c_output_tool/coutput1.png -text
+Documentation/xmldoc/images/eiffelstudio/c_output_tool/coutput2.png -text
+Documentation/xmldoc/images/eiffelstudio/c_output_tool/coutput3.png -text
+Documentation/xmldoc/images/eiffelstudio/c_output_tool/coutput4.png -text
+Documentation/xmldoc/images/eiffelstudio/c_output_tool/coutput5.png -text
 Documentation/xmldoc/images/eiffelstudio/class_format_bar.png -text
 Documentation/xmldoc/images/eiffelstudio/class_mini_format_bar.png -text
+Documentation/xmldoc/images/eiffelstudio/console_tool/console1.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/argument_dialog.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_context_menu.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoints_list.png -text
@@ -1531,6 +1537,8 @@ Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/30_user_interfa
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/30_user_interface_basics/30_new_metric_panel.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/30_user_interface_basics/40_metric_history_panel.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/30_user_interface_basics/50_metric_archive_panel.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/65_console_tool/index.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/66_c_output_tool/index.xml -text
 Documentation/xmldoc/tools/wizards/com/images/client_inheritance.png -text
 Documentation/xmldoc/tools/wizards/com/images/exception_raising.png -text
 Documentation/xmldoc/tools/wizards/com/images/folders.png -text
