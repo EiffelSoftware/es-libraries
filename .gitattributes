@@ -3162,6 +3162,7 @@ eweasel/tests/incr255/libb -text
 eweasel/tests/incr256/liba -text
 eweasel/tests/incr276/Ace -text
 eweasel/tests/incr283/Ace -text
+eweasel/tests/incr284/Ace -text
 eweasel/tests/lace003/notes -text
 eweasel/tests/lace007/notes -text
 eweasel/tests/lace011/notes -text
