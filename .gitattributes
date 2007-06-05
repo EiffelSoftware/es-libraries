@@ -199,6 +199,7 @@ Delivery/scripts/windows/install/interface/DialogExitSuccess.wxs -text
 Delivery/scripts/windows/install/interface/DialogFatalError.wxs -text
 Delivery/scripts/windows/install/interface/DialogFilesInUse.wxs -text
 Delivery/scripts/windows/install/interface/DialogMissingMsCompiler.wxs -text
+Delivery/scripts/windows/install/interface/DialogMissingMsCompilerWarning.wxs -text
 Delivery/scripts/windows/install/interface/DialogProgress.wxs -text
 Delivery/scripts/windows/install/interface/DialogRegister.wxs -text
 Delivery/scripts/windows/install/interface/DialogSelectFolder.wxs -text
