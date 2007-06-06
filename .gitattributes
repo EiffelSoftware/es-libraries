@@ -2905,6 +2905,7 @@ eweasel/tests/fixed114/notes -text
 eweasel/tests/fixed119/notes -text
 eweasel/tests/fixed120/notes -text
 eweasel/tests/fixed126/test.e-rev1 -text
+eweasel/tests/fixed133/Ace -text
 eweasel/tests/freez001/notes -text
 eweasel/tests/freez002/notes -text
 eweasel/tests/freez003/notes -text
@@ -3319,6 +3320,9 @@ eweasel/tests/multicon037/Ace -text
 eweasel/tests/multicon038/Ace -text
 eweasel/tests/multicon041/Ace -text
 eweasel/tests/multicon042/Ace -text
+eweasel/tests/multicon046/Ace -text
+eweasel/tests/multicon047/Ace -text
+eweasel/tests/multicon048/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
