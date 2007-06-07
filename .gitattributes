@@ -216,6 +216,7 @@ Delivery/scripts/windows/install/interface/PromptOutOfDiskSpace.wxs -text
 Delivery/scripts/windows/install/interface/PromptOutOfRollbackDiskSpace.wxs -text
 Delivery/scripts/windows/install/interface/PromptViewLicenseAgreement.wxs -text
 Delivery/scripts/windows/install/interface/eiffelstudio/DialogCCompilerChoice.wxs -text
+Delivery/scripts/windows/install/interface/eiffelstudio/DialogChooseLanguage.wxs -text
 Delivery/scripts/windows/install/interface/eiffelstudio/DialogMissingFx.wxs -text
 Delivery/scripts/windows/install/interface/eiffelstudio/DialogPrecompileChoice.wxs -text
 Delivery/scripts/windows/install/interface/eiffelstudio/DialogSelectProjectFolder.wxs -text
