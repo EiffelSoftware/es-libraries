@@ -3329,6 +3329,7 @@ eweasel/tests/multicon042/Ace -text
 eweasel/tests/multicon046/Ace -text
 eweasel/tests/multicon047/Ace -text
 eweasel/tests/multicon048/Ace -text
+eweasel/tests/multicon049/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
@@ -3679,6 +3680,7 @@ eweasel/tests/valid212/Ace -text
 eweasel/tests/valid213/Ace -text
 eweasel/tests/valid214/Ace -text
 eweasel/tests/valid215/Ace -text
+eweasel/tests/valid216/Ace -text
 eweasel/tests/vd01001/file -text
 eweasel/tests/vd10001/weasel -text
 eweasel/tests/vd13001/weasel -text
