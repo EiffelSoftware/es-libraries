@@ -302,7 +302,7 @@ Delivery/studio/lang/mo_files/ru_RU.mo -text
 Delivery/studio/lang/mo_files/zh_CN.mo -text
 Delivery/studio/lang/po_files/de_DE.po -text
 Delivery/studio/lang/po_files/en_US.po -text
-Delivery/studio/lang/po_files/ru_RU.po -text
+Delivery/studio/lang/po_files/ru_RU.po svneol=LF#text/plain%3B+charset%3Dutf-8 eol=lf
 Delivery/studio/lang/po_files/zh_CN.po -text
 Delivery/studio/metrics/predefined_metrics.xml -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
