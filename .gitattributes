@@ -1537,6 +1537,7 @@ Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/110_advanc
 Documentation/xmldoc/tools/eiffelstudio/reference/30_compiler/60_version_history/08_60_release/index.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/55_threads_tool.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/57_exception_handling_tool.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/80_version_history/Eiffel60.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/55_selection_criteria.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/80_domains.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/95_under_the_hood.xml -text
