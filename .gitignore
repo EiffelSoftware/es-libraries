@@ -274,6 +274,7 @@ Src/dotnet/consumer/EIFGENs
 Src/dotnet/consumer/EiffelSoftware.MetadataConsumer.rc
 Src/examples/docking/simple/EIFGENs
 Src/examples/vision2/widget_test/bitmaps
+Src/examples/vision2/widget_test/interface/default_object_state_checker.e
 Src/examples/vision2/widget_test/interface/events
 Src/examples/vision2/widget_test/interface/gb_color_stone.e
 Src/examples/vision2/widget_test/interface/gb_constants.e
@@ -299,7 +300,6 @@ Src/examples/vision2/widget_test/interface/gb_supported_events.e
 Src/examples/vision2/widget_test/interface/gb_table_positioner.e
 Src/examples/vision2/widget_test/interface/gb_table_positioner_imp.e
 Src/examples/vision2/widget_test/interface/gb_widget_utilities.e
-Src/examples/vision2/widget_test/interface/object_default_state_checker.e
 Src/examples/vision2/widget_test/interface/ordered_string_handler.e
 Src/examples/vision2/widget_test/templates
 Src/framework/cli_debugger/Clib/OBJ
