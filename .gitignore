@@ -30,6 +30,7 @@ Src/C/bench/config.sh
 Src/C/bench/make.bat
 Src/C/bench/meltdump
 Src/C/config.sh
+Src/C/console/*.a
 Src/C/console/*.lib
 Src/C/console/*.obj
 Src/C/console/*.pdb
@@ -64,6 +65,7 @@ Src/C/ipc/*.lib
 Src/C/ipc/*.obj
 Src/C/ipc/*.pdb
 Src/C/ipc/Makefile
+Src/C/ipc/app/*.a
 Src/C/ipc/app/*.lib
 Src/C/ipc/app/*.obj
 Src/C/ipc/app/*.pdb
