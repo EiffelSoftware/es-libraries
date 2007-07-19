@@ -175,6 +175,7 @@ Src/C/run-time/wkbench/*.lib
 Src/C/run-time/wkbench/*.obj
 Src/C/run-time/wkbench/*.pdb
 Src/C/run-time/x2c
+Src/C/shell/.bash_history
 Src/C_library/zlib/example.exe
 Src/C_library/zlib/example_d.exe
 Src/C_library/zlib/minigzip.exe
