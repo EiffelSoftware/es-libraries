@@ -3708,7 +3708,6 @@ eweasel/tests/warn001/Ace -text
 free_add_ons/eclop/doc/eclop.pdf -text
 free_add_ons/gcc/windows/mingw/COPYING -text
 free_add_ons/gcc/windows/mingw/COPYING.LIB -text
-free_add_ons/gcc/windows/mingw/MinGW-5.1.3.exe -text
 free_add_ons/gcc/windows/mingw/MinGW.url -text
 free_add_ons/gcc/windows/mingw/bin/addr2line.exe -text
 free_add_ons/gcc/windows/mingw/bin/ar.exe -text
@@ -4056,7 +4055,6 @@ free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xbn -text
 free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xn -text
 free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xr -text
 free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xu -text
-free_add_ons/gcc/windows/mingw/uninst.exe -text
 free_add_ons/gcc/windows/msys/1.0/.bash_history -text
 free_add_ons/gcc/windows/msys/1.0/bin/awk -text
 free_add_ons/gcc/windows/msys/1.0/bin/basename.exe -text
@@ -4159,8 +4157,6 @@ free_add_ons/gcc/windows/msys/1.0/etc/termcap -text
 free_add_ons/gcc/windows/msys/1.0/m.ico -text
 free_add_ons/gcc/windows/msys/1.0/msys.bat -text
 free_add_ons/gcc/windows/msys/1.0/msys.ico -text
-free_add_ons/gcc/windows/msys/1.0/uninstall/unins000.dat -text
-free_add_ons/gcc/windows/msys/1.0/uninstall/unins000.exe -text
 free_add_ons/wex/examples/wex/Framework_example/TOOLBAR.BMP svneol=native#unset
 free_add_ons/wex/examples/wex/Framework_example/app.ico svneol=native#unset
 free_add_ons/wex/examples/wex/MCI_Splash/APP.ICO svneol=native#unset
