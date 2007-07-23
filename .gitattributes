@@ -4055,7 +4055,6 @@ free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xbn -text
 free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xn -text
 free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xr -text
 free_add_ons/gcc/windows/mingw/mingw32/lib/ldscripts/i386pe.xu -text
-free_add_ons/gcc/windows/msys/1.0/.bash_history -text
 free_add_ons/gcc/windows/msys/1.0/bin/awk -text
 free_add_ons/gcc/windows/msys/1.0/bin/basename.exe -text
 free_add_ons/gcc/windows/msys/1.0/bin/bunzip2 -text
