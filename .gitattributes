@@ -620,6 +620,9 @@ Documentation/xmldoc/images/eiffelstudio/c_output_tool/coutput5.png -text
 Documentation/xmldoc/images/eiffelstudio/class_format_bar.png -text
 Documentation/xmldoc/images/eiffelstudio/class_mini_format_bar.png -text
 Documentation/xmldoc/images/eiffelstudio/console_tool/console1.png -text
+Documentation/xmldoc/images/eiffelstudio/console_tool/console_auto1.jpg -text
+Documentation/xmldoc/images/eiffelstudio/console_tool/console_auto2.jpg -text
+Documentation/xmldoc/images/eiffelstudio/console_tool/console_auto3.jpg -text
 Documentation/xmldoc/images/eiffelstudio/debugger/argument_dialog.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_context_menu.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoints_list.png -text
@@ -1249,6 +1252,7 @@ Documentation/xmldoc/images/eiffelstudio/metrics_tool/interface6.png -text
 Documentation/xmldoc/images/eiffelstudio/metrics_tool/interface7.png -text
 Documentation/xmldoc/images/eiffelstudio/metrics_tool/interface8.png -text
 Documentation/xmldoc/images/eiffelstudio/metrics_tool/interface9.png -text
+Documentation/xmldoc/images/eiffelstudio/metrics_tool/is_satisfied_by.png -text
 Documentation/xmldoc/images/eiffelstudio/metrics_tool/metric_export_to_file_icon.png -text
 Documentation/xmldoc/images/eiffelstudio/metrics_tool/metric_filter_icon.png -text
 Documentation/xmldoc/images/eiffelstudio/metrics_tool/metric_group_icon.png -text
