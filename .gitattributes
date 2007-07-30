@@ -163,10 +163,10 @@ Delivery/scripts/windows/install/content/eiffelenvision/Snippets.wxs -text
 Delivery/scripts/windows/install/content/eiffelenvision/Specifications.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/EiffelStudioPackage.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/makefile -text
-Delivery/scripts/windows/install/content/eiffelstudio/studio_borland.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_core.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_ent_ec.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_examples.wxs -text
+Delivery/scripts/windows/install/content/eiffelstudio/studio_gcc.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_gdiplus.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_gpl_ec.wxs -text
 Delivery/scripts/windows/install/content/eiffelstudio/studio_libraries.wxs -text
