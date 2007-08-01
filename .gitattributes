@@ -3729,7 +3729,7 @@ free_add_ons/gcc/windows/mingw/bin/gprof.exe -text
 free_add_ons/gcc/windows/mingw/bin/ld.exe -text
 free_add_ons/gcc/windows/mingw/bin/mingw32-c++.exe -text
 free_add_ons/gcc/windows/mingw/bin/mingw32-g++.exe -text
-free_add_ons/gcc/windows/mingw/bin/mingw32-gcc-3.4.2 -text
+free_add_ons/gcc/windows/mingw/bin/mingw32-gcc-3.4.5 -text
 free_add_ons/gcc/windows/mingw/bin/mingw32-gcc.exe -text
 free_add_ons/gcc/windows/mingw/bin/mingw32-make.exe -text
 free_add_ons/gcc/windows/mingw/bin/mingwm10.dll -text
@@ -4016,9 +4016,9 @@ free_add_ons/gcc/windows/mingw/lib/libwsnmp32.a -text
 free_add_ons/gcc/windows/mingw/lib/libwsock32.a -text
 free_add_ons/gcc/windows/mingw/lib/libwst.a -text
 free_add_ons/gcc/windows/mingw/lib/libwtsapi32.a -text
-free_add_ons/gcc/windows/mingw/libexec/gcc/mingw32/3.4.2/cc1.exe -text
-free_add_ons/gcc/windows/mingw/libexec/gcc/mingw32/3.4.2/cc1plus.exe -text
-free_add_ons/gcc/windows/mingw/libexec/gcc/mingw32/3.4.2/collect2.exe -text
+free_add_ons/gcc/windows/mingw/libexec/gcc/mingw32/3.4.5/cc1.exe -text
+free_add_ons/gcc/windows/mingw/libexec/gcc/mingw32/3.4.5/cc1plus.exe -text
+free_add_ons/gcc/windows/mingw/libexec/gcc/mingw32/3.4.5/collect2.exe -text
 free_add_ons/gcc/windows/mingw/man/man1/addr2line.1 -text
 free_add_ons/gcc/windows/mingw/man/man1/ar.1 -text
 free_add_ons/gcc/windows/mingw/man/man1/as.1 -text
