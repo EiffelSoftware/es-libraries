@@ -1584,6 +1584,7 @@ Src/C_library/libpng/projects/beos/x86-shared.proj svneol=native#unset
 Src/C_library/libpng/projects/beos/x86-static.proj svneol=native#unset
 Src/C_library/zlib/contrib/blast/test.pk svneol=native#unset
 Src/C_library/zlib/contrib/puff/zeros.raw svneol=native#unset
+Src/Eiffel/API/framework/ecosystem/readme.txt -text
 Src/Eiffel/API/output/comment_scanner.l -text
 Src/Eiffel/Ace/ec.ico -text
 Src/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance.png -text
