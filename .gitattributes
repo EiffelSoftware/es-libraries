@@ -3852,10 +3852,10 @@ free_add_ons/gcc/windows/mingw/info/ld.info-1 -text
 free_add_ons/gcc/windows/mingw/info/standards.info -text
 free_add_ons/gcc/windows/mingw/installed.ini -text
 free_add_ons/gcc/windows/mingw/lib/debug/libstdc++.a -text
-free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.2/include/README -text
-free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.2/libgcc.a -text
-free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.2/libgcov.a -text
-free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.2/specs -text
+free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.5/include/README -text
+free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.5/libgcc.a -text
+free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.5/libgcov.a -text
+free_add_ons/gcc/windows/mingw/lib/gcc/mingw32/3.4.5/specs -text
 free_add_ons/gcc/windows/mingw/lib/libaclui.a -text
 free_add_ons/gcc/windows/mingw/lib/libadvapi32.a -text
 free_add_ons/gcc/windows/mingw/lib/libapcups.a -text
