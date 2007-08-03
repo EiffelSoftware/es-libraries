@@ -3360,6 +3360,7 @@ eweasel/tests/store002/bad_file -text
 eweasel/tests/store002/notes -text
 eweasel/tests/store003/notes -text
 eweasel/tests/store004/notes -text
+eweasel/tests/store011/data -text
 eweasel/tests/syntax001/notes -text
 eweasel/tests/syntax002/notes -text
 eweasel/tests/syntax003/notes -text
