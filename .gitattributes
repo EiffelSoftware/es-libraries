@@ -1604,7 +1604,6 @@ Src/Eiffel/interface/new_graphical/tools/customized_formatter/system_interface.x
 Src/Eiffel/interface/new_graphical/tools/debugging/es_objects_grid_row.e -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
-Src/Eiffel/switch/no_communication/debug/debugger_manager.e -text
 Src/build/build.ico -text
 Src/dotnet/codedom_provider/common/code_internal.e -text
 Src/dotnet/codedom_provider/compiler/support/code_env_interp.e -text
