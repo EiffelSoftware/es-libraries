@@ -1542,9 +1542,6 @@ Documentation/xmldoc/tools/wizards/com/images/implemented_interface_server.png -
 Documentation/xmldoc/tools/wizards/com/images/interface_inheritance.png -text
 Documentation/xmldoc/tools/wizards/com/images/interface_inheritance_server.png -text
 Documentation/xmldoc/tools/wizards/com/images/introduction.png -text
-Src/C/CONFIGS/openbsd-x86 -text
-Src/C/CONFIGS/windows-x86-mingw -text
-Src/C/CONFIGS/windows-x86-msc eol=lf
 Src/C/eif_config_h.SH eol=lf
 Src/C/run-time/eif_size_h.SH eol=lf
 Src/C/run-time/include/gc_pthread_redirects.h -text
