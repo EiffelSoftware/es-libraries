@@ -3293,6 +3293,7 @@ eweasel/tests/multicon046/Ace -text
 eweasel/tests/multicon047/Ace -text
 eweasel/tests/multicon048/Ace -text
 eweasel/tests/multicon049/Ace -text
+eweasel/tests/multierr002/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
