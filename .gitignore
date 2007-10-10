@@ -350,11 +350,11 @@ Src/tools/compile_all/*.rc
 Src/tools/doc_builder/*.wb
 Src/tools/doc_builder/resources/xml/*.wb
 Src/tools/doc_builder/resources/xml/EIFGENs
+Src/tools/eiffel_image_embedder/EIFGENs
 Src/tools/eiffel_matrix_code_generator/*.exe
 Src/tools/estudio/*.wb
 Src/tools/estudio/EIFGENs
 Src/tools/estudio/estudio.rc
-Src/tools/image_eiffel_code/EIFGENs
 Src/tools/quick_finalize/*.wb
 Src/tools/quick_finalize/EIFGENs
 Src/tools/quick_finalize/quick_finalize.rc
