@@ -1599,7 +1599,6 @@ Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_normal_compl
 Src/Eiffel/interface/new_graphical/text_window/text/support/eiffel_editor_cursor.e -text
 Src/Eiffel/interface/new_graphical/tools/customized_formatter/build_project.bpr -text
 Src/Eiffel/interface/new_graphical/tools/customized_formatter/system_interface.xml -text
-Src/Eiffel/interface/new_graphical/tools/debugging/es_objects_grid_row.e -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/build/build.ico -text
