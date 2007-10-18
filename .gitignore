@@ -358,6 +358,9 @@ Src/tools/estudio/estudio.rc
 Src/tools/quick_finalize/*.wb
 Src/tools/quick_finalize/EIFGENs
 Src/tools/quick_finalize/quick_finalize.rc
+Src/tools/syntax_updater/parser_v60/eiffel_parser.e
+Src/tools/syntax_updater/parser_v60/eiffel_scanner.e
+Src/tools/syntax_updater/parser_v60/eiffel_tokens.e
 Src/tools/vms/ES5SH/*.wb
 Src/tools/vms/ES5SH/EIFGEN
 Src/tools/vms/ES5SH/EIFGENs
