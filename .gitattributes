@@ -2521,6 +2521,7 @@ eweasel/tests/dotnet102/a.il -text
 eweasel/tests/dotnet103/Ace -text
 eweasel/tests/dotnet103/Ace_library -text
 eweasel/tests/dotnet105/Ace -text
+eweasel/tests/except013/Ace -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
