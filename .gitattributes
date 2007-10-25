@@ -4773,6 +4773,14 @@ eweasel/tests/multicon048/Ace -text
 eweasel/tests/multicon049/Ace -text
 eweasel/tests/multierr005/Ace -text
 eweasel/tests/multierr006/Ace -text
+eweasel/tests/noncon001/Ace -text
+eweasel/tests/noncon002/Ace -text
+eweasel/tests/noncon003/Ace -text
+eweasel/tests/noncon003/conformance_output -text
+eweasel/tests/noncon003/nonconformance_output -text
+eweasel/tests/noncon004/Ace -text
+eweasel/tests/noncon004/conformance_output -text
+eweasel/tests/noncon004/nonconformance_output -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
