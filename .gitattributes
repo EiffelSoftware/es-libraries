@@ -4773,6 +4773,7 @@ eweasel/tests/multicon048/Ace -text
 eweasel/tests/multicon049/Ace -text
 eweasel/tests/multierr005/Ace -text
 eweasel/tests/multierr006/Ace -text
+eweasel/tests/multierr009/Ace -text
 eweasel/tests/noncon001/Ace -text
 eweasel/tests/noncon002/Ace -text
 eweasel/tests/noncon003/Ace -text
