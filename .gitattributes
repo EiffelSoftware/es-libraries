@@ -286,6 +286,12 @@ Delivery/studio/lang/po_files/en_US.po -text
 Delivery/studio/lang/po_files/ru_RU.po svneol=LF#text/plain%3B+charset%3Dutf-8 eol=lf
 Delivery/studio/lang/po_files/zh_CN.po -text
 Delivery/studio/metrics/predefined_metrics.xml -text
+Delivery/studio/spec/win64/bin/libcurl.dll -text
+Delivery/studio/spec/win64/bin/libeay32.dll -text
+Delivery/studio/spec/win64/bin/ssleay32.dll -text
+Delivery/studio/spec/windows/bin/libcurl.dll -text
+Delivery/studio/spec/windows/bin/libeay32.dll -text
+Delivery/studio/spec/windows/bin/ssleay32.dll -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
