@@ -4004,6 +4004,7 @@ eweasel/tests/dotnet103/Ace -text
 eweasel/tests/dotnet103/Ace_library -text
 eweasel/tests/dotnet105/Ace -text
 eweasel/tests/dotnet106/Ace -text
+eweasel/tests/dotnet107/Ace -text
 eweasel/tests/except013/Ace -text
 eweasel/tests/except014/Ace -text
 eweasel/tests/exec001/notes -text
