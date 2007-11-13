@@ -263,6 +263,7 @@ Delivery/studio/help/errors/VTGC -text
 Delivery/studio/help/errors/VTGD -text
 Delivery/studio/help/errors/VTMC -text
 Delivery/studio/help/errors/short/C_COMPILER_ERROR -text
+Delivery/studio/help/errors/short/DBG_EXPRESSION_TYPE_CHECKER_ERROR -text
 Delivery/studio/help/errors/short/VIIN -text
 Delivery/studio/help/errors/short/VQUI2 -text
 Delivery/studio/help/errors/short/VTGC1 -text
