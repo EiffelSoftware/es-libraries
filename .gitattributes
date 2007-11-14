@@ -1526,6 +1526,7 @@ Documentation/xmldoc/tools/eiffelstudio/how_to_s/60_designing_a_project/20_alter
 Documentation/xmldoc/tools/eiffelstudio/how_to_s/60_designing_a_project/20_altering_the_system/34_refactoring_feature_rename.xml -text
 Documentation/xmldoc/tools/eiffelstudio/how_to_s/60_designing_a_project/20_altering_the_system/36_refactoring_feature_pull.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/02_what_s_new/Eiffel60.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/02_what_s_new/Eiffel61.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/010_system.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/020_target_general.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/030_target_assertions.xml -text
@@ -1538,6 +1539,7 @@ Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/090_advanc
 Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/100_advanced_variables.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/110_advanced_mapping.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/30_compiler/60_version_history/08_60_release/index.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/30_compiler/60_version_history/09_61_release/index.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/35_execution_replay.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/52_debuggee_object_storage.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/55_threads_tool.xml -text
