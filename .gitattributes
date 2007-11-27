@@ -3098,6 +3098,7 @@ Src/Eiffel/interface/new_graphical/tools/customized_formatter/build_project.bpr 
 Src/Eiffel/interface/new_graphical/tools/customized_formatter/system_interface.xml -text
 Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
+Src/Eiffel/switch/communication/debug/evaluation/dbg_expression.e -text svneol=native#unset
 Src/build/build.ico -text
 Src/dotnet/codedom_provider/common/code_internal.e -text
 Src/dotnet/codedom_provider/compiler/support/code_env_interp.e -text
