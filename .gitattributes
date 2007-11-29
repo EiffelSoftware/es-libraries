@@ -4813,6 +4813,7 @@ eweasel/tests/noncon004/nonconformance_output -text
 eweasel/tests/noncon005/Ace -text
 eweasel/tests/noncon006/Ace -text
 eweasel/tests/noncon007/Ace -text
+eweasel/tests/noncon008/Ace -text
 eweasel/tests/rdtp002/test -text
 eweasel/tests/store001/notes -text
 eweasel/tests/store002/bad_file -text
