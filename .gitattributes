@@ -3525,7 +3525,6 @@ Src/library/wel/extra/h2e.ico svneol=native#unset
 Src/library/wel/extra/h2e1.ico svneol=native#unset
 Src/library/wel/extra/h2e2.ico svneol=native#unset
 Src/library/wizard/help/Clib/htmlhelp.lib -text
-Src/scripts/README.txt -text
 Src/tools/com_wizard/root/resources/eiffel_software.png -text
 Src/tools/com_wizard/root/resources/help.png -text
 Src/tools/com_wizard/root/resources/output.png -text
