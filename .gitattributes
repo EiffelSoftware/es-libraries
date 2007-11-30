@@ -3425,7 +3425,6 @@ Src/tools/com_wizard/root/resources/help.png -text
 Src/tools/com_wizard/root/resources/output.png -text
 Src/tools/com_wizard/root/resources/settings.png -text
 Src/tools/com_wizard/root/resources/wizard.ico -text
-Src/tools/compile_all/baseline/trunk.ini -text
 Src/tools/compliance_checker/resources/blank.ico -text
 Src/tools/compliance_checker/resources/caution.ico -text
 Src/tools/compliance_checker/resources/check.ico -text
@@ -3439,11 +3438,7 @@ Src/tools/compliance_checker/resources/open.ico -text
 Src/tools/compliance_checker/resources/project.ico -text
 Src/tools/compliance_checker/resources/save.ico -text
 Src/tools/compliance_checker/resources/settings.ico -text
-Src/tools/copyright_tool/build_project.bpr -text
-Src/tools/copyright_tool/eiffel_copyright.exe.manifest -text
 Src/tools/copyright_tool/eiffel_icon.png -text
-Src/tools/copyright_tool/system_interface.xml -text
-Src/tools/copyright_tool/texts/Microsoft_Fx_SDK.cpr -text
 Src/tools/doc_builder/Assemblies_10/AxShDocVw.dll -text
 Src/tools/doc_builder/Assemblies_10/SHDocVw.dll -text
 Src/tools/doc_builder/Assemblies_11/AxSHDocVw.dll -text
@@ -3552,19 +3547,7 @@ Src/tools/doc_builder/resources/icons/sync_button.gif -text
 Src/tools/doc_builder/resources/syntax_definitions/java.syn_bin svneol=native#unset
 Src/tools/doc_builder/resources/syntax_definitions/xml.syn_bin svneol=native#unset
 Src/tools/doc_builder/resources/templates/header_mainarea.jpg -text
-Src/tools/eiffel_make/directory_sorter.e -text
-Src/tools/eiffel_make/eiffel_make.e -text
-Src/tools/eiffel_make/mt_action_queue.e -text
-Src/tools/eiffel_matrix_code_generator/example/pixmaps.ini -text
-Src/tools/eiffel_matrix_code_generator/frames/matrix.e.frame -text
-Src/tools/eiffel_matrix_code_generator/frames/studio.e.frame -text
-Src/tools/eiffel_matrix_code_generator/readme.txt -text
-Src/tools/es_cleaner/escln.exe.manifest -text
-Src/tools/es_cleaner/escln.rc -text
-Src/tools/es_cleaner/main/graphical/build_project.bpr -text
-Src/tools/es_cleaner/main/graphical/system_interface.xml -text
 Src/tools/estudio/config/estudio.ico -text
-Src/tools/estudio/config/estudio.rc -text
 Src/tools/estudio/config/estudio_e.ico -text
 Src/tools/estudio/config/estudio_ecf.ico -text
 Src/tools/finish_freezing/appl.ico -text
@@ -3599,7 +3582,6 @@ Src/tools/resource_bench/RB_documentation/examples/toolbar.bmp svneol=native#uns
 Src/tools/resource_bench/bin/rb.exe -text
 Src/tools/resource_bench/rb.ico svneol=native#unset
 Src/tools/resource_bench/toolbar.bmp svneol=native#unset
-Src/tools/syntax_updater/parser_v60/eiffel.l -text
 eweasel/BUGS -text
 eweasel/CHANGES -text
 eweasel/GPL.txt -text
