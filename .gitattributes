@@ -221,7 +221,6 @@ Delivery/scripts/windows/install/package.sln -text
 Delivery/scripts/windows/install/package.wixproj -text
 Delivery/scripts/windows/install/redist/Redist.wxs -text
 Delivery/scripts/windows/install/redist/redist.wixproj -text
-Delivery/scripts/windows/svn_command.bat -text
 Delivery/studio/bitmaps/png/10x10.png -text
 Delivery/studio/bitmaps/png/12x12.png -text
 Delivery/studio/bitmaps/png/16x16.png -text
