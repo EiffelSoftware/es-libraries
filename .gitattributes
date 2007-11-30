@@ -130,8 +130,6 @@ Delivery/esbuilder/bitmaps/png/widgets.png -text
 Delivery/esbuilder/pixmaps/eiffel_wizard.png -text
 Delivery/esbuilder/pixmaps/eiffel_wizard_icon.png -text
 Delivery/esbuilder/pixmaps/wizard.png -text
-Delivery/scripts/unix/README.unix -text
-Delivery/scripts/unix/make_unix_layout -text
 Delivery/scripts/windows/install/Admin.txt -text
 Delivery/scripts/windows/install/CustomActions.wxs -text
 Delivery/scripts/windows/install/Package.wxs -text
