@@ -2971,8 +2971,6 @@ Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entiti
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/Eiffel/switch/communication/debug/evaluation/dbg_expression.e -text svneol=native#unset
 Src/build/build.ico -text
-Src/dotnet/codedom_provider/common/code_internal.e -text
-Src/dotnet/codedom_provider/compiler/support/code_env_interp.e -text
 Src/dotnet/codedom_provider/test/tester/icons/tester.png -text
 Src/dotnet/codedom_provider/tools/manager/ecdpman.ico -text
 Src/dotnet/codedom_provider/tools/manager/icons/application.png -text
@@ -2986,8 +2984,6 @@ Src/dotnet/codedom_provider/tools/manager/icons/new.png -text
 Src/dotnet/codedom_provider/tools/manager/icons/new_wizard.png -text
 Src/dotnet/codedom_provider/tools/manager/icons/revert.png -text
 Src/dotnet/codedom_provider/tools/manager/icons/save.png -text
-Src/dotnet/codedom_provider_2.0/common/code_internal.e -text
-Src/dotnet/codedom_provider_2.0/compiler/support/code_env_interp.e -text
 Src/dotnet/codedom_provider_2.0/test/tester/icons/tester.png -text
 Src/dotnet/codedom_provider_2.0/tools/manager/ecdpman.ico -text
 Src/dotnet/codedom_provider_2.0/tools/manager/icons/application.png -text
@@ -3001,7 +2997,6 @@ Src/dotnet/codedom_provider_2.0/tools/manager/icons/new.png -text
 Src/dotnet/codedom_provider_2.0/tools/manager/icons/new_wizard.png -text
 Src/dotnet/codedom_provider_2.0/tools/manager/icons/revert.png -text
 Src/dotnet/codedom_provider_2.0/tools/manager/icons/save.png -text
-Src/dotnet/consumer/resources/consumer.resx -text
 Src/dotnet/consumer/resources/tray_icon.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_all_features.ico -text
 Src/dotnet/eac_browser/ressources/eac_ico/icon_ancestors.ico -text
