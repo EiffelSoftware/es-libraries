@@ -2959,8 +2959,6 @@ Src/C_library/openssl/util/ssleay.num -text
 Src/C_library/openssl/util/tab_num.pl -text
 Src/C_library/zlib/contrib/blast/test.pk svneol=native#unset
 Src/C_library/zlib/contrib/puff/zeros.raw svneol=native#unset
-Src/Eiffel/API/framework/ecosystem/readme.txt -text
-Src/Eiffel/API/output/comment_scanner.l -text
 Src/Eiffel/Ace/ec.ico -text
 Src/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance.png -text
 Src/Eiffel/doc/Microsoft.NET/multiple_inheritance/method1/diamond_inheritance_on_dotnet-method1.png -text
@@ -2969,34 +2967,7 @@ Src/Eiffel/doc/benchmarks/compile_times_solaris-x86-64 -text
 Src/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#application/octet-stream
 Src/Eiffel/doc/debugging/debugger_files/image002.gif -text
-Src/Eiffel/eiffel/AST/external_parser/Makefile -text
-Src/Eiffel/eiffel/AST/factory/ast_roundtrip_compiler_factory.e -text
-Src/Eiffel/eiffel/AST/factory/ast_roundtrip_compiler_light_factory.e -text
-Src/Eiffel/eiffel/byte_code/visitor/assignment_generator.e -text
-Src/Eiffel/eiffel/byte_code/visitor/il_access_address_generator.e -text
-Src/Eiffel/eiffel/byte_code/visitor/il_node_generator.e -text
-Src/Eiffel/eiffel/com_il_generation/Core/run-time/rt_custom_attribute_data.cs -text
-Src/Eiffel/eiffel/com_il_generation/Core/run-time/rt_extension.cs -text
-Src/Eiffel/interface/new_graphical/managers/eb_text_output_factory.e -text
-Src/Eiffel/interface/new_graphical/metric_tool/metric_interface/build_project.bpr -text
-Src/Eiffel/interface/new_graphical/metric_tool/metric_interface/system_interface.xml -text
-Src/Eiffel/interface/new_graphical/multi_search_tool/build_project.bpr -text
-Src/Eiffel/interface/new_graphical/multi_search_tool/eb_search_report_grid.e -text
-Src/Eiffel/interface/new_graphical/multi_search_tool/system_interface.xml -text
-Src/Eiffel/interface/new_graphical/preference_tool/parameters/eb_search_tool_data.e -text
-Src/Eiffel/interface/new_graphical/process_launcher/eb_process_manager.e -text
-Src/Eiffel/interface/new_graphical/shared/build_pixmaps.cmd -text
-Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_code_completable_grid_editable_item.e -text
-Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_code_completable_text_field.e -text
-Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_code_completion_window.e -text
-Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_completion_possibilities_provider.e -text
-Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entities_finder_from_ast.e -text
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entities_finder_from_text.e -text
-Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_normal_completion_possibilities_provider.e -text
-Src/Eiffel/interface/new_graphical/text_window/text/support/eiffel_editor_cursor.e -text
-Src/Eiffel/interface/new_graphical/tools/customized_formatter/build_project.bpr -text
-Src/Eiffel/interface/new_graphical/tools/customized_formatter/system_interface.xml -text
-Src/Eiffel/interface/new_graphical/widgets/eb_add_remove_class_list.e -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/Eiffel/switch/communication/debug/evaluation/dbg_expression.e -text svneol=native#unset
 Src/build/build.ico -text
@@ -3348,10 +3319,6 @@ Src/help/wizards/estore2/bmp/database_small.bmp svneol=native#unset
 Src/help/wizards/estore2/pixmaps/eiffel_wizard.png -text
 Src/help/wizards/estore2/pixmaps/eiffel_wizard_icon.png -text
 Src/help/wizards/estore2/resources/odbc_store.lib svneol=native#unset
-Src/help/wizards/estore2/src/odbc_cons_column.e -text
-Src/help/wizards/estore2/src/odbc_foreign_key_result.e -text
-Src/help/wizards/estore2/src/odbc_primary_foreign_key_result.e -text
-Src/help/wizards/estore2/src/odbc_primary_key_result.e -text
 Src/help/wizards/eweb/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/wizard.ico -text
