@@ -3,9 +3,6 @@ Delivery/codedom_provider/files/ecdp.ico -text
 Delivery/codedom_provider/files/ecdpman.ico -text
 Delivery/codedom_provider/files/eiffel_for_asp_net_left.bmp -text
 Delivery/codedom_provider/files/eiffel_for_asp_net_top.bmp -text
-Delivery/codedom_provider/files/installer.exe.config -text
-Delivery/codedom_provider/samples/code_behind/ace.ace -text
-Delivery/codedom_provider/samples/code_behind/efa_parser.e -text
 Delivery/codedom_provider/samples/default.htm -text
 Delivery/codedom_provider/samples/images/bot_lef.gif -text
 Delivery/codedom_provider/samples/images/bot_mid.gif -text
@@ -18,9 +15,6 @@ Delivery/codedom_provider/samples/images/plus.png -text
 Delivery/codedom_provider/samples/images/top_lef.gif -text
 Delivery/codedom_provider/samples/images/top_mid.gif -text
 Delivery/codedom_provider/samples/images/top_rig.gif -text
-Delivery/codedom_provider/samples/scripts/collapse_box.js -text
-Delivery/codedom_provider/samples/scripts/load_content.js -text
-Delivery/codedom_provider/samples/show_sample.aspx -text
 Delivery/esbuilder/bitmaps/png/bm_about.png -text
 Delivery/esbuilder/bitmaps/png/containers.png -text
 Delivery/esbuilder/bitmaps/png/directory_search_small.png -text
