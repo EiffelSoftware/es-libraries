@@ -3522,6 +3522,9 @@ eweasel/source/gui/build_project.bpr -text
 eweasel/source/gui/readme.txt -text
 eweasel/source/gui/system_interface.xml -text
 eweasel/tests/DONT_DELETE -text
+eweasel/tests/attach003/Ace -text
+eweasel/tests/attach004/Ace -text
+eweasel/tests/attach005/Ace -text
 eweasel/tests/ccomp001/notes -text
 eweasel/tests/ccomp002/notes -text
 eweasel/tests/ccomp003/notes -text
