@@ -2966,6 +2966,7 @@ Src/Eiffel/doc/benchmarks/compile_times_solaris-x86-64 -text
 Src/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#application/octet-stream
 Src/Eiffel/doc/debugging/debugger_files/image002.gif -text
+Src/Eiffel/eiffel/com_il_generation/Core/run-time/rt_exception_manager.cs -text
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entities_finder_from_text.e -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/Eiffel/switch/communication/debug/evaluation/dbg_expression.e -text svneol=native#unset
