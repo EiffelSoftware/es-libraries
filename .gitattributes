@@ -4313,6 +4313,7 @@ eweasel/tests/store003/notes -text
 eweasel/tests/store004/notes -text
 eweasel/tests/store011/data -text
 eweasel/tests/store012/bad_file -text
+eweasel/tests/store013/data_52 -text
 eweasel/tests/store013/data_54 -text
 eweasel/tests/store013/data_55 -text
 eweasel/tests/store013/data_56 -text
