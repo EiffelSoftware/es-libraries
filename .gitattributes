@@ -2970,6 +2970,7 @@ Src/Eiffel/eiffel/com_il_generation/Core/run-time/rt_exception_manager.cs -text
 Src/Eiffel/interface/new_graphical/text_window/text/autocomplete/eb_local_entities_finder_from_text.e -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/Eiffel/switch/communication/debug/evaluation/dbg_expression.e -text svneol=native#unset
+Src/README.txt -text
 Src/build/build.ico -text
 Src/dotnet/codedom_provider/test/tester/icons/tester.png -text
 Src/dotnet/codedom_provider/tools/manager/ecdpman.ico -text
