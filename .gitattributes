@@ -3468,6 +3468,7 @@ Src/tools/estudio/config/estudio.ico -text
 Src/tools/estudio/config/estudio_e.ico -text
 Src/tools/estudio/config/estudio_ecf.ico -text
 Src/tools/finish_freezing/appl.ico -text
+Src/tools/metaconfig/README.txt -text
 Src/tools/resource_bench/RB_documentation/docrb/ANALYZ.gif svneol=native#unset
 Src/tools/resource_bench/RB_documentation/docrb/BROWSE.gif svneol=native#unset
 Src/tools/resource_bench/RB_documentation/docrb/Browse.bmp svneol=native#unset
