@@ -3796,6 +3796,7 @@ eweasel/tests/exec202/notes -text
 eweasel/tests/exec205/notes -text
 eweasel/tests/exec213/x.cs -text
 eweasel/tests/exec213/x.dll -text
+eweasel/tests/exec283/Ace -text
 eweasel/tests/fake001/notes -text
 eweasel/tests/fake002/notes -text
 eweasel/tests/fake003/notes -text
