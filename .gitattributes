@@ -192,6 +192,11 @@ Delivery/studio/spec/win64/bin/ssleay32.dll -text
 Delivery/studio/spec/windows/bin/libcurl.dll -text
 Delivery/studio/spec/windows/bin/libeay32.dll -text
 Delivery/studio/spec/windows/bin/ssleay32.dll -text
+Delivery/studio/templates/eiffel/check.code -text
+Delivery/studio/templates/eiffel/ensure.code -text
+Delivery/studio/templates/eiffel/invariant.code -text
+Delivery/studio/templates/eiffel/loop.code -text
+Delivery/studio/templates/eiffel/require.code -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
