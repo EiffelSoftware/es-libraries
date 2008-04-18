@@ -195,7 +195,13 @@ Delivery/studio/spec/win64/bin/ssleay32.dll -text
 Delivery/studio/spec/windows/bin/libcurl.dll -text
 Delivery/studio/spec/windows/bin/libeay32.dll -text
 Delivery/studio/spec/windows/bin/ssleay32.dll -text
+Delivery/studio/templates/design_by_contract/all_items_attached.code -text
 Delivery/studio/templates/design_by_contract/attached.code -text
+Delivery/studio/templates/design_by_contract/has_item.code -text
+Delivery/studio/templates/design_by_contract/is_empty.code -text
+Delivery/studio/templates/design_by_contract/non_negative_count.code -text
+Delivery/studio/templates/design_by_contract/not_is_empty.code -text
+Delivery/studio/templates/design_by_contract/positive_count.code -text
 Delivery/studio/templates/eiffel/check.code -text
 Delivery/studio/templates/eiffel/ensure.code -text
 Delivery/studio/templates/eiffel/invariant.code -text
