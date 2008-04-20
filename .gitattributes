@@ -3618,6 +3618,7 @@ eweasel/tests/dotnet089/a.dll -text
 eweasel/tests/dotnet090/a.dll -text
 eweasel/tests/dotnet091/a.dll -text
 eweasel/tests/dotnet102/a.dll -text
+eweasel/tests/except016/Ace -text
 eweasel/tests/exec001/notes -text
 eweasel/tests/exec002/notes -text
 eweasel/tests/exec003/notes -text
