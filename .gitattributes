@@ -211,6 +211,7 @@ Delivery/studio/templates/design_by_contract/array_index_small_enough.code -text
 Delivery/studio/templates/design_by_contract/assigned.code -text
 Delivery/studio/templates/design_by_contract/assigned_same_object.code -text
 Delivery/studio/templates/design_by_contract/attached.code -text
+Delivery/studio/templates/design_by_contract/changed.code -text
 Delivery/studio/templates/design_by_contract/count_is_positive.code -text
 Delivery/studio/templates/design_by_contract/cursor_unmoved.code -text
 Delivery/studio/templates/design_by_contract/deatached.code -text
