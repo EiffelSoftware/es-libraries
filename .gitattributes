@@ -131,7 +131,7 @@ Delivery/esbuilder/pixmaps/eiffel_wizard.png -text
 Delivery/esbuilder/pixmaps/eiffel_wizard_icon.png -text
 Delivery/esbuilder/pixmaps/wizard.png -text
 Delivery/scripts/unix/README.debian -text
-Delivery/scripts/unix/make_debian_pkg -text
+Delivery/scripts/unix/make_debian_package -text
 Delivery/scripts/unix/make_rpm_package -text
 Delivery/scripts/unix/packaging/debian/compat -text
 Delivery/scripts/unix/packaging/debian/copyright -text
