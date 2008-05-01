@@ -134,9 +134,9 @@ Delivery/scripts/unix/README.debian -text
 Delivery/scripts/unix/make_debian_package -text
 Delivery/scripts/unix/make_rpm_package -text
 Delivery/scripts/unix/packaging/debian/compat -text
-Delivery/scripts/unix/packaging/debian/copyright -text
 Delivery/scripts/unix/packaging/debian/rules -text
 Delivery/scripts/unix/packaging/description -text
+Delivery/scripts/unix/packaging/license -text
 Delivery/scripts/windows/install/Admin.txt -text
 Delivery/scripts/windows/install/images/Thumbs.db -text
 Delivery/scripts/windows/install/images/app.ico -text
