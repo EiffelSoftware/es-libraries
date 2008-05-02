@@ -130,13 +130,14 @@ Delivery/esbuilder/bitmaps/png/widgets.png -text
 Delivery/esbuilder/pixmaps/eiffel_wizard.png -text
 Delivery/esbuilder/pixmaps/eiffel_wizard_icon.png -text
 Delivery/esbuilder/pixmaps/wizard.png -text
-Delivery/scripts/unix/README.debian -text
 Delivery/scripts/unix/make_debian_package -text
 Delivery/scripts/unix/make_rpm_package -text
 Delivery/scripts/unix/packaging/debian/compat -text
 Delivery/scripts/unix/packaging/debian/rules -text
 Delivery/scripts/unix/packaging/description -text
+Delivery/scripts/unix/packaging/desktop -text
 Delivery/scripts/unix/packaging/license -text
+Delivery/scripts/unix/packaging/logo.png -text
 Delivery/scripts/windows/install/Admin.txt -text
 Delivery/scripts/windows/install/images/Thumbs.db -text
 Delivery/scripts/windows/install/images/app.ico -text
