@@ -164,6 +164,7 @@ Src/C/run-time/include/*.lib
 Src/C/run-time/include/*.obj
 Src/C/run-time/include/*.pdb
 Src/C/run-time/make.bat
+Src/C/run-time/runtime_validation
 Src/C/run-time/tests/*.exe
 Src/C/run-time/tests/*.ilk
 Src/C/run-time/tests/*.lib
