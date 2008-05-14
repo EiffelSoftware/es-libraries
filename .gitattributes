@@ -3567,9 +3567,9 @@ eweasel/doc/notes-5.0.001 -text
 eweasel/doc/output-5.0.001 -text
 eweasel/doc/proposed.doc -text
 eweasel/doc/summary.doc -text
-eweasel/results/classic/linuppc -text
-eweasel/results/classic/solaris -text
-eweasel/results/classic/windows -text
+eweasel/results/classic/linux-ppc -text
+eweasel/results/classic/solaris-sparc -text
+eweasel/results/classic/windows-x86 -text
 eweasel/results/dotnet/windows -text
 eweasel/source/gui/build_project.bpr -text
 eweasel/source/gui/readme.txt -text
