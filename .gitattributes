@@ -3579,6 +3579,8 @@ eweasel/tests/attach010/Ace2 -text
 eweasel/tests/attach011/Ace -text
 eweasel/tests/attach019/Ace -text
 eweasel/tests/attach019/Ace2 -text
+eweasel/tests/attach020/Ace -text
+eweasel/tests/attach020/Ace2 -text
 eweasel/tests/ccomp001/notes -text
 eweasel/tests/ccomp002/notes -text
 eweasel/tests/ccomp003/notes -text
