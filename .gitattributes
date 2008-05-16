@@ -3017,6 +3017,7 @@ Src/Eiffel/doc/debugger_files/image002.gif svneol=native#unset
 Src/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#application/octet-stream
 Src/Eiffel/doc/debugging/debugger_files/image002.gif -text
 Src/Eiffel/eiffel/com_il_generation/Core/run-time/rt_exception_manager.cs -text
+Src/Eiffel/interface/graphical/tools/testing/wizard/es_new_unit_test_wizard_two.e -text svneol=native#unset
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/README.txt -text
 Src/build/build.ico -text
