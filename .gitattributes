@@ -133,6 +133,7 @@ Delivery/esbuilder/pixmaps/wizard.png -text
 Delivery/scripts/unix/README.packaging -text
 Delivery/scripts/unix/make_debian_package -text
 Delivery/scripts/unix/make_rpm_package -text
+Delivery/scripts/unix/make_svr_package -text
 Delivery/scripts/unix/packaging/debian/compat -text
 Delivery/scripts/unix/packaging/debian/rules -text
 Delivery/scripts/unix/packaging/description -text
