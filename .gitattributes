@@ -562,9 +562,14 @@ Documentation/xmldoc/images/eiffelstudio/console_tool/console_auto3.jpg -text
 Documentation/xmldoc/images/eiffelstudio/debugger/argument_dialog.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_context_menu.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_dialog_condition.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_dialog_context.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_dialog_hit_count.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_dialog_when_hits.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/breakpoint_dialog_when_hits_action.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/breakpoints_list.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/breakpoints_list_filter.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/breakpoints_list_filter_button.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/breakpoints_list_flat.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/call_stack_tool.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/call_stack_tool_with_threads.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/cond_breakpoint_context_menu.png -text
@@ -572,8 +577,7 @@ Documentation/xmldoc/images/eiffelstudio/debugger/debuggee_object_storage_load.p
 Documentation/xmldoc/images/eiffelstudio/debugger/debuggee_object_storage_save.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/debugging_tools_preferences.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exception_dialog.png -text
-Documentation/xmldoc/images/eiffelstudio/debugger/exceptions_handling_classic.png -text
-Documentation/xmldoc/images/eiffelstudio/debugger/exceptions_handling_dotnet.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/exceptions_handling_tool.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_00.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_01.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_02.png -text
@@ -584,7 +588,14 @@ Documentation/xmldoc/images/eiffelstudio/debugger/expression_evaluation_tool.png
 Documentation/xmldoc/images/eiffelstudio/debugger/locals_tree.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/locals_tree_dotnet_exception.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/object_tool.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/object_tool_layout_editor.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/object_tool_menu.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/object_tree.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/object_viewer_browse.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/object_viewer_dump.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/object_viewer_internal.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/object_viewer_xml.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/objects_tool_exception.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/threads_tool.png -text
 Documentation/xmldoc/images/eiffelstudio/diagram/bon-agg-client.png -text
 Documentation/xmldoc/images/eiffelstudio/diagram/bon-calculator-inheritance.png -text
@@ -695,6 +706,7 @@ Documentation/xmldoc/images/eiffelstudio/icons/10x10/completion_show_assigner_ic
 Documentation/xmldoc/images/eiffelstudio/icons/10x10/completion_show_disambiguants_icon.png -text
 Documentation/xmldoc/images/eiffelstudio/icons/10x10/completion_show_return_type_icon.png -text
 Documentation/xmldoc/images/eiffelstudio/icons/10x10/completion_show_signature_icon.png -text
+Documentation/xmldoc/images/eiffelstudio/icons/10x10/debugger_auto_values.png -text
 Documentation/xmldoc/images/eiffelstudio/icons/10x10/debugger_callstack_depth_icon.png -text
 Documentation/xmldoc/images/eiffelstudio/icons/10x10/debugger_error_icon.png -text
 Documentation/xmldoc/images/eiffelstudio/icons/10x10/debugger_expand_info_icon.png -text
