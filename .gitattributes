@@ -578,8 +578,10 @@ Documentation/xmldoc/images/eiffelstudio/debugger/debuggee_object_storage_save.p
 Documentation/xmldoc/images/eiffelstudio/debugger/debugging_tools_preferences.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exception_dialog.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exceptions_handling_tool.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_00-1.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_00.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_01.png -text
+Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_02-1.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_02.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_03.png -text
 Documentation/xmldoc/images/eiffelstudio/debugger/exec_replay_04.png -text
@@ -1500,7 +1502,10 @@ Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/100_advanc
 Documentation/xmldoc/tools/eiffelstudio/reference/25_project_settings/110_advanced_mapping.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/30_compiler/60_version_history/08_60_release/index.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/30_compiler/60_version_history/09_61_release/index.xml -text
-Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/35_execution_replay.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/35_execution_record_and_replay/00_introduction.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/35_execution_record_and_replay/10_exec_record.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/35_execution_record_and_replay/20_exec_replay.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/35_execution_record_and_replay/index.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/52_debuggee_object_storage.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/55_threads_tool.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/57_exception_handling_tool.xml -text
