@@ -1511,6 +1511,7 @@ Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/55_threads_tool.xm
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/57_exception_handling_tool.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/80_version_history/Eiffel60.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/80_version_history/Eiffel61.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/80_version_history/Eiffel62.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/55_selection_criteria.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/80_domains.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/95_under_the_hood.xml -text
