@@ -690,6 +690,16 @@ Documentation/xmldoc/images/eiffelstudio/dialogs_and_wizards/xmi_wizard_path_sel
 Documentation/xmldoc/images/eiffelstudio/editor_auto_completion_window.png -text
 Documentation/xmldoc/images/eiffelstudio/editor_class_auto_completion_window.png -text
 Documentation/xmldoc/images/eiffelstudio/editor_pick_and_drop.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/error.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/error_info.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/expand_errors.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/filter.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/filter_active.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/next_error.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/next_warning.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/previous_error.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/previous_warning.png -text
+Documentation/xmldoc/images/eiffelstudio/error_list_tool/warning.png -text
 Documentation/xmldoc/images/eiffelstudio/error_message.png -text
 Documentation/xmldoc/images/eiffelstudio/feature_format_bar.png -text
 Documentation/xmldoc/images/eiffelstudio/general_debug_mode.png -text
@@ -1512,6 +1522,7 @@ Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/57_exception_handl
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/80_version_history/Eiffel60.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/80_version_history/Eiffel61.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/40_debugger/80_version_history/Eiffel62.xml -text
+Documentation/xmldoc/tools/eiffelstudio/reference/45_error_list_tool/index.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/55_selection_criteria.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/80_domains.xml -text
 Documentation/xmldoc/tools/eiffelstudio/reference/60_metric_tool/20_definitions/95_under_the_hood.xml -text
