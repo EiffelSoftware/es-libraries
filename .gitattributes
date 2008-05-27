@@ -3600,7 +3600,7 @@ eweasel/doc/summary.doc -text
 eweasel/results/classic/linux-ppc -text
 eweasel/results/classic/solaris-sparc -text
 eweasel/results/classic/windows-x86 -text
-eweasel/results/dotnet/windows -text
+eweasel/results/dotnet/windows-x86 -text
 eweasel/source/gui/build_project.bpr -text
 eweasel/source/gui/readme.txt -text
 eweasel/source/gui/system_interface.xml -text
