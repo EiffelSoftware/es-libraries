@@ -3417,6 +3417,8 @@ Src/library/wel/extra/h2e2.ico svneol=native#unset
 Src/library/wizard/help/Clib/htmlhelp.lib -text
 Src/scripts/check_setup.eant -text
 Src/scripts/tools/_inc/_f_code_tpl_ -text
+Src/tools/button_clicker/button_clicker.ico -text
+Src/tools/button_clicker/button_clicker.rc -text
 Src/tools/com_wizard/root/resources/eiffel_software.png -text
 Src/tools/com_wizard/root/resources/help.png -text
 Src/tools/com_wizard/root/resources/output.png -text
