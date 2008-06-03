@@ -3437,6 +3437,8 @@ Src/tools/compliance_checker/resources/open.ico -text
 Src/tools/compliance_checker/resources/project.ico -text
 Src/tools/compliance_checker/resources/save.ico -text
 Src/tools/compliance_checker/resources/settings.ico -text
+Src/tools/copyright_tool/eiffel_copyright.ico -text
+Src/tools/copyright_tool/eiffel_copyright.rc -text
 Src/tools/copyright_tool/eiffel_icon.png -text
 Src/tools/doc_builder/Assemblies_10/AxShDocVw.dll -text
 Src/tools/doc_builder/Assemblies_10/SHDocVw.dll -text
