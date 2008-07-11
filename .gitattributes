@@ -165,6 +165,7 @@ Delivery/scripts/windows/install/images/new.bmp -text
 Delivery/scripts/windows/install/images/question.ico -text
 Delivery/scripts/windows/install/images/up.bmp -text
 Delivery/scripts/windows/install/images/warning.ico -text
+Delivery/scripts/windows/install/interface/eiffelstudio/DialogMscRestartRequire.wxs -text
 Delivery/scripts/windows/install/licenses/eiffelenvision/enterprise.rtf -text
 Delivery/scripts/windows/install/licenses/eiffelenvision/free.rtf -text
 Delivery/scripts/windows/install/licenses/eiffelstudio/enterprise.rtf -text
