@@ -185,6 +185,8 @@ Delivery/studio/bitmaps/png/splash.png -text
 Delivery/studio/bitmaps/png/splash_shadow.png -text
 Delivery/studio/config/windows/bcb/appl.ico -text
 Delivery/studio/config/windows/msc/appl.ico -text
+Delivery/studio/eifinit/libraries.cfg -text
+Delivery/studio/eifinit/precompile.cfg -text
 Delivery/studio/help/defaults/eiffel_unit_test_tcf_template.txt -text
 Delivery/studio/lang/mo_files/de_DE.mo -text
 Delivery/studio/lang/mo_files/en_US.mo -text
