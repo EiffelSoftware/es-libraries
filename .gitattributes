@@ -4061,6 +4061,8 @@ eweasel/tests/freez024/notes -text
 eweasel/tests/freez025/notes -text
 eweasel/tests/freez026/notes -text
 eweasel/tests/freez027/notes -text
+eweasel/tests/freez029/Ace -text
+eweasel/tests/freez029/output_empty -text
 eweasel/tests/incr001/notes -text
 eweasel/tests/incr002/notes -text
 eweasel/tests/incr003/notes -text
