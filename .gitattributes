@@ -312,6 +312,16 @@ Delivery/vision2_demo/bitmaps/png/properties.png -text
 Delivery/vision2_demo/bitmaps/png/size_down.png -text
 Delivery/vision2_demo/bitmaps/png/size_up.png -text
 Delivery/vision2_demo/bitmaps/png/testing.png -text
+Documentation/tools/web/trunk/bin/README.txt -text
+Documentation/tools/web/trunk/bin/data/favicon.ico -text
+Documentation/tools/web/trunk/bin/data/logo.gif -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.admin.inc -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.info -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.module -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.admin.inc -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.info -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.module -text
+Documentation/tools/xmldoc2wiki/README.txt -text
 Documentation/xmldoc/general/guided_tour/language/invitation-2.png -text
 Documentation/xmldoc/general/guided_tour/language/invitation-3.png -text
 Documentation/xmldoc/general/guided_tour/language/invitation-4.png -text
