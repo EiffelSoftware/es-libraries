@@ -315,6 +315,10 @@ Delivery/vision2_demo/bitmaps/png/testing.png -text
 Documentation/tools/web/trunk/bin/README.txt -text
 Documentation/tools/web/trunk/bin/data/favicon.ico -text
 Documentation/tools/web/trunk/bin/data/logo.gif -text
+Documentation/tools/web/trunk/bin/dev/process_backup -text
+Documentation/tools/web/trunk/bin/dev/restore_backup -text
+Documentation/tools/web/trunk/bin/dev/restore_main -text
+Documentation/tools/web/trunk/bin/dev/restore_test -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.admin.inc -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.info -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.module -text
