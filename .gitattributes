@@ -4310,6 +4310,8 @@ eweasel/tests/incr247/notes -text
 eweasel/tests/incr248/notes -text
 eweasel/tests/incr276/Ace -text
 eweasel/tests/incr288/Ace -text
+eweasel/tests/incr294/Ace1 -text
+eweasel/tests/incr294/Ace2 -text
 eweasel/tests/lace003/notes -text
 eweasel/tests/lace007/notes -text
 eweasel/tests/lace011/notes -text
