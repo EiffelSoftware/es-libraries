@@ -324,6 +324,8 @@ Documentation/tools/web/trunk/bin/dev/process_backup -text
 Documentation/tools/web/trunk/bin/dev/restore_backup -text
 Documentation/tools/web/trunk/bin/dev/restore_main -text
 Documentation/tools/web/trunk/bin/dev/restore_test -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/export/isedoc_export.info -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/export/isedoc_export.module -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.admin.inc -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.info -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.module -text
