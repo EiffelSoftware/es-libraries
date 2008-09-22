@@ -335,7 +335,6 @@ Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.admin.inc -
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.info -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.module -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/origo/mediawiki_filter.patch -text
-Documentation/tools/web/trunk/misc/mediawiki_filter.patch -text
 Documentation/tools/xmldoc2wiki/README.txt -text
 Documentation/xmldoc/general/guided_tour/language/invitation-2.png -text
 Documentation/xmldoc/general/guided_tour/language/invitation-3.png -text
