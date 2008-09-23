@@ -347,6 +347,7 @@ Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/bullet.pn
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/cog.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/dialog-information.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/dialog-warning.png -text svneol=unset#image/png
+Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/header-eiffeldoc.jpg -text svneol=unset#image/jpeg
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/links.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/menu-collapsed.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/menu-expanded.png -text svneol=unset#image/png
