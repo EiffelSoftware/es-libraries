@@ -337,6 +337,7 @@ Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.admin.inc -
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.info -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.module -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.queries.inc -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.report.inc -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/origo/mediawiki_filter.patch -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/eiffeldoc.css -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/eiffeldoc.info -text
