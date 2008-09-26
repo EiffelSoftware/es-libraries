@@ -366,6 +366,7 @@ Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/screenshot.large
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/screenshot.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/zen-fixed.css -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/zen.css -text
+Documentation/tools/web/trunk/misc/patches/trash.module -text
 Documentation/tools/xmldoc2wiki/README.txt -text
 Documentation/xmldoc/general/guided_tour/language/invitation-2.png -text
 Documentation/xmldoc/general/guided_tour/language/invitation-3.png -text
