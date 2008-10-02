@@ -210,6 +210,7 @@ Delivery/studio/spec/windows/bin/libeay32.dll -text
 Delivery/studio/spec/windows/bin/ssleay32.dll -text
 Delivery/studio/templates/defaults/empty.e.tpl -text
 Delivery/studio/templates/defaults/full.e.tpl -text
+Delivery/studio/templates/defaults/test.e.tpl -text
 Delivery/studio/templates/design_by_contract/all_items_attached.code -text
 Delivery/studio/templates/design_by_contract/all_items_detached.code -text
 Delivery/studio/templates/design_by_contract/array_index_big_enough.code -text
