@@ -375,6 +375,7 @@ Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/screenshot.png -
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/zen-fixed.css -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/zen.css -text
 Documentation/tools/web/trunk/misc/patches/cck.path -text
+Documentation/tools/web/trunk/misc/patches/htaccess -text
 Documentation/tools/web/trunk/misc/patches/trash.module -text
 Documentation/tools/xmldoc2wiki/README.txt -text
 Documentation/xmldoc/general/guided_tour/language/invitation-2.png -text
