@@ -375,6 +375,7 @@ Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/screenshot.png -
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/zen-fixed.css -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/zen.css -text
 Documentation/tools/web/trunk/misc/patches/cck.path -text
+Documentation/tools/web/trunk/misc/patches/drupal/includes/common.inc.patch -text
 Documentation/tools/web/trunk/misc/patches/htaccess -text
 Documentation/tools/web/trunk/misc/patches/trash.module -text
 Documentation/tools/xmldoc2wiki/README.txt -text
