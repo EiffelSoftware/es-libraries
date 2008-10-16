@@ -249,8 +249,12 @@ Delivery/studio/templates/eiffel/invariant.code -text
 Delivery/studio/templates/eiffel/loop.code -text
 Delivery/studio/templates/eiffel/require.code -text
 Delivery/studio/templates/licenses/README -text
-Delivery/studio/templates/licenses/default.tpl -text
-Delivery/studio/templates/licenses/gpl2.tpl -text
+Delivery/studio/templates/licenses/default.lic -text
+Delivery/studio/templates/licenses/eiffelsoftware.lic -text
+Delivery/studio/templates/licenses/eweasel.lic -text
+Delivery/studio/templates/licenses/forum2.lic -text
+Delivery/studio/templates/licenses/gpl2.lic -text
+Delivery/studio/templates/licenses/mssdk.lic -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
