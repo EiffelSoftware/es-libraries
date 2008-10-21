@@ -334,6 +334,7 @@ Documentation/tools/web/trunk/bin/dev/restore_backup -text
 Documentation/tools/web/trunk/bin/dev/restore_main -text
 Documentation/tools/web/trunk/bin/dev/restore_main_fetched -text
 Documentation/tools/web/trunk/bin/dev/restore_test -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/data/mapping.txt -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/export/isedoc_export.info -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/export/isedoc_export.module -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/export/tpl/css/book-one.css -text
