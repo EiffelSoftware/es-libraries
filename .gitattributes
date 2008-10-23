@@ -4826,6 +4826,7 @@ eweasel/tests/valid153/notes -text
 eweasel/tests/valid154/notes -text
 eweasel/tests/valid155/notes -text
 eweasel/tests/valid160/notes -text
+eweasel/tests/valid223/Ace -text
 eweasel/tests/vd01001/file -text
 eweasel/tests/vd10001/weasel -text
 eweasel/tests/vd13001/weasel -text
