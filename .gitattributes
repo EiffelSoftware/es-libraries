@@ -3747,6 +3747,7 @@ eweasel/tests/attach027/Ace -text
 eweasel/tests/attach028/Ace -text
 eweasel/tests/attach029/Ace -text
 eweasel/tests/attach030/Ace -text
+eweasel/tests/attach031/Ace -text
 eweasel/tests/ccomp001/notes -text
 eweasel/tests/ccomp002/notes -text
 eweasel/tests/ccomp003/notes -text
@@ -4606,6 +4607,7 @@ eweasel/tests/syntax042/notes -text
 eweasel/tests/syntax043/notes -text
 eweasel/tests/syntax044/notes -text
 eweasel/tests/syntax046/test.e0 -text
+eweasel/tests/syntax052/Ace -text
 eweasel/tests/term001/notes -text
 eweasel/tests/term002/notes -text
 eweasel/tests/term003/notes -text
