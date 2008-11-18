@@ -3162,6 +3162,7 @@ Src/C_library/openssl/util/tab_num.pl -text
 Src/C_library/zlib/contrib/blast/test.pk svneol=native#unset
 Src/C_library/zlib/contrib/puff/zeros.raw svneol=native#unset
 Src/Eiffel/Ace/ec.ico -text
+Src/Eiffel/Ace/ec.lic -text
 Src/Eiffel/doc/Microsoft.NET/multiple_inheritance/diamond_inheritance.png -text
 Src/Eiffel/doc/Microsoft.NET/multiple_inheritance/method1/diamond_inheritance_on_dotnet-method1.png -text
 Src/Eiffel/doc/Microsoft.NET/multiple_inheritance/method2/diamond_inheritance_on_dotnet-method2.png -text
