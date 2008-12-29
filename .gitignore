@@ -387,6 +387,9 @@ Src/tools/quick_finalize/quick_finalize.rc
 Src/tools/syntax_updater/parser_v60/eiffel_parser.e
 Src/tools/syntax_updater/parser_v60/eiffel_scanner.e
 Src/tools/syntax_updater/parser_v60/eiffel_tokens.e
+Src/tools/syntax_updater/parser_v63/eiffel_parser.e
+Src/tools/syntax_updater/parser_v63/eiffel_scanner.e
+Src/tools/syntax_updater/parser_v63/eiffel_tokens.e
 Src/tools/vms/ES5SH/*.wb
 Src/tools/vms/ES5SH/EIFGEN
 Src/tools/vms/ES5SH/EIFGENs
