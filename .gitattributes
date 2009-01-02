@@ -3780,6 +3780,7 @@ eweasel/GPL.txt -text
 eweasel/INSTALL -text
 eweasel/LICENSING -text
 eweasel/README -text
+eweasel/bin/run_eweasel_keyword -text
 eweasel/compilation/README -text
 eweasel/compilation/fix_permission -text
 eweasel/compilation/install_eweasel -text
