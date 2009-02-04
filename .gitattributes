@@ -3513,6 +3513,7 @@ Src/help/wizards/estore2/resources/odbc_store.lib svneol=native#unset
 Src/help/wizards/eweb/pixmaps/Eiffel_wizard_new.bmp -text
 Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/wizard.ico -text
+Src/library/Eiffel2Java/Eiffel2Java.lic -text
 Src/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
 Src/library/diff/diff_index_link.e -text
 Src/library/diff/diff_line.e -text
