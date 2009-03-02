@@ -3549,6 +3549,7 @@ Src/framework/web/xebra/c_projects/xebrasockets/sockettest2.kdevelop.pcs -text
 Src/framework/web/xebra/c_projects/xebrasockets/sockettest2.kdevses -text
 Src/framework/web/xebra/c_projects/xebrasockets/templates/c -text
 Src/framework/web/xebra/c_projects/xebrasockets/templates/h -text
+Src/framework/web/xebra/websites/test.html -text
 Src/framework/xml/xml.lic -text
 Src/help/wizards/estore1/bmp/essai.bmp -text
 Src/help/wizards/estore1/bmp/essai2.bmp -text
