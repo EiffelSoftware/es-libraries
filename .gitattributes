@@ -3502,6 +3502,7 @@ Src/framework/threading/threading.lic -text
 Src/framework/uri_launcher/uri_launcher.lic -text
 Src/framework/web/xebra/c_projects/mod_xebra/mod_xebra.kdevelop.pcs -text
 Src/framework/web/xebra/c_projects/xebrasockets/sockettest2.kdevelop.pcs -text
+Src/framework/web/xebra/eiffel_projects/xebra_translator/xebra_translator.lic -text
 Src/framework/xml/xml.lic -text
 Src/help/wizards/estore1/bmp/essai.bmp -text
 Src/help/wizards/estore1/bmp/essai2.bmp -text
