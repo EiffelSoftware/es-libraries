@@ -306,6 +306,11 @@ Delivery/studio/tools/testing/auto_test/misc/html/test_case_set_untested.html -t
 Delivery/studio/tools/testing/auto_test/misc/html/ua.js -text
 Delivery/studio/tools/testing/icons.ini -text
 Delivery/studio/tools/testing/icons.png -text
+Delivery/studio/tools/twitter_feed/bird.png -text
+Delivery/studio/tools/twitter_feed/icons.ini -text
+Delivery/studio/tools/twitter_feed/icons.png -text
+Delivery/studio/tools/twitter_feed/logo.png -text
+Delivery/studio/tools/twitter_feed/spacer.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
