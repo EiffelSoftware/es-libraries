@@ -403,6 +403,7 @@ Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_impo
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.info -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/import/isedoc_import.module -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.admin.inc -text
+Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.eis_query.inc -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.info -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.module -text
 Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.queries.inc -text
