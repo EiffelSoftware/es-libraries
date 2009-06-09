@@ -2632,7 +2632,6 @@ Src/help/wizards/eweb/pixmaps/database_small.bmp -text
 Src/help/wizards/wizard.ico -text
 Src/library/Eiffel2Java/Eiffel2Java-safe.lic -text
 Src/library/Eiffel2Java/Eiffel2Java.lic -text
-Src/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
 Src/library/api_wrapper/api_wrapper.lic -text
 Src/library/cocoa/Clib/ns_button.m -text
 Src/library/cocoa/Clib/ns_responder_category.m -text
@@ -2875,7 +2874,6 @@ Src/library/wel/extra/h2e.ico svneol=native#unset
 Src/library/wel/extra/h2e1.ico svneol=native#unset
 Src/library/wel/extra/h2e2.ico svneol=native#unset
 Src/library/wel/wel-safe.lic -text
-Src/library/wizard/help/Clib/htmlhelp.lib -text
 Src/scripts/check_setup.eant -text
 Src/scripts/tools/_inc/_f_code_tpl_ -text
 Src/tools/button_clicker/button_clicker.ico -text
