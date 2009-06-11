@@ -143,7 +143,7 @@ Delivery/scripts/unix/packaging/desktop -text
 Delivery/scripts/unix/packaging/license -text
 Delivery/scripts/unix/packaging/logo.png -text
 Delivery/scripts/windows/install/Admin.txt -text
-Delivery/scripts/windows/install/content/eiffelstudio/studio_experimental_libraries.wxs -text
+Delivery/scripts/windows/install/content/eiffelstudio/studio_experimental.wxs -text
 Delivery/scripts/windows/install/images/Thumbs.db -text
 Delivery/scripts/windows/install/images/app.ico -text
 Delivery/scripts/windows/install/images/eiffelenvision/backdrop.bmp -text
