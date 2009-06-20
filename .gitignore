@@ -350,6 +350,7 @@ Src/experimental/library/i18n/sample.ecf
 Src/experimental/library/i18n/sample.rc
 Src/experimental/library/iphone/spec
 Src/experimental/library/net/spec
+Src/experimental/library/objc_base/spec
 Src/experimental/library/obsolete/net/spec
 Src/experimental/library/store/spec
 Src/experimental/library/vision2/spec/bcb
