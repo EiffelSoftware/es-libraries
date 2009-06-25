@@ -333,6 +333,7 @@ Src/examples/vision2/widget_test/interface/ordered_string_handler.e
 Src/examples/vision2/widget_test/templates
 Src/experimental/library/cURL/spec/mingw
 Src/experimental/library/cURL/spec/msc
+Src/experimental/library/cocoa/EIFGENs
 Src/experimental/library/cocoa/spec
 Src/experimental/library/com/spec/bcb
 Src/experimental/library/com/spec/mingw
