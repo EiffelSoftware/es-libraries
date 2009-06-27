@@ -2252,6 +2252,8 @@ Src/experimental/library/editor/bitmaps/cut_selection.png -text
 Src/experimental/library/editor/bitmaps/icon_close_color.png -text
 Src/experimental/library/editor/bitmaps/left_scroll_arrow.png -text
 Src/experimental/library/editor/bitmaps/right_scroll_arrow.png -text
+Src/experimental/library/edk/include/edk.lib -text
+Src/experimental/library/edk/spec/msc/windows/lib/edk.lib -text
 Src/experimental/library/encoding/implementation/unix/Clib/iconv-config -text
 Src/experimental/library/i18n/README -text
 Src/experimental/library/i18n/TODO -text
