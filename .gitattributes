@@ -2457,6 +2457,8 @@ Src/experimental/library/i18n/tests/test_files/mo/zh_CN.mo -text
 Src/experimental/library/i18n/tests/zh_CN.mo -text
 Src/experimental/library/memory_analyzer/memory_analyzer_icon_matrix.png -text
 Src/experimental/library/objc_base/Clib/objc_callback_marshal.m -text
+Src/experimental/library/objc_base/objc_base-safe.lic -text
+Src/experimental/library/objc_base/objc_base.lic -text
 Src/experimental/library/preferences/preferences_reg-safe.lic -text
 Src/experimental/library/preferences/preferences_reg.lic -text
 Src/experimental/library/process/classic/unix/process_thread_timer.e -text
