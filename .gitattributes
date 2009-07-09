@@ -1946,6 +1946,7 @@ Src/C_library/openssl/util/ssleay.num -text
 Src/C_library/openssl/util/tab_num.pl -text
 Src/C_library/zlib/contrib/blast/test.pk svneol=native#unset
 Src/C_library/zlib/contrib/puff/zeros.raw svneol=native#unset
+Src/Eiffel/API/framework/ecosystem/services/history_manager/INCOMPLETE.txt -text
 Src/Eiffel/Ace/ec.ico -text
 Src/Eiffel/Ace/ec.lic -text
 Src/Eiffel/debugger/debugger.lic -text
@@ -1958,6 +1959,7 @@ Src/Eiffel/doc/debugging/debugger_files/image001.png -text svneol=unset#applicat
 Src/Eiffel/doc/debugging/debugger_files/image002.gif -text
 Src/Eiffel/doc/runtime/typing/TYPE_A_encodings.dia -text
 Src/Eiffel/doc/runtime/typing/TYPE_A_encodings.png -text
+Src/Eiffel/ecosystem/services/history_manager/INCOMPLETE.txt -text
 Src/Eiffel/eiffel/com_il_generation/Core/run-time/rt_exception_manager.cs -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/README.txt -text
