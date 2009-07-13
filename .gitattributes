@@ -3982,6 +3982,7 @@ eweasel/tests/store016/data54 -text
 eweasel/tests/store018/data -text
 eweasel/tests/store020/data -text
 eweasel/tests/store023/Ace -text
+eweasel/tests/svalid022/Ace -text
 eweasel/tests/syntax001/notes -text
 eweasel/tests/syntax002/notes -text
 eweasel/tests/syntax003/notes -text
