@@ -360,6 +360,7 @@ Src/experimental/library/vision2/spec/macosx-x86
 Src/experimental/library/vision2/spec/mingw
 Src/experimental/library/vision2/spec/msc
 Src/experimental/library/vision2/spec/unix
+Src/experimental/library/vision2/tests/EIFGENs
 Src/experimental/library/wel/Clib/ilwel.lib
 Src/experimental/library/wel/Clib/make.log
 Src/experimental/library/wel/Clib/wel.lib
