@@ -2243,7 +2243,6 @@ Src/experimental/library/Eiffel2Java/Eiffel2Java-safe.lic -text
 Src/experimental/library/Eiffel2Java/Eiffel2Java.lic -text
 Src/experimental/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
 Src/experimental/library/api_wrapper/api_wrapper.lic -text
-Src/experimental/library/cocoa/Clib/ns_button.m -text
 Src/experimental/library/cocoa/Clib/ns_responder_category.m -text
 Src/experimental/library/cocoa/Clib/ns_text_delegate.m -text
 Src/experimental/library/diff/diff_index_link.e -text
