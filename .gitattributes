@@ -3367,6 +3367,7 @@ eweasel/tests/exec144/notes -text
 eweasel/tests/exec145/notes -text
 eweasel/tests/exec146/notes -text
 eweasel/tests/exec147/notes -text
+eweasel/tests/exec147/output_experimental -text
 eweasel/tests/exec148/notes -text
 eweasel/tests/exec149/notes -text
 eweasel/tests/exec150/notes -text
