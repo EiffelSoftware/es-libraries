@@ -339,6 +339,7 @@ Src/experimental/library/cocoa/tests/EIFGENs
 Src/experimental/library/com/spec/bcb
 Src/experimental/library/com/spec/mingw
 Src/experimental/library/com/spec/msc
+Src/experimental/library/docking/.git
 Src/experimental/library/docking/EIFGENs
 Src/experimental/library/encryption/spec
 Src/experimental/library/event/spec
