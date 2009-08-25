@@ -2249,6 +2249,8 @@ Src/experimental/library/diff/diff_index_link.e -text
 Src/experimental/library/diff/diff_line.e -text
 Src/experimental/library/diff/diff_line_add.e -text
 Src/experimental/library/diff/diff_line_del.e -text
+Src/experimental/library/docking/docking-safe.lic -text
+Src/experimental/library/docking/docking.lic -text
 Src/experimental/library/editor/bitmaps/copy_selection.png -text
 Src/experimental/library/editor/bitmaps/cut_selection.png -text
 Src/experimental/library/editor/bitmaps/icon_close_color.png -text
