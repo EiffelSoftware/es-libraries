@@ -2243,6 +2243,8 @@ Src/experimental/library/Eiffel2Java/Eiffel2Java-safe.lic -text
 Src/experimental/library/Eiffel2Java/Eiffel2Java.lic -text
 Src/experimental/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
 Src/experimental/library/api_wrapper/api_wrapper.lic -text
+Src/experimental/library/cURL/cURL-safe.lic -text
+Src/experimental/library/cURL/cURL.lic -text
 Src/experimental/library/cocoa/Clib/ns_responder_category.m -text
 Src/experimental/library/cocoa/Clib/ns_text_delegate.m -text
 Src/experimental/library/diff/diff_index_link.e -text
@@ -2673,6 +2675,8 @@ Src/help/wizards/wizard.ico -text
 Src/library/Eiffel2Java/Eiffel2Java-safe.lic -text
 Src/library/Eiffel2Java/Eiffel2Java.lic -text
 Src/library/api_wrapper/api_wrapper.lic -text
+Src/library/cURL/cURL-safe.lic -text
+Src/library/cURL/cURL.lic -text
 Src/library/cocoa/Clib/ns_button.m -text
 Src/library/cocoa/Clib/ns_responder_category.m -text
 Src/library/cocoa/Clib/ns_text_delegate.m -text
@@ -2680,6 +2684,7 @@ Src/library/diff/diff_index_link.e -text
 Src/library/diff/diff_line.e -text
 Src/library/diff/diff_line_add.e -text
 Src/library/diff/diff_line_del.e -text
+Src/library/docking/docking.lic -text
 Src/library/editor/bitmaps/copy_selection.png -text
 Src/library/editor/bitmaps/cut_selection.png -text
 Src/library/editor/bitmaps/icon_close_color.png -text
