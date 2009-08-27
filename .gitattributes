@@ -2490,6 +2490,7 @@ Src/experimental/library/vision2/implementation/carbon/widgets/dialogs/.DS_Store
 Src/experimental/library/vision2/implementation/carbon/wrapper/config.ewg -text
 Src/experimental/library/vision2/implementation/carbon/wrapper/generated_wrapper/eiffel/abstraction/.DS_Store -text
 Src/experimental/library/vision2/implementation/cocoa/Readme.txt -text
+Src/experimental/library/vision2/tests/graphics/Lenna.png -text
 Src/experimental/library/wel/extra/h2e.ico svneol=native#unset
 Src/experimental/library/wel/extra/h2e1.ico svneol=native#unset
 Src/experimental/library/wel/extra/h2e2.ico svneol=native#unset
