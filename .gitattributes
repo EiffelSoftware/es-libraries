@@ -317,6 +317,9 @@ Delivery/studio/tools/twitter_feed/icons.ini -text
 Delivery/studio/tools/twitter_feed/icons.png -text
 Delivery/studio/tools/twitter_feed/logo.png -text
 Delivery/studio/tools/twitter_feed/spacer.png -text
+Delivery/studio/wizards/new_projects/cocoa.dsc -text
+Delivery/studio/wizards/new_projects/cocoa/pixmaps/eiffel_wizard.png -text
+Delivery/studio/wizards/new_projects/cocoa/pixmaps/wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/Eiffel_tower.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard.png -text
 Delivery/studio/wizards/new_projects/dotnet/pixmaps/eiffel_wizard_icon.png -text
