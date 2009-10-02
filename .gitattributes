@@ -2246,8 +2246,8 @@ Src/examples/wel/xcell/xcell_demo.ico -text
 Src/experimental/library/Eiffel2Java/Eiffel2Java-safe.lic -text
 Src/experimental/library/Eiffel2Java/Eiffel2Java.lic -text
 Src/experimental/library/GIF/Clib/gd_lib/gd.lib svneol=native#unset
-Src/experimental/library/api_wrapper/api_wrapper.lic -text
 Src/experimental/library/api_wrapper/implementation/unix/Clib/dl-config -text
+Src/experimental/library/api_wrapper/license.lic -text
 Src/experimental/library/cURL/cURL-safe.lic -text
 Src/experimental/library/cURL/cURL.lic -text
 Src/experimental/library/cocoa/Clib/ns_responder_category.m -text
