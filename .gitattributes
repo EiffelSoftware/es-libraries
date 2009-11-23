@@ -421,6 +421,7 @@ Documentation/tools/web/trunk/drupal/sites/all/modules/isedoc/isedoc.report.inc 
 Documentation/tools/web/trunk/drupal/sites/all/modules/origo/mediawiki_filter.patch -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/eiffeldoc.css -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/eiffeldoc.info -text
+Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/eiffelsoftware-menu -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/favicon.ico -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/html-elements.css -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/icons.css -text
@@ -432,6 +433,7 @@ Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/cog.png -
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/dialog-information.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/dialog-warning.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/header-eiffeldoc.jpg -text svneol=unset#image/jpeg
+Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/header-eiffeldoc.png -text
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/links.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/menu-collapsed.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/drupal/sites/all/themes/eiffeldoc/images/menu-expanded.png -text svneol=unset#image/png
