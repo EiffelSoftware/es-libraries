@@ -399,6 +399,8 @@ Documentation/tools/web/trunk/bin/dev/restore_backup -text
 Documentation/tools/web/trunk/bin/dev/restore_main -text
 Documentation/tools/web/trunk/bin/dev/restore_main_fetched -text
 Documentation/tools/web/trunk/bin/dev/restore_test -text
+Documentation/tools/web/trunk/data/favicon.ico -text
+Documentation/tools/web/trunk/data/htaccess -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/data/mapping.txt -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/export/isedoc_export.info -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/export/isedoc_export.module -text
