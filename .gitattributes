@@ -451,7 +451,9 @@ Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/screenshot.large.p
 Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/screenshot.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/zen-fixed.css -text
 Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/zen.css -text
+Documentation/tools/web/trunk/misc/patches/book_access.module -text
 Documentation/tools/web/trunk/misc/patches/cck.path -text
+Documentation/tools/web/trunk/misc/patches/eiffel.php -text
 Documentation/tools/web/trunk/misc/patches/htaccess -text
 Documentation/tools/web/trunk/misc/patches/trash.module -text
 Documentation/tools/xmldoc2wiki/README.txt -text
