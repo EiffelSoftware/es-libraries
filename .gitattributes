@@ -449,7 +449,6 @@ Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/screenshot.large.p
 Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/screenshot.png -text svneol=unset#image/png
 Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/zen-fixed.css -text
 Documentation/tools/web/trunk/data/sites/all/themes/eiffeldoc/zen.css -text
-Documentation/tools/web/trunk/drupal/.htaccess -text
 Documentation/tools/web/trunk/misc/patches/cck.path -text
 Documentation/tools/web/trunk/misc/patches/drupal/includes/common.inc.patch -text
 Documentation/tools/web/trunk/misc/patches/htaccess -text
