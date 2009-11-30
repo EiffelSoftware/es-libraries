@@ -404,6 +404,11 @@ Documentation/tools/web/trunk/bin/scripts/README.txt -text
 Documentation/tools/web/trunk/data/favicon.ico -text
 Documentation/tools/web/trunk/data/htaccess -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/data/mapping.txt -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.admin.inc -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.data.inc -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.info -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.module -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.query.inc -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/export/isedoc_export.info -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/export/isedoc_export.module -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/export/tpl/css/book-one.css -text
@@ -415,8 +420,6 @@ Documentation/tools/web/trunk/data/sites/all/modules/isedoc/import/isedoc_import
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/import/isedoc_import.info -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/import/isedoc_import.module -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/isedoc.admin.inc -text
-Documentation/tools/web/trunk/data/sites/all/modules/isedoc/isedoc.eis_data.inc -text
-Documentation/tools/web/trunk/data/sites/all/modules/isedoc/isedoc.eis_query.inc -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/isedoc.info -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/isedoc.module -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/isedoc.queries.inc -text
