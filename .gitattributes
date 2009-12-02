@@ -405,8 +405,10 @@ Documentation/tools/web/trunk/data/favicon.ico -text
 Documentation/tools/web/trunk/data/htaccess -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/data/mapping.txt -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.admin.inc -text
-Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.data.inc -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.edit.inc -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.info -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.install -text
+Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.lib.inc -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.module -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/eis/isedoc_eis.query.inc -text
 Documentation/tools/web/trunk/data/sites/all/modules/isedoc/export/isedoc_export.info -text
