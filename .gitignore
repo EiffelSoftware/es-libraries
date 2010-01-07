@@ -356,6 +356,8 @@ Src/experimental/library/net/spec
 Src/experimental/library/objc_base/spec
 Src/experimental/library/obsolete/net/spec
 Src/experimental/library/store/spec
+Src/experimental/library/testing/.git
+Src/experimental/library/testing/EIFGENs
 Src/experimental/library/testing_eweasel/compilation/EIFGENs
 Src/experimental/library/vision2/spec/bcb
 Src/experimental/library/vision2/spec/linux-x86-64
