@@ -3964,7 +3964,6 @@ eweasel/tests/incr288/Ace -text
 eweasel/tests/incr294/Ace1 -text
 eweasel/tests/incr294/Ace2 -text
 eweasel/tests/incr311/Ace_rev1 -text
-eweasel/tests/iteration001/output_hashtable -text
 eweasel/tests/lace003/notes -text
 eweasel/tests/lace007/notes -text
 eweasel/tests/lace011/notes -text
