@@ -1979,6 +1979,7 @@ Src/Eiffel/eiffel/com_il_generation/Core/run-time/rt_exception_manager.cs -text
 Src/Eiffel/interface/shared/buffer/command_scanner.l -text
 Src/README.txt -text
 Src/build/build.ico -text
+Src/contrib/library/README.txt -text
 Src/dotnet/codedom_provider_2.0/test/tester/icons/tester.png -text
 Src/dotnet/codedom_provider_2.0/tools/manager/ecdpman.ico -text
 Src/dotnet/codedom_provider_2.0/tools/manager/icons/application.png -text
