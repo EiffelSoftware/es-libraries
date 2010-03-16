@@ -1,3 +1,0 @@
-
-deferred class PARENT
-end

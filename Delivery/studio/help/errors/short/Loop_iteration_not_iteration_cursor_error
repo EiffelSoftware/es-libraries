@@ -1,3 +1,0 @@
-Error: Type of the feature `new_cursor' called on an iteration expression
-  should conform to ITERATION_CURSOR [G].
-What to do: make sure the type of `new_cursor' conforms to ITERATION_CURSOR [G].
