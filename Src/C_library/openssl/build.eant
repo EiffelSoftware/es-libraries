@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<project name="build_openssl_clib" default="help">
+
+	<description>
+		description: "openssl C_library compilation"
+	</description>
+
+	<target name="help">
+		<echo message="usage:"/>
+		<echo message=" geant build_static_32"/>
+		<echo message=" geant build_static_64"/>
+		<echo message=" geant build_dynamic_32"/>
+		<echo message=" geant build_dynamic_64"/>
+		<echo message=" geant clean"/>
+		<echo message=" geant clobber"/>
+	</target>
+	
+	<target name="compile" >
+		<exec executable="finish_freezing -library" />
+	</target>
+
+	
+	<target name="build_static_32" >
+		<echo message="- Build static for Windows (x86)" if="${ISE_PLATFORM}=windows" />
+		<exec executable="build_static_32.bat" if="${ISE_PLATFORM}=windows" />
+	</target>
+
+	<target name="build_static_64" >
+		<echo message="- Build static for Windows (x86-64)" if="${ISE_PLATFORM}=win64" />
+		<exec executable="build_static_64.bat" if="${ISE_PLATFORM}=win64" />
+	</target>
+
+
+	<target name="build_dynamic_32" >
+		<echo message="- Build dynamic for Windows (x86)" if="${ISE_PLATFORM}=windows" />
+		<exec executable="build_dyn_32.bat" if="${ISE_PLATFORM}=windows" />
+	</target>
+
+	<target name="build_dynamic_64" >
+		<echo message="- Build dynamic for Windows (x86-64)" if="${ISE_PLATFORM}=win64" />
+		<exec executable="build_dyn_64.bat" if="${ISE_PLATFORM}=win64" />
+	</target>
+
+	
+	<target name="clean" >  
+		<echo message="- Clean [C_library/openssl]" />
+		<delete directory="spec/${ISE_PLATFORM}" unless="${is_windows}"/>
+		<delete directory="spec\${ISE_C_COMPILER}\${ISE_PLATFORM}" if="${is_windows}" />
+	</target>
+
+	<target name="clobber" depend="clean" />
+	
+</project>
