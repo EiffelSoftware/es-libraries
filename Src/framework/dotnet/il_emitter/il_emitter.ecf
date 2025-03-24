@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-22-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-22-0 http://www.eiffel.com/developers/xml/configuration-1-22-0.xsd" name="il_emitter" uuid="6599C89C-B782-45BF-A031-13F5D15C0E85" library_target="il_emitter">
+	<target name="il_emitter">
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/CVS$</exclude>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/\.git$</exclude>
+			<exclude>/\.svn$</exclude>
+		</file_rule>
+		<option warning="warning" manifest_array_type="mismatch_warning">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<setting name="dead_code_removal" value="feature"/>
+		<external_include location="$(EIFFEL_SRC)\framework\dotnet\il_emitter\Clib">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_include>
+		<external_include location="$(EIFFEL_SRC)/framework/dotnet/il_emitter/Clib">
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</external_include>
+		<external_object location="$(EIFFEL_SRC)\framework\dotnet\il_emitter\Clib\C\spec\$ISE_C_COMPILER\$ISE_PLATFORM\lib\eif_bigdigits.lib">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_object>
+		<external_object location="$(EIFFEL_SRC)/framework/dotnet/il_emitter/Clib/C/spec/$(ISE_PLATFORM)/lib/eif_bigdigits.a">
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</external_object>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="base_extension" location="$ISE_LIBRARY\library\base_extension\base_extension.ecf"/>
+		<library name="crypto" location="$ISE_LIBRARY\unstable\library\text\encryption\crypto\crypto.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<library name="cli_kernel" location="$EIFFEL_SRC\framework\dotnet\cli_kernel\cli_kernel.ecf">
+			<renaming old_name="MD_STRONG_NAME" new_name="MD_STRONG_NAME_I"/>
+			<renaming old_name="MD_EMIT" new_name="MD_EMIT_I"/>
+			<renaming old_name="MD_DISPENSER" new_name="MD_DISPENSER_I"/>
+			<renaming old_name="DBG_WRITER" new_name="DBG_WRITER_I"/>
+			<renaming old_name="DBG_DOCUMENT_WRITER" new_name="DBG_DOCUMENT_WRITER_I"/>
+			<renaming old_name="CLI_DEBUG_DIRECTORY" new_name="CLI_DEBUG_DIRECTORY_I"/>
+			<renaming old_name="CLI_PE_FILE" new_name="CLI_PE_FILE_I"/>
+		</library>
+		<cluster name="il_emitter" location=".\src\" recursive="true">
+		</cluster>
+	</target>
+</system>

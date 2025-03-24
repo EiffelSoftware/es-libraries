@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="cli_kernel" uuid="F9452796-C7D8-11ED-8749-C7E9D60BEFB1" library_target="cli_kernel">
+	<target name="cli_kernel">
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/CVS$</exclude>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/\.git$</exclude>
+			<exclude>/\.svn$</exclude>
+		</file_rule>
+		<option warning="warning" manifest_array_type="mismatch_warning">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="base_extension" location="$ISE_LIBRARY\library\base_extension\base_extension.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<cluster name="interface" location=".\interface\" recursive="true"/>
+		<cluster name="metadata" location=".\metadata\" recursive="true"/>
+		<cluster name="constants" location=".\constants\" recursive="true"/>
+		<cluster name="misc" location=".\misc\" recursive="true">
+			<file_rule>
+				<exclude>/others$</exclude>
+				<exclude>/windows$</exclude>
+			</file_rule>
+			<cluster name="misc_windows" location="$|windows\" recursive="true">
+				<condition>
+					<platform value="windows"/>
+				</condition>
+			</cluster>
+			<cluster name="misc_others" location="$|others\" recursive="true">
+				<condition>
+					<platform excluded_value="windows"/>
+				</condition>
+			</cluster>
+		</cluster>
+	</target>
+	<target name="test_cli_kernel" extends="cli_kernel">
+		<root class="ANY" feature="default_create"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<library name="testing_base" location="$ISE_LIBRARY\library\base\base.ecf">
+			<option>
+				<assertions precondition="true" postcondition="true" supplier_precondition="true"/>
+			</option>
+		</library>
+		<cluster name="tests" location=".\testing\" recursive="true"/>
+	</target>
+</system>

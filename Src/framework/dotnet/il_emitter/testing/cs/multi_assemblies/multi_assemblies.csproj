@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="assembly2">
+      <HintPath>..\assembly2\bin\Debug\net6.0\assembly2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
