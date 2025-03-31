@@ -1,0 +1,168 @@
+		# Auto detect text files and perform LF normalization
+* text=auto
+.gitattributes text=crlf
+
+#
+# The above will handle all files NOT found below
+#
+
+# Documents
+*.bibtex   text diff=bibtex
+*.doc      diff=astextplain
+*.DOC      diff=astextplain
+*.docx     diff=astextplain
+*.DOCX     diff=astextplain
+*.dot      diff=astextplain
+*.DOT      diff=astextplain
+*.pdf      diff=astextplain
+*.PDF      diff=astextplain
+*.rtf      diff=astextplain
+*.RTF      diff=astextplain
+*.md       text diff=markdown
+*.mdx      text diff=markdown
+*.tex      text diff=tex
+*.adoc     text
+*.textile  text
+*.mustache text
+*.csv      text eol=crlf
+*.tab      text
+*.tsv      text
+*.txt      text
+*.sql      text
+*.epub     diff=astextplain
+
+# Graphics
+*.png      binary
+*.PNG      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.tif      binary
+*.tiff     binary
+*.ico      binary
+*.bmp      binary
+# SVG treated as text by default.
+*.svg      text
+# If you want to treat it as binary,
+# use the following line instead.
+# *.svg    binary
+*.eps      binary
+
+# Scripts
+*.bash     text eol=lf
+*.fish     text eol=lf
+*.ksh      text eol=lf
+*.sh       text eol=lf
+*.SH       text eol=lf
+*.zsh      text eol=lf
+# These are explicitly windows files and should use crlf
+*.bat      text eol=crlf
+*.btm      text eol=crlf
+*.cmd      text eol=crlf
+*.ps1      text eol=crlf
+
+# Code
+*.ecf		text
+*.ECF		text
+*.cfg		text
+*.eant 		text
+*.iron 		text
+Ace			text
+*.lic 		text
+*.e linguist-language=Eiffel
+*.E linguist-language=Eiffel
+*.y 		text
+*.l 		text
+*.cs 		diff=csharp
+*.idl 		text
+*.wxs 		text
+*.wiki 		text
+*.wixproj	text
+*.sed		text
+*.css		text
+*.xsl		text
+*.scss		text
+*.bpl		text=auto
+*.sql		text
+*.rc		text
+*.res		text
+*.conf		text
+
+# Others
+*.ttf		-text
+*.eot		-text
+*.woff		-text
+
+# Serialisation
+*.json     text
+*.toml     text
+*.xml      text
+*.xsd      text
+*.html      text
+*.yaml     text
+*.yml      text
+*.ini      text
+
+# Archives
+*.7z       binary
+*.bz       binary
+*.bz2      binary
+*.bzip2    binary
+*.gz       binary
+*.lz       binary
+*.lzma     binary
+*.rar      binary
+*.tar      binary
+*.taz      binary
+*.tbz      binary
+*.tbz2     binary
+*.tgz      binary
+*.tlz      binary
+*.txz      binary
+*.xz       binary
+*.Z        binary
+*.zip      binary
+*.zst      binary
+
+# Custom for Visual Studio
+*.sln    merge=union
+*.csproj merge=union
+*.deps texttext
+*.vbproj merge=union
+*.fsproj merge=union
+*.dbproj merge=union
+
+# Custom
+Jmakefile text
+*.cmake text
+*.exe binary
+*.dll binary
+*.EXE binary
+*.DLL binary
+*.OBJ binary
+*.lib binary
+*.LIB binary
+*.a binary
+*.so binary
+*.mo binary
+*.po text
+
+*.m4 text
+COPYING text
+README text
+CHANGES text
+Configure text
+dockerfile text
+BUGS text
+INSTALL text
+LICENSING text
+README text
+.htaccess text
+
+#
+# Exclude files from exporting
+#
+
+.gitattributes export-ignore
+.gitignore     export-ignore
+.gitkeep       export-ignore

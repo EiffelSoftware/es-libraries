@@ -1,0 +1,7 @@
+EIFGENs/
+.*.swp
+.*.swo
+*.pdb
+.vs/
+*.o
+*.obj
