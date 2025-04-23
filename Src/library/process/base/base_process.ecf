@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-22-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-22-0 http://www.eiffel.com/developers/xml/configuration-1-22-0.xsd" name="base_process" uuid="89096CFA-4BCB-4DC2-9755-9481954E2DCE" library_target="process">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="base_process" uuid="89096CFA-4BCB-4DC2-9755-9481954E2DCE" library_target="process">
 	<target name="process">
 		<description>Process library: Starting/Waiting for process as well as reading/writing to/from standard inputs.
 			Copyright (c) 1984-2021, Eiffel Software and others.
@@ -31,7 +31,20 @@
 		<assembly name="mscorlib_dll" location="$ISE_DOTNET_FRAMEWORK\mscorlib.dll">
 			<renaming old_name="WEAK_REFERENCE" new_name="SYSTEM_WEAK_REFERENCE"/>
 		</assembly>
-		<assembly name="system_dll" location="$ISE_DOTNET_FRAMEWORK\system.dll" prefix="SYSTEM_DLL_"/>
+		<namespace name="System.Runtime" prefix="SYSTEM_DLL_"/>
+		<namespace name="System.Diagnostics">
+			<renaming old_name="PROCESS" new_name="SYSTEM_DLL_PROCESS"/>
+			<renaming old_name="PROCESS_START_INFO" new_name="SYSTEM_DLL_PROCESS_START_INFO"/>
+			<renaming old_name="PROCESS_WINDOW_STYLE" new_name="SYSTEM_DLL_PROCESS_WINDOW_STYLE"/>
+			<renaming old_name="PERFORMANCE_COUNTER" new_name="SYSTEM_DLL_PERFORMANCE_COUNTER"/>
+			<renaming old_name="PERFORMANCE_COUNTER_CATEGORY" new_name="SYSTEM_DLL_PERFORMANCE_COUNTER_CATEGORY"/>
+		</namespace>
+		
+		<assembly name="system" location="$ISE_DOTNET_FRAMEWORK\System.dll"/>
+		<assembly name="system_runtime" location="$ISE_DOTNET_FRAMEWORK\System.Runtime.dll"/>
+		<assembly name="system_diagnostics_process" location="$ISE_DOTNET_FRAMEWORK\System.Diagnostics.Process.dll"/>
+		<assembly name="system_diagnostics_performance_counter" location="$ISE_DOTNET_PACKS\Microsoft.WindowsDesktop.App.Ref\$ISE_DOTNET_VERSION\ref\$ISE_DOTNET_TFM\System.Diagnostics.PerformanceCounter.dll"/>
+		
 		<cluster name="dotnet" location="platform\dotnet\" recursive="true">
 			<condition>
 				<dotnet value="true"/>
