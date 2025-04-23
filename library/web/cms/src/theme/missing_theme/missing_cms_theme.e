@@ -10,7 +10,6 @@ class
 	MISSING_CMS_THEME
 
 inherit
-
 	CMS_THEME
 
 create
@@ -47,9 +46,19 @@ feature -- Access
 	page_html (page: CMS_HTML_PAGE): STRING_8
 		do
 			to_implement ("Add a better response message, maybe using smarty template")
-			Result := "Service Unavailable (missing theme!)"
+			create Result.make_empty
+			Result.append ("Service Unavailable: ")
+			Result.append (name)
+			if attached information.item ("name") as l_missing_theme_name then
+				Result.append (" [")
+				Result.append (utf_8_encoded (l_missing_theme_name))
+				Result.append ("]")
+			end
+			Result.append (" engine=")
+			Result.append (utf_8_encoded (information.engine))
+			Result.append ("!)")
 		end
 note
-	copyright: "2011-2017, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
