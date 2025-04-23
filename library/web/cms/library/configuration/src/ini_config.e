@@ -103,6 +103,12 @@ feature {NONE} -- Initialization
 			sections.wipe_out
 		end
 
+	report_error (msg: STRING)
+		do
+			has_error := True
+			-- io.error.put_string ("[ERROR] " + msg + "%N")
+		end
+
 feature -- Status report
 
 	has_item  (k: READABLE_STRING_GENERAL): BOOLEAN
@@ -400,7 +406,7 @@ feature {NONE} -- Implementation
 		do
 			l_old_associated_path := associated_path
 			if retried then
-				has_error := True
+				report_error ("import_path ["+ p.utf_8_name +"] retried")
 			else
 				associated_path := p
 				l_last_section_name := last_section_name
@@ -418,7 +424,7 @@ feature {NONE} -- Implementation
 					f.close
 				else
 						-- File not readable
-					has_error := True
+					report_error ("file not readable ["+ p.utf_8_name +"]")
 				end
 			end
 			last_section_name := l_last_section_name
@@ -526,7 +532,7 @@ feature {NONE} -- Implementation
 								obj := tb
 							else
 									-- Error missing closing ']'
-								has_error := True
+								report_error ("missing closing ']'")
 							end
 						else
 							record_item (v, k, a_section_prefix)
@@ -539,7 +545,7 @@ feature {NONE} -- Implementation
 					end
 				else
 						-- Error
-					has_error := True
+					report_error (" ???")
 				end
 			end
 		end
