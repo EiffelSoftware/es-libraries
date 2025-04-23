@@ -495,7 +495,7 @@ feature {NONE} -- Termination
 					i > l_upper
 				loop
 					if attached l_process_list.item (i) as l_process_name then
-						create l_performance_counter.make_with_category_name (once "Process", once "ID Process", l_process_name, True)
+						create l_performance_counter.make_from_category_name_and_counter_name_and_instance_name_and_read_only (once "Process", once "ID Process", l_process_name, True)
 						l_prc_name_id_tbl.force (l_performance_counter.raw_value.as_integer_32, l_process_name)
 					end
 					i := i + 1
