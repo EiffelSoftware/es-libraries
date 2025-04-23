@@ -10,12 +10,12 @@ class
 
 feature -- Access
 
-	file_modified_date (a_path: STRING): INTEGER
+	file_modified_date (a_path: READABLE_STRING_GENERAL): INTEGER
 			-- Get last modified timestamp of `a_path'.
 		local
 			l_file: RAW_FILE
 		do
-			create l_file.make (a_path)
+			create l_file.make_with_name (a_path)
 			if l_file.exists then
 				Result := l_file.change_date
 			else
@@ -24,6 +24,23 @@ feature -- Access
 		ensure
 			file_modified_date_valid: Result >= -1
 		end
+
+	file_path_modified_date (a_path: PATH): INTEGER
+			-- Get last modified timestamp of `a_path'.
+		require
+			a_path_set: a_path /= Void and then not a_path.is_empty
+		local
+			f: RAW_FILE
+		do
+			create f.make_with_path (a_path)
+			if f.exists then
+				Result := f.date
+			else
+				Result := -1
+			end
+		ensure
+			file_modified_date_valid: Result >= -1
+		end		
 
 note
 	copyright:	"Copyright (c) 1984-2006, Eiffel Software"
