@@ -206,10 +206,73 @@ feature {NONE} -- Dispatch implementation
 		do
 			l_req_method := request_method (req)
 			router_dispatch_for_request_method (req, res, sess, l_req_method)
-			if not sess.dispatched and l_req_method = {HTTP_REQUEST_METHODS}.method_head then
+			if not sess.dispatched and l_req_method = {HTTP_REQUEST_METHODS}.method_options then
+				router_process_options_request_method (req, res, sess)
+			end
+			if
+				l_req_method = {HTTP_REQUEST_METHODS}.method_head and then
+				not sess.dispatched
+			then
 				create head_res.make_from_response (res)
 				req.set_request_method ({HTTP_REQUEST_METHODS}.method_GET)
 				router_dispatch_for_request_method (req, head_res, sess, {HTTP_REQUEST_METHODS}.method_GET)
+			end
+		end
+
+	router_process_options_request_method (req: WSF_REQUEST; res: WSF_RESPONSE; sess: WSF_ROUTER_SESSION)
+			-- Respond to OPTIONS http request, when the Current router has no matching mapping.
+			-- note: this the default behavior, and avoid handling this OPTIONS request for each handler.
+			--       but if a mapping is set for the OPTIONS method, it will be executed instead of this feature.
+		require
+			req_attached: req /= Void
+			is_options_request_method: req.is_options_request_method
+			res_attached: res /= Void
+			sess_attached: sess /= Void
+			sess_not_dispatched: not sess.dispatched
+		local
+			m: WSF_ROUTER_MAPPING
+			p: like path_to_dispatch
+			l_info: WSF_ROUTER_ITEM
+			mtds: WSF_REQUEST_METHODS
+			hdl: WSF_HANDLER
+			l_options_response: WSF_OPTIONS_RESPONSE
+			h: HTTP_HEADER
+		do
+			p := path_to_dispatch (req)
+			across
+				mappings as c
+			loop
+				l_info := c.item
+				if
+					l_info /= Void and then
+					attached l_info.request_methods as l_info_rqst_mtds
+				then
+					m := l_info.mapping
+					if m.is_mapping (p, req, Current) then
+						if hdl = Void then
+							hdl := m.handler
+						end
+						if mtds = Void then
+							mtds := l_info_rqst_mtds
+						else
+							mtds := mtds + l_info_rqst_mtds
+						end
+					end
+				end
+			end
+			if mtds /= Void and hdl /= Void then
+				create l_options_response.make (req)
+				h := l_options_response.header
+				h.put_allow (mtds)
+				h.put_access_control_allow_methods (mtds)
+				h.put_access_control_allow_all_origin
+--				h.put_access_control_allow_credentials (True)
+				if attached req.http_access_control_request_headers as l_headers then
+					h.put_access_control_allow_headers (l_headers)
+				end
+				h.put_header_key_value ("X-Dbg-Handler", hdl.generator)
+				res.send (l_options_response)
+				sess.set_dispatched_handler (hdl)
 			end
 		end
 
@@ -226,6 +289,7 @@ feature {NONE} -- Dispatch implementation
 		local
 			m: WSF_ROUTER_MAPPING
 			p: like path_to_dispatch
+			l_info: WSF_ROUTER_ITEM
 		do
 			p := path_to_dispatch (req)
 			across
@@ -233,7 +297,8 @@ feature {NONE} -- Dispatch implementation
 			until
 				sess.dispatched
 			loop
-				if attached c.item as l_info then
+				l_info := c.item
+				if l_info /= Void then
 					if is_matching_request_methods (a_request_method, l_info.request_methods) then
 						m := l_info.mapping
 						m.try (p, req, res, sess, Current)
@@ -519,7 +584,7 @@ feature -- Request methods helper
 			Result.lock
 		ensure
 			methods_get_put_not_void: Result /= Void
-		end		
+		end
 
 	methods_get_put_delete: WSF_REQUEST_METHODS
 		once ("THREAD")
@@ -613,7 +678,7 @@ invariant
 	pre_execution_actions_attached: pre_execution_actions /= Void
 
 note
-	copyright: "2011-2017, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Alexander Kogtenkov, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

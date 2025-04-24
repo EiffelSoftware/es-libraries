@@ -35,6 +35,11 @@ inherit
 			default_create
 		end
 
+	DEBUG_OUTPUT
+		redefine
+			default_create
+		end
+
 create
 	default_create,
 	make,
@@ -172,6 +177,22 @@ feature -- Status report
 			-- Has method PATCH been enabled?
 		do
 			Result := has (method_patch)
+		end
+
+feature -- Status report
+
+	debug_output: STRING_8
+			-- String that should be displayed in debugger to represent `Current'.
+		do
+			create Result.make_empty
+			across
+				methods as ic
+			loop
+				if not Result.is_empty then
+					Result.append_character (',')
+				end
+				Result.append_string (ic.item)
+			end
 		end
 
 feature -- Access
@@ -499,7 +520,7 @@ invariant
 	methods_are_uppercase: across methods as c all c.item.same_string (c.item.as_upper) end
 
 ;note
-	copyright: "2011-2013, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Alexander Kogtenkov, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
