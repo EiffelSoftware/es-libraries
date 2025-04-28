@@ -321,6 +321,9 @@ feature -- Settings: router
 
 				-- www folder. Should we keep this??
 			create fhdl.make_hidden_with_path (setup.environment.www_path)
+			if attached setup.string_8_item ("www.header.access_control_allow_origin") as l_allow_all_origin then
+				fhdl.set_access_control_allow_origin (l_allow_all_origin)
+			end
 			fhdl.disable_index
 			fhdl.set_not_found_handler (l_not_found_handler_agent)
 			a_router.handle ("/", fhdl, router.methods_GET)
@@ -513,7 +516,7 @@ feature -- Execution
 		end
 
 note
-	copyright: "2011-2024, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
