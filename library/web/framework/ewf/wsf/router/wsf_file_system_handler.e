@@ -110,7 +110,14 @@ feature -- Access
 
 	access_denied_handler: detachable PROCEDURE [TUPLE [uri: READABLE_STRING_8; req: WSF_REQUEST; res: WSF_RESPONSE]]
 
+	access_control_allow_origin: detachable READABLE_STRING_8
+
 feature -- Element change
+
+	set_access_control_allow_origin (v: detachable READABLE_STRING_8)
+		do
+			access_control_allow_origin := v
+		end
 
 	enable_index
 		do
@@ -336,6 +343,7 @@ feature -- Execution
 				)
 
 				create h.make
+				update_header (h)
 				h.put_content_type_utf_8_text_html
 				res.set_status_code ({HTTP_STATUS_CODE}.ok)
 				h.put_content_length (s.count)
@@ -392,8 +400,8 @@ feature -- Execution
 				end
 				fres.set_expires_date (dt)
 			end
-
 			fres.set_answer_head_request_method (req.request_method.same_string ({HTTP_REQUEST_METHODS}.method_head))
+			update_header (fres.header)
 			res.send (fres)
 		end
 
@@ -416,6 +424,7 @@ feature -- Execution
 			if a_utc_date /= Void then
 				h.put_last_modified (a_utc_date)
 			end
+			update_header (h)
 			res.set_status_code ({HTTP_STATUS_CODE}.not_modified)
 			res.put_header_lines (h)
 			res.flush
@@ -434,6 +443,7 @@ feature -- Execution
 				create s.make_empty
 				s.append ("Resource %"" + uri + "%" not found%N")
 				res.set_status_code ({HTTP_STATUS_CODE}.not_found)
+				update_header (h)
 				h.put_content_length (s.count)
 				res.put_header_lines (h)
 				res.put_string (s)
@@ -454,6 +464,7 @@ feature -- Execution
 				create s.make_empty
 				s.append ("Resource %"" + uri + "%": Access denied%N")
 				res.set_status_code ({HTTP_STATUS_CODE}.forbidden)
+				update_header (h)
 				h.put_content_length (s.count)
 				res.put_header_lines (h)
 				res.put_string (s)
@@ -474,6 +485,7 @@ feature -- Execution
 				create s.make_empty
 				s.append ("Directory index %"" + uri + "%": Access denied%N")
 				res.set_status_code ({HTTP_STATUS_CODE}.forbidden)
+				update_header (h)
 				h.put_content_length (s.count)
 				res.put_header_lines (h)
 				res.put_string (s)
@@ -482,6 +494,14 @@ feature -- Execution
 		end
 
 feature {NONE} -- Implementation
+
+	update_header (h: HTTP_HEADER)
+			-- Update header for global behavior.
+		do
+			if attached access_control_allow_origin as v then
+				h.put_access_control_allow_origin (v)
+			end
+		end
 
 	directory_index_file (d: DIRECTORY): detachable FILE
 		local
@@ -654,7 +674,7 @@ feature {NONE} -- implementation: date time
 		end
 
 note
-	copyright: "2011-2020, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Alexander Kogtenkov, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
