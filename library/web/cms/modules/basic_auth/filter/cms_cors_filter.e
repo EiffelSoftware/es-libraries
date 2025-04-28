@@ -7,7 +7,6 @@ class
 	CMS_CORS_FILTER
 
 inherit
-
 	WSF_FILTER
 
 feature -- Basic operations
@@ -18,10 +17,12 @@ feature -- Basic operations
 			l_header: HTTP_HEADER
 		do
 			create l_header.make
---			l_header.add_header_key_value ("Access-Control-Allow-Origin", "localhost")
-			l_header.add_header_key_value ("Access-Control-Allow-Headers", "*")
-			l_header.add_header_key_value ("Access-Control-Allow-Methods", "*")
-			l_header.add_header_key_value ("Access-Control-Allow-Credentials", "true")
+--			l_header.put_header_key_value ("Access-Control-Allow-Origin", "localhost")
+--			l_header.put_access_control_allow_all_origin
+			l_header.put_access_control_allow_headers ("*")
+			l_header.put_access_control_allow_methods (<<"*">>)
+			l_header.put_access_control_allow_credentials (True)
+
 			res.put_header_lines (l_header)
 			execute_next (req, res)
 		end
