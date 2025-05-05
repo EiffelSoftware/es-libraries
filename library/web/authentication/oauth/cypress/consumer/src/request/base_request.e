@@ -108,7 +108,7 @@ feature -- Access
 
 	body_parameters: OAUTH_PARAMETER_LIST
 
-	headers: HASH_TABLE [STRING_8, STRING_8]
+	headers: HASH_TABLE [READABLE_STRING_8, READABLE_STRING_8]
 
 	payload: detachable STRING
 
@@ -117,7 +117,7 @@ feature -- Access
 	upload_file: detachable READABLE_STRING_GENERAL
 			-- File to be uploaded.
 
-	form_parameters: HASH_TABLE [STRING_8, STRING_8]
+	form_parameters: HASH_TABLE [READABLE_STRING_8, READABLE_STRING_8]
 
 feature -- Change Element
 
@@ -182,7 +182,7 @@ feature {NONE} -- Implementation
 				add_headers (l_executor)
 				if verb.same_string (method_put) or else verb.same_string (method_post) then
 					if not body_contents.is_empty then
-						l_executor.set_body (body_contents.as_string_8)
+						l_executor.set_body (body_contents)
 						l_executor.context_executor.add_header (content_length, body_contents.count.out)
 					end
 					if attached  upload_file then
@@ -236,7 +236,7 @@ feature {NONE} -- Implementation
 		require
 			is_valid_uri : is_valid_uri (a_string)
 		do
-			create Result.make_from_string (a_string.as_string_8)
+			create Result.make_from_string (a_string.to_string_8)
 		end
 
 note

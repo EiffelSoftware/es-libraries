@@ -35,7 +35,9 @@ feature -- Parser
 			-- in the params dictionary, filling it in with a proper default if
 			-- necessary.
 		do
-			fixme ("Improve the code!!!")
+			debug ("refactor_fixme")
+				fixme ("Improve the code!!!")
+			end
 			create Result.make_from_string (a_range)
 			if attached Result.parameter ("q") as q then
 				if
@@ -91,7 +93,9 @@ feature -- Parser
 			l_res := header.split (',')
 			create {ARRAYED_LIST [HTTP_MEDIA_TYPE]} l_header_results.make (l_res.count)
 
-			fixme("Extract method!!!")
+			debug ("refactor_fixme")
+				fixme("Extract method!!!")
+			end
 			from
 				l_res.start
 			until

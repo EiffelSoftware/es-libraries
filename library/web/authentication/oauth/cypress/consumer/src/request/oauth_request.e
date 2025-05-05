@@ -28,7 +28,7 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	oauth_parameters: HASH_TABLE [STRING_8, STRING_8]
+	oauth_parameters: HASH_TABLE [READABLE_STRING_8, READABLE_STRING_8]
 			-- Oauth oauth_parameters
 
 	is_valid_key (key: READABLE_STRING_GENERAL): BOOLEAN

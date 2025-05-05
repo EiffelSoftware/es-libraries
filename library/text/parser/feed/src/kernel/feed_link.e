@@ -35,7 +35,7 @@ feature -- Element change
 			if rel = Void then
 				relation := ""
 			else
-				relation := rel.as_string_8
+				relation := rel.to_string_32
 			end
 		end
 
@@ -44,7 +44,7 @@ feature -- Element change
 			if a_type = Void then
 				type := Void
 			else
-				type := a_type.as_string_8
+				type := {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (a_type)
 			end
 		end
 

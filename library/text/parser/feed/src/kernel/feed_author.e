@@ -32,7 +32,7 @@ feature -- Element change
 			if a_email = Void then
 				email := Void
 			elseif a_email.is_valid_as_string_8 then
-				email := a_email.as_string_8
+				email := a_email.to_string_8
 			else
 				email := Void
 			end
