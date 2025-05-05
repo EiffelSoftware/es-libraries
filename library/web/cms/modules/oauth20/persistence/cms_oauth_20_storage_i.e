@@ -42,7 +42,7 @@ feature -- Access: Users
 
 feature -- Access: Consumers
 
-	oauth2_consumers: LIST [STRING]
+	oauth2_consumers: LIST [READABLE_STRING_8]
 		deferred
 		end
 

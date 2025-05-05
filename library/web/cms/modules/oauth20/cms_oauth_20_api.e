@@ -81,7 +81,7 @@ feature -- Access: Oauth20
 
 feature -- Access: Consumers OAuth20
 
-	oauth2_consumers: LIST [STRING]
+	oauth2_consumers: LIST [READABLE_STRING_8]
 			-- List of Oauth_20 consumers, if any, empty in other case.
 		do
 			Result := oauth_20_storage.oauth2_consumers

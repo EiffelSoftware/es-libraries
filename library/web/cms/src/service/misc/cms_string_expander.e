@@ -273,7 +273,7 @@ feature {NONE} -- Implementation
 
 	value_to_string_8 (s: G): STRING_8
 		local
-			utf: expanded UTF_CONVERTER
+			utf: UTF_CONVERTER
 		do
 			if attached {READABLE_STRING_8} s as s8 then
 				Result := s8.to_string_8
@@ -295,6 +295,6 @@ feature {NONE} -- Implementation
 		end
 
 ;note
-	copyright: "2011-2024, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
