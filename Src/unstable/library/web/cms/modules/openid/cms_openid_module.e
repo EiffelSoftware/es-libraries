@@ -222,7 +222,7 @@ feature -- Hooks
 			elseif req.is_post_request_method then
 				create s.make_empty
 				if attached req.string_item ("openid") as p_openid then
-					s.append ("Check openID: " + p_openid)
+					s.append ("Check openID: " + utf_8_encoded (p_openid))
 					create o.make (req.absolute_script_url ("/account/auth/login-with-openid"))
 					o.ask_email (True)
 					o.ask_all_info (False)
@@ -307,7 +307,7 @@ feature -- Openid Login
 			then
 				create {GENERIC_VIEW_CMS_RESPONSE} r.make (req, res, api)
 				create b.make_empty
-				b.append ("Check openID: " + p_openid.value)
+				b.append ("Check openID: " + utf_8_encoded (p_openid.value))
 				create o.make (req.absolute_script_url ("/account/auth/openid-callback"))
 				o.ask_email (True)
 				o.ask_all_info (False)

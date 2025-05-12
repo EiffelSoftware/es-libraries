@@ -43,7 +43,7 @@ feature -- Basic operations
 				if attached openid_api.user_openid_by_identity (l_roc_openid_session_token.value) as l_user then
 					set_current_user (l_user)
 				else
-					api.logger.put_error (generator + ".execute login_valid failed for: " + l_roc_openid_session_token.value , Void)
+					api.logger.put_error (generator + ".execute login_valid failed for: " + api.utf_8_encoded (l_roc_openid_session_token.value), Void)
 				end
 			end
 			execute_next (req, res)

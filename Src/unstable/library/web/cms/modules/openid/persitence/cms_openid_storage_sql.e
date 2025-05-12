@@ -77,11 +77,11 @@ feature -- Access User Outh
 
 feature --Access: Consumers	
 
-	openid_consumers: LIST [STRING]
+	openid_consumers: LIST [READABLE_STRING_8]
 			-- Return a list of consumers, or empty
 		do
 			error_handler.reset
-			create {ARRAYED_LIST [STRING]} Result.make (0)
+			create {ARRAYED_LIST [READABLE_STRING_8]} Result.make (0)
 			write_information_log (generator + ".openid_consumers")
 			sql_query (Sql_openid_consumers, Void)
 			if not has_error then
@@ -90,7 +90,7 @@ feature --Access: Consumers
 				until
 					sql_after or has_error
 				loop
-					if attached sql_read_string (1) as l_name then
+					if attached sql_read_string_8 (1) as l_name then
 						Result.force (l_name)
 					end
 					sql_forth

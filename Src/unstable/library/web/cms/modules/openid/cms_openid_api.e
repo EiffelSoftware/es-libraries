@@ -68,7 +68,7 @@ feature -- Access: User Openid
 
 feature -- Access: Consumers OAuth20
 
-	openid_consumers: LIST [STRING]
+	openid_consumers: LIST [READABLE_STRING_8]
 			-- List of Openid consumers, if any, empty in other case.
 		do
 			Result := openid_storage.openid_consumers

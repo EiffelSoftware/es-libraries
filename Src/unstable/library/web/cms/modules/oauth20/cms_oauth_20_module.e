@@ -304,12 +304,12 @@ feature {NONE} -- Associate
 
 	associate_account (a_user: CMS_USER; a_value: CMS_VALUE_TABLE)
 		local
-			l_associated: LIST [STRING]
-			l_not_associated: LIST [STRING]
+			l_associated: LIST [READABLE_STRING_8]
+			l_not_associated: LIST [READABLE_STRING_8]
 		do
 			if attached oauth20_api as l_oauth_api then
-				create {ARRAYED_LIST [STRING]} l_associated.make (1)
-				create {ARRAYED_LIST [STRING]} l_not_associated.make (1)
+				create {ARRAYED_LIST [READABLE_STRING_8]} l_associated.make (1)
+				create {ARRAYED_LIST [READABLE_STRING_8]} l_not_associated.make (1)
 				across l_oauth_api.oauth2_consumers as ic loop
 					if attached l_oauth_api.user_oauth2_by_user_id (a_user.id, ic.item) then
 						l_associated.force (ic.item)

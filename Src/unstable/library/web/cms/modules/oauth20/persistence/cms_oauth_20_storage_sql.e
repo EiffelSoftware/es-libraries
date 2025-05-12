@@ -24,7 +24,7 @@ feature -- Access User Outh
 	user_oauth2_without_consumer_by_token (a_token: READABLE_STRING_GENERAL): detachable CMS_USER
 			-- Retrieve user by token `a_token' searching in all the registered consumers in the system.
 		local
-			l_list: LIST [STRING]
+			l_list: LIST [READABLE_STRING_8]
 		do
 			error_handler.reset
 			l_list := oauth2_consumers
@@ -112,11 +112,11 @@ feature -- Access User Outh
 
 feature --Access: Consumers	
 
-	oauth2_consumers: LIST [STRING]
+	oauth2_consumers: LIST [READABLE_STRING_8]
 			-- Return a list of consumers, or empty
 		do
 			error_handler.reset
-			create {ARRAYED_LIST [STRING]} Result.make (0)
+			create {ARRAYED_LIST [READABLE_STRING_8]} Result.make (0)
 			sql_query (Sql_oauth_consumers, Void)
 			if not has_error then
 				from

@@ -32,7 +32,7 @@ feature -- Access: Users
 
 feature -- Access: Consumers
 
-	openid_consumers: LIST [STRING]
+	openid_consumers: LIST [READABLE_STRING_8]
 			-- Return a list of consumers, or empty
 		deferred
 		end
