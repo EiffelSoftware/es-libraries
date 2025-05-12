@@ -19,7 +19,7 @@ feature -- Extractor
 		require else
 			has_oauth_parameters: not request.oauth_parameters.is_empty
 		local
-			l_parameters: HASH_TABLE [STRING_8, STRING_8]
+			l_parameters: HASH_TABLE [READABLE_STRING_8, READABLE_STRING_8]
 			l_element: STRING_8
 			l_encoder: OAUTH_ENCODER
 		do
@@ -53,7 +53,7 @@ feature {NONE} -- Implementation
 	Header_template: STRING = "$KEY=%"$VALUE%""
 
 note
-	copyright: "2013-2015, Javier Velilla, Jocelyn Fiat, Eiffel Software and others"
+	copyright: "2013-2025, Javier Velilla, Jocelyn Fiat, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
