@@ -71,7 +71,7 @@ feature -- Execution
 						add_user_links_to (l_user, rep)
 					else
 						rep := new_error_response ("denied", req, res)
-						rep.set_status_code ({HTTP_STATUS_CODE}.user_access_denied)
+						rep.set_status_code ({HTTP_STATUS_CODE}.forbidden)
 					end
 				else
 					rep := new_error_response ("Not found", req, res)
@@ -86,6 +86,6 @@ feature -- Execution
 
 
 note
-	copyright: "2011-2022, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

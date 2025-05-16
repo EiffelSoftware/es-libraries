@@ -181,7 +181,7 @@ feature -- Request execution
 						l_form.append_to_html (rep.wsf_theme, s)
 
 						rep.set_main_content (s)
-						rep.add_to_primary_tabs (api.local_link ("JWT Tokens", req.percent_encoded_path_info))
+						rep.add_to_primary_tabs (api.local_link ("JWT Tokens", rep.location))
 						rep.execute
 					else
 							-- Only admin, or current user can see its access_token!
@@ -226,7 +226,7 @@ feature -- Request execution
 								rep.add_success_message ("Token discarded.")
 								rep.set_redirection (req.percent_encoded_path_info)
 							end
-							rep.add_to_primary_tabs (api.local_link ("JWT Tokens", req.percent_encoded_path_info))
+							rep.add_to_primary_tabs (api.local_link ("JWT Tokens", rep.location))
 							rep.execute
 						elseif attached req.form_parameter ("op") as p_op and then p_op.same_string (but_revoke_all_text) then
 							rep := new_generic_response (req, res)
@@ -240,7 +240,7 @@ feature -- Request execution
 								rep.add_success_message ("All Tokens discarded.")
 								rep.set_redirection (req.percent_encoded_path_info)
 							end
-							rep.add_to_primary_tabs (api.local_link ("JWT Tokens", req.percent_encoded_path_info))
+							rep.add_to_primary_tabs (api.local_link ("JWT Tokens", rep.location))
 							rep.execute
 						elseif attached req.form_parameter ("op") as p_op and then p_op.same_string (but_create_new_token_text) then
 							rep := new_generic_response (req, res)
@@ -254,7 +254,7 @@ feature -- Request execution
 								rep.add_success_message ("New token created.")
 								rep.set_redirection (req.percent_encoded_path_info)
 							end
-							rep.add_to_primary_tabs (api.local_link ("JWT Tokens", req.percent_encoded_path_info))
+							rep.add_to_primary_tabs (api.local_link ("JWT Tokens", rep.location))
 							rep.execute
 						elseif attached req.form_parameter ("op") as p_op and then p_op.same_string (but_create_new_magic_link_text) then
 							if api.user_has_permission (l_user, {JWT_AUTH_MODULE}.perm_use_magic_login) then
@@ -275,7 +275,7 @@ feature -- Request execution
 								else
 									rep.add_error_message ("Error when trying to create a new magic link !")
 								end
-								rep.add_to_primary_tabs (api.local_link ("JWT Tokens", req.percent_encoded_path_info))
+								rep.add_to_primary_tabs (api.local_link ("JWT Tokens", rep.location))
 								rep.execute
 							else
 								send_access_denied (req, res)

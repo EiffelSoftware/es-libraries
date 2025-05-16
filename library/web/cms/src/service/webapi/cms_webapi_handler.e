@@ -110,7 +110,7 @@ feature -- Factory
 			else
 				Result := new_error_response (m, req, res)
 			end
-			Result.set_status_code ({HTTP_STATUS_CODE}.user_access_denied)
+			Result.set_status_code ({HTTP_STATUS_CODE}.forbidden)
 		end
 
 	new_bad_request_error_response (m: detachable READABLE_STRING_GENERAL; req: WSF_REQUEST; res: WSF_RESPONSE): like new_response
@@ -135,6 +135,6 @@ feature {NONE} -- Builder
 		end
 
 note
-	copyright: "2011-2024, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
