@@ -12,7 +12,7 @@
 		</option>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<cluster name="src" location=".\src\">
-			<cluster name="implementation" location="$|implementation\" hidden="true"/>
+			<cluster name="encoding" location="$|encoding\"/>
 		</cluster>
 	</target>
 </system>
