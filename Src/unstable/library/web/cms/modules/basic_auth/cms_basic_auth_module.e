@@ -98,11 +98,6 @@ feature -- Access: auth strategy
 			end
 		end
 
-feature {CMS_API} -- Access: API
-
-	oauth20_api: detachable CMS_AUTH_API_I
-			-- <Precursor>
-
 feature -- Access: filter
 
 	filters (a_api: CMS_API): detachable LIST [WSF_FILTER]
