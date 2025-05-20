@@ -155,13 +155,9 @@ feature -- Visitor
 				description_enabled and then
 				attached a_entry.description as l_entry_desc
 			then
-				if l_entry_desc.is_valid_as_string_8 then
-					append ("<div class=%"description%">")
-					append (l_entry_desc.as_string_8)
-					append ("</div>%N")
-				else
-					check is_html: False end
-				end
+				append ("<div class=%"description%">")
+				append_as_html_encoded (l_entry_desc)
+				append ("</div>%N")
 			end
 			append ("</li>%N")
 		end

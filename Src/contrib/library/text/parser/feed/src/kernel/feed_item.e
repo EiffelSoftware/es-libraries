@@ -149,8 +149,10 @@ feature -- Element change
 				create content.make_from_string_general (a_content)
 				if a_type = Void then
 					content_type := Void
+				elseif a_type.is_valid_as_string_8 then
+					content_type := a_type.to_string_8
 				else
-					content_type := a_type.as_string_8
+					content_type := {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (a_type)
 				end
 			end
 		end

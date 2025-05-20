@@ -55,7 +55,7 @@ feature -- Access
 						lnk.set_type (xml_attribute_text (x_link, "type"))
 						Result.force (lnk)
 					elseif attached x_link.text as l_url and then not l_url.is_whitespace then
-						create lnk.make (l_url)
+						create lnk.make (l_url.to_string_8)
 						Result.force (lnk)
 					end
 				end
