@@ -43,8 +43,13 @@ feature -- Evaluation
 			exp: like expression
 			l_path: READABLE_STRING_GENERAL
 			kmp: KMP_WILD
+			is_neg: BOOLEAN
 		do
 			exp := expression
+			if exp.starts_with ("!") then
+				is_neg := True
+				exp := exp.substring (2, exp.count)
+			end
 			if exp.same_string ("is_front") then
 				Result := res.is_front
 			elseif exp.same_string ("*") then
@@ -67,9 +72,12 @@ feature -- Evaluation
 					Result := l_path.same_string (res.location)
 				end
 			end
+			if is_neg then
+				Result := not Result
+			end
 		end
 
 note
-	copyright: "2011-2020, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
