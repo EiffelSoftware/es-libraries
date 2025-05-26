@@ -228,7 +228,47 @@ feature -- Url
 			Result := html_encoded (a_text)
 		end
 
+	parent_location_of (loc: IMMUTABLE_STRING_8): STRING_8
+			-- Parent location of `loc`.
+		local
+			s: STRING_8
+			p: INTEGER
+			n: INTEGER
+		do
+			create s.make_from_string (loc)
+			from
+				n := s.count
+			until
+				n = 0 or else s [n] /= '/'
+			loop
+				n := n - 1
+			end
+			p := s.last_index_of ('/', n)
+			if p > 0 then
+				Result := s.head (p - 1)
+			else
+				Result := s.head (n)
+			end
+		end
+
+	joined_paths (a_parts: ITERABLE [READABLE_STRING_8]): STRING_8
+			-- Join the given path
+			-- for instance: "abc", "def" will result "abc/def"
+		do
+			create Result.make_empty
+			across
+				a_parts as ic
+			loop
+				if not Result.is_empty then
+					if Result [Result.count] /= '/' then
+						Result.append_character ('/')
+					end
+				end
+				Result.append (ic.item)
+			end
+		end
+
 note
-	copyright: "2011-2022, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

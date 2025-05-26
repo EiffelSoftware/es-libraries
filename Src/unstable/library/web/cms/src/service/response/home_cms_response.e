@@ -30,9 +30,10 @@ feature -- Execution
 		do
 			set_title (Void)
 			set_page_title (Void)
+			set_page_class_css ("frontpage") -- Mark page as front page
 		end
 note
-	copyright: "2011-2017, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
 
