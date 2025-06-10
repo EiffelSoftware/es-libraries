@@ -99,6 +99,10 @@ feature -- Access
 	index_disabled: BOOLEAN
 			-- Index disabled?
 
+	directory_index_disabled: BOOLEAN
+			-- Directory index enabled?
+			-- i.e: index.html, ... see `directory_index`
+
 	index_ignores_function: detachable FUNCTION [PATH, BOOLEAN]
 			-- Function to evaluate if a path is ignored or not during autoindex.
 			-- If `index_ignores' is Void and `index_ignores_function' is Void, use default ignore rules.
@@ -127,6 +131,16 @@ feature -- Element change
 	disable_index
 		do
 			index_disabled := True
+		end
+
+	disable_directory_index
+		do
+			directory_index_disabled := True
+		end
+
+	enable_directory_index
+		do
+			directory_index_disabled := False
 		end
 
 	set_max_age (a_seconds: like max_age)
@@ -227,7 +241,11 @@ feature -- Execution
 				if f.is_access_readable then
 					if f.is_directory then
 						if index_disabled then
-							process_directory_index_disabled (uri, req, res)
+							if directory_index_disabled then
+								process_directory_index_disabled (uri, fn, req, res)
+							else
+								process_directory_index (uri, fn, req, res)
+							end
 						elseif uri.ends_with ("/") then
 							process_index (uri, fn, req, res)
 						else
@@ -241,6 +259,23 @@ feature -- Execution
 				end
 			else
 				process_not_found (uri, req, res)
+			end
+		end
+
+	process_directory_index (a_uri: READABLE_STRING_8; dn: PATH; req: WSF_REQUEST; res: WSF_RESPONSE)
+		require
+			index_disabled: index_disabled
+		local
+			d: DIRECTORY
+		do
+			create d.make_with_path (dn)
+			d.open_read
+			if attached directory_index_file (d) as f then
+				process_file (f, req, res)
+				d.close
+			else
+				d.close
+				process_directory_index_disabled (a_uri, dn, req, res)
 			end
 		end
 
@@ -472,7 +507,7 @@ feature -- Execution
 			end
 		end
 
-	process_directory_index_disabled (uri: READABLE_STRING_8; req: WSF_REQUEST; res: WSF_RESPONSE)
+	process_directory_index_disabled (uri: READABLE_STRING_8; dn: PATH; req: WSF_REQUEST; res: WSF_RESPONSE)
 		local
 			h: HTTP_HEADER
 			s: STRING_8
