@@ -15,7 +15,7 @@ create {CMS_AUTHENTICATION_MODULE}
 
 feature -- Token Generation
 
-	register_user (u: CMS_TEMP_USER; a_email: READABLE_STRING_8; a_personal_information: READABLE_STRING_GENERAL)
+	register_user (u: CMS_TEMP_USER; a_email: READABLE_STRING_8)
 		local
 			l_user_api: CMS_USER_API
 			l_url_activate: STRING
@@ -26,7 +26,6 @@ feature -- Token Generation
 			l_user_api := cms_api.user_api
 
 				-- New temp user
-			u.set_personal_information (a_personal_information)
 			l_user_api.new_temp_user (u)
 
 				-- Create activation token
@@ -38,7 +37,7 @@ feature -- Token Generation
 				-- Send Email to webmaster
 			cms_api.log_debug ("registration", "send_register_email", Void)
 			create es.make (create {CMS_AUTHENTICATION_EMAIL_SERVICE_PARAMETERS}.make (cms_api))
-			es.send_admin_account_evaluation (u, a_personal_information, l_url_activate, l_url_reject, cms_api.absolute_url ("", Void))
+			es.send_admin_account_evaluation (u, u.personal_information, l_url_activate, l_url_reject, cms_api.absolute_url ("", Void))
 
 -- TODO: 2018-08-13 add email verification operation.
 --			if cms_api.user_has_permission (Void, "account auto activate") then
