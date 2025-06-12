@@ -37,20 +37,19 @@ feature -- Token Generation
 				-- Send Email to webmaster
 			cms_api.log_debug ("registration", "send_register_email", Void)
 			create es.make (create {CMS_AUTHENTICATION_EMAIL_SERVICE_PARAMETERS}.make (cms_api))
-			es.send_admin_account_evaluation (u, u.personal_information, l_url_activate, l_url_reject, cms_api.absolute_url ("", Void))
+			es.send_admin_account_evaluation (u, u.personal_information, l_url_activate, l_url_reject, cms_api.absolute_url ("", Void), cms_api.user_has_permission (Void, "account auto activate"))
 
--- TODO: 2018-08-13 add email verification operation.
---			if cms_api.user_has_permission (Void, "account auto activate") then
---					-- Send Email comfirmation to user
---				cms_api.log_debug ("registration", "send_email_confirmation", Void)
---				create es.make (create {CMS_AUTHENTICATION_EMAIL_SERVICE_PARAMETERS}.make (cms_api))
---				es.send_contact_account_email_verification (a_email, u, cms_api.absolute_url ("/account/confirm-email/" + l_token, Void), cms_api.absolute_url ("", Void))
---			end
-
-				-- Send Email to user
-			cms_api.log_debug ("registration", "send_contact_email", Void)
-			create es.make (create {CMS_AUTHENTICATION_EMAIL_SERVICE_PARAMETERS}.make (cms_api))
-			es.send_contact_email (a_email, u, cms_api.absolute_url ("", Void))
+			if cms_api.user_has_permission (Void, "account auto activate") then
+					-- Send Email comfirmation to user
+				cms_api.log_debug ("registration", "send_email_confirmation", Void)
+				create es.make (create {CMS_AUTHENTICATION_EMAIL_SERVICE_PARAMETERS}.make (cms_api))
+				es.send_contact_account_email_verification (a_email, u, cms_api.absolute_url ("/account/confirm-email/" + l_token, Void), cms_api.absolute_url ("", Void))
+			else
+					-- Send Email to user
+				cms_api.log_debug ("registration", "send_contact_email", Void)
+				create es.make (create {CMS_AUTHENTICATION_EMAIL_SERVICE_PARAMETERS}.make (cms_api))
+				es.send_contact_email (a_email, u, cms_api.absolute_url ("", Void))
+			end
 
 			cms_api.log ("registration", "new user %"" + html_encoded (u.name) + "%" <" + html_encoded (a_email) + ">", {CMS_LOG}.level_info, Void)
 		end

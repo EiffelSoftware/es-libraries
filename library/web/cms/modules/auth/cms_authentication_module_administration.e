@@ -312,7 +312,7 @@ feature -- Request handling
 											-- Send Email to webmaster
 									if attached l_user.personal_information as l_personal_information then
 										create es.make (create {CMS_AUTHENTICATION_EMAIL_SERVICE_PARAMETERS}.make (a_auth_api.cms_api))
-										es.send_admin_account_evaluation (l_user, l_personal_information, l_url_activate, l_url_reject, req.absolute_script_url (""))
+										es.send_admin_account_evaluation (l_user, l_personal_information, l_url_activate, l_url_reject, req.absolute_script_url (""), False)
 									end
 								end
 							else

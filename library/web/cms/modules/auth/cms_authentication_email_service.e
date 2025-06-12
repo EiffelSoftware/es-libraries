@@ -81,7 +81,7 @@ feature -- Basic Operations / Internal
 
 feature -- Basic Operations / Contact
 
-	send_admin_account_evaluation (a_user: CMS_USER; a_application: detachable READABLE_STRING_GENERAL; a_url_activate, a_url_reject, a_host: READABLE_STRING_8)
+	send_admin_account_evaluation (a_user: CMS_USER; a_application: detachable READABLE_STRING_GENERAL; a_url_activate, a_url_reject, a_host: READABLE_STRING_8; a_auto_activate_enabled: BOOLEAN)
 			-- Send new user register to webmaster to confirm or reject itt.
 		local
 			l_message: STRING
@@ -102,6 +102,11 @@ feature -- Basic Operations / Contact
 			end
 			l_message.replace_substring_all ("$activation_url", a_url_activate)
 			l_message.replace_substring_all ("$rejection_url", a_url_reject)
+			if a_auto_activate_enabled then
+				l_message.replace_substring_all ("$auto_activate_enabled", "YES")
+			else
+				l_message.replace_substring_all ("$auto_activate_enabled", "NO")
+			end
 			send_message (contact_email_address, contact_email_address, parameters.contact_subject_account_evaluation, l_message)
 		end
 
