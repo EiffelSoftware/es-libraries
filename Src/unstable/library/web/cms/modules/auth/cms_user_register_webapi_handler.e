@@ -61,8 +61,7 @@ feature -- Execution
 					attached f.last_data as fd and then not fd.has_error and then
 					attached fd.string_item ("name") as l_name and then
 					attached fd.string_item ("password") as l_password and then
-					attached fd.string_item ("email") as s_email and then
-					attached fd.string_item ("personal_information") as l_personal_information
+					attached fd.string_item ("email") as s_email
 				then
 					if s_email.is_valid_as_string_8 then
 						l_email := s_email.to_string_8
@@ -84,9 +83,13 @@ feature -- Execution
 							create u.make (l_name)
 							u.set_email (l_email)
 							u.set_password (l_password)
-							u.set_personal_information (l_personal_information)
+							if attached fd.string_item ("personal_information") as l_personal_information then
+								u.set_personal_information (l_personal_information)
+							else
+								u.set_personal_information ("Not available")
+							end
 
-							auth_api.register_user (u, l_email, l_personal_information)
+							auth_api.register_user (u, l_email)
 								-- Until it is activated, this is not a real user.
 --							add_user_links_to (u, rep)
 							rep.add_string_field ("status", "succeed")

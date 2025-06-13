@@ -508,7 +508,7 @@ feature -- Handler
 								u.set_email (l_email)
 								u.set_password (l_password)
 								u.set_personal_information (l_personal_information)
-								a_auth_api.register_user (u, l_email, l_personal_information)
+								a_auth_api.register_user (u, l_email)
 							else
 								r.set_value (l_name, "name")
 								r.set_value (l_email, "email")
