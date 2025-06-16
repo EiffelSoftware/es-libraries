@@ -93,7 +93,6 @@ feature {NONE} -- Initialization
 			s8: detachable READABLE_STRING_8
 			req: WGI_REQUEST
 			utf: UTF_CONVERTER
-			l_https: READABLE_STRING_32
 		do
 			init_mime_handlers
 			req := wgi_request
@@ -125,23 +124,26 @@ feature {NONE} -- Initialization
 			end
 
 				--| HTTPS support
-			is_https := False
+			if attached meta_string_variable ("HTTPS") as l_https and then not l_https.is_empty then
+				is_https_server := l_https.is_case_insensitive_equal_general ("on")
+						or else l_https.is_case_insensitive_equal_general ("yes")
+						or else l_https.is_case_insensitive_equal_general ("true")
+						or else l_https.is_case_insensitive_equal_general ("1")
+					--| Usually, if not empty, this means this is https
+					--| but it occurs that server (like IIS) sets "off" when this is NOT https
+					--| so, let's be flexible, and accepts other variants of "on"
+
+			else
+				is_https_server := False
+			end
+			is_https := is_https_server
+
+				-- Reverse proxy?
 			if attached meta_string_variable ("HTTP_X_FORWARDED_PROTO") as l_x_fwd_proto then
 				is_https := l_x_fwd_proto.is_case_insensitive_equal_general ("https")
+				is_forwarded := True
 			else
-				l_https := meta_string_variable ("HTTPS")
-				if l_https /= Void and then not l_https.is_empty then
-					is_https := l_https.is_case_insensitive_equal_general ("on")
-							or else l_https.is_case_insensitive_equal_general ("yes")
-							or else l_https.is_case_insensitive_equal_general ("true")
-							or else l_https.is_case_insensitive_equal_general ("1")
-						--| Usually, if not empty, this means this is https
-						--| but it occurs that server (like IIS) sets "off" when this is NOT https
-						--| so, let's be flexible, and accepts other variants of "on"
-
-				else
-					check is_not_https: is_https = False end
-				end
+				is_forwarded := False
 			end
 		end
 
@@ -189,14 +191,21 @@ feature -- Destroy
 			raw_input_data_recorded := False
 			request_method := empty_string_8
 			set_uploaded_file_path (Void)
+			is_https_server := False
 			is_https := False
+			is_forwarded := False
 		end
 
 feature -- Status report
 
+	is_forwarded: BOOLEAN
+			-- Is Current being forwarded (see reverse proxy)
+
+	is_https_server: BOOLEAN
+			-- Is https server?
+
 	is_https: BOOLEAN
-			-- Is https connection?
-			--| based on meta variable HTTPS=on .	
+			-- Is https connection (including if request was forwarded, see reverse-proxy) ?
 
 	debug_output: STRING_8
 		do
@@ -1842,6 +1851,7 @@ feature -- URL Utility
 		local
 			s: like internal_server_url
 			p: like server_port
+			l_is_fwd: BOOLEAN
 		do
 			s := internal_server_url
 			if s = Void then
@@ -1850,15 +1860,22 @@ feature -- URL Utility
 				else
 					create s.make_from_string ("http://")
 				end
-				if attached meta_string_variable ("HTTP_X_FORWARDED_HOST") as l_fwd_host then
+				l_is_fwd := is_forwarded
+				if
+					l_is_fwd and then
+					attached meta_string_variable ("HTTP_X_FORWARDED_HOST") as l_fwd_host
+				then
 					s.append ({UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (l_fwd_host))
 				else
 					s.append (server_name)
 				end
-				if attached meta_string_variable ("HTTP_X_FORWARDED_PORT") as l_fwd_port and then l_fwd_port.is_integer then
-					p := l_fwd_port.to_integer
-				else
-					p := server_port
+				p := server_port
+				if l_is_fwd then
+					if attached meta_string_variable ("HTTP_X_FORWARDED_PORT") as l_fwd_port and then l_fwd_port.is_integer then
+						p := l_fwd_port.to_integer
+					elseif l_is_fwd and is_https then
+						p := 443 -- If ever HTTP_X_FORWARDED_PORT is missing
+					end
 				end
 				if p > 0 then
 					if is_https and p = 443 then
