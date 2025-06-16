@@ -36,6 +36,8 @@ feature -- Execution
 							or p_query.is_case_insensitive_equal ("env")
 						then
 							append_system_environment_to (s)
+						elseif p_query.is_case_insensitive_equal ("request") then
+							append_request_info_to (req, s)
 						end
 					end
 					r.set_main_content (s)
@@ -79,6 +81,34 @@ feature -- Execution
 			end
 			s.append ("</li>")
 			s.append ("</ul>")
+		end
+
+	append_request_info_to (req: WSF_REQUEST; s: STRING)
+		local
+			ws: WSF_STRING
+		do
+			s.append ("<h3>Request</h3>%N")
+			s.append ("<ul>")
+
+			s.append ("<li><strong>is_https:</strong> " + req.is_https.out + "</li>")
+			s.append ("<li><strong>server_url:</strong> " + req.server_url + "</li>")
+			s.append ("<li><strong>port:</strong> " + req.server_port.out + "</li>")
+			s.append ("<li><strong>absolute %"/test%" url:</strong> " + req.absolute_script_url ("/test") + "</li>")
+			s.append ("</ul>")
+
+			if api.is_debug then
+				s.append ("<h3>Request variables</h3>%N")
+				s.append ("<ul>")
+				across
+					req.meta_variables as ic
+				loop
+					ws := ic.item
+					s.append ("<li><strong>"+ html_encoded (ws.name) +":</strong> ")
+					s.append (html_encoded (ws.value))
+					s.append ("</li>")
+				end
+				s.append ("</ul>")
+			end
 		end
 
 	append_system_environment_to (s: STRING)
