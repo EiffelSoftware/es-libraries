@@ -103,6 +103,9 @@ feature {NONE} -- Test procedure
 			if is_sybase then
 				execute_query ({STRING_32} "insert into DB_TEST_PROCEDURE_TABLE (title, author, year, int_16, int_32, int_64, real_32_t, real_64_t, numeric_t) values ('面向对象软件构造', 'Bertrand Meyer', '1986-06-07', 9999, 999999, 9999999999999999, 888.888, 88888888.888888, 1.00)")
 			end
+			if is_postgresql then
+				execute_query ({STRING_32} "insert into DB_TEST_PROCEDURE_TABLE (title, author, year, int_16, int_32, int_64, real_32_t, real_64_t, numeric_t) values ('面向对象软件构造', 'Bertrand Meyer', '1986-06-07', 9999, 999999, 9999999999999999, 888.888, 88888888.888888, 1.00)")
+			end
 		end
 
 	prepare_procedure (a_name: STRING; a_text: STRING; a_arg_names: like {DB_PROC}.arguments_name_32; a_args_type: like {DB_PROC}.arguments_type): DB_PROC

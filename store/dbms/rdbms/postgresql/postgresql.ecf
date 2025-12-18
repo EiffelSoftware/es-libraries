@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="postgresql" uuid="4A2B8C3D-1F2E-4D5C-8B6A-9E7F6D5C4B3A" library_target="postgresql">
+	<description>PostgreSQL access library for EiffelStore.</description>
+	<target name="postgresql">
+		<description>PostgreSQL access library for EiffelStore.
+		Copyright (c) 2025, EiffelStore contributors
+		GNU Public License v3 (see http://www.gnu.org/licenses/licenses.html#GPL).
+
+		Notes:
+		On Windows, you need to have in your environment:
+			$(POSTGRESQL) set to the directory where PostgreSQL is installed
+		On Unix, you need to have in your environment:
+			$(PGINC) set to the directory where libpq-fe.h is located.
+			$(PGLIB) set to the directory where libpq library is located.</description>
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/\.svn</exclude>
+		</file_rule>
+		<option warning="error">
+			<warning name="obsolete_feature" value="all"/>
+		</option>
+		<external_include location="$(POSTGRESQL)\include">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_include>
+		<external_include location="$(ISE_LIBRARY)/library/store/dbms/rdbms/postgresql/Clib"/>
+		<external_cflag value="`${ISE_LIBRARY}/library/store/dbms/rdbms/postgresql/Clib/pg-config --cflags`">
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</external_cflag>
+		<external_object location="$(ISE_LIBRARY)\library\store\spec\$(ISE_C_COMPILER)\$(ISE_PLATFORM)\lib\postgresql_store.lib">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_object>
+		<external_object location="$(POSTGRESQL)\lib\libpq.lib">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_object>
+		<external_object location="msvcrt.lib">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_object>
+		<external_linker_flag value="`${ISE_LIBRARY}/library/store/dbms/rdbms/postgresql/Clib/pg-config --libs`">
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</external_linker_flag>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="store" location="$ISE_LIBRARY\library\store\store.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<cluster name="db" location=".\"/>
+	</target>
+	<target name="testing" extends="postgresql">
+		<description>PostgreSQL unit tests using AutoTest.</description>
+		<root class="TEST" feature="make"/>
+		<option warning="warning">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+			<warning name="obsolete_feature" value="all"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<capability>
+			<concurrency support="none"/>
+			<void_safety support="none"/>
+		</capability>		
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<tests name="tests" location=".\tests\"/>
+	</target>
+</system>

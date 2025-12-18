@@ -72,6 +72,11 @@ feature {NONE} -- Basic select
 				execute_query ("create table " + l_table_name + " (uuid_t uniqueidentifier)")
 				execute_query ("insert into " + l_table_name + " (uuid_t) values ('6F9619FF-8B86-D011-B42D-00C04FC964FF')")
 			end
+			if is_postgresql then
+				l_table_name := sql_table_name (uuid_type_table_name)
+				execute_query ("create table " + l_table_name + " (uuid_t UUID)")
+				execute_query ("insert into " + l_table_name + " (uuid_t) values ('6F9619FF-8B86-D011-B42D-00C04FC964FF')")
+			end
 		end
 
 	uuid_type_make_selection
@@ -81,6 +86,16 @@ feature {NONE} -- Basic select
 			l_data: like uuid_data
 		do
 			if is_odbc then
+				l_data := uuid_data
+				l_data.set_uuid_t ("6F9619FF-8B86-D011-B42D-00C04FC964FF")
+				l_list := load_list_with_select (uuid_type_select_data, uuid_data)
+				if l_list.count = 1 then
+					assert ("Result is not expected", l_list.i_th (1) ~ l_data)
+				else
+					assert ("Number of results is not expected", False)
+				end
+			end
+			if is_postgresql then
 				l_data := uuid_data
 				l_data.set_uuid_t ("6F9619FF-8B86-D011-B42D-00C04FC964FF")
 				l_list := load_list_with_select (uuid_type_select_data, uuid_data)

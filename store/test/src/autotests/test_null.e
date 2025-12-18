@@ -68,6 +68,10 @@ feature {NONE} -- Implementation
 			if is_oracle then
 				execute_query ("CREATE TABLE DB_NULL_VALUES (title varchar(255), author varchar(80), text_value varchar(65535), year DATE, quantity int ,price float, double_value float)")
 			end
+
+			if is_postgresql then
+				execute_query ("CREATE TABLE db_null_values (title varchar(255), author varchar(80), text_value text, year timestamp, quantity int ,price double precision, double_value double precision)")
+			end
 		end
 
 	test_null_manipulate_data

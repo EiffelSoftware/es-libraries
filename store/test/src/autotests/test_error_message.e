@@ -114,6 +114,10 @@ feature {NONE} -- Implementation
 			if is_sybase then
 				execute_query ("insert into DB_BASIC_SELECT_ERROR_TEST (title, author, quantity, price, year, double_value) values ('Simula Begin', 'Birtwistle et al.', 12, 4, '01/01/1973', 23.767)")
 			end
+
+			if is_postgresql then
+				execute_query ("insert into DB_BASIC_SELECT_ERROR_TEST (title, author, quantity, price, year, double_value) values ('Simula Begin', 'Birtwistle et al.', 12, 4, '1973-01-01', 23.767)")
+			end
 		end
 
 	basic_select_create_data: BOOK2

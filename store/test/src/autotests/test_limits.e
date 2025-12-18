@@ -83,6 +83,11 @@ feature {NONE} -- Basic select
 			if is_sybase then
 				execute_query ("insert into DB_LIMITS (title, author, quantity, price, year, double_value) values ('Simula Begin', 'Birtwistle et al.', 12, 4, '01/01/1973', 23.767)")
 			end
+
+			if is_postgresql then
+				l_table_name := sql_table_name (basic_select_table_name)
+				execute_query ("insert into " + l_table_name + " (title, author, quantity, price, year, double_value) values ('Simula Begin', 'Birtwistle et al.', 12, 4, '1973-01-01'::timestamp, 3.5)")
+			end
 		end
 
 	basic_select_make_selection

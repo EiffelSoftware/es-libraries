@@ -124,6 +124,10 @@ feature {NONE} -- Basic select
 			if is_odbc or is_sybase then
 				execute_query ("create table DB_NUMERIC_TYPES (int_16 SMALLINT, int_32 INT, int_64 bigint, real_32_t real, real_64_t float, numeric_t DECIMAL(19,10), other_numeric_t DECIMAL(19,2))")
 			end
+
+			if is_postgresql then
+				execute_query ("create table DB_NUMERIC_TYPES (int_16 SMALLINT, int_32 INT, int_64 BIGINT, real_32_t REAL, real_64_t DOUBLE PRECISION, numeric_t DECIMAL(19,10), other_numeric_t DECIMAL(19,2))")
+			end
 			execute_query ("insert into DB_NUMERIC_TYPES (int_16, int_32, int_64, real_32_t, real_64_t, numeric_t, other_numeric_t) values (1, 10000, 100000000, 7898.34, 999999.999999, -999999999.999999, 88888.88)")
 
 			create l_repository.make (numeric_types_table_name)

@@ -1,0 +1,31 @@
+The POSTGRESQL class is the database specification file. 
+An instance of this class is used as generic parameter in EiffelStore.
+
+
+On Windows
+----------
+You need to have $(POSTGRESQL) in your environment, set to the directory where PostgreSQL is installed.
+(i.e, directory containing the PostgreSQL "include" and "lib" folders).
+
+On Linux
+--------
+Either you install libpq-dev package
+For instance on debian/ubuntu:
+	apt install libpq-dev
+	(or apt install libpq-dev)
+
+Or, you can also use a custom installation and set in your environment:
+ - $(PGINC) set to the directory where libpq-fe.h is located.
+ - $(PGLIB) set to the directory where libpq library is located.
+
+For instance, on debian:
+- To install the needed PostgreSQL packages:
+	apt-get install libpq-dev
+
+- Note that if pg_config is not available you should set your environment:
+	export PGINC=/usr/include/postgresql
+	export PGLIB=/usr/lib/postgresql
+	export PGLIB=/usr/lib/x86_64-linux-gnu
+  Check your system for the exact locations.
+
+Note: This implementation requires PostgreSQL 9.0 or later with libpq support.

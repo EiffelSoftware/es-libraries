@@ -65,5 +65,6 @@ feature -- Query
 	is_odbc: BOOLEAN = True
 	is_oracle: BOOLEAN = False
 	is_sybase: BOOLEAN = False
+	is_postgresql: BOOLEAN = False
 
 end

@@ -140,6 +140,21 @@ feature {NONE} -- Basic select
 				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Smalltalk-80 Bits of history', 'G. Krasner', 2, 0.0, '01/01/1983', 34543)")
 				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('OO programming with Flavors', 'D.A. Moon', 4, 17.45, '01/01/1986', 7898.3423)")
 			end
+
+			if is_postgresql then
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Simula Begin', 'Birtwistle et al.', 12, 4, to_date('1973', 'YYYY'), 3.5)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Eiffel The Libraries ', 'Bertrand Meyer', 11, 20, to_date('1994', 'YYYY'), 435.6)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Eiffel The Language', 'Bertrand Meyer', 9, 51, to_date('1992', 'YYYY'), 3254.6767)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('ObjectOriented Development', 'Grady Booch', 5, 40.50, to_date('1986', 'YYYY'), 345.665)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('ObjectOriented Programming', 'Brad J. Cox', 2, 38.25, to_date('1984', 'YYYY'), 3443.65)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('The C++ Programming Language', 'Bjarne Stroustrup', 19, 60.50, to_date('1984', 'YYYY'), 5.65)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Special issue on Smalltalk-80', 'Adele Golberg et al.', 2, 0.0, to_date('1981', 'YYYY'), 343.6)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Data Models for Object-Oriented Applications', 'Banergie et al.', 2, 0.0, to_date('1987', 'YYYY'), 34.65)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Programming in Modula-2', 'N. Wirth', 2, 6.34, to_date('1982', 'YYYY'), 344.6)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Common Objects an overview', 'A. Snyder', 17, 33.95, to_date('1986', 'YYYY'), 346.5)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('Smalltalk-80 Bits of history', 'G. Krasner', 2, 0.0, to_date('1983', 'YYYY'), 34543)")
+				execute_query ("insert into DB_DYNAMIC_SQL (title, author, quantity, price, year, double_value) values ('OO programming with Flavors', 'D.A. Moon', 4, 17.45, to_date('1986', 'YYYY'), 7898.3423)")
+			end
 		end
 
 	basic_select_make_selection

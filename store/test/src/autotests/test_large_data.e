@@ -68,6 +68,10 @@ feature {NONE} -- Implementation
 			if is_oracle then
 				execute_query ("CREATE TABLE DB_LARGE_VALUES (unicode nvarchar2(65535), id int, ascii varchar(65535), small_unicode nvarchar2(100), small_ascii varchar(100))")
 			end
+
+			if is_postgresql then
+				execute_query ("CREATE TABLE db_large_values (unicode TEXT, id int, ascii TEXT, small_unicode VARCHAR(100), small_ascii VARCHAR(100))")
+			end
 		end
 
 	test_simple_insert
