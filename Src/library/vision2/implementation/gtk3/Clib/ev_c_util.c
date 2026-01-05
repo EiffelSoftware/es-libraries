@@ -80,16 +80,12 @@ void ev_gtk_log (
 			fatal = TRUE;
 		}
 
-		if ( strlen (log_domain) + strlen (level) + strlen (message) + 2 > 999 )
-		{
-			if ( strlen (log_domain) + strlen (level) > 999 )
-				sprintf (buf, "%s-%s\n", log_domain, level);
-			else
-				sprintf (buf, "GTK-%s\n", level);
-			
-		} 
-		else 
+		if ( strlen (log_domain) + strlen (level) + strlen (message) + 2 < 1000 )
 			sprintf (buf, "%s-%s %s", log_domain, level, message);
+		else if ( strlen (log_domain) + strlen (level) + 1 < 1000 )
+			sprintf (buf, "%s-%s\n", log_domain, level);
+		else
+			sprintf (buf, "GTK-%s\n", level);
 		
 		printf ("%s\n", buf);
 		if (fatal && a_debug_mode > 1)
