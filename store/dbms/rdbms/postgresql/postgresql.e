@@ -1013,16 +1013,23 @@ feature -- External features
 		local
 			l_c_user, l_c_passwd, l_c_host, l_c_db: C_STRING
 			l_port: INTEGER
+			pos: INTEGER
 		do
 			create l_c_user.make (user_name)
 			create l_c_passwd.make (user_passwd)
+			l_port := 5432 -- Default PostgreSQL port			
 			if hostname /= Void and then not hostname.is_empty then
-				create l_c_host.make (hostname)
+				pos := hostname.index_of (':', 1)
+				if pos > 0 then
+					create l_c_host.make (hostname.substring (1, pos - 1))
+					l_port := hostname.substring (pos + 1, hostname.count).to_integer
+				else
+					create l_c_host.make (hostname)
+				end
 			else
 				create l_c_host.make ("localhost")
 			end
 			create l_c_db.make (data_source)
-			l_port := 5432 -- Default PostgreSQL port
 			postgresql_pointer := pq_connect (l_c_user.item, l_c_passwd.item, l_c_host.item, l_port, l_c_db.item)
 			is_error_updated := False
 		end

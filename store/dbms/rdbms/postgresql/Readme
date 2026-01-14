@@ -1,7 +1,6 @@
 The POSTGRESQL class is the database specification file. 
 An instance of this class is used as generic parameter in EiffelStore.
 
-
 On Windows
 ----------
 You need to have $(POSTGRESQL) in your environment, set to the directory where PostgreSQL is installed.
@@ -29,3 +28,8 @@ For instance, on debian:
   Check your system for the exact locations.
 
 Note: This implementation requires PostgreSQL 9.0 or later with libpq support.
+
+Execution
+---------
+Be sure to have the shared library (.dll or .so) in your PATH.
+
