@@ -21,6 +21,13 @@ feature {NONE} -- Initialization
 
 	sql_storage: CMS_STORAGE_SQL_I
 
+feature -- Properties
+
+	driver: IMMUTABLE_STRING_8
+		do
+			Result := sql_storage.driver
+		end
+
 feature -- Access
 
 	api: detachable CMS_API
@@ -164,6 +171,6 @@ feature -- Conversion
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
