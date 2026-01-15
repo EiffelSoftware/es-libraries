@@ -23,7 +23,7 @@ feature {NONE} -- Constants
 			-- Connection string for PostgreSQL
 			-- Override these values as needed for your environment
 		once
-			Result := "host=localhost port=5432 dbname=postgres user=postgres password=test"
+			Result := "host=localhost port=5433 dbname=postgres user=postgres password=test"
 		end
 
 feature {NONE} -- Test State
