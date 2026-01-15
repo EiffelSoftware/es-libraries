@@ -51,7 +51,7 @@ feature -- Factory
 				end
 
 				if conn = Void or else not conn.is_connected then
-					create {DATABASE_CONNECTION_ODBC} conn.login_with_connection_string (l_connection_string)
+					create {DATABASE_CONNECTION_ODBC} conn.login_with_connection_string ({UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (l_connection_string))
 				end
 				if conn.is_connected then
 					create Result.make (conn)

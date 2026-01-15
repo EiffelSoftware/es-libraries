@@ -32,7 +32,7 @@ feature -- Initialization
 
 	login (a_username: STRING; a_password: STRING; a_hostname: STRING; a_database_name: STRING; connection: BOOLEAN)
 
-			-- Create a database handler for ODBC and set `username' to `a_username',
+			-- Create a database handler for MARIADB and set `username' to `a_username',
 			-- `password' to `a_password'
 			-- `database_name' to `a_database_name'
 			-- `connection' to `a_connection'

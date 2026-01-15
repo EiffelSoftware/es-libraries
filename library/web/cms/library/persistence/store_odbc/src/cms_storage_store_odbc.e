@@ -29,6 +29,7 @@ feature {NONE} -- Initialization
 		do
 			Precursor (a_connection)
 			create odbc_driver.make_from_string_general ("odbc")
+			create driver.make_from_string ("odbc")
 		end
 
 	make_with_driver (a_connection: DATABASE_CONNECTION; a_driver: detachable READABLE_STRING_GENERAL)
@@ -38,10 +39,15 @@ feature {NONE} -- Initialization
 			make (a_connection)
 			if a_driver /= Void then
 				create odbc_driver.make_from_string_general (a_driver)
+				if a_driver.is_valid_as_string_8 then
+					create driver.make_from_string (a_driver.to_string_8)
+				end
 			end
 		end
 
 feature -- Status report
+
+	driver: IMMUTABLE_STRING_8
 
 	odbc_driver: IMMUTABLE_STRING_32
 			-- Database's driver name.
@@ -57,7 +63,6 @@ feature -- Status report
 			-- Column of tables.
 		local
 			sql: STRING_8
-			l_is_sqlite3: BOOLEAN
 		do
 			sql := "SELECT COUNT(*) AS table_count FROM INFORMATION_SCHEMA.TABLES;"
 			sql_query (sql, Void)
@@ -85,7 +90,7 @@ feature -- Status report
 				check one_row: sql_after end
 			end
 			sql_finalize_query (sql)
-		end		
+		end
 
 feature -- Conversion
 

@@ -12,7 +12,7 @@ inherit
 
 feature {NONE} -- Initialization
 
-	login (a_username: STRING; a_password: STRING; a_hostname: STRING; a_database_name: STRING; connection: BOOLEAN)
+	login (a_username: READABLE_STRING_8; a_password: READABLE_STRING_8; a_hostname: READABLE_STRING_8; a_database_name: READABLE_STRING_8; connection: BOOLEAN)
 
 			-- Create a database handler with user `a_username', password `a_password',
 			-- host `a_hostname', database_name `a_database_name', and keep_connection `connection'.
@@ -30,7 +30,7 @@ feature {NONE} -- Initialization
 			db_control_not_void: db_control /= Void
 		end
 
-	login_with_connection_string (a_connection_string: STRING)
+	login_with_connection_string (a_connection_string: READABLE_STRING_8)
 			-- Login with `a_connection_string'
 			-- and immediately connect to database.
 		deferred
@@ -47,7 +47,7 @@ feature {NONE} -- Initialization
 			db_control_not_void: db_control /= Void
 		end
 
-	login_with_database_name ( a_database_name: STRING)
+	login_with_database_name ( a_database_name: READABLE_STRING_8)
 			-- Create a database handler with common settings and
  			-- set database_name with `a_database_name'.
 		require
