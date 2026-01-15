@@ -20,9 +20,3 @@ services:
     ports:
       - 5433:5432
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-

@@ -44,44 +44,58 @@ fi
 while test $# -gt 0; do
 	case $1 in
 		--libs)
-		if [ $needs_libs = $false_val ]; then
-			needs_libs=$true_val
-			if [ -n "$PGLIB" ]; then
-				result=" $result -L${PGLIB} -lpq "
-			else
-				v=`pkg_config --libs`
-				if [ -n "$v" ]; then
-					result="$result $v"
+			if [ $needs_libs = $false_val ]; then
+				needs_libs=$true_val
+				# -lpostgresql_store must come before -lpq and other PostgreSQL libs due to link order dependencies
+				postfix=" $postfix_path -L${ISE_LIBRARY}/library/store/spec/${ISE_PLATFORM}/lib/ -lpostgresql_store"
+				if [ -n "$PGLIB" ]; then
+					postfix="$postfix -L${PGLIB} -lpq"
 				else
-					# PostgreSQL client dev package is not installed!
-					result=" $result -lpq"
-				fi
-			fi
-			postfix=" $postfix_path -L${ISE_LIBRARY}/library/store/spec/${ISE_PLATFORM}/lib/ -lpostgresql_store"
-		fi
-		;;
-		--cflags)
-		if [ $needs_cflags = $false_val ]; then
-			needs_cflags=$true_val
-			if [ -n "$PGINC" ]; then
-				result=" $result -I${PGINC} "
-			else
-				v=`pkg_config --includedir`
-				if [ -n "$v" ]; then
-					result="$result -I$v"
-				else
-					# Try common PostgreSQL include locations
-					if [ -d "/usr/include/postgresql" ]; then
-						result="$result -I/usr/include/postgresql"
+					# Get library directories from pg_config
+					libdir=`pkg_config --libdir`
+					pkglibdir=`pkg_config --pkglibdir`
+					v=`pkg_config --libs`
+					if [ -n "$v" ]; then
+						# Add -L paths for library directories (pg_config --libs doesn't include them)
+						if [ -n "$pkglibdir" ]; then
+							postfix="$postfix -L${pkglibdir}"
+						fi
+						if [ -n "$libdir" ]; then
+							postfix="$postfix -L${libdir}"
+						fi
+						postfix="$postfix -lpq $v"
+					else
+						# PostgreSQL client dev package is not installed, try defaults
+						if [ -n "$libdir" ]; then
+							postfix="$postfix -L${libdir}"
+						fi
+						postfix="$postfix -lpq"
 					fi
 				fi
 			fi
-			postfix=" $postfix_path -I${ISE_LIBRARY}/library/store/dbms/rdbms/postgresql/Clib"
-		fi
-		;;
+			;;
+		--cflags)
+			if [ $needs_cflags = $false_val ]; then
+				needs_cflags=$true_val
+				if [ -n "$PGINC" ]; then
+					result=" $result -I${PGINC} "
+				else
+					v=`pkg_config --includedir`
+					if [ -n "$v" ]; then
+						result="$result -I$v"
+					else
+						# Try common PostgreSQL include locations
+						if [ -d "/usr/include/postgresql" ]; then
+							result="$result -I/usr/include/postgresql"
+						fi
+					fi
+				fi
+				postfix=" $postfix_path -I${ISE_LIBRARY}/library/store/dbms/rdbms/postgresql/Clib"
+			fi
+			;;
 		*)
-		usage 1 1>&2
-		;;
+			usage 1 1>&2
+			;;
  	esac
 	shift
 done

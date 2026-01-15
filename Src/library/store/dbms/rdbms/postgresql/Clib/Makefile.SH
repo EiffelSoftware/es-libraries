@@ -1,48 +1,47 @@
-#!/bin/sh
-# Makefile.SH for PostgreSQL EiffelStore library
-
 case $CONFIG in
 '')
-	if test ! -f config.sh; then
-		(echo "Can't find config.sh."; exit 1)
-	fi 2>/dev/null
-	. ./config.sh
-	;;
+    if test ! -f config.sh; then
+        (echo "Can't find config.sh."; exit 1)
+    fi 2>/dev/null
+    . ./config.sh
+    ;;
 esac
 case "$O" in
-*strdup*)
-	;;
-*)
-	;;
+*/*) cd `expr X$0 : 'X\(.*\)/'` ;;
 esac
-
-echo "Extracting Makefile (with stripping of C-code in Makefile.SH)..."
-
-$spitshell >Makefile <<!GSTRUNC!
-
+echo "Extracting "."/Makefile (with variable substitutions)"
+$spitshell >Makefile <<!GROK!THIS!
 SHELL = /bin/sh
-CC = $cc
-CFLAGS = $optimize $ccflags $large -I$rt_include -I. \`${ISE_LIBRARY}/library/store/dbms/rdbms/postgresql/Clib/pg-config --cflags\`
+CC= $cc
+AR = ar rc
+CFLAGS = $optimize $ccflags $large -I$rt_include `${ISE_LIBRARY}/library/store/dbms/rdbms/postgresql/Clib/pg-config --cflags`
 LDFLAGS = $ldflags
 LIBS = $libs
-MAKE = make
+MAKE = $make
 MKDEP = $mkdep \$(DPFLAGS) --
 MV = $mv
-RM = $rm -f
 RANLIB = $ranlib
-AR = $ar
+RM = $rm -f
+PLATFORM = $ISE_PLATFORM
 
+!GROK!THIS!
+$spitshell >>Makefile <<'!NO!SUBS!'
 .c.o:
-	\$(CC) -c \$(CFLAGS) \$<
+	$(CC) $(CFLAGS) -c $<
 
 OBJECTS = eif_postgresql.o
 
-postgresql_store.a: \$(OBJECTS)
-	\$(RM) \$@
-	\$(AR) cr \$@ \$(OBJECTS)
-	\$(RANLIB) \$@
+libpostgresql_store.a: $(OBJECTS)
+	mkdir -p ../../../../spec/$(PLATFORM)/lib
+	$(RM) $@
+	$(AR) $@ $(OBJECTS)
+	$(MV) $@ ../../../../spec/$(PLATFORM)/lib
+	$(RANLIB) ../../../../spec/$(PLATFORM)/lib/$@
+	$(MAKE) clean
 
+	#$(RM) libpostgresql_store.a $(OBJECTS) Makefile config.sh
 clean:
-	\$(RM) *.o *.a
-
-!GSTRUNC!
+	$(RM) libpostgresql_store.a $(OBJECTS)
+!NO!SUBS!
+chmod 644 Makefile
+$eunicefix Makefile
