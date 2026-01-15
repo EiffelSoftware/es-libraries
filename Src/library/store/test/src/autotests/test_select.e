@@ -141,6 +141,20 @@ feature {NONE} -- Basic select
 				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Smalltalk-80 Bits of history', 'G. Krasner', 2, 0.0, '01/01/1983', 34543)")
 				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('OO programming with Flavors', 'D.A. Moon', 4, 17.45, '01/01/1986', 7898.3423)")
 			end
+			if is_postgresql then
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Simula Begin', 'Birtwistle et al.', 12, 4, '1973-01-01', 23.767)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Eiffel The Libraries ', 'Bertrand Meyer', 11, 20, '1994-01-01', 435.6)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Eiffel The Language', 'Bertrand Meyer', 9, 51, '1992-01-01', 3254.6767)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('ObjectOriented Development', 'Grady Booch', 5, 40.50, '1986-01-01', 345.665)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('ObjectOriented Programming', 'Brad J. Cox', 2, 38.25, '1984-01-01', 3443.65)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('The C++ Programming Language', 'Bjarne Stroustrup', 19, 60.50, '1984-01-01', 1345.65)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Special issue on Smalltalk-80', 'Adele Golberg et al.', 2, 0.0, '1981-01-01', 343.6)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Data Models for Object-Oriented Applications', 'Banergie et al.', 2, 0.0, '1987-01-01', 34.65)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Programming in Modula-2', 'N. Wirth', 2, 6.34, '1982-01-01', 344.6)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Common Objects an overview', 'A. Snyder', 17, 33.95, '1986-01-01', 346.5)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('Smalltalk-80 Bits of history', 'G. Krasner', 2, 0.0, '1983-01-01', 34543)")
+				execute_query ("insert into DB_BASIC_SELECT (title, author, quantity, price, year, double_value) values ('OO programming with Flavors', 'D.A. Moon', 4, 17.45, '1986-01-01', 7898.3423)")
+			end
 		end
 
 	basic_select_make_selection
@@ -229,6 +243,9 @@ feature {NONE} -- Large string select
 
 			if is_oracle then
 				execute_query ("CREATE TABLE db_basic_select (title CLOB, author varchar(80), year DATE, quantity int ,price float, double_value float)")
+			end
+			if is_postgresql then
+				execute_query ("CREATE TABLE db_basic_select (title TEXT, author varchar(80), year timestamp, quantity int, price double precision, double_value double precision)")
 			end
 
 				-- Put more data using direct SQL

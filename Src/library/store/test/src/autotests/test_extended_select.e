@@ -100,6 +100,11 @@ feature {NONE} -- Basic select
 				execute_query ({STRING_32} "insert into DB_EXTENDED_SELECT (title, author, quantity, price, year, double_value) values ('面向对象软件构造', 'Bertrand Meyer', 3, 200.00, '1986-06-07', 7898.3423)")
 				execute_query ({STRING_32} "insert into DB_EXTENDED_SELECT (title, author, quantity, price, year, double_value) values ('Object-Oriented Software Construction', 'Bertrand Meyer', 4, 200.00, '1986-06-07', 7898.3423)")
 			end
+
+			if is_postgresql then
+				execute_query ({STRING_32} "insert into DB_EXTENDED_SELECT (title, author, quantity, price, year, double_value) values ('面向对象软件构造', 'Bertrand Meyer', 3, 200.00, '1986-06-07', 7898.3423)")
+				execute_query ({STRING_32} "insert into DB_EXTENDED_SELECT (title, author, quantity, price, year, double_value) values ('Object-Oriented Software Construction', 'Bertrand Meyer', 4, 200.00, '1986-06-07', 7898.3423)")
+			end
 		end
 
 	extended_select_make_selection

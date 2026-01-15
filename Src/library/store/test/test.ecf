@@ -44,4 +44,11 @@
 		<cluster name="oracle_spec" location=".\src\spec\oracle\"/>
 		<cluster name="src" location=".\src\"/>
 	</target>
+	<target name="test_postgresql" extends="common">
+		<root class="TEST_STORE" feature="make"/>
+		<library name="postgresql" location="$ISE_LIBRARY\library\store\dbms\rdbms\postgresql\postgresql.ecf" readonly="false" use_application_options="true"/>
+		<tests name="autotests" location=".\src\autotests\"/>
+		<cluster name="postgresql_spec" location=".\src\spec\postgresql\"/>
+		<cluster name="src" location=".\src\"/>
+	</target>
 </system>

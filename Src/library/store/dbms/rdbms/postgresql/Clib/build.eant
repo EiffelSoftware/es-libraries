@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<project name="build_store_postgresql_clib" default="help">
+
+	<description>
+		description: "EiffelStore PostgreSQL Clib library compilation"
+	</description>
+
+	<target name="help">
+		<echo message="usage:"/>
+		<echo message=" geant compile"/>
+		<echo message=" geant clean"/>
+		<echo message=" geant clobber"/>
+	</target>
+	
+	<target name="compile" >
+		<echo message="   - EiffelStore PostgreSQL Clib" />
+		<exec executable="finish_freezing -library" accept_errors="true" />
+	</target>
+	
+	<target name="clean" >
+		<delete>
+			<fileset include="@(*.obj|*.lib|*.dll|*.so|*.a|*.o)"/>
+		</delete>
+	</target>
+
+	<target name="clobber" depend="clean" />
+	
+</project>

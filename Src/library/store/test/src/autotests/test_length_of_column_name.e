@@ -106,6 +106,8 @@ feature {NONE} -- Constants
 			if is_mysql then
 					-- In MySQL Server, there is a hard limit of 64 character for the name of a table.
 				Result := "DB_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_LONG_COLUMN_NAME"
+			elseif is_postgresql then
+					Result := "DB_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_LONG_COLUMN_NAM"
 			else
 					-- In ODBC SQL Server, there is a hard limit of 128 character for the name of a table.
 				Result := "DB_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_VERY_LONG_COLUMN_NAME"

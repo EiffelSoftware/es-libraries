@@ -55,6 +55,9 @@ feature {NONE} -- Implementation
 			if is_oracle then
 				execute_query ("CREATE TABLE " + table_name + " (id int, item BLOB)")
 			end
+			if is_postgresql then
+				execute_query ("CREATE TABLE " + table_name + " (id int, item BYTEA)")
+			end
 		end
 
 	test_insert

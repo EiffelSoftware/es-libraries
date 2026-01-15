@@ -1,0 +1,89 @@
+#!/bin/sh
+
+usage()
+{
+	cat <<EOF
+Usage: pg-config [OPTIONS]
+Options
+	[--cflags]
+	[--libs]
+EOF
+	exit $1
+}
+
+pkg_config()
+{
+	if command -v pg_config > /dev/null 2>&1
+	then
+		echo `pg_config $*`
+	else
+		echo ""
+	fi
+}
+
+if test $# -eq 0; then
+	usage 1 1>&2
+fi
+
+true_val=1
+false_val=0
+
+prefix=""
+postfix=""
+result=""
+
+
+needs_cflags=$false_val
+needs_libs=$false_val
+
+#Check if ISE_LIBRARY is defined, if not we use ISE_EIFFEL.
+if [ -z "$ISE_LIBRARY" ]; then
+	ISE_LIBRARY=$ISE_EIFFEL
+fi
+
+while test $# -gt 0; do
+	case $1 in
+		--libs)
+		if [ $needs_libs = $false_val ]; then
+			needs_libs=$true_val
+			if [ -n "$PGLIB" ]; then
+				result=" $result -L${PGLIB} -lpq "
+			else
+				v=`pkg_config --libs`
+				if [ -n "$v" ]; then
+					result="$result $v"
+				else
+					# PostgreSQL client dev package is not installed!
+					result=" $result -lpq"
+				fi
+			fi
+			postfix=" $postfix_path -L${ISE_LIBRARY}/library/store/spec/${ISE_PLATFORM}/lib/ -lpostgresql_store"
+		fi
+		;;
+		--cflags)
+		if [ $needs_cflags = $false_val ]; then
+			needs_cflags=$true_val
+			if [ -n "$PGINC" ]; then
+				result=" $result -I${PGINC} "
+			else
+				v=`pkg_config --includedir`
+				if [ -n "$v" ]; then
+					result="$result -I$v"
+				else
+					# Try common PostgreSQL include locations
+					if [ -d "/usr/include/postgresql" ]; then
+						result="$result -I/usr/include/postgresql"
+					fi
+				fi
+			fi
+			postfix=" $postfix_path -I${ISE_LIBRARY}/library/store/dbms/rdbms/postgresql/Clib"
+		fi
+		;;
+		*)
+		usage 1 1>&2
+		;;
+ 	esac
+	shift
+done
+
+echo $prefix $result $postfix

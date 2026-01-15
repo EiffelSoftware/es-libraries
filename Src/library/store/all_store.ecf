@@ -10,6 +10,7 @@
 		<library name="mysql" location="$ISE_LIBRARY\library\store\dbms\rdbms\mysql\mysql.ecf"/>
 		<library name="odbc" location="$ISE_LIBRARY\library\store\dbms\rdbms\odbc\odbc.ecf"/>
 		<library name="oracle" location="$ISE_LIBRARY\library\store\dbms\rdbms\oracle\oracle.ecf"/>
+		<library name="postgresql" location="$ISE_LIBRARY\library\store\dbms\rdbms\postgresql\postgresql.ecf"/>
 		<library name="store" location="$ISE_LIBRARY\library\store\store.ecf"/>
 		<library name="sybase" location="$ISE_LIBRARY\library\store\dbms\rdbms\sybase\sybase.ecf"/>
 	</target>
