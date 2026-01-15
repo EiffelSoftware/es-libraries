@@ -397,16 +397,11 @@ feature {NONE} -- User OAuth2
 			Result.append (a_table_name)
 			Result.append ("[
 					(
-					`uid` INTEGER PRIMARY KEY NOT NULL CHECK(`uid`>=0),
-					`access_token` TEXT  NOT NULL,
+					`uid` INTEGER PRIMARY KEY CHECK(`uid`>=0),
+					`access_token` TEXT NOT NULL,
 					`created` DATETIME NOT NULL,
 					`details` TEXT NOT NULL,
-					`id` VARCHAR (250) NOT NULL,
-					CONSTRAINT `uid`
-						UNIQUE(`uid`),
-					CONSTRAINT `id`
-						UNIQUE(`id`)
-					);
+					`id` VARCHAR (250) UNIQUE NOT NULL
 				]")
 		end
 
