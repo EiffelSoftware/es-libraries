@@ -568,28 +568,24 @@ feature -- CMS links
 
 	user_html_absolute_link (u: CMS_USER): STRING
 		require
-			u_with_name: not u.name.is_whitespace
+			u_with_name: u.has_name
 		do
 			Result := absolute_link (real_user_display_name (u), "user/" + u.id.out, Void)
 		end
 
 	user_name_html_link (u: CMS_USER): STRING
 		require
-			u_with_name: not u.name.is_whitespace
+			u_with_name: u.has_name
 		do
 			Result := link (u.name, "user/" + u.id.out, Void)
 		end
 
 	user_html_link (u: CMS_USER): STRING
-		require
-			u_with_name: not u.name.is_whitespace
 		do
 			Result := link (real_user_display_name (u), "user/" + u.id.out, Void)
 		end
 
 	user_html_administration_link (u: CMS_USER): STRING
-		require
-			u_with_name: not u.name.is_whitespace
 		do
 			Result := link (real_user_display_name (u), administration_path_location ("user/" + u.id.out), Void)
 		end
@@ -2089,7 +2085,7 @@ invariant
 	attached base_url as inv_base_url implies inv_base_url [inv_base_url.count] /= '/'
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
 
