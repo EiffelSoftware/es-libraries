@@ -125,6 +125,9 @@ ul.logs {
 			display: inline-block;
 			padding-right: 1rem;
 		}
+		div.log-user {
+			float: right;
+		}
 		&.log-error div.log-name {
 			color: red;
 		}
@@ -141,6 +144,25 @@ ul.logs {
 				font-family: monospace;
 				white-space: pre;
 			}
+		}
+	}
+}
+
+div#messages div.message {
+	&.success {
+	}
+	&.error {
+		background-color: #ffcccc;
+		border-left: solid 3px red;
+	}
+	span.index {
+		color: blue;
+		padding: 0.5rem;
+	}
+	span.address.notification {
+		color: darkred;
+		&::after {
+			content: " [Notification]"
 		}
 	}
 }

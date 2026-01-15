@@ -91,7 +91,9 @@ feature -- Execution
 			a_html.append ("<span class=%"index%">" + a_index.out + "</span> ")
 			if attached e.to_user as u then
 				a_html.append (" <strong>user:</strong> ")
-				a_html.append (api.user_html_administration_link (u))
+				if u.has_name then
+					a_html.append (api.user_html_administration_link (u))
+				end
 			end
 			a_html.append (" <span class=%"date%"><strong>date:</strong> " + api.formatted_date_time_ago (e.date))
 			a_html.append (" (" + api.date_time_to_iso8601_string (e.date) + ")</span>")

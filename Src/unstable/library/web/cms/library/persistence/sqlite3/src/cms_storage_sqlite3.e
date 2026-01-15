@@ -49,6 +49,10 @@ feature -- Access
 			Result.append_string_general (sqlite.source.locator)
 		end
 
+feature -- Properties
+
+	driver: IMMUTABLE_STRING_8 = "sqlite3"
+
 feature -- Status report
 
 	is_initialized: BOOLEAN
@@ -291,20 +295,20 @@ feature -- Operation
 		do
 			create Result.make (a_params.count)
 			across
-				a_params as ic
+				a_params as p
 			loop
-				k := ic.key
+				k := @p.key
 				if k.is_valid_as_string_8 then
 					k8 := k.to_string_8
 				else
 					k8 := utf.utf_32_string_to_utf_8_string_8 (k)
 				end
-				if attached {DATE_TIME} ic.item as dt then
+				if attached {DATE_TIME} p as dt then
 					Result.force (new_binding_argument (date_time_to_string (dt), ":" + k8))
-				elseif attached {READABLE_STRING_32} ic.item as s32 then
+				elseif attached {READABLE_STRING_32} p as s32 then
 					Result.force (new_binding_argument (utf.utf_32_string_to_utf_8_string_8 (s32), ":" + k8))
 				else
-					Result.force (new_binding_argument (ic.item, ":" + k8))
+					Result.force (new_binding_argument (p, ":" + k8))
 				end
 			end
 		end
@@ -535,6 +539,10 @@ feature -- Conversion
 			i: INTEGER
 			s: STRING_8
 		do
+				-- Replace
+				--   KEY AUTO_INCREMENT
+				-- by
+				--   KEY AUTOINCREMENT
 			Result := a_statement
 			from
 				i := 1

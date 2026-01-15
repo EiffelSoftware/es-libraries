@@ -6,9 +6,6 @@ note
 deferred class
 	DATABASE_HANDLER
 
-inherit
---	SHARED_LOGGER
-
 feature -- Access
 
 	store: detachable DATABASE_STORE_PROCEDURE

@@ -16,7 +16,7 @@ create
 
 feature {NONE} -- Intialization
 
-	data_reader (a_query: STRING; a_parameters: like parameters)
+	data_reader (a_query: READABLE_STRING_8; a_parameters: like parameters)
 			-- SQL data reader for the query `a_query' with arguments `a_parameters'
 		do
 			debug ("cms_storage")
@@ -48,7 +48,7 @@ feature -- Execution
 				Result := a_base_selection.container
 			else
 				debug ("cms_storage")
-					write_error_log (generator + "." + a_base_selection.error_message_32)
+					write_error_log (generator + "." + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (a_base_selection.error_message_32))
 				end
 			end
 			unset_map_name (a_base_selection)
@@ -69,7 +69,7 @@ feature -- Execution
 
 feature --  Access
 
-	query: STRING
+	query: READABLE_STRING_8
 			-- SQL query to execute.
 
 	parameters: detachable STRING_TABLE [detachable ANY]
@@ -82,9 +82,9 @@ feature {NONE} -- Implementation
 		do
 			if attached parameters as l_parameters then
 				across
-					l_parameters as ic
+					l_parameters as p
 				loop
-					a_base_selection.set_map_name (ic.item, ic.key)
+					a_base_selection.set_map_name (p, @p.key)
 				end
 			end
 		end
@@ -94,9 +94,9 @@ feature {NONE} -- Implementation
 		do
 			if attached parameters as l_parameters then
 				across
-					l_parameters as ic
+					l_parameters as p
 				loop
-					a_base_selection.unset_map_name (ic.key)
+					a_base_selection.unset_map_name (@p.key)
 				end
 			end
 		end
@@ -104,22 +104,25 @@ feature {NONE} -- Implementation
 	log_parameters (a_parameters: like parameters): STRING
 			-- Parameters to log with name and value
 			-- exclude sensitive information.
+		local
+			k: READABLE_STRING_8
 		do
 			create Result.make_empty
 			if a_parameters /= Void then
 				across
-					a_parameters as ic
+					a_parameters as p
 				loop
+					k := {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (@p.key)
 					Result.append ("name:")
-					Result.append (ic.key.as_string_32)
+					Result.append (k)
 					Result.append (", value:")
 					if
-						ic.key.has_substring ("Password") or else
-						ic.key.has_substring ("password")
+						k.has_substring ("Password") or else
+						k.has_substring ("password")
 					then
 						-- Data to exclude
 					else
-						if attached ic.item as l_item  then
+						if attached p as l_item then
 							Result.append (l_item.out)
 						end
 					end

@@ -45,6 +45,12 @@ feature -- Setup
 		local
 			cmd: CMS_CLI_AGENT_COMMAND
 		do
+			if not a_api.is_cms_installed then
+				create cmd.make ("install", agent install_cms (a_api, ?, ?, ?))
+				cmd.set_description ("Install CMS")
+				a_shell.register_command (cmd, Current)
+			end
+
 			create cmd.make ("info", agent list_info (a_api, ?, ?, ?))
 			cmd.set_short_name ('i')
 			cmd.set_description ("Display CMS information")
@@ -59,6 +65,14 @@ feature -- Setup
 		end
 
 feature -- Execution
+
+	install_cms (api: CMS_API; sh: CMS_CLI_SHELL; n:  READABLE_STRING_32; args: detachable READABLE_STRING_32)
+		do
+			output_h1 (sh, "Install CMS:%N")
+			output_h2 (sh, "Install all modules:%N")
+			api.install_all_modules
+			output_information (sh, "Installation completed.%N")
+		end
 
 	list_info (api: CMS_API; sh: CMS_CLI_SHELL; n:  READABLE_STRING_32; args: detachable READABLE_STRING_32)
 		local

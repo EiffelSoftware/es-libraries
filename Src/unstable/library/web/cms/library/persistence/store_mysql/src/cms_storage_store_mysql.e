@@ -18,6 +18,10 @@ inherit
 create
 	make
 
+feature -- Properties
+
+	driver: IMMUTABLE_STRING_8 = "mysql"
+
 feature -- Status report
 
 	is_initialized: BOOLEAN
@@ -30,7 +34,6 @@ feature -- Status report
 			-- Column of tables.
 		local
 			sql: STRING_8
-			l_is_sqlite3: BOOLEAN
 		do
 			sql := "SELECT COUNT(*) AS table_count FROM INFORMATION_SCHEMA.TABLES;"
 			sql_query (sql, Void)
@@ -58,11 +61,11 @@ feature -- Status report
 				check one_row: sql_after end
 			end
 			sql_finalize_query (sql)
-		end		
+		end
 
 feature -- Conversion
 
-	sql_statement (a_statement: STRING): STRING
+	sql_statement (a_statement: READABLE_STRING_8): READABLE_STRING_8
 			-- <Precursor>
 		do
 			Result := a_statement

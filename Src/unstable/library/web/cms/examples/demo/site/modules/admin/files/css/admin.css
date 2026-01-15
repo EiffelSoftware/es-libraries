@@ -132,3 +132,18 @@ ul.logs li.active div.log-message {
   font-family: monospace;
   white-space: pre;
 }
+
+div#messages div.message.error {
+  background-color: #ffcccc;
+  border-left: solid 3px red;
+}
+div#messages div.message span.index {
+  color: blue;
+  padding: 0.5rem;
+}
+div#messages div.message span.address.notification {
+  color: darkred;
+}
+div#messages div.message span.address.notification::after {
+  content: " [Notification]";
+}

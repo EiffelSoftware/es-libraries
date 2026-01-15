@@ -1,5 +1,5 @@
 note
-	description: "Object that handle a database connection for ODBC"
+	description: "Object that handle a database connection for MYSQL"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -24,16 +24,16 @@ feature -- Initialization
 			login_with_database_name (default_database_name)
 		end
 
-	login_with_database_name (a_database_name: STRING)
+	login_with_database_name (a_database_name: STRING_8)
 			-- Create a database handler and
 			-- set database_name to `a_database_name'.
 		do
 			login (default_username, default_password, default_hostname, a_database_name, is_keep_connection)
 		end
 
-	login (a_username: STRING; a_password: STRING; a_hostname: STRING; a_database_name: STRING; connection: BOOLEAN)
+	login (a_username: STRING_8; a_password: STRING_8; a_hostname: STRING_8; a_database_name: STRING_8; connection: BOOLEAN)
 
-			-- Create a database handler for ODBC and set `username' to `a_username',
+			-- Create a database handler for MYSQL and set `username' to `a_username',
 			-- `password' to `a_password'
 			-- `database_name' to `a_database_name'
 			-- `connection' to `a_connection'
@@ -50,14 +50,14 @@ feature -- Initialization
 			end
 		end
 
-	login_with_connection_string (a_string: STRING)
+	login_with_connection_string (a_string: STRING_8)
 			-- Login with `a_connection_string' and immediately connect to database.
 		local
-			l_server: STRING
-			l_port: STRING
-			l_database: STRING
-			l_user: STRING
-			l_password: STRING
+			l_server: STRING_8
+			l_port: STRING_8
+			l_database: STRING_8
+			l_user: STRING_8
+			l_password: STRING_8
 		do
 			create database_error_handler.make
 			l_server := connection_string_item (a_string, "Server", default_hostname)
@@ -75,7 +75,7 @@ feature -- Initialization
 			keep_connection := is_keep_connection
 		end
 
-	connection_string_item (a_connection_string: STRING; k: STRING; dft: STRING): STRING
+	connection_string_item (a_connection_string: STRING_8; k: STRING_8; dft: STRING_8): STRING_8
 		local
 			i,j: INTEGER
 		do
@@ -95,12 +95,12 @@ feature -- Initialization
 			end
 		end
 
-	login_with_schema (a_schema: STRING; a_username: STRING; a_password: STRING)
+	login_with_schema (a_schema: STRING_8; a_username: STRING_8; a_password: STRING_8)
 			-- Login with `a_connection_string'and immediately connect to database.
 		do
 			create database_error_handler.make
 			create db_application
-			db_application.set_application (a_schema)
+			db_application.set_application (a_schema.to_string_8)
 			db_application.login_and_connect (a_username, a_password)
 			db_application.set_base
 			create db_control.make

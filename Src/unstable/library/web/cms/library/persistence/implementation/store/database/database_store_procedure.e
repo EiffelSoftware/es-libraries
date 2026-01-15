@@ -33,14 +33,14 @@ feature -- Intialization
 				if proc.exists then
 					if proc.text_32 /= Void then
 						debug
-							write_debug_log ( generator + ".data_reader: " + proc.text_32)
+							write_debug_log ( generator + ".data_reader: " + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (proc.text_32))
 						end
 					end
 				else
 					has_error := True
 					error_message := proc.error_message_32
 					error_code := proc.error_code
-					write_error_log (generator + ".data_witer message:" + proc.error_message_32 + " code:" + proc.error_code.out)
+					write_error_log (generator + ".data_witer message:" + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (proc.error_message_32) + " code:" + proc.error_code.out)
 				end
 			else
 				stored_procedure := a_sp
@@ -49,7 +49,7 @@ feature -- Intialization
 			end
 		rescue
 			set_last_error_from_exception ("SQL execution")
-			write_critical_log (generator+ ".data_reader " + last_error_message)
+			write_critical_log (generator+ ".data_reader " + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (last_error_message))
 			l_retried := True
 			retry
 		end
@@ -70,14 +70,14 @@ feature -- Intialization
 				if proc.exists then
 					if proc.text_32 /= Void then
 						debug
-							write_debug_log ( generator + ".data_writer: " + proc.text_32)
+							write_debug_log ( generator + ".data_writer: " + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (proc.text_32))
 						end
 					end
 				else
 					has_error := True
 					error_message := proc.error_message_32
 					error_code := proc.error_code
-					write_error_log (generator + ".data_witer message:" + proc.error_message_32 + " code:" + proc.error_code.out)
+					write_error_log (generator + ".data_witer message:" + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (proc.error_message_32) + " code:" + proc.error_code.out)
 				end
 			else
 				stored_procedure := a_sp
@@ -86,7 +86,7 @@ feature -- Intialization
 			end
 		rescue
 			set_last_error_from_exception ("SQL execution")
-			write_critical_log (generator+ ".data_reader " + last_error_message)
+			write_critical_log (generator+ ".data_reader " + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (last_error_message))
 			l_retried := True
 			retry
 		end
@@ -164,6 +164,8 @@ feature {NONE} -- Implementation
 	log_parameters (a_parameters: like parameters): STRING
 			-- Parameters to log with name and value
 			-- exclude sensitive information.
+		local
+			k: STRING_32
 		do
 			create Result.make_empty
 			from
@@ -171,12 +173,13 @@ feature {NONE} -- Implementation
 			until
 				a_parameters.after
 			loop
+				k := a_parameters.key_for_iteration
 				Result.append ("name:")
-				Result.append (a_parameters.key_for_iteration)
+				Result.append ({UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (k))
 				Result.append (", value:")
 				if
-					a_parameters.key_for_iteration.has_substring ("Password") or else
-					a_parameters.key_for_iteration.has_substring ("password")
+					k.has_substring ("Password") or else
+					k.has_substring ("password")
 				then
 					-- Data to exclude
 				else

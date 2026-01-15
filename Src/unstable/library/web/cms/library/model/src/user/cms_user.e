@@ -105,6 +105,11 @@ feature -- Status report
 			Result := id > 0
 		end
 
+	has_name: BOOLEAN
+		do
+			Result := not name.is_whitespace
+		end
+
 	has_email: BOOLEAN
 		do
 			Result := attached email as e and then not e.is_empty

@@ -43,24 +43,20 @@ feature {NONE} -- Initialization
 					else
 						q := "[
 							CREATE TABLE `users`(
-							  `uid` INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
-							  `name` VARCHAR(100) NOT NULL,
+							  `uid` INTEGER PRIMARY KEY AUTO_INCREMENT,
+							  `name` VARCHAR(100) UNIQUE NOT NULL,
 							  `password` VARCHAR(100) NOT NULL,
 							  `salt` VARCHAR(100) NOT NULL,
 							  `email` VARCHAR(250) NOT NULL,
 							  `status` INTEGER,
 							  `created` DATETIME NOT NULL,
 							  `signed` DATETIME,
-							  `profile_name` VARCHAR(250) NULL,
-							  CONSTRAINT `name`
-							    UNIQUE(`name`)
+							  `profile_name` VARCHAR(250) NULL
 							);	
 							
 							CREATE TABLE `roles`(
-							  `rid` INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
-							  `name` VARCHAR(100) NOT NULL,
-							  CONSTRAINT `name`
-							    UNIQUE(`name`)
+							  `rid` INTEGER PRIMARY KEY AUTO_INCREMENT,
+							  `name` VARCHAR(100) UNIQUE NOT NULL
 							);
 							
 							CREATE TABLE `users_roles`(

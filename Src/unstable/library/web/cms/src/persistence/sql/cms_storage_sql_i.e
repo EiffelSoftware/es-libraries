@@ -6,6 +6,11 @@ note
 deferred class
 	CMS_STORAGE_SQL_I
 
+feature -- Properties
+
+	driver: IMMUTABLE_STRING_8
+		deferred
+		end
 
 feature -- Access
 
@@ -260,8 +265,13 @@ feature -- Helper
 
 	sql_execute_file_script (a_path: PATH; a_params: detachable STRING_TABLE [detachable ANY])
 			-- Execute SQL script from `a_path' and with optional parameters `a_params'.
+			-- If the file `a_path` + "." + driver exists, use that one.
+			--| This allows SQL script specific to the current storage driver
+			--| for instance:  core.sql.postgresql
 		do
-			if attached sql_script_content (a_path) as sql then
+			if attached sql_script_content (a_path.appended_with_extension (driver)) as sql then
+				sql_execute_script (sql, a_params)
+			elseif attached sql_script_content (a_path) as sql then
 				sql_execute_script (sql, a_params)
 			end
 		end
@@ -629,6 +639,6 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
