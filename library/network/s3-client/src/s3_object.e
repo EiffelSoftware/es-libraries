@@ -1,10 +1,10 @@
 note
 	description: "Represents an S3 object (file) in a bucket."
 
-class 
+class
 	S3_OBJECT
 
-create 
+create
 	make
 
 feature {NONE} -- Initialization
@@ -27,7 +27,7 @@ feature {NONE} -- Initialization
 			size_set: size = a_size
 			last_modified_set: a_last_modified /= Void implies last_modified.same_string (a_last_modified)
 		end
-	
+
 feature -- Access
 
 	key: STRING_8
@@ -38,11 +38,21 @@ feature -- Access
 
 	last_modified: STRING_8
 			-- Last modified timestamp.
-	
+
 invariant
 	key_not_empty: not key.is_empty
 	size_non_negative: size >= 0
 
+note
+	copyright: "2025-2026, Jocelyn Fiat, Eiffel Software and others"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
+	source: "[
+			Eiffel Software
+			5949 Hollister Ave., Goleta, CA 93117 USA
+			Telephone 805-685-1006, Fax 805-685-6869
+			Website http://www.eiffel.com
+			Customer support http://support.eiffel.com
+		]"
 end -- class S3_OBJECT
 
 
