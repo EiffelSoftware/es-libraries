@@ -18,6 +18,8 @@
 			reuse_variables="true" />
 		<geant target="compile" file="build.eant" dir="dbms/rdbms/oracle/Clib" 
 			reuse_variables="true" />
+		<geant target="compile" file="build.eant" dir="dbms/rdbms/mariadb/Clib" 
+			reuse_variables="true" />
 		<geant target="compile" file="build.eant" dir="dbms/rdbms/mysql/Clib" 
 			reuse_variables="true" />
 		<geant target="compile" file="build.eant" dir="dbms/rdbms/postgresql/Clib" 
@@ -29,6 +31,8 @@
 		<geant target="clean" file="build.eant" dir="dbms/rdbms/odbc/Clib" 
 			reuse_variables="true" />
 		<geant target="clean" file="build.eant" dir="dbms/rdbms/oracle/Clib" 
+			reuse_variables="true" />
+		<geant target="clean" file="build.eant" dir="dbms/rdbms/mariadb/Clib" 
 			reuse_variables="true" />
 		<geant target="clean" file="build.eant" dir="dbms/rdbms/mysql/Clib" 
 			reuse_variables="true" />
