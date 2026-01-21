@@ -1,0 +1,14 @@
+package s3-client
+
+project
+	s3_client = "s3_client.ecf"
+
+note
+	title: S3 Client Library
+	description: Eiffel library for interacting with S3-compatible storage services (AWS S3, MinIO, etc.). Provides a simple interface to perform common S3 operations: list, read, write, and delete objects in a bucket. Uses AWS Signature Version 4 (AWS4-HMAC-SHA256) for authentication.
+	tags: s3, aws, storage, cloud, minio, http, rest, api
+	license: Eiffel Forum License v2
+	copyright: Copyright (c) 2026
+	link[doc]: README.md
+
+end
