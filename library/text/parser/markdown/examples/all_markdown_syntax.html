@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>all_markdown_syntax.md</title>
+	<link rel="stylesheet" href="md.css"/>
+</head>
+<body>
+	<article class="markdown-body">
+<h1>Comprehensive Markdown Syntax Examples</h1>
+<p>This document demonstrates all Markdown syntax features, including those not yet supported by this parser. Features marked with ✅ are currently supported, while those marked with ❌ are not yet implemented.</p>
+<h2>Headings</h2>
+<h3>ATX Headings ✅</h3>
+<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<h5>Heading 5</h5>
+<h6>Heading 6</h6>
+<h3>Setext Headings ✅</h3>
+<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<h2>Paragraphs ✅</h2>
+<p>This is a paragraph. Paragraphs are separated by blank lines.</p>
+<p>This is another paragraph with some <strong>strong text</strong> and <em>emphasized text</em>.</p>
+<h2>Line Breaks</h2>
+<h3>Hard Line Breaks ✅</h3>
+<p>This line ends with two spaces
+<br/>and continues on the next line.</p>
+<p>This line ends with a backslash
+<br/>and continues on the next line.</p>
+<h3>Soft Line Breaks ✅</h3>
+<p>This is a single paragraph
+that spans multiple lines
+but renders as one paragraph.</p>
+<h2>Emphasis and Strong ✅</h2>
+<p><em>This is emphasized text</em>
+<em>This is also emphasized (underscore) ✅</em></p>
+<p><strong>This is strong text</strong>
+<strong>This is also strong (underscore) ✅</strong></p>
+<p><strong><em>This is both emphasized and strong</em></strong>
+<strong><em>This is also both (underscore) ✅</em></strong></p>
+<h2>Code</h2>
+<h3>Inline Code ✅</h3>
+<p>Use <code class="inline">code</code> in your text. You can also use <code class="inline">double backticks</code> for code with backticks inside: <code class="inline">`code`</code>.</p>
+<h3>Fenced Code Blocks ✅</h3>
+<pre><code lang="eiffel">class
+    EXAMPLE
+feature
+    make
+        do
+            print ("Hello, World!%N")
+        end
+end</code></pre>
+<h3>Fenced Code Blocks with Tildes ✅</h3>
+<pre><code lang="eiffel">class
+    EXAMPLE
+end</code></pre>
+<h3>Indented Code Blocks ✅</h3>
+<pre><code>This is an indented code block
+with 4 spaces of indentation.</code></pre>
+<h2>Lists</h2>
+<h3>Unordered Lists ✅</h3>
+<ul>
+<li><p>First item</p>
+</li>
+<li><p>Second item</p>
+</li>
+<li><p>Third item</p>
+</li>
+</ul>
+<h3>Unordered Lists with Different Markers ✅</h3>
+<ul>
+<li><p>Asterisk item</p>
+</li>
+<li><p>Another asterisk item</p>
+</li>
+</ul>
+<ul>
+<li><p>Plus item</p>
+</li>
+<li><p>Another plus item</p>
+</li>
+</ul>
+<h3>Nested Unordered Lists ✅</h3>
+<ul>
+<li><p>First level</p>
+<ul>
+<li><p>Second level</p>
+<ul>
+<li><p>Third level</p>
+</li>
+</ul>
+</li>
+<li><p>Back to second level</p>
+</li>
+</ul>
+</li>
+<li><p>Back to first level</p>
+</li>
+</ul>
+<h3>Ordered Lists ✅</h3>
+<ol>
+<li><p>First item</p>
+</li>
+<li><p>Second item</p>
+</li>
+<li><p>Third item</p>
+</li>
+</ol>
+<h3>Ordered Lists with Parentheses ✅</h3>
+<ol>
+<li><p>First item</p>
+</li>
+<li><p>Second item</p>
+</li>
+<li><p>Third item</p>
+</li>
+</ol>
+<h3>Nested Ordered Lists ✅</h3>
+<ol>
+<li><p>First level</p>
+<ol>
+<li><p>Second level</p>
+<ol>
+<li><p>Third level</p>
+</li>
+</ol>
+</li>
+<li><p>Back to second level</p>
+</li>
+</ol>
+</li>
+<li><p>Back to first level</p>
+</li>
+</ol>
+<h3>Mixed Lists ✅</h3>
+<ol>
+<li><p>First ordered item</p>
+<ul>
+<li><p>Nested unordered item</p>
+</li>
+<li><p>Another nested item</p>
+</li>
+</ul>
+</li>
+<li><p>Second ordered item</p>
+<ul>
+<li><p>Another nested unordered item</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3>Lists with Multiple Paragraphs ✅</h3>
+<ul>
+<li><p>First item</p>
+<p>This is a second paragraph in the same list item.</p>
+</li>
+<li><p>Second item</p>
+</li>
+</ul>
+<h3>Lists with Code Blocks ✅</h3>
+<ul>
+<li><p>Item with code block:</p>
+<pre><code lang="eiffel">code here</code></pre>
+</li>
+<li><p>Another item</p>
+</li>
+</ul>
+<h3>Lists with Blockquotes ✅</h3>
+<ul>
+<li><p>Item with blockquote:</p>
+<blockquote>
+<p>quoted text</p>
+</blockquote>
+</li>
+<li><p>Another item</p>
+</li>
+</ul>
+<h3>Task Lists (GitHub Flavored Markdown) ✅</h3>
+<ul>
+<li><input type="checkbox" disabled/>Unchecked task</li>
+<li><input type="checkbox" disabled checked/>Checked task</li>
+<li><input type="checkbox" disabled/>Another unchecked task</li>
+</ul>
+<h2>Blockquotes ✅</h2>
+<blockquote>
+<p>This is a blockquote.
+It can span multiple lines.
+All lines are part of the same quote.</p>
+</blockquote>
+<blockquote>
+<p>This is another blockquote.</p>
+</blockquote>
+<h3>Nested Blockquotes ✅</h3>
+<blockquote>
+<p>First level</p>
+<blockquote>
+<p>Second level</p>
+<blockquote>
+<p>Third level</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<h2>Links ✅</h2>
+<h3>Inline Links ✅</h3>
+<p>This is an <a href="https://example.com">inline link</a> to example.com.</p>
+<p>This is a <a href="https://example.com" title="Example Title">link with title</a>.</p>
+<h3>Reference-Style Links ✅</h3>
+<p>This is a <a href="https://example.com">reference-style link</a>.</p>
+<p>This is an <a href="https://example.org">implicit reference link</a>.</p>
+<p>This is a <a href="https://example.net" title="Optional Title">collapsed reference link</a>.</p>
+<h3>Autolinks ✅</h3>
+<p><a href="https://example.com">https://example.com</a></p>
+<p><a href="user@example.com">user@example.com</a></p>
+<h3>Raw HTML Links ✅</h3>
+<a href="https://example.com" target="_blank">Open in new tab</a>
+<h2>Images ✅</h2>
+<h3>Inline Images ✅</h3>
+<p><img src="image.png" alt="Alt text"/></p>
+<p><img src="image.png" alt="Alt text with title" title="Image Title"/></p>
+<p><img src="image.png" alt="Alt text with single-quoted title" title="Image Title"/></p>
+<h3>Images with Formatted Alt Text ✅</h3>
+<p><img src="image.png" alt="Alt with emphasis"/></p>
+<p><img src="image.png" alt="Alt with strong" title="Title"/></p>
+<h3>Reference-Style Images ✅</h3>
+<p><img src="image.png" alt="Alt text" title="Image Title"/></p>
+<p><img src="image.png" alt="Alt text" title="Image Title"/></p>
+<p><img src="image.png" alt="Alt text" title="Image Title"/></p>
+<h2>Tables ✅</h2>
+<h3>Basic Tables ✅</h3>
+<table>
+<tr><th>Header 1</th><th>Header 2</th><th>Header 3</th></tr>
+<tr><td>Cell 1</td><td>Cell 2</td><td>Cell 3</td></tr>
+<tr><td>Cell 4</td><td>Cell 5</td><td>Cell 6</td></tr>
+</table>
+<h3>Tables with Alignment ✅</h3>
+<table>
+<tr><th style="text-align: left">Left</th><th style="text-align: center">Center</th><th style="text-align: right">Right</th></tr>
+<tr><td style="text-align: left">Left aligned</td><td style="text-align: center">Center aligned</td><td style="text-align: right">Right aligned</td></tr>
+<tr><td style="text-align: left">More left</td><td style="text-align: center">More center</td><td style="text-align: right">More right</td></tr>
+</table>
+<h3>Tables with Inline Formatting ✅</h3>
+<table>
+<tr><th>Header 1</th><th>Header 2</th></tr>
+<tr><td><em>Emphasized</em></td><td><strong>Strong</strong></td></tr>
+<tr><td><code class="inline">Code</code></td><td><a href="url">Link</a></td></tr>
+</table>
+<h2>Thematic Breaks ✅</h2>
+<hr/>
+<hr/>
+<hr/>
+<h2>HTML Blocks ✅</h2>
+<p>Raw HTML blocks are supported. A block starts when a line begins with <code class="inline">&lt;</code> followed by a letter, <code class="inline">&lt;/</code>+letter, <code class="inline">&lt;!--</code>, <code class="inline">&lt;?</code>, or <code class="inline">&lt;!</code>, and continues until a blank line.</p>
+<div>
+This is an HTML block.
+</div>
+<p>This is a paragraph HTML block.</p>
+<h2>Entity References ✅</h2>
+<p>&amp; &lt; &gt; " ' © &amp;</p>
+<h2>Escaping ✅</h2>
+<p>*Not emphasized*</p>
+<p>`Not code`</p>
+<p>[Not a link]</p>
+<h3>Full Backslash Escapes ✅</h3>
+<p>All punctuation characters can be escaped and rendered literally:</p>
+<p>! " # $ % &amp; ' ( ) * + , - . / : ; &lt; = &gt; ? @ [ \ ] ^ _ ` { | } ~</p>
+<h2>Strikethrough (GitHub Flavored Markdown) ✅</h2>
+<p><del>This text is struck through</del></p>
+<h2>Footnotes ✅</h2>
+<p>This is a footnote reference<sup id="fnref1"><a href="#fn1">1</a></sup>.</p>
+<h2>Definition Lists (not in CommonMark) ✅</h2>
+<p>Term 1
+: Definition 1</p>
+<p>Term 2
+: Definition 2a
+: Definition 2b</p>
+<h2>Complex Examples</h2>
+<h3>Mixed Content ✅</h3>
+<h1>Main Heading</h1>
+<p>This paragraph contains <strong>strong text</strong>, <em>emphasized text</em>, <code class="inline">code</code>, and a <a href="https://example.com">link</a>.</p>
+<ul>
+<li><p>List item with <strong>formatting</strong></p>
+</li>
+<li><p>List item with <code class="inline">code</code></p>
+</li>
+<li><p>List item with <a href="url">link</a></p>
+</li>
+</ul>
+<blockquote>
+<p>Blockquote with <strong>formatting</strong> and <code class="inline">code</code></p>
+</blockquote>
+<table>
+<tr><th>Column 1</th><th>Column 2</th></tr>
+<tr><td>Data 1</td><td>Data 2</td></tr>
+</table>
+<hr/>
+<h3>Code in Lists ✅</h3>
+<ol>
+<li><p>First item</p>
+<pre><code lang="eiffel">code block</code></pre>
+</li>
+<li><p>Second item</p>
+</li>
+</ol>
+<h3>Blockquote in Lists ✅</h3>
+<ol>
+<li><p>First item</p>
+<blockquote>
+<p>Blockquote here</p>
+</blockquote>
+</li>
+<li><p>Second item</p>
+</li>
+</ol>
+<h2>Notes</h2>
+<ul>
+<li><p>Features marked with ✅ are fully supported by this parser</p>
+</li>
+<li><p>Features marked with ❌ are not yet implemented</p>
+</li>
+<li><p>Some features may have partial support or edge case limitations</p>
+</li>
+<li><p>This document is based on CommonMark specification with GitHub Flavored Markdown extensions</p>
+</li>
+</ul>
+<div class="footnote" id="fn1"><em>1</em>:<p>This is the footnote definition.</p>
+ <a href="#fnref1">↩</a></div>
+	</article>
+</body>
+</html>

@@ -1,0 +1,934 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document SYSTEM "CommonMark.dtd">
+
+<document xmlns="http://commonmark.org/xml/1.0">
+  <heading level="1">
+    <text>Comprehensive Markdown Syntax Examples</text>
+  </heading>
+  <paragraph>
+    <text>This document demonstrates all Markdown syntax features, including those not yet supported by this parser. Features marked with ✅ are currently supported, while those marked with ❌ are not yet implemented.</text>
+  </paragraph>
+  <heading level="2">
+    <text>Headings</text>
+  </heading>
+  <heading level="3">
+    <text>ATX Headings ✅</text>
+  </heading>
+  <heading level="1">
+    <text>Heading 1</text>
+  </heading>
+  <heading level="2">
+    <text>Heading 2</text>
+  </heading>
+  <heading level="3">
+    <text>Heading 3</text>
+  </heading>
+  <heading level="4">
+    <text>Heading 4</text>
+  </heading>
+  <heading level="5">
+    <text>Heading 5</text>
+  </heading>
+  <heading level="6">
+    <text>Heading 6</text>
+  </heading>
+  <heading level="3">
+    <text>Setext Headings ✅</text>
+  </heading>
+  <heading level="1">
+    <text>Heading 1</text>
+  </heading>
+  <heading level="2">
+    <text>Heading 2</text>
+  </heading>
+  <heading level="2">
+    <text>Paragraphs ✅</text>
+  </heading>
+  <paragraph>
+    <text>This is a paragraph. Paragraphs are separated by blank lines.</text>
+  </paragraph>
+  <paragraph>
+    <text>This is another paragraph with some </text>
+    <strong>
+      <text>strong text</text>
+    </strong>
+    <text> and </text>
+    <emph>
+      <text>emphasized text</text>
+    </emph>
+    <text>.</text>
+  </paragraph>
+  <heading level="2">
+    <text>Line Breaks</text>
+  </heading>
+  <heading level="3">
+    <text>Hard Line Breaks ✅</text>
+  </heading>
+  <paragraph>
+    <text>This line ends with two spaces</text>
+    <softbreak/>
+    <linebreak/>
+    <text>and continues on the next line.</text>
+  </paragraph>
+  <paragraph>
+    <text>This line ends with a backslash</text>
+    <softbreak/>
+    <linebreak/>
+    <text>and continues on the next line.</text>
+  </paragraph>
+  <heading level="3">
+    <text>Soft Line Breaks ✅</text>
+  </heading>
+  <paragraph>
+    <text>This is a single paragraph</text>
+    <softbreak/>
+    <text>that spans multiple lines</text>
+    <softbreak/>
+    <text>but renders as one paragraph.</text>
+  </paragraph>
+  <heading level="2">
+    <text>Emphasis and Strong ✅</text>
+  </heading>
+  <paragraph>
+    <emph>
+      <text>This is emphasized text</text>
+    </emph>
+    <softbreak/>
+    <emph>
+      <text>This is also emphasized (underscore) ✅</text>
+    </emph>
+  </paragraph>
+  <paragraph>
+    <strong>
+      <text>This is strong text</text>
+    </strong>
+    <softbreak/>
+    <strong>
+      <text>This is also strong (underscore) ✅</text>
+    </strong>
+  </paragraph>
+  <paragraph>
+    <strong>
+      <emph>
+        <text>This is both emphasized and strong</text>
+      </emph>
+    </strong>
+    <softbreak/>
+    <strong>
+      <emph>
+        <text>This is also both (underscore) ✅</text>
+      </emph>
+    </strong>
+  </paragraph>
+  <heading level="2">
+    <text>Code</text>
+  </heading>
+  <heading level="3">
+    <text>Inline Code ✅</text>
+  </heading>
+  <paragraph>
+    <text>Use </text>
+    <code>code</code>
+    <text> in your text. You can also use </text>
+    <code>double backticks</code>
+    <text> for code with backticks inside: </text>
+    <code>`code`</code>
+    <text>.</text>
+  </paragraph>
+  <heading level="3">
+    <text>Fenced Code Blocks ✅</text>
+  </heading>
+  <code_block info="eiffel">class
+    EXAMPLE
+feature
+    make
+        do
+            print ("Hello, World!%N")
+        end
+end
+  </code_block>
+  <heading level="3">
+    <text>Fenced Code Blocks with Tildes ✅</text>
+  </heading>
+  <code_block info="eiffel">class
+    EXAMPLE
+end
+  </code_block>
+  <heading level="3">
+    <text>Indented Code Blocks ✅</text>
+  </heading>
+  <code_block>This is an indented code block
+with 4 spaces of indentation.
+  </code_block>
+  <heading level="2">
+    <text>Lists</text>
+  </heading>
+  <heading level="3">
+    <text>Unordered Lists ✅</text>
+  </heading>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>First item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Second item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Third item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Unordered Lists with Different Markers ✅</text>
+  </heading>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>Asterisk item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Another asterisk item</text>
+      </paragraph>
+    </item>
+  </list>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>Plus item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Another plus item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Nested Unordered Lists ✅</text>
+  </heading>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>First level</text>
+      </paragraph>
+      <list type="bullet">
+        <item>
+          <paragraph>
+            <text>Second level</text>
+          </paragraph>
+          <list type="bullet">
+            <item>
+              <paragraph>
+                <text>Third level</text>
+              </paragraph>
+            </item>
+          </list>
+        </item>
+        <item>
+          <paragraph>
+            <text>Back to second level</text>
+          </paragraph>
+        </item>
+      </list>
+    </item>
+    <item>
+      <paragraph>
+        <text>Back to first level</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Ordered Lists ✅</text>
+  </heading>
+  <list type="ordered" start="1">
+    <item>
+      <paragraph>
+        <text>First item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Second item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Third item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Ordered Lists with Parentheses ✅</text>
+  </heading>
+  <list type="ordered" start="1">
+    <item>
+      <paragraph>
+        <text>First item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Second item</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Third item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Nested Ordered Lists ✅</text>
+  </heading>
+  <list type="ordered" start="1">
+    <item>
+      <paragraph>
+        <text>First level</text>
+      </paragraph>
+      <list type="ordered" start="1">
+        <item>
+          <paragraph>
+            <text>Second level</text>
+          </paragraph>
+          <list type="ordered" start="1">
+            <item>
+              <paragraph>
+                <text>Third level</text>
+              </paragraph>
+            </item>
+          </list>
+        </item>
+        <item>
+          <paragraph>
+            <text>Back to second level</text>
+          </paragraph>
+        </item>
+      </list>
+    </item>
+    <item>
+      <paragraph>
+        <text>Back to first level</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Mixed Lists ✅</text>
+  </heading>
+  <list type="ordered" start="1">
+    <item>
+      <paragraph>
+        <text>First ordered item</text>
+      </paragraph>
+      <list type="bullet">
+        <item>
+          <paragraph>
+            <text>Nested unordered item</text>
+          </paragraph>
+        </item>
+        <item>
+          <paragraph>
+            <text>Another nested item</text>
+          </paragraph>
+        </item>
+      </list>
+    </item>
+    <item>
+      <paragraph>
+        <text>Second ordered item</text>
+      </paragraph>
+      <list type="bullet">
+        <item>
+          <paragraph>
+            <text>Another nested unordered item</text>
+          </paragraph>
+        </item>
+      </list>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Lists with Multiple Paragraphs ✅</text>
+  </heading>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>First item</text>
+      </paragraph>
+      <paragraph>
+        <text>This is a second paragraph in the same list item.</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Second item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Lists with Code Blocks ✅</text>
+  </heading>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>Item with code block:</text>
+      </paragraph>
+      <code_block info="eiffel">code here
+      </code_block>
+    </item>
+    <item>
+      <paragraph>
+        <text>Another item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Lists with Blockquotes ✅</text>
+  </heading>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>Item with blockquote:</text>
+      </paragraph>
+      <block_quote>
+        <paragraph>
+          <text>quoted text</text>
+        </paragraph>
+      </block_quote>
+    </item>
+    <item>
+      <paragraph>
+        <text>Another item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Task Lists (GitHub Flavored Markdown) ✅</text>
+  </heading>
+  <list type="bullet">
+    <item task="true" checked="false">
+      <text>Unchecked task</text>
+    </item>
+    <item task="true" checked="true">
+      <text>Checked task</text>
+    </item>
+    <item task="true" checked="false">
+      <text>Another unchecked task</text>
+    </item>
+  </list>
+  <heading level="2">
+    <text>Blockquotes ✅</text>
+  </heading>
+  <block_quote>
+    <paragraph>
+      <text>This is a blockquote.</text>
+      <softbreak/>
+      <text>It can span multiple lines.</text>
+      <softbreak/>
+      <text>All lines are part of the same quote.</text>
+    </paragraph>
+  </block_quote>
+  <block_quote>
+    <paragraph>
+      <text>This is another blockquote.</text>
+    </paragraph>
+  </block_quote>
+  <heading level="3">
+    <text>Nested Blockquotes ✅</text>
+  </heading>
+  <block_quote>
+    <paragraph>
+      <text>First level</text>
+    </paragraph>
+    <block_quote>
+      <paragraph>
+        <text>Second level</text>
+      </paragraph>
+      <block_quote>
+        <paragraph>
+          <text>Third level</text>
+        </paragraph>
+      </block_quote>
+    </block_quote>
+  </block_quote>
+  <heading level="2">
+    <text>Links ✅</text>
+  </heading>
+  <heading level="3">
+    <text>Inline Links ✅</text>
+  </heading>
+  <paragraph>
+    <text>This is an </text>
+    <link destination="https://example.com">
+      <text>inline link</text>
+    </link>
+    <text> to example.com.</text>
+  </paragraph>
+  <paragraph>
+    <text>This is a </text>
+    <link destination="https://example.com" title="Example Title">
+      <text>link with title</text>
+    </link>
+    <text>.</text>
+  </paragraph>
+  <heading level="3">
+    <text>Reference-Style Links ✅</text>
+  </heading>
+  <paragraph>
+    <text>This is a </text>
+    <link destination="https://example.com">
+      <text>reference-style link</text>
+    </link>
+    <text>.</text>
+  </paragraph>
+  <paragraph>
+    <text>This is an </text>
+    <link destination="https://example.org">
+      <text>implicit reference link</text>
+    </link>
+    <text>.</text>
+  </paragraph>
+  <paragraph>
+    <text>This is a </text>
+    <link destination="https://example.net" title="Optional Title">
+      <text>collapsed reference link</text>
+    </link>
+    <text>.</text>
+  </paragraph>
+  <heading level="3">
+    <text>Autolinks ✅</text>
+  </heading>
+  <paragraph>
+    <link destination="https://example.com">
+      <text>https://example.com</text>
+    </link>
+  </paragraph>
+  <paragraph>
+    <link destination="user@example.com">
+      <text>user@example.com</text>
+    </link>
+  </paragraph>
+  <heading level="3">
+    <text>Raw HTML Links ✅</text>
+  </heading>
+  <html_block>&lt;a href="https://example.com" target="_blank"&gt;Open in new tab&lt;/a&gt;
+
+  </html_block>
+  <heading level="2">
+    <text>Images ✅</text>
+  </heading>
+  <heading level="3">
+    <text>Inline Images ✅</text>
+  </heading>
+  <paragraph>
+    <image destination="image.png">
+      <text>Alt text</text>
+    </image>
+  </paragraph>
+  <paragraph>
+    <image destination="image.png" title="Image Title">
+      <text>Alt text with title</text>
+    </image>
+  </paragraph>
+  <paragraph>
+    <image destination="image.png" title="Image Title">
+      <text>Alt text with single-quoted title</text>
+    </image>
+  </paragraph>
+  <heading level="3">
+    <text>Images with Formatted Alt Text ✅</text>
+  </heading>
+  <paragraph>
+    <image destination="image.png">
+      <text>Alt with </text>
+      <emph>
+        <text>emphasis</text>
+      </emph>
+    </image>
+  </paragraph>
+  <paragraph>
+    <image destination="image.png" title="Title">
+      <text>Alt with </text>
+      <strong>
+        <text>strong</text>
+      </strong>
+    </image>
+  </paragraph>
+  <heading level="3">
+    <text>Reference-Style Images ✅</text>
+  </heading>
+  <paragraph>
+    <image destination="image.png" title="Image Title">
+      <text>Alt text</text>
+    </image>
+  </paragraph>
+  <paragraph>
+    <image destination="image.png" title="Image Title">
+      <text>Alt text</text>
+    </image>
+  </paragraph>
+  <paragraph>
+    <image destination="image.png" title="Image Title">
+      <text>Alt text</text>
+    </image>
+  </paragraph>
+  <heading level="2">
+    <text>Tables ✅</text>
+  </heading>
+  <heading level="3">
+    <text>Basic Tables ✅</text>
+  </heading>
+  <table>
+    <table_row>
+      <table_header_cell>
+        <text>Header 1</text>
+      </table_header_cell>
+      <table_header_cell>
+        <text>Header 2</text>
+      </table_header_cell>
+      <table_header_cell>
+        <text>Header 3</text>
+      </table_header_cell>
+    </table_row>
+    <table_row>
+      <table_cell>
+        <text>Cell 1</text>
+      </table_cell>
+      <table_cell>
+        <text>Cell 2</text>
+      </table_cell>
+      <table_cell>
+        <text>Cell 3</text>
+      </table_cell>
+    </table_row>
+    <table_row>
+      <table_cell>
+        <text>Cell 4</text>
+      </table_cell>
+      <table_cell>
+        <text>Cell 5</text>
+      </table_cell>
+      <table_cell>
+        <text>Cell 6</text>
+      </table_cell>
+    </table_row>
+  </table>
+  <heading level="3">
+    <text>Tables with Alignment ✅</text>
+  </heading>
+  <table>
+    <table_row>
+      <table_header_cell alignment="left">
+        <text>Left</text>
+      </table_header_cell>
+      <table_header_cell alignment="center">
+        <text>Center</text>
+      </table_header_cell>
+      <table_header_cell alignment="right">
+        <text>Right</text>
+      </table_header_cell>
+    </table_row>
+    <table_row>
+      <table_cell alignment="left">
+        <text>Left aligned</text>
+      </table_cell>
+      <table_cell alignment="center">
+        <text>Center aligned</text>
+      </table_cell>
+      <table_cell alignment="right">
+        <text>Right aligned</text>
+      </table_cell>
+    </table_row>
+    <table_row>
+      <table_cell alignment="left">
+        <text>More left</text>
+      </table_cell>
+      <table_cell alignment="center">
+        <text>More center</text>
+      </table_cell>
+      <table_cell alignment="right">
+        <text>More right</text>
+      </table_cell>
+    </table_row>
+  </table>
+  <heading level="3">
+    <text>Tables with Inline Formatting ✅</text>
+  </heading>
+  <table>
+    <table_row>
+      <table_header_cell>
+        <text>Header 1</text>
+      </table_header_cell>
+      <table_header_cell>
+        <text>Header 2</text>
+      </table_header_cell>
+    </table_row>
+    <table_row>
+      <table_cell>
+        <emph>
+          <text>Emphasized</text>
+        </emph>
+      </table_cell>
+      <table_cell>
+        <strong>
+          <text>Strong</text>
+        </strong>
+      </table_cell>
+    </table_row>
+    <table_row>
+      <table_cell>
+        <code>Code</code>
+      </table_cell>
+      <table_cell>
+        <link destination="url">
+          <text>Link</text>
+        </link>
+      </table_cell>
+    </table_row>
+  </table>
+  <heading level="2">
+    <text>Thematic Breaks ✅</text>
+  </heading>
+  <thematic_break/>
+  <thematic_break/>
+  <thematic_break/>
+  <heading level="2">
+    <text>HTML Blocks ✅</text>
+  </heading>
+  <paragraph>
+    <text>Raw HTML blocks are supported. A block starts when a line begins with </text>
+    <code>&lt;</code>
+    <text> followed by a letter, </text>
+    <code>&lt;/</code>
+    <text>+letter, </text>
+    <code>&lt;!--</code>
+    <text>, </text>
+    <code>&lt;?</code>
+    <text>, or </text>
+    <code>&lt;!</code>
+    <text>, and continues until a blank line.</text>
+  </paragraph>
+  <html_block>&lt;div&gt;
+This is an HTML block.
+&lt;/div&gt;
+
+  </html_block>
+  <html_block>&lt;p&gt;This is a paragraph HTML block.&lt;/p&gt;
+
+  </html_block>
+  <heading level="2">
+    <text>Entity References ✅</text>
+  </heading>
+  <paragraph>
+    <text>&amp; </text>
+    <text>&lt; </text>
+    <text>&gt; </text>
+    <text>" </text>
+    <text>' </text>
+    <text>© </text>
+    <text>&amp;</text>
+  </paragraph>
+  <heading level="2">
+    <text>Escaping ✅</text>
+  </heading>
+  <paragraph>
+    <text>*Not emphasized*</text>
+  </paragraph>
+  <paragraph>
+    <text>`Not code`</text>
+  </paragraph>
+  <paragraph>
+    <text>[Not a link]</text>
+  </paragraph>
+  <heading level="3">
+    <text>Full Backslash Escapes ✅</text>
+  </heading>
+  <paragraph>
+    <text>All punctuation characters can be escaped and rendered literally:</text>
+  </paragraph>
+  <paragraph>
+    <text>! " # $ % &amp; ' ( ) * + , - . / : ; &lt; = &gt; ? @ [ \ ] ^ _ ` { | } ~</text>
+  </paragraph>
+  <heading level="2">
+    <text>Strikethrough (GitHub Flavored Markdown) ✅</text>
+  </heading>
+  <paragraph>
+    <strikethrough>
+      <text>This text is struck through</text>
+    </strikethrough>
+  </paragraph>
+  <heading level="2">
+    <text>Footnotes ✅</text>
+  </heading>
+  <paragraph>
+    <text>This is a footnote reference</text>
+    <footnote_reference label="1"/>
+    <text>.</text>
+  </paragraph>
+  <heading level="2">
+    <text>Definition Lists (not in CommonMark) ✅</text>
+  </heading>
+  <paragraph>
+    <text>Term 1</text>
+    <softbreak/>
+    <text>: Definition 1</text>
+  </paragraph>
+  <paragraph>
+    <text>Term 2</text>
+    <softbreak/>
+    <text>: Definition 2a</text>
+    <softbreak/>
+    <text>: Definition 2b</text>
+  </paragraph>
+  <heading level="2">
+    <text>Complex Examples</text>
+  </heading>
+  <heading level="3">
+    <text>Mixed Content ✅</text>
+  </heading>
+  <heading level="1">
+    <text>Main Heading</text>
+  </heading>
+  <paragraph>
+    <text>This paragraph contains </text>
+    <strong>
+      <text>strong text</text>
+    </strong>
+    <text>, </text>
+    <emph>
+      <text>emphasized text</text>
+    </emph>
+    <text>, </text>
+    <code>code</code>
+    <text>, and a </text>
+    <link destination="https://example.com">
+      <text>link</text>
+    </link>
+    <text>.</text>
+  </paragraph>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>List item with </text>
+        <strong>
+          <text>formatting</text>
+        </strong>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>List item with </text>
+        <code>code</code>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>List item with </text>
+        <link destination="url">
+          <text>link</text>
+        </link>
+      </paragraph>
+    </item>
+  </list>
+  <block_quote>
+    <paragraph>
+      <text>Blockquote with </text>
+      <strong>
+        <text>formatting</text>
+      </strong>
+      <text> and </text>
+      <code>code</code>
+    </paragraph>
+  </block_quote>
+  <table>
+    <table_row>
+      <table_header_cell>
+        <text>Column 1</text>
+      </table_header_cell>
+      <table_header_cell>
+        <text>Column 2</text>
+      </table_header_cell>
+    </table_row>
+    <table_row>
+      <table_cell>
+        <text>Data 1</text>
+      </table_cell>
+      <table_cell>
+        <text>Data 2</text>
+      </table_cell>
+    </table_row>
+  </table>
+  <thematic_break/>
+  <heading level="3">
+    <text>Code in Lists ✅</text>
+  </heading>
+  <list type="ordered" start="1">
+    <item>
+      <paragraph>
+        <text>First item</text>
+      </paragraph>
+      <code_block info="eiffel">code block
+      </code_block>
+    </item>
+    <item>
+      <paragraph>
+        <text>Second item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="3">
+    <text>Blockquote in Lists ✅</text>
+  </heading>
+  <list type="ordered" start="1">
+    <item>
+      <paragraph>
+        <text>First item</text>
+      </paragraph>
+      <block_quote>
+        <paragraph>
+          <text>Blockquote here</text>
+        </paragraph>
+      </block_quote>
+    </item>
+    <item>
+      <paragraph>
+        <text>Second item</text>
+      </paragraph>
+    </item>
+  </list>
+  <heading level="2">
+    <text>Notes</text>
+  </heading>
+  <list type="bullet">
+    <item>
+      <paragraph>
+        <text>Features marked with ✅ are fully supported by this parser</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Features marked with ❌ are not yet implemented</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>Some features may have partial support or edge case limitations</text>
+      </paragraph>
+    </item>
+    <item>
+      <paragraph>
+        <text>This document is based on CommonMark specification with GitHub Flavored Markdown extensions</text>
+      </paragraph>
+    </item>
+  </list>
+  <footnote_definition label="1">
+    <paragraph>
+      <text>This is the footnote definition.</text>
+    </paragraph>
+  </footnote_definition>
+</document>
