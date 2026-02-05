@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="markdown" uuid="A2A7D6E1-56D2-4E18-9C3D-21C3B5D7D771" library_target="markdown">
+	<description>Markdown parser</description>
+	<target name="markdown">
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+		</file_rule>
+		<option warning="error"/>
+		<setting name="total_order_on_reals" value="true"/>
+		<setting name="dead_code_removal" value="feature"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="base_extension" location="$ISE_LIBRARY\library\base_extension\base_extension.ecf"/>
+		<cluster name="src" location="src\" recursive="true"/>
+	</target>
+</system>

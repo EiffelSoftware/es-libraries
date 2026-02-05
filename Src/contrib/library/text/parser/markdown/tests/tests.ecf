@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="markdown_tests" uuid="B1E5B8E6-58F7-4C71-9B64-39CC2C6557E3">
+	<target name="markdown_tests">
+		<root class="TEST_MD_PARSER" feature="make"/>
+		<option warning="error"/>
+		<setting name="total_order_on_reals" value="true"/>
+		<setting name="dead_code_removal" value="feature"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf">
+		</library>
+		<library name="markdown" location="..\markdown.ecf" readonly="false">
+		</library>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf">
+		</library>
+		<tests name="src" location=".\src\" recursive="true">
+		</tests>
+	</target>
+</system>

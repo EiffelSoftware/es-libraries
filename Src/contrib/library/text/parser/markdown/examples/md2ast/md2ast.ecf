@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="md2ast" uuid="A28D6BB0-2C9A-4F3E-9D57-9D1D7C2B27EA">
+	<target name="md2ast">
+		<root class="MD2AST" feature="make"/>
+		<file_rule>
+			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+		</file_rule>
+		<option warning="error"/>
+		<setting name="console_application" value="true"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="markdown" location="..\..\markdown.ecf" readonly="false"/>
+		<cluster name="src" location=".\src\" recursive="true"/>
+	</target>
+</system>
