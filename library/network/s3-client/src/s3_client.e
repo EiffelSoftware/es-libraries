@@ -228,6 +228,51 @@ feature -- Operations
 			end
 		end
 
+	list_common_prefixes (a_prefix: detachable READABLE_STRING_8): detachable LIST [READABLE_STRING_32]
+			-- List common prefix in bucket, optionally filtered by `a_prefix`.
+			-- Returns list of common prefixes or Void if error occurred.
+		require
+			bucket_not_empty: not bucket_name.is_empty
+		local
+			path: STRING_8
+			query_string: detachable STRING_8
+			response: HTTP_CLIENT_RESPONSE
+			parser: S3_LIST_RESPONSE_PARSER
+			ctx: HTTP_CLIENT_REQUEST_CONTEXT
+			l_prefix: STRING_8
+		do
+			last_operation_succeed := False
+			create path.make_from_string ("/");
+			path.append (bucket_name);
+			path.append_character ('/')
+			l_prefix := prefix_path (a_prefix)
+			if l_prefix /= Void and then not l_prefix.is_empty then
+				query_string := "prefix=" + l_prefix
+			end
+			if query_string /= Void and then not query_string.is_empty then
+				query_string.append ("&delimiter=/")
+			else
+				query_string := "delimiter=/"
+			end
+			if attached http_session as sess then
+				ctx := build_request_context ("GET", path, query_string, Void, Void)
+				if l_prefix /= Void then
+					ctx.add_query_parameter ("prefix", l_prefix)
+				end
+				ctx.add_query_parameter ("delimiter", "/")
+				response := sess.get (path, ctx)
+				if not response.error_occurred and then response.status = 200 then
+					if attached response.body as body then
+						create parser.make
+						Result := parser.parse_list_common_prefixes_response (body)
+						last_operation_succeed := True
+					end
+				elseif attached response.body as b then
+					Io.Error.put_string (b)
+				end
+			end
+		end
+
 	read_file (a_key: READABLE_STRING_8): detachable READABLE_STRING_8
 			-- Read file content for `a_key` from bucket.
 			-- Returns file content or Void if error occurred.
