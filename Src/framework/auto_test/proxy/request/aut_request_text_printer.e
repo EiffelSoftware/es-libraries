@@ -116,7 +116,11 @@ feature {AUT_REQUEST} -- Processing
 			output_stream.put_character (':')
 			output_stream.put_character ('=')
 			output_stream.put_character (' ')
-			a_request.expression.process (expression_printer)
+			if attached a_request.expression as exp then
+				exp.process (expression_printer)
+			else
+				output_stream.put_string ("Void")
+			end
 			output_stream.put_new_line
 		end
 
@@ -179,7 +183,7 @@ invariant
 	output_stream_is_writable: output_stream.is_open_write
 
 note
-	copyright: "Copyright (c) 1984-2010, Eiffel Software"
+	copyright: "Copyright (c) 1984-2026, Eiffel Software"
 	license: "GPL version 2 (see http://www.eiffel.com/licensing/gpl.txt)"
 	licensing_options: "http://www.eiffel.com/licensing"
 	copying: "[
