@@ -66,6 +66,9 @@ feature  -- Handle HTML pages
 			then
 				create b.make ("Eiffel MongoDB", "Tutorial: how to use MongoDB with Eiffel", "https://www.eiffel.org/theme/responsive-eiffel-org/images/logo.png")
 				l_books_mgr.insert_document (b)
+				if attached l_books_mgr.error as err then
+					html.append ("<div class=%"error%">"+ err.to_string8 +"</div>%N")
+				end
 				html.append ("Initialization: added one new book")
 			end
 			html.append ("<ul>")
@@ -268,6 +271,8 @@ feature -- MongoDB
 		do
 			create driver
 			driver.use
+				-- You may need to update the uri to provide credentials
+				-- for instance: "mongodb://root:example@127.0.0.1:27017/"
 			create uri.make ("mongodb://127.0.0.1:27017")
 			create Result.make_from_uri (uri)
 

@@ -39,18 +39,15 @@
 				<platform excluded_value="windows"/>
 			</condition>
 		</external_linker_flag>
-		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf">
-		</library>
-		<library name="bson" location="..\bson\lib\bson.ecf">
-		</library>
-		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf">
-		</library>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="bson" location="..\bson\lib\bson.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<cluster name="src" location=".\src\" recursive="true">
 			<option warning="error"/>
 			<file_rule>
 				<exclude>/implementation$</exclude>
 			</file_rule>
-			<cluster name="implementation" location="$|implementation" hidden="true"/>
+			<cluster name="implementation" location="$|implementation\" hidden="true"/>
 		</cluster>
 	</target>
 </system>
