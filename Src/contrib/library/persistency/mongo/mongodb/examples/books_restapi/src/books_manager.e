@@ -94,8 +94,9 @@ feature -- Access
 		do
 			reset
 			create l_doc.make_from_json (a_book.to_json_string)
-			mongodb_collection.insert_one (l_doc, Void, Void)
-			if attached mongodb_collection.last_error as l_error then
+			l_collection := mongodb_collection
+			l_collection.insert_one (l_doc, Void, Void)
+			if attached l_collection.last_error as l_error then
 				post_execution (l_error)
 			end
 		end
@@ -127,12 +128,14 @@ feature -- Access
 			--Delete an item by id `a_id', if any. from the collection `books'
 		local
 			l_doc: BSON
+			l_collection: MONGODB_COLLECTION
 		do
 			reset
 			create l_doc.make
 			l_doc.bson_append_utf8 ("_id", a_id)
-			mongodb_collection.delete_one (l_doc, Void, Void)
-			if attached mongodb_collection.last_error as l_error then
+			l_collection := mongodb_collection
+			l_collection.delete_one (l_doc, Void, Void)
+			if attached l_collection.last_error as l_error then
 				post_execution (l_error)
 			end
 		end

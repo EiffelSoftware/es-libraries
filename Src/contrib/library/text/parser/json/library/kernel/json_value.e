@@ -24,6 +24,11 @@ inherit
 
 feature -- Status report
 
+	is_boolean: BOOLEAN
+			-- Is Current a boolean value?
+		do
+		end
+
 	is_string: BOOLEAN
 			-- Is Current a string value?
 		do
@@ -96,6 +101,6 @@ feature -- Visitor pattern
 		end
 
 note
-	copyright: "2010-2021, Javier Velilla, Jocelyn Fiat, Eiffel Software and others https://github.com/eiffelhub/json."
+	copyright: "2010-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others https://github.com/eiffelhub/json."
 	license: "https://github.com/eiffelhub/json/blob/master/License.txt"
 end

@@ -43,6 +43,33 @@ feature -- Parsing
 			end
 		end
 
+	parse_list_common_prefixes_response (a_xml_content: READABLE_STRING_8): detachable LIST [READABLE_STRING_32]
+			-- Parse S3 ListBucketResult XML from `a_xml_content`.
+			-- Returns list of CommonPrefixes.prefix or Void if parsing failed.
+		require
+			content_not_empty: a_xml_content /= Void and then not a_xml_content.is_empty
+		local
+			parser: XML_STANDARD_PARSER
+			callbacks: XML_CALLBACKS_DOCUMENT
+			doc: XML_DOCUMENT
+			root: XML_ELEMENT
+			lst: ARRAYED_LIST [READABLE_STRING_32]
+		do
+			create callbacks.make_null
+			create parser.make;
+			parser.set_callbacks (callbacks);
+			parser.parse_from_string_8 (a_xml_content)
+			if parser.is_correct then
+				doc := callbacks.document
+				if doc /= Void and then attached doc.root_element as root_elem then
+					root := root_elem
+					create lst.make (10)
+					parse_common_prefixes (root, lst)
+					Result := lst
+				end
+			end
+		end
+
 feature {NONE} -- Implementation
 
 	parse_objects (a_root: XML_ELEMENT; a_objects: LIST [S3_OBJECT])
@@ -71,6 +98,28 @@ feature {NONE} -- Implementation
 								size_val := 0
 							end;
 							a_objects.force (create {S3_OBJECT}.make (key_str, size_val, last_modified_str))
+						end
+					end
+				end
+			end
+		end
+
+	parse_common_prefixes (a_root: XML_ELEMENT; a_list: LIST [READABLE_STRING_32])
+			-- Parse CommonPrefixes.prefix from `a_root` element and add to `a_list`.
+		require
+			root_not_void: a_root /= Void
+			a_list_not_void: a_list /= Void
+		do
+			across
+				a_root as child
+			loop
+				if attached {XML_ELEMENT} child as elem then
+					if elem.name.same_string_general ("CommonPrefixes") then
+						if
+							attached {XML_ELEMENT} elem.element_by_name ("Prefix") as x_prefix and then
+							attached extract_text (x_prefix) as s
+						then
+							a_list.force (s)
 						end
 					end
 				end

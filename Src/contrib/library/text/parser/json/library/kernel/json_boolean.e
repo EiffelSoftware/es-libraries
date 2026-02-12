@@ -8,8 +8,10 @@ class
 	JSON_BOOLEAN
 
 inherit
-
 	JSON_VALUE
+		redefine
+			is_boolean
+		end
 
 create
 	make,
@@ -75,6 +77,9 @@ feature -- Visitor pattern
 
 feature -- Status report
 
+	is_boolean: BOOLEAN = True
+			-- <Precursor>
+
 	debug_output: STRING
 			-- String that should be displayed in debugger to represent `Current'.
 		do
@@ -82,6 +87,6 @@ feature -- Status report
 		end
 
 note
-	copyright: "2010-2017, Javier Velilla and others https://github.com/eiffelhub/json."
+	copyright: "2010-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others https://github.com/eiffelhub/json."
 	license: "https://github.com/eiffelhub/json/blob/master/License.txt"
 end
