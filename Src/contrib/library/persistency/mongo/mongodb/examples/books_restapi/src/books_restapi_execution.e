@@ -95,9 +95,9 @@ feature  -- Handle HTML pages
 						jobj.put (l_books_mgr.find_documents, "items")
 						create jlinks.make_with_capacity (docs.count)
 						across
-							docs as ic
+							docs as d
 						loop
-							if attached {JSON_STRING} (ic.item / "_id") as j_book_id then
+							if attached {JSON_STRING} (d / "_id") as j_book_id then
 								jlinks.put (create {JSON_STRING}.make_from_string_general (req.absolute_script_url ("/books/"+ j_book_id.unescaped_string_8)), "book#" + j_book_id.unescaped_string_8)
 							end
 						end
