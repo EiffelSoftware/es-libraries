@@ -78,6 +78,7 @@ feature -- Export
 						f.create_read_write
 						f.put_string (json_to_string (ja))
 						f.close
+						ja := Void
 					end
 
 						-- user roles export.
@@ -98,10 +99,13 @@ feature -- Export
 						end
 						jobj.put (j, r.id.out)
 					end
-					create f.make_with_path (p.extended ("user_roles.json"))
-					f.create_read_write
-					f.put_string (json_to_string (jo))
-					f.close
+					if not jobj.is_empty then
+						create f.make_with_path (p.extended ("user_roles.json"))
+						f.create_read_write
+						f.put_string (json_to_string (jobj))
+						f.close
+					end
+					jobj := Void
 
 						-- users export.
 					a_export_ctx.log ("Exporting users")
@@ -120,12 +124,12 @@ feature -- Export
 						put_string_into_json (u.hashed_password, "hashed_password", j)
 						put_date_into_json (u.creation_date, "creation_date", j)
 						put_date_into_json (u.last_login_date, "last_login_date", j)
-						if attached u.roles as l_roles then
+						if attached user_api.user_roles (u) as l_roles then
 							create ja.make (l_roles.count)
 							across
 								l_roles as r
 							loop
-								ja.extend (create {JSON_STRING}.make_from_string_32 ({STRING_32} " %"" + r.name + {STRING_32} "%" #" + r.id.out))
+								ja.extend (create {JSON_STRING}.make_from_string_32 (r.name))
 							end
 							j.put (ja, "roles")
 						end
@@ -140,6 +144,6 @@ feature -- Export
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

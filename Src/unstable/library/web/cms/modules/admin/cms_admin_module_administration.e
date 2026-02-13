@@ -132,13 +132,8 @@ feature {NONE} -- Router/administration
 			create l_uri_mapping.make_trailing_slash_ignored ("/cleanup", l_admin_cleanup_handler)
 			a_router.map (l_uri_mapping, a_router.methods_get_post)
 
-			create l_admin_export_handler.make (a_api)
-			create l_uri_mapping.make_trailing_slash_ignored ("/export", l_admin_export_handler)
-			a_router.map (l_uri_mapping, a_router.methods_get_post)
-
-			create l_admin_import_handler.make (a_api)
-			create l_uri_mapping.make_trailing_slash_ignored ("/import", l_admin_import_handler)
-			a_router.map (l_uri_mapping, a_router.methods_get_post)
+			create l_admin_export_handler.make (a_api, a_router)
+			create l_admin_import_handler.make (a_api, a_router)
 
 			create l_user_handler.make (a_api)
 			a_router.handle ("/add/user", l_user_handler, a_router.methods_get_post)

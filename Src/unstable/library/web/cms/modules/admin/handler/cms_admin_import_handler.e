@@ -9,7 +9,7 @@ class
 	CMS_ADMIN_IMPORT_HANDLER
 
 inherit
-	CMS_HANDLER
+	CMS_HANDLER_ON_ROUTER
 
 	WSF_URI_HANDLER
 		rename
@@ -26,6 +26,18 @@ inherit
 
 create
 	make
+
+feature -- Routing
+
+	setup_router (a_router: WSF_ROUTER)
+			-- Setup url dispatching for Current handler.
+			-- (note: `a_router` is already based with path prefix).
+		local
+			l_uri_mapping: WSF_URI_MAPPING
+		do
+			create l_uri_mapping.make_trailing_slash_ignored ("/import", Current)
+			a_router.map (l_uri_mapping, a_router.methods_get_post)
+		end
 
 feature -- Execution
 

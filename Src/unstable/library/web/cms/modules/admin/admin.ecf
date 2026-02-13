@@ -6,12 +6,12 @@
 			<exclude>/EIFGENs$</exclude>
 			<exclude>/\..*$</exclude>
 		</file_rule>
-		<option warning="warning"/>
+		<option warning="error"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="cms" location="..\..\cms.ecf"/>
-		<library name="cms_cli" location="..\..\cli\cli.ecf"/>
 		<library name="cms_app_env" location="..\..\library\app_env\app_env.ecf" readonly="false"/>
 		<library name="cms_auth_module" location="..\..\modules\auth\auth.ecf" readonly="false"/>
+		<library name="cms_cli" location="..\..\cli\cli.ecf"/>
 		<library name="cms_model" location="..\..\library\model\cms_model.ecf" readonly="false"/>
 		<library name="encoder" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\text\encoder\encoder.ecf"/>
 		<library name="error" location="$ISE_LIBRARY\contrib\library\utility\general\error\error.ecf"/>
