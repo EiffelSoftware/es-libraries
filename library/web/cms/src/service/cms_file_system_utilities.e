@@ -266,7 +266,44 @@ feature -- Create
 			retry
 		end
 
+feature -- Zip
+
+	zip_to (dir: PATH; archive: PATH): BOOLEAN
+			-- Zip directory `dir` to `archive` location.
+		local
+			retried: BOOLEAN
+			mz: MINIZIP
+		do
+			Result := False
+			if not retried then
+				create mz
+				mz.zip_to (dir, archive, Void)
+				Result := True
+			end
+		rescue
+			retried := True
+			retry
+		end
+
+
+	unzip_into (archive: PATH; dir: PATH): BOOLEAN
+			-- Unzip archive `archive` into directory `dir` location.
+		local
+			retried: BOOLEAN
+			mz: MINIZIP
+		do
+			Result := False
+			if not retried then
+				create mz
+				mz.unzip_into (archive, dir, Void)
+				Result := True
+			end
+		rescue
+			retried := True
+			retry
+		end
+
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
