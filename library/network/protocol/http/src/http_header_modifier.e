@@ -239,7 +239,7 @@ feature -- Content related header
 			else
 				put_content_type (a_content_type)
 			end
-		end		
+		end
 
 	add_content_type_with_parameters (a_content_type: READABLE_STRING_8; a_params: detachable ARRAY [TUPLE [name: READABLE_STRING_8; value: READABLE_STRING_8]])
 			-- Add header line "Content-Type:" + type `a_content_type' and extra paramaters `a_params'.
@@ -644,6 +644,47 @@ feature -- Cookie
 			put_cookie (key, value, date_to_rfc1123_http_date_format (expiration), path, domain, secure, http_only)
 		end
 
+feature -- Links
+
+	add_link (a_url: READABLE_STRING_8; params: detachable ITERABLE [TUPLE [name,value: READABLE_STRING_8]])
+		local
+			p, k: READABLE_STRING_8
+			s: STRING_8
+		do
+			create s.make (a_url.count)
+			s.append_character ('<')
+			s.append (a_url)
+			s.append_character ('>')
+			if params /= Void then
+				across
+					params as ic
+				loop
+					k := ic.item.name
+					if not k.has (' ') then
+						p := ic.item.value
+						s.append_character (';')
+						s.append_character (' ')
+						s.append (k)
+						s.append_character ('=')
+						if p.has (' ') or p.has ('%T') then
+							s.append_character ('"')
+							s.append (p)
+							s.append_character ('"')
+						else
+							s.append (p)
+						end
+					end
+				end
+			end
+			if attached item ("Link") as lnk then
+				s.prepend_character (' ')
+				s.prepend_character (',')
+				s.prepend (lnk)
+				put_header_key_value ("Link", s)
+			else
+				put_header_key_value ("Link", s)
+			end
+		end
 
 feature -- Access
 
@@ -689,7 +730,7 @@ feature {NONE} -- Constants
 		end
 
 note
-	copyright: "2011-2017, Jocelyn Fiat, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
