@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="yaml_json" uuid="C5D6E7F8-1A2B-3C4D-5E6F-789012345678">
+	<description>YAML to JSON and JSON to YAML converter tool</description>
+	<target name="yaml_json">
+		<root class="APPLICATION" feature="make"/>
+		<file_rule>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/\..*$</exclude>
+		</file_rule>
+		<option warning="error">
+			<assertions precondition="true" postcondition="true" check="true"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json.ecf"/>
+		<library name="yaml" location="..\..\library\yaml.ecf" readonly="false"/>
+		<cluster name="yaml_json" location=".\"/>
+	</target>
+</system>

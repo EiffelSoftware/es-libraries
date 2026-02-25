@@ -1,0 +1,16 @@
+package yaml
+
+project
+	yaml = "library/yaml.ecf"
+
+note
+	title: YAML Parser and Generator
+	description: "[
+		A YAML parser and generator library for Eiffel.
+		Supports YAML 1.2.2 specification including scalars, sequences,
+		mappings, flow/block styles, anchors, aliases, and documents.
+	]"
+	tags: yaml, parser, serialization, configuration
+	license: Eiffel Forum License v2
+
+end
