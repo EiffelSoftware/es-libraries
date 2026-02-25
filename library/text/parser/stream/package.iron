@@ -1,0 +1,17 @@
+package stream
+
+project
+	stream = "stream.ecf"
+
+note
+	title: Stream Input Library
+	description: "[
+		Input stream abstractions for sequential reading of character and byte data.
+		Provides deferred classes for character-based (CHARACTER_8) and byte-based (NATURAL_8)
+		input streams with implementations for strings, files, byte arrays, and memory pointers.
+	]"
+	tags: stream, input, parser, io, text, bytes
+	license: Eiffel Forum License v2
+	copyright: Copyright (c) 1984-2014, Eiffel Software and others
+
+end

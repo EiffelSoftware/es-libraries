@@ -1,0 +1,17 @@
+package bson
+
+project
+	bson = "library/bson.ecf"
+
+note
+	title: BSON
+	description: "[
+		BSON (Binary JSON) library for Eiffel.
+		Parse and generate BSON content according to the BSON 1.1 specification.
+	]"
+	tags: bson, binary, json, parser, serialization, mongodb
+	license: MIT
+	copyright: 2026 Jocelyn Fiat and Eiffel Software
+	link[doc]: "https://bsonspec.org/"
+
+end
