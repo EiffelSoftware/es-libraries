@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="yaml" uuid="B9F8C4A2-7A1B-4D3E-9F2C-5A8B1E6D7C3F" library_target="yaml">
+	<description>YAML parser and generator library (YAML 1.2.2 specification)</description>
+	<target name="yaml">
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+		</file_rule>
+		<option namespace="EYAML.Library"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf" readonly="true"/>
+		<cluster name="yaml" location=".\">
+			<cluster name="yaml_kernel" location=".\kernel\" recursive="true"/>
+			<cluster name="yaml_parser" location=".\parser\" recursive="true"/>
+			<cluster name="yaml_utility" location=".\utility\" recursive="true"/>
+		</cluster>
+	</target>
+</system>
