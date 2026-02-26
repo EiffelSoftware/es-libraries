@@ -9,20 +9,58 @@
 			<exclude>/tests$</exclude>
 		</file_rule>
 		<option warning="warning" namespace="EiffelSoftware.Library"/>
+		<external_include location="$ECF_CONFIG_PATH/spec/include"/>
+		<external_linker_flag value="bcrypt.lib">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_linker_flag>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<cluster name="crypto" location=".\" recursive="true">
 			<file_rule>
 				<exclude>/encoder$</exclude>
 				<exclude>/support$</exclude>
+				<exclude>/rng$</exclude>
 			</file_rule>
 		</cluster>
 		<cluster name="crypto_encoder" location=".\encoder\"/>
 		<cluster name="crypto_support" location=".\support\" hidden="true"/>
+		<cluster name="rng" location=".\rng">
+			<cluster name="rng_windows" location="$|windows" >
+				<!-- Windows-specific RNG classes (BCRYPT_RNG, CSPRNG_FACTORY) -->
+				<condition>
+					<platform value="windows"/>
+				</condition>
+			</cluster>
+			<cluster name="rng_unix" location="$|unix" >
+				<!-- Unix-specific RNG classes (URANDOM_RNG, CSPRNG_FACTORY) -->
+				<condition>
+					<platform excluded_value="windows"/>
+				</condition>
+			</cluster>
+		</cluster>
 	</target>
 	<target name="crypto_tests" extends="crypto">
 		<root class="TEST_MESSAGE_DIGEST" feature="make"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
-		<tests name="tests" location=".\tests\" recursive="true"/>
+		<tests name="tests" location=".\tests\" recursive="true">
+			<file_rule>
+				<exclude>/windows$</exclude>
+				<exclude>/unix$</exclude>
+			</file_rule>
+		</tests>
+		<!-- Windows-specific tests (TEST_BCRYPT_RNG) -->
+		<tests name="tests_windows" location=".\tests\windows\">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</tests>
+		<!-- Unix-specific tests (TEST_URANDOM_RNG) -->
+		<tests name="tests_unix" location=".\tests\unix\">
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</tests>
 	</target>
 </system>
