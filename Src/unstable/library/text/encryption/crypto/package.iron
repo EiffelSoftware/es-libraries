@@ -6,19 +6,19 @@ project
 note
 	title: Eiffel Crypto
 	description: "[
-Eiffel Encryption facilities written in Eiffel, without
-dependencies on specific C library.
+Eiffel Encryption facilities written in Eiffel, without extra dependencies on specific C library.
 Support for
 	- bcrypt
 	- hashing: md5, sha1, sha256, message_digest
 	- hmac: hmac_md5, hmac_sha1, hmac_sha256
 	- salt, xor_shift_64
+	- rng: cryptographically secure random number generator (Windows BCryptGenRandom, Unix /dev/urandom or getrandom)
 				]"
 
-	tags: encryption,bcrypt, md5,sha,sha1,sha256,message,digest,hmac,salt
-	copyright: 1984-2016, Eiffel Software and others
+	tags: encryption,bcrypt,md5,sha,sha1,sha256,message,digest,hmac,csprng,random,salt,rng
+	copyright: 1984-2025, Eiffel Software and others
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	link[license]: http://www.eiffel.com/licensing/forum.txt
-	link[source]: https://svn.eiffel.com/eiffelstudio/trunk/Src/unstable/library/text/encryption/crypto
+	link[source]: https://github.com/EiffelSoftware/es-libraries/tree/master/Src/unstable/library/text/encryption/crypto
 
 end
