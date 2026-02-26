@@ -42,7 +42,7 @@ feature {NONE} -- Initialization
 		require
 			a_pattern_not_void: a_pattern /= Void
 		do
-			create pattern.make_from_string (a_pattern.to_string_32)
+			create pattern.make_from_string_general (a_pattern)
 			create options.make_empty
 		ensure
 			pattern_set: pattern.same_string (a_pattern)
@@ -55,7 +55,7 @@ feature {NONE} -- Initialization
 			a_pattern_not_void: a_pattern /= Void
 			a_options_not_void: a_options /= Void
 		do
-			create pattern.make_from_string (a_pattern.to_string_32)
+			create pattern.make_from_string_general (a_pattern)
 			options := sorted_options (a_options)
 		ensure
 			pattern_set: pattern.same_string (a_pattern)
@@ -220,6 +220,13 @@ invariant
 	options_not_void: options /= Void
 
 note
-	copyright: "2026, Jocelyn Fiat and Eiffel Software"
-	license: "MIT License"
+	copyright: "Copyright (c) 1984-2026, Eiffel Software and others"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
+	source: "[
+			Eiffel Software
+			5949 Hollister Ave., Goleta, CA 93117 USA
+			Telephone 805-685-1006, Fax 805-685-6869
+			Website http://www.eiffel.com
+			Customer support http://support.eiffel.com
+		]"
 end
