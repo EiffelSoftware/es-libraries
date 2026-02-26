@@ -81,8 +81,10 @@ feature -- Conversion
 				end
 			else
 				errors.extend ({STRING_32} "Failed to parse YAML")
-				across yaml_parser.errors as err loop
-					errors.extend (err)
+				if attached yaml_parser.errors as errs then
+					across errs as err loop
+						errors.extend (err)
+					end
 				end
 			end
 		end
@@ -136,8 +138,10 @@ feature -- Conversion
 				Result := writer.output
 			else
 				errors.extend ({STRING_32} "Failed to parse YAML")
-				across yaml_parser.errors as err loop
-					errors.extend (err)
+				if attached yaml_parser.errors as errs then
+					across errs as err loop
+						errors.extend (err)
+					end
 				end
 			end
 		end
