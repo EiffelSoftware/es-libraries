@@ -13,5 +13,5 @@ note
 	tags: stream, input, parser, io, text, bytes
 	license: Eiffel Forum License v2
 	copyright: Copyright (c) 1984-2014, Eiffel Software and others
-
+	link[source]: https://github.com/EiffelSoftware/es-libraries/tree/master/Src/contrib/library/text/parser/stream
 end

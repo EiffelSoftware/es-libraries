@@ -13,5 +13,5 @@ note
 	license: MIT
 	copyright: 2026 Jocelyn Fiat and Eiffel Software
 	link[doc]: "https://bsonspec.org/"
-
+	link[source]: https://github.com/EiffelSoftware/es-libraries/tree/master/Src/contrib/library/text/parser/bson
 end

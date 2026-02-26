@@ -12,5 +12,6 @@ note
 	]"
 	tags: yaml, parser, serialization, configuration
 	license: Eiffel Forum License v2
+	link[source]: https://github.com/EiffelSoftware/es-libraries/tree/master/Src/contrib/library/text/parser/yaml
 
 end
