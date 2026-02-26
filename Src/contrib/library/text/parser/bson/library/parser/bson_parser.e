@@ -292,8 +292,8 @@ feature {NONE} -- Implementation
 			l_pattern := read_cstring
 			if l_pattern /= Void then
 				l_options := read_cstring
-				if l_options /= Void then
-					create Result.make_with_options (l_pattern, l_options)
+				if l_options /= Void and then l_options.is_valid_as_string_8 then
+					create Result.make_with_options (l_pattern, l_options.to_string_8)
 				end
 			end
 		end
@@ -512,4 +512,14 @@ feature {NONE} -- Reading primitives
 			last_error_set: last_error.has_substring (a_message)
 		end
 
+note
+	copyright: "Copyright (c) 1984-2026, Eiffel Software and others"
+	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
+	source: "[
+			Eiffel Software
+			5949 Hollister Ave., Goleta, CA 93117 USA
+			Telephone 805-685-1006, Fax 805-685-6869
+			Website http://www.eiffel.com
+			Customer support http://support.eiffel.com
+		]"
 end
