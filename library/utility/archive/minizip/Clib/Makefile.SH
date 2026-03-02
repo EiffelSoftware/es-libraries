@@ -45,8 +45,8 @@ MINIZIP_LIBS = libminiz.a libmtminiz.a
 $spitshell >>Makefile <<'!NO!SUBS!'
 
 all: $(MINIZIP_LIBS)
-	$(MKDIR) spec/$(PLATFORM)/lib
-	$(MV) $? spec/$(PLATFORM)/lib
+	$(MKDIR) ../spec/$(PLATFORM)/lib
+	$(MV) $? ../spec/$(PLATFORM)/lib
 	$(MAKE) clobber
 
 SRC =  eif_miniz_zip.c eif_miniz_unzip.c miniz.c
