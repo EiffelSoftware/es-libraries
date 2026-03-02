@@ -186,7 +186,7 @@ feature -- Url
 			end
 			if l_abs then
 				i := a_path.substring_index ("://", 1)
-				if i = 0 or i > 5 then -- no, or not from http:// or https://
+				if i = 0 or i > 6 then -- no, or not from http:// or https://
 					create Result.make_from_string (site_url)
 					if a_path.is_empty then
 					elseif Result.ends_with ("/") then
@@ -287,6 +287,6 @@ feature -- Url
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
