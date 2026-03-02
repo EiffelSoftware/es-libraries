@@ -36,7 +36,7 @@ PLATFORM = $ISE_PLATFORM
 
 SOURCES =  \$(LSRCS)
 
-MINIZIP_LIBS = minizip.a
+MINIZIP_LIBS = libminiz.a libmtminiz.a
 ########################################################################
 # New suffixes and associated building rules -- edit with care
 
