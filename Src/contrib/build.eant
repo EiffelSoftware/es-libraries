@@ -29,9 +29,11 @@
 
 	<target name="_build_tpl_" >
 		<argument name="_target_name" />
+
 		<!--
 		<geant target="${_target_name}" dir="library/foo/bar" file="build.eant" reuse_variables="true" />
 		-->
+		<geant target="${_target_name}" dir="library/utility/archive/minizip/Clib" file="build.eant" reuse_variables="true" />
 	</target>
 	
 </project>

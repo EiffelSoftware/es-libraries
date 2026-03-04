@@ -13,11 +13,12 @@
 	</target>
 	
 	<target name="compile" >
+		<echo message="- Compile [minizip]/Clib" />
 		<exec executable="finish_freezing -library" />
 	</target>
 
 	<target name="clean" >  
-		<echo message="- Clean [C_library/minizip]" />
+		<echo message="- Clean [minizip]/Clib" />
 		<delete directory="spec/${ISE_PLATFORM}" unless="${is_windows}"/>
 		<delete directory="spec\${ISE_PLATFORM}\${ISE_C_COMPILER}" if="${is_windows}" />
 	</target>

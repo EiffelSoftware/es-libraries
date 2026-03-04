@@ -17,7 +17,7 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_bucket: READABLE_STRING_8; a_region: STRING_8; a_prefix: detachable READABLE_STRING_8; a_access_key: READABLE_STRING_32; a_secret_key: READABLE_STRING_32)
+	make (a_bucket: READABLE_STRING_8; a_region: READABLE_STRING_8; a_prefix: detachable READABLE_STRING_8; a_access_key, a_secret_key: READABLE_STRING_8)
 			-- Initialize S3 client with `a_endpoint`, `a_access_key`, `a_secret_key`, `a_bucket`, and `a_region`.
 		require
 			access_key_not_empty: a_access_key /= Void and then not a_access_key.is_empty
@@ -39,7 +39,7 @@ feature {NONE} -- Initialization
 			secret_key_set: attached secret_key as sk and then sk.same_string (a_secret_key)
 		end
 
-	make_with_s3_url (a_s3_url: READABLE_STRING_8; a_region: STRING_8; a_access_key: READABLE_STRING_32; a_secret_key: READABLE_STRING_32)
+	make_with_s3_url (a_s3_url: READABLE_STRING_8; a_region: READABLE_STRING_8; a_access_key, a_secret_key: READABLE_STRING_8)
 		require
 			a_s3_url.starts_with ("s3://")
 		do
@@ -62,7 +62,7 @@ feature {NONE} -- Initialization
 			region_set: region.same_string (a_region)
 		end
 
-	make_with_endpoint (a_endpoint: READABLE_STRING_8; a_region: STRING_8; a_access_key: READABLE_STRING_32; a_secret_key: READABLE_STRING_32)
+	make_with_endpoint (a_endpoint: READABLE_STRING_8; a_region: READABLE_STRING_8; a_access_key, a_secret_key: READABLE_STRING_8)
 			-- Initialize S3 client with `a_endpoint`, `a_access_key`, `a_secret_key`, and `a_region`.
 		require
 			endpoint_not_empty: a_endpoint /= Void and then not a_endpoint.is_empty
@@ -130,10 +130,10 @@ feature -- Access
 	prefix: detachable IMMUTABLE_STRING_8
 			-- Optional prefix.
 
-	access_key: IMMUTABLE_STRING_32
+	access_key: IMMUTABLE_STRING_8
 			-- Access key for authentication.
 
-	secret_key: IMMUTABLE_STRING_32
+	secret_key: IMMUTABLE_STRING_8
 			-- Secret key for authentication.
 
 	region: IMMUTABLE_STRING_8

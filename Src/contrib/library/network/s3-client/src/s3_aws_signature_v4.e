@@ -9,7 +9,7 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_access_key: READABLE_STRING_32; a_secret_key: READABLE_STRING_32; a_region: READABLE_STRING_8; a_service: READABLE_STRING_8)
+	make (a_access_key: READABLE_STRING_8; a_secret_key: READABLE_STRING_8; a_region: READABLE_STRING_8; a_service: READABLE_STRING_8)
 			-- Initialize signature generator with `a_access_key`, `a_secret_key`, `a_region`, and `a_service`.
 		require
 			access_key_not_empty: a_access_key /= Void and then not a_access_key.is_empty
@@ -30,10 +30,10 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	access_key: detachable IMMUTABLE_STRING_32
+	access_key: detachable IMMUTABLE_STRING_8
 			-- AWS access key.
 
-	secret_key: detachable IMMUTABLE_STRING_32
+	secret_key: detachable IMMUTABLE_STRING_8
 			-- AWS secret key.
 
 	region: IMMUTABLE_STRING_8
@@ -88,7 +88,7 @@ feature -- Signature generation
 			Result.append ("AWS4-HMAC-SHA256 ");
 			Result.append ("Credential=")
 			if attached access_key as ak then
-				Result.append (ak.to_string_8)
+				Result.append (ak)
 			end;
 			Result.append ("/");
 			Result.append (credential_scope);
@@ -300,7 +300,7 @@ feature {NONE} -- Implementation
 		do
 			create k_secret.make_from_string ("AWS4")
 			if attached secret_key as sk then
-				k_secret.append (sk.to_string_8)
+				k_secret.append (sk)
 			end
 			create hmac.make_ascii_key (k_secret);
 			hmac.update_from_string (a_date_stamp)

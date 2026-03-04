@@ -36,7 +36,7 @@ PLATFORM = $ISE_PLATFORM
 
 SOURCES =  \$(LSRCS)
 
-MINIZIP_LIBS = minizip.a
+MINIZIP_LIBS = libminiz.a libmtminiz.a
 ########################################################################
 # New suffixes and associated building rules -- edit with care
 
@@ -45,8 +45,8 @@ MINIZIP_LIBS = minizip.a
 $spitshell >>Makefile <<'!NO!SUBS!'
 
 all: $(MINIZIP_LIBS)
-	$(MKDIR) spec/$(PLATFORM)/lib
-	$(MV) $? spec/$(PLATFORM)/lib
+	$(MKDIR) ../spec/$(PLATFORM)/lib
+	$(MV) $? ../spec/$(PLATFORM)/lib
 	$(MAKE) clobber
 
 SRC =  eif_miniz_zip.c eif_miniz_unzip.c miniz.c
