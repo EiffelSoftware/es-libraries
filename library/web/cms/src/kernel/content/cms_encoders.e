@@ -200,6 +200,40 @@ feature -- Helper conversions to and from string
 			instance_free: class
 		end
 
+	date_to_yyyy_mm_dd_string (d: DATE; sep: CHARACTER): STRING_8
+		do
+			create Result.make (10)
+			Result.append (d.year.out)
+			Result.append_character (sep)
+			if d.month < 10 then
+				Result.append_character ('0')
+			end
+			Result.append (d.month.out)
+			Result.append_character (sep)
+			if d.day < 10 then
+				Result.append_character ('0')
+			end
+			Result.append (d.day.out)
+		end
+
+	date_from_yyyy_mm_dd_string	(s: READABLE_STRING_GENERAL; sep: CHARACTER): detachable DATE
+		local
+			y,m,d: INTEGER
+		do
+			if
+				s.occurrences (sep) = 2 and then
+				s [5] = sep and then
+				s [8] = sep
+			then
+				y := s.substring (1, 4).to_integer
+				m := s.substring (6, 7).to_integer
+				d := s.substring (9, 10).to_integer
+				create Result.make (y,m,d)
+			end
+		ensure
+			instance_free: class
+		end
+
 	list_to_csv_string (a_strings: ITERABLE [READABLE_STRING_GENERAL]): STRING_32
 			-- `a_strings` as comma separated value string.
 		do
@@ -259,6 +293,6 @@ feature -- Helper conversions to and from string
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
