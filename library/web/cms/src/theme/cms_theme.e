@@ -178,7 +178,13 @@ feature {NONE} -- Implementation
 				end
 				s.append ("<a href=%"")
 				s.append (url (lnk.location, Void))
-				s.append ("%">")
+				s.append ("%"")
+				if attached lnk.target as tgt then
+					s.append (" target=%"")
+					s.append (url_encoded (tgt))
+					s.append ("%"")
+				end
+				s.append (">")
 				s.append (html_encoded (lnk.title))
 				s.append ("</a>")
 				if
@@ -198,7 +204,7 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

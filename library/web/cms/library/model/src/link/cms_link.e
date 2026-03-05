@@ -37,6 +37,9 @@ feature -- Access
 	location: READABLE_STRING_8
 			-- Associated url location.
 
+	target: detachable READABLE_STRING_8
+			-- Optional target (to open in a new tab)
+
 	weight: INTEGER
 			-- Optional weight used for order.
 
@@ -192,6 +195,12 @@ feature -- Element change
 			-- Set `location' to `a_loc'.
 		do
 			location := a_loc
+		end
+
+	set_target (a_target: detachable READABLE_STRING_8)
+			-- Set `target' to `a_target'.
+		do
+			target := a_target
 		end
 
 	set_weight (a_weight: INTEGER)
