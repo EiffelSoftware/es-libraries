@@ -39,6 +39,29 @@ feature -- Settings
 	use_flow_style: BOOLEAN
 			-- Should collections use flow style by default?
 
+feature {NONE} -- Internal
+
+	is_writing_key: BOOLEAN
+			-- Is writting key ?
+
+	enter_key
+		require
+			not is_writing_key
+		do
+			is_writing_key := True
+		ensure
+			is_writing_key
+		end
+
+	leave_key
+		require
+			is_writing_key
+		do
+			is_writing_key := False
+		ensure
+			not is_writing_key
+		end
+
 feature -- Element change
 
 	set_indent_size (a_size: INTEGER)
@@ -141,7 +164,7 @@ feature {NONE} -- Implementation
 			needs_quoting: BOOLEAN
 			value: STRING_32
 		do
-			value := a_scalar.value
+			value := a_scalar.to_string_value
 			if attached a_scalar.anchor as anch then
 				output.append ("&")
 				output.append (anch)
@@ -168,7 +191,7 @@ feature {NONE} -- Implementation
 				write_folded_content (value)
 			else
 				-- Plain style
-				needs_quoting := needs_quoting_for_plain (value)
+				needs_quoting := needs_quoting_for_plain (a_scalar)
 				if needs_quoting then
 					output.append_character ('"')
 					output.append (escape_double_quoted (value))
@@ -188,30 +211,30 @@ feature {NONE} -- Implementation
 				output.append ("[]%N")
 			else
 				first_item := True
-				across a_sequence as ic loop
+				across a_sequence as val loop
 					if not first_item then
 						write_indent
 					end
 					output.append ("- ")
-					if ic.is_mapping or ic.is_sequence then
-						if ic.is_mapping and then ic.as_mapping.is_flow_style then
-							-- Flow-style mapping: write inline and add newline
-							ic.accept (Current)
+					if val.is_mapping or val.is_sequence then
+						if attached {YAML_MAPPING} val as map and then map.is_flow_style then
+								-- Flow-style mapping: write inline and add newline
+							map.accept (Current)
 							output.append_character ('%N')
-						elseif ic.is_sequence and then ic.as_sequence.is_flow_style then
+						elseif attached {YAML_SEQUENCE} val as seq and then seq.is_flow_style then
 							-- Flow-style sequence: write inline and add newline
-							ic.accept (Current)
+							seq.accept (Current)
 							output.append_character ('%N')
 						else
 							-- Block-style: newline before, indent, then content
 							output.append_character ('%N')
 							current_indent := current_indent + indent_size
 							write_indent
-							ic.accept (Current)
+							val.accept (Current)
 							current_indent := current_indent - indent_size
 						end
 					else
-						ic.accept (Current)
+						val.accept (Current)
 						output.append_character ('%N')
 					end
 					first_item := False
@@ -229,11 +252,11 @@ feature {NONE} -- Implementation
 			use_flow_style := True
 			output.append_character ('[')
 			first_item := True
-			across a_sequence as ic loop
+			across a_sequence as val loop
 				if not first_item then
 					output.append (", ")
 				end
-				ic.accept (Current)
+				val.accept (Current)
 				first_item := False
 			end
 			output.append_character (']')
@@ -243,50 +266,67 @@ feature {NONE} -- Implementation
 	write_block_mapping (a_mapping: YAML_MAPPING)
 			-- Write block-style mapping.
 		local
-			i: INTEGER
 			first_item: BOOLEAN
-			key: YAML_VALUE
-			val: YAML_VALUE
+			key: YAML_STRING
 		do
 			if a_mapping.is_empty then
 				output.append ("{}%N")
 			else
 				first_item := True
-				from
-					i := 1
-				until
-					i > a_mapping.count
+				across
+					a_mapping as val
 				loop
-					if not first_item then
+					if first_item then
+						first_item := False
+					else
 						write_indent
 					end
-					key := a_mapping.key_at (i)
-					val := a_mapping.value_at_index (i)
+					key := @val.key
+					enter_key
 					key.accept (Current)
+					leave_key
 					output.append_character (':')
 					if val.is_mapping or val.is_sequence then
-						if val.is_mapping and then val.as_mapping.is_flow_style then
-							-- Flow-style mapping: write inline and add newline
-							output.append_character (' ')
-							val.accept (Current)
-							output.append_character ('%N')
-						elseif val.is_sequence and then val.as_sequence.is_flow_style then
-							-- Flow-style sequence: write inline and add newline
-							output.append_character (' ')
-							val.accept (Current)
-							output.append_character ('%N')
-						elseif val.is_mapping and then val.as_mapping.is_empty then
-							-- Empty mapping: write {} and add newline
-							output.append_character (' ')
-							val.accept (Current)
-							output.append_character ('%N')
-						elseif val.is_sequence and then val.as_sequence.is_empty then
-							-- Empty sequence: write [] and add newline
-							output.append_character (' ')
-							val.accept (Current)
-							output.append_character ('%N')
+						if attached {YAML_MAPPING} val as map then
+							if map.is_flow_style then
+									-- Flow-style mapping: write inline and add newline
+								output.append_character (' ')
+								val.accept (Current)
+								output.append_character ('%N')
+							elseif map.is_empty then
+									-- Empty mapping: write {} and add newline
+								output.append_character (' ')
+								val.accept (Current)
+								output.append_character ('%N')
+							else
+									-- Block-style: newline before, indent, then content
+								output.append_character ('%N')
+								current_indent := current_indent + indent_size
+								write_indent
+								val.accept (Current)
+								current_indent := current_indent - indent_size
+							end
+						elseif attached {YAML_SEQUENCE} val as seq then
+							if seq.is_flow_style then
+									-- Flow-style sequence: write inline and add newline
+								output.append_character (' ')
+								val.accept (Current)
+								output.append_character ('%N')
+							elseif seq.is_empty then
+									-- Empty sequence: write [] and add newline
+								output.append_character (' ')
+								val.accept (Current)
+								output.append_character ('%N')
+							else
+									-- Block-style: newline before, indent, then content
+								output.append_character ('%N')
+								current_indent := current_indent + indent_size
+								write_indent
+								val.accept (Current)
+								current_indent := current_indent - indent_size
+							end
 						else
-							-- Block-style: newline before, indent, then content
+								-- Block-style: newline before, indent, then content
 							output.append_character ('%N')
 							current_indent := current_indent + indent_size
 							write_indent
@@ -298,8 +338,6 @@ feature {NONE} -- Implementation
 						val.accept (Current)
 						output.append_character ('%N')
 					end
-					first_item := False
-					i := i + 1
 				end
 			end
 		end
@@ -313,17 +351,18 @@ feature {NONE} -- Implementation
 			saved_flow := use_flow_style
 			use_flow_style := True
 			output.append_character ('{')
-			from
-				i := 1
-			until
-				i > a_mapping.count
+			i := 1
+			across
+				a_mapping.items as v
 			loop
 				if i > 1 then
 					output.append (", ")
 				end
-				a_mapping.key_at (i).accept (Current)
+				enter_key
+				;(@v.key).accept (Current)
+				leave_key
 				output.append (": ")
-				a_mapping.value_at_index (i).accept (Current)
+				v.accept (Current)
 				i := i + 1
 			end
 			output.append_character ('}')
@@ -436,41 +475,93 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	needs_quoting_for_plain (a_value: STRING_32): BOOLEAN
+	needs_quoting_for_plain (a_scalar: YAML_SCALAR): BOOLEAN
 			-- Does `a_value` need quoting when written as plain scalar?
 		local
-			lower: STRING_32
+			i,n: INTEGER
+			val: STRING_32
+			l_is_string: BOOLEAN
 		do
-			if a_value.is_empty then
+			val := a_scalar.to_string_value
+			l_is_string := a_scalar.is_string
+				-- https://yaml.org/spec/1.2.2/#double-quoted-style
+			if val.is_empty then
 				Result := True
 			else
-				lower := a_value.as_lower
-				-- Check for reserved values
-				if lower.same_string ("true") or lower.same_string ("false") or
-				   lower.same_string ("yes") or lower.same_string ("no") or
-				   lower.same_string ("on") or lower.same_string ("off") or
-				   lower.same_string ("null") or lower.same_string ("~") then
-					-- These might be ambiguous
-					Result := False
-				end
-				-- Check for special characters
-				if a_value.has (':') or a_value.has ('#') or a_value.has ('[') or
-				   a_value.has (']') or a_value.has ('{') or a_value.has ('}') or
-				   a_value.has (',') or a_value.has ('&') or a_value.has ('*') or
-				   a_value.has ('!') or a_value.has ('|') or a_value.has ('>') or
-				   a_value.has ('%'') or a_value.has ('"') or a_value.has ('%%') or
-				   a_value.has ('@') or a_value.has ('`') then
+				n := val.count
+					-- Check for leading/trailing whitespace
+				if
+					val [1] = ' ' or val [1] = '%T' or
+					val [n] = ' ' or val [n] = '%T'
+				then
 					Result := True
+				else
+						-- Check for reserved values
+					if
+						l_is_string and then -- Check only for yaml string values.
+						not is_writing_key and then
+						n <= 5 and then  -- max reserved values length is 5 for "false"
+						attached val.as_lower as lower
+					then
+						if
+									lower.same_string ("true")
+							or else lower.same_string ("false")
+							or else lower.same_string ("yes")
+							or else lower.same_string ("no")
+							or else lower.same_string ("on")
+							or else lower.same_string ("off")
+							or else lower.same_string ("null")
+							or else lower.same_string ("~")
+						then
+							Result := True
+						end
+					end
+
+					from
+						i := 1
+					until
+						i > n or Result
+					loop
+						inspect
+							val [i]
+						when '%N', '%R' then -- Check for newlines
+							Result := True
+						when -- Check for special characters
+							':', '#', '[', ']', '{','}',
+							',','&','*','!','|','>',
+							'%'','"','%%','@','`'
+						then
+							Result := True
+--						when '%T', ' ' then -- whitespace ?						
+						else
+							-- TODO: check for numeric and date...
+						end
+						i := i + 1
+					end
 				end
-				-- Check for leading/trailing whitespace
-				if a_value [1] = ' ' or a_value [1] = '%T' or
-				   a_value [a_value.count] = ' ' or a_value [a_value.count] = '%T' then
-					Result := True
-				end
+
+--				lower := val.as_lower
+--				-- Check for reserved values
+--				if lower.same_string ("true") or lower.same_string ("false") or
+--				   lower.same_string ("yes") or lower.same_string ("no") or
+--				   lower.same_string ("on") or lower.same_string ("off") or
+--				   lower.same_string ("null") or lower.same_string ("~") then
+--					-- These might be ambiguous
+--					Result := False
+--				end
+--				-- Check for special characters
+--				if val.has (':') or val.has ('#') or val.has ('[') or
+--				   val.has (']') or val.has ('{') or val.has ('}') or
+--				   val.has (',') or val.has ('&') or val.has ('*') or
+--				   val.has ('!') or val.has ('|') or val.has ('>') or
+--				   val.has ('%'') or val.has ('"') or val.has ('%%') or
+--				   val.has ('@') or val.has ('`') then
+--					Result := True
+--				end
 				-- Check for newlines
-				if a_value.has ('%N') or a_value.has ('%R') then
-					Result := True
-				end
+--				if val.has ('%N') or val.has ('%R') then
+--					Result := True
+--				end
 			end
 		end
 

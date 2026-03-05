@@ -97,11 +97,11 @@ feature -- Test routines
 				reparsed := parser.parse_string (writer.output)
 				if attached {YAML_MAPPING} reparsed as m then
 					assert ("has_int", m.has_key ("int"))
-					if attached m.value_at ("int") as v then
+					if attached m ["int"] as v then
 						assert ("int_is_integer", v.is_integer)
 					end
 					assert ("has_bool", m.has_key ("bool"))
-					if attached m.value_at ("bool") as v then
+					if attached m ["bool"] as v then
 						assert ("bool_is_boolean", v.is_boolean)
 					end
 				end
@@ -121,12 +121,46 @@ feature -- Test routines
 			original := parser.parse_string (yaml)
 			assert ("original_parsed", original /= Void)
 			if attached {YAML_SCALAR} original as s then
-				assert ("original_value", s.value.same_string ("hello world"))
+				assert ("original_value", s.to_string_value.same_string ("hello world"))
 				create writer.make
 				writer.write_value (s)
 				reparsed := parser.parse_string (writer.output)
 				if attached {YAML_SCALAR} reparsed as rs then
-					assert ("reparsed_value", rs.value.same_string ("hello world"))
+					assert ("reparsed_value", rs.to_string_value.same_string ("hello world"))
+				end
+			end
+		end
+
+	test_roundtrip_quoted_reserved_strings
+			-- Test roundtrip of quoted strings.
+		local
+			parser: YAML_PARSER
+			writer: YAML_WRITER
+			original, reparsed: detachable YAML_VALUE
+			yaml: STRING
+		do
+			yaml := "{int: %"42%", bool: %"true%", null_val: %"null%", on: %"yes%" }"
+			create parser.make
+			original := parser.parse_string (yaml)
+			assert ("original_parsed", original /= Void)
+			create writer.make
+			writer.set_use_flow_style (True)
+			if attached original as o then
+				writer.write_value (o)
+				reparsed := parser.parse_string (writer.output)
+				if attached {YAML_MAPPING} reparsed as m then
+					assert ("has_int", m.has_key ("int"))
+					if attached m ["int"] as v then
+						assert ("int_is_string", v.is_string and then v.same_string ("42"))
+					end
+					assert ("has_bool", m.has_key ("bool"))
+					if attached m ["bool"] as v then
+						assert ("bool_is_string", v.is_string and then v.same_string ("true"))
+					end
+					assert ("has_on", m.has_key ("on"))
+					if attached m ["on"] as v then
+						assert ("on_is_string", v.is_string and then v.same_string ("yes"))
+					end
 				end
 			end
 		end
@@ -143,11 +177,11 @@ feature -- Test routines
 				-- Build a YAML structure programmatically
 			create mapping.make
 			mapping.put_string ("Test", "name")
-			mapping.put (create {YAML_SCALAR}.make_integer (10), "count")
-			mapping.put (create {YAML_SCALAR}.make_boolean (True), "enabled")
+			mapping.put (create {YAML_INTEGER}.make_integer_64 (10), "count")
+			mapping.put (create {YAML_BOOLEAN}.make (True), "enabled")
 			create seq.make
-			seq.extend (create {YAML_STRING}.make ("item1"))
-			seq.extend (create {YAML_STRING}.make ("item2"))
+			seq.extend (create {YAML_STRING}.make_plain ("item1"))
+			seq.extend (create {YAML_STRING}.make_plain ("item2"))
 			mapping.put (seq, "items")
 
 				-- Write it
@@ -165,7 +199,7 @@ feature -- Test routines
 				assert ("has_count", m.has_key ("count"))
 				assert ("has_enabled", m.has_key ("enabled"))
 				assert ("has_items", m.has_key ("items"))
-				if attached m.value_at ("items") as items then
+				if attached m ["items"] as items then
 					assert ("items_is_sequence", items.is_sequence)
 				end
 			end

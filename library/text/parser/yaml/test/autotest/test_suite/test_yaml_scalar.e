@@ -16,7 +16,7 @@ feature -- Test routines
 		local
 			scalar: YAML_STRING
 		do
-			create scalar.make ("Hello World")
+			create scalar.make_plain ("Hello World")
 			assert ("is_scalar", scalar.is_scalar)
 			assert ("value_correct", scalar.value.same_string ("Hello World"))
 			assert ("style_is_plain", scalar.style = {YAML_SCALAR}.Style_plain)
@@ -27,29 +27,29 @@ feature -- Test routines
 		local
 			scalar: YAML_SCALAR
 		do
-			create scalar.make_null
+			create {YAML_NULL} scalar
 			assert ("is_null", scalar.is_null)
-			assert ("value_is_null", scalar.value.same_string ("null"))
+			assert ("value_is_null", scalar.to_string_value.same_string ("null"))
 		end
 
 	test_make_boolean_true
 			-- Test creating a true boolean scalar.
 		local
-			scalar: YAML_SCALAR
+			scalar: YAML_BOOLEAN
 		do
-			create scalar.make_boolean (True)
+			create scalar.make (True)
 			assert ("is_boolean", scalar.is_boolean)
-			assert ("to_boolean_true", scalar.to_boolean = True)
+			assert ("to_boolean_true", scalar.value = True)
 		end
 
 	test_make_boolean_false
 			-- Test creating a false boolean scalar.
 		local
-			scalar: YAML_SCALAR
+			scalar: YAML_BOOLEAN
 		do
-			create scalar.make_boolean (False)
+			create scalar.make (False)
 			assert ("is_boolean", scalar.is_boolean)
-			assert ("to_boolean_false", scalar.to_boolean = False)
+			assert ("to_boolean_false", scalar.value = False)
 		end
 
 	test_make_integer
@@ -57,7 +57,7 @@ feature -- Test routines
 		local
 			scalar: YAML_SCALAR
 		do
-			create scalar.make_integer (42)
+			create {YAML_INTEGER} scalar.make_integer_64 (42)
 			assert ("is_integer", scalar.is_integer)
 			assert ("to_integer_correct", scalar.to_integer_64 = 42)
 		end
@@ -67,7 +67,7 @@ feature -- Test routines
 		local
 			scalar: YAML_SCALAR
 		do
-			create scalar.make_integer (-100)
+			create {YAML_INTEGER} scalar.make_integer_64 (-100)
 			assert ("is_integer", scalar.is_integer)
 			assert ("to_integer_correct", scalar.to_integer_64 = -100)
 		end
@@ -77,7 +77,7 @@ feature -- Test routines
 		local
 			scalar: YAML_SCALAR
 		do
-			create scalar.make_real (3.14159)
+			create {YAML_REAL} scalar.make_real_64 (3.14159)
 			assert ("is_real", scalar.is_real)
 			assert ("to_real_correct", (scalar.to_real_64 - 3.14159).abs < 0.0001)
 		end
@@ -87,7 +87,7 @@ feature -- Test routines
 		local
 			str: YAML_STRING
 		do
-			create str.make_string ("123")
+			create str.make_double_quoted ("123")
 			assert ("is_string", str.is_string)
 			assert ("value_correct", str.value.same_string ("123"))
 			assert ("style_double_quoted", str.style = {YAML_SCALAR}.Style_double_quoted)
@@ -98,8 +98,7 @@ feature -- Test routines
 		local
 			scalar: YAML_STRING
 		do
-			create scalar.make ("test")
-			scalar.set_style ({YAML_SCALAR}.Style_single_quoted)
+			create scalar.make_single_quoted ("test")
 			assert ("style_single_quoted", scalar.style = {YAML_SCALAR}.Style_single_quoted)
 		end
 
@@ -108,7 +107,7 @@ feature -- Test routines
 		local
 			scalar: YAML_STRING
 		do
-			create scalar.make ("hello")
+			create scalar.make_plain ("hello")
 			assert ("plain_repr", scalar.representation.same_string ("hello"))
 		end
 
@@ -117,8 +116,7 @@ feature -- Test routines
 		local
 			scalar: YAML_STRING
 		do
-			create scalar.make ("hello")
-			scalar.set_style ({YAML_SCALAR}.Style_single_quoted)
+			create scalar.make_single_quoted ("hello")
 			assert ("single_quoted_repr", scalar.representation.same_string ("'hello'"))
 		end
 
@@ -127,8 +125,7 @@ feature -- Test routines
 		local
 			scalar: YAML_STRING
 		do
-			create scalar.make ("hello")
-			scalar.set_style ({YAML_SCALAR}.Style_double_quoted)
+			create scalar.make_double_quoted ("hello")
 			assert ("double_quoted_repr", scalar.representation.same_string ("%"hello%""))
 		end
 
@@ -137,7 +134,7 @@ feature -- Test routines
 		local
 			scalar: YAML_STRING
 		do
-			create scalar.make ("value")
+			create scalar.make_plain ("value")
 			scalar.set_anchor ("myanchor")
 			assert ("has_anchor", attached scalar.anchor as a and then a.same_string ("myanchor"))
 		end
@@ -147,7 +144,7 @@ feature -- Test routines
 		local
 			scalar: YAML_STRING
 		do
-			create scalar.make ("value")
+			create scalar.make_plain ("value")
 			scalar.set_tag ("!!str")
 			assert ("has_tag", attached scalar.tag as t and then t.same_string ("!!str"))
 		end

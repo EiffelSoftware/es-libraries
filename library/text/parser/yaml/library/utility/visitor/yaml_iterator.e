@@ -45,17 +45,12 @@ feature -- Visiting
 
 	visit_mapping (a_mapping: YAML_MAPPING)
 			-- <Precursor>
-		local
-			i: INTEGER
 		do
-			from
-				i := 1
-			until
-				i > a_mapping.count
+			across
+				a_mapping as val
 			loop
-				a_mapping.key_at (i).accept (Current)
-				a_mapping.value_at_index (i).accept (Current)
-				i := i + 1
+				(@val.key).accept (Current)
+				val.accept (Current)
 			end
 		end
 

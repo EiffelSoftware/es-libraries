@@ -189,7 +189,7 @@ feature {NONE} -- Implementation
 						if item_value /= Void then
 							Result.extend (item_value)
 						else
-							Result.extend (create {YAML_SCALAR}.make_null)
+							Result.extend (create {YAML_NULL})
 						end
 					else
 						done := True
@@ -252,7 +252,7 @@ feature {NONE} -- Implementation
 						if value_value /= Void then
 							Result.put (value_value, key_value)
 						else
-							Result.put (create {YAML_SCALAR}.make_null, key_value)
+							Result.put (create {YAML_NULL}, key_value)
 						end
 					end
 				end
@@ -353,8 +353,7 @@ feature {NONE} -- Implementation
 							text.append_character ('%N')
 						end
 						-- chomping = 2: keep all trailing newlines
-						create Result.make (text)
-						Result.set_style ({YAML_SCALAR}.Style_literal)
+						create Result.make_literal (text)
 						done := True
 					end
 				end
@@ -368,7 +367,7 @@ feature {NONE} -- Implementation
 						text.append_character ('%N')
 					end
 				end
-				create Result.make (text)
+				create Result.make_plain (text)
 				Result.set_style ({YAML_SCALAR}.Style_literal)
 			end
 		end
@@ -456,8 +455,7 @@ feature {NONE} -- Implementation
 							text.right_adjust
 							text.append_character ('%N')
 						end
-						create Result.make (text)
-						Result.set_style ({YAML_SCALAR}.Style_folded)
+						create Result.make_folded (text)
 						done := True
 					end
 				end
@@ -471,7 +469,7 @@ feature {NONE} -- Implementation
 						text.append_character ('%N')
 					end
 				end
-				create Result.make (text)
+				create Result.make_plain (text)
 				Result.set_style ({YAML_SCALAR}.Style_folded)
 			end
 		end
@@ -499,8 +497,7 @@ feature {NONE} -- Implementation
 					else
 						-- End of string
 						advance (1)
-						create Result.make_string (text)
-						Result.set_style ({YAML_SCALAR}.Style_single_quoted)
+						create Result.make_single_quoted (text)
 						done := True
 					end
 				else
@@ -510,8 +507,7 @@ feature {NONE} -- Implementation
 			end
 			if Result = Void then
 				add_error ("Unterminated single-quoted string")
-				create Result.make_string (text)
-				Result.set_style ({YAML_SCALAR}.Style_single_quoted)
+				create Result.make_single_quoted (text)
 			end
 		end
 
@@ -532,8 +528,7 @@ feature {NONE} -- Implementation
 				c := current_char
 				if c = '"' then
 					advance (1)
-					create Result.make_string (text)
-					Result.set_style ({YAML_SCALAR}.Style_double_quoted)
+					create Result.make_double_quoted (text)
 					done := True
 				elseif c = '\' then
 					text.append_character (parse_escape_sequence)
@@ -544,8 +539,7 @@ feature {NONE} -- Implementation
 			end
 			if Result = Void then
 				add_error ("Unterminated double-quoted string")
-				create Result.make_string (text)
-				Result.set_style ({YAML_SCALAR}.Style_double_quoted)
+				create Result.make_double_quoted (text)
 			end
 		end
 
@@ -671,7 +665,7 @@ feature {NONE} -- Implementation
 				advance (1) -- Skip ':'
 				skip_blanks
 				create mapping.make
-				create key_scalar.make (scalar_text)
+				create key_scalar.make_plain (scalar_text)
 				if at_end or else current_char = '%N' or else current_char = '%R' then
 					-- Value on next line - use actual indent of next content
 					skip_blanks_and_comments
@@ -683,7 +677,7 @@ feature {NONE} -- Implementation
 				if value_value /= Void then
 					mapping.put (value_value, key_scalar)
 				else
-					mapping.put (create {YAML_SCALAR}.make_null, key_scalar)
+					mapping.put (create {YAML_NULL}, key_scalar)
 				end
 				-- Continue reading more key-value pairs at same indent as first key
 				from
@@ -707,7 +701,7 @@ feature {NONE} -- Implementation
 							if not at_end and then current_char = ':' and then (peek_char (1) = ' ' or peek_char (1) = '%T' or peek_char (1) = '%N' or peek_char (1) = '%R' or at_position (position + 1)) then
 								advance (1)
 								skip_blanks
-								create key_scalar.make (scalar_text)
+								create key_scalar.make_plain (scalar_text)
 								if at_end or else current_char = '%N' or else current_char = '%R' then
 									-- Value on next line - use actual indent of next content
 									skip_blanks_and_comments
@@ -719,7 +713,7 @@ feature {NONE} -- Implementation
 								if value_value /= Void then
 									mapping.put (value_value, key_scalar)
 								else
-									mapping.put (create {YAML_SCALAR}.make_null, key_scalar)
+									mapping.put (create {YAML_NULL}, key_scalar)
 								end
 							else
 								-- Not a key: end of mapping
@@ -734,12 +728,12 @@ feature {NONE} -- Implementation
 				Result := mapping
 			else
 				-- Plain scalar
-				Result := resolve_scalar (scalar_text)
+				Result := resolve_scalar (scalar_text, False)
 			end
 		end
 
 	parse_plain_scalar_flow: YAML_SCALAR
-			-- Parse a plain scalar in flow context.
+			-- Parse a plain scalar in flow context for a key.
 		local
 			text: STRING_32
 			c: CHARACTER_32
@@ -755,7 +749,7 @@ feature {NONE} -- Implementation
 				if c = ':' or c = ',' or c = ']' or c = '}' or c = '%N' or c = '%R' then
 					-- End of plain scalar in flow context
 					text.right_adjust
-					Result := resolve_scalar (text)
+					Result := resolve_scalar (text, True)
 					done := True
 				else
 					text.append_character (c)
@@ -764,7 +758,7 @@ feature {NONE} -- Implementation
 			end
 			if Result = Void then
 				text.right_adjust
-				Result := resolve_scalar (text)
+				Result := resolve_scalar (text, True)
 			end
 		end
 
@@ -795,32 +789,36 @@ feature {NONE} -- Implementation
 			Result.right_adjust
 		end
 
-	resolve_scalar (a_text: STRING_32): YAML_SCALAR
+	resolve_scalar (a_text: STRING_32; for_key: BOOLEAN): YAML_SCALAR
 			-- Resolve plain scalar `a_text` to appropriate type.
 		local
 			lower_text: STRING_32
 		do
-			lower_text := a_text.as_lower
-			if lower_text.same_string ("null") or lower_text.same_string ("~") or a_text.is_empty then
-				create Result.make_null
-			elseif lower_text.same_string ("true") or lower_text.same_string ("yes") or lower_text.same_string ("on") then
-				create Result.make_boolean (True)
-			elseif lower_text.same_string ("false") or lower_text.same_string ("no") or lower_text.same_string ("off") then
-				create Result.make_boolean (False)
-			elseif is_integer_string (a_text) then
-				create Result.make_integer (a_text.to_integer_64)
-			elseif is_real_string (a_text) then
-				if lower_text.same_string (".inf") or lower_text.same_string ("+.inf") then
-					create Result.make_real ({REAL_64}.positive_infinity)
-				elseif lower_text.same_string ("-.inf") then
-					create Result.make_real ({REAL_64}.negative_infinity)
-				elseif lower_text.same_string (".nan") then
-					create Result.make_real ({REAL_64}.nan)
-				else
-					create Result.make_real (a_text.to_real_64)
-				end
+			if for_key then
+				create {YAML_STRING} Result.make_plain (a_text)
 			else
-				create {YAML_STRING} Result.make (a_text)
+				lower_text := a_text.as_lower
+				if lower_text.same_string_general ("null") or lower_text.same_string_general ("~") or a_text.is_empty then
+					create {YAML_NULL} Result
+				elseif lower_text.same_string_general ("true") or lower_text.same_string_general ("yes") or lower_text.same_string_general ("on") then
+					create {YAML_BOOLEAN} Result.make (True)
+				elseif lower_text.same_string_general ("false") or lower_text.same_string_general ("no") or lower_text.same_string_general ("off") then
+					create {YAML_BOOLEAN} Result.make (False)
+				elseif is_integer_string (a_text) then
+					create {YAML_INTEGER} Result.make_from_string (a_text)
+				elseif is_real_string (a_text) then
+					if lower_text.same_string_general (".inf") or lower_text.same_string_general ("+.inf") then
+						create {YAML_REAL} Result.make_positive_infinity
+					elseif lower_text.same_string_general ("-.inf") then
+						create {YAML_REAL} Result.make_negative_infinity
+					elseif lower_text.same_string_general (".nan") then
+						create {YAML_REAL} Result.make_nan
+					else
+						create {YAML_REAL} Result.make_from_string (a_text)
+					end
+				else
+					create {YAML_STRING} Result.make_plain (a_text)
+				end
 			end
 		end
 
@@ -1139,8 +1137,6 @@ feature {NONE} -- Implementation
 
 	advance (n: INTEGER)
 			-- Advance position by `n` characters.
-		local
-			i: INTEGER
 		do
 			position := position + n
 			column := column + n

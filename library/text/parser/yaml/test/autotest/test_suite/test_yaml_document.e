@@ -17,7 +17,7 @@ feature -- Test routines
 			doc: YAML_DOCUMENT
 			root: YAML_STRING
 		do
-			create root.make ("hello")
+			create root.make_plain ("hello")
 			create doc.make (root)
 			assert ("has_root", doc.has_root)
 			assert ("root_correct", doc.root = root)
@@ -74,7 +74,7 @@ feature -- Test routines
 			root: YAML_STRING
 			repr: STRING_32
 		do
-			create root.make ("hello")
+			create root.make_plain ("hello")
 			create doc.make (root)
 			repr := doc.representation
 			assert ("has_doc_start", repr.has_substring ("---"))
@@ -88,7 +88,7 @@ feature -- Test routines
 			root: YAML_STRING
 			repr: STRING_32
 		do
-			create root.make ("hello")
+			create root.make_plain ("hello")
 			create doc.make (root)
 			doc.add_tag_directive ("!", "tag:example.com:")
 			repr := doc.representation

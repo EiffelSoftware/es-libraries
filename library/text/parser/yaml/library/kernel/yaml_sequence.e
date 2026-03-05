@@ -9,24 +9,67 @@ class
 inherit
 	YAML_VALUE
 		redefine
-			is_sequence
+			is_sequence,
+			chained_item
 		end
 
 	ITERABLE [YAML_VALUE]
 
 create
-	make
+	make_empty, make_with_capacity, make,
+	make_from_string_list,
+	make_from_numeric_list
 
 feature {NONE} -- Initialization
 
-	make
-			-- Initialize empty sequence.
+	make_with_capacity (nb: INTEGER)
+			-- Initialize with a capacity of `nb' items.
 		do
-			create items.make (10)
+			create items.make (nb)
 			is_flow_style := False
 		ensure
 			empty: is_empty
 			block_style: not is_flow_style
+		end
+
+	make_empty
+			-- Initialize as empty object.
+		do
+			make_with_capacity (0)
+		end
+
+	make
+			-- Initialize with default capacity.
+		do
+			make_with_capacity (10)
+		end
+
+	make_from_string_list (lst: ITERABLE [READABLE_STRING_GENERAL])
+		do
+			if attached {FINITE [READABLE_STRING_GENERAL]} lst as f then
+				make_with_capacity (f.count)
+			else
+				make_empty
+			end
+			across
+				lst as s
+			loop
+				extend_string (s)
+			end
+		end
+
+	make_from_numeric_list (lst: ITERABLE [NUMERIC])
+		do
+			if attached {FINITE [NUMERIC]} lst as f then
+				make_with_capacity (f.count)
+			else
+				make_empty
+			end
+			across
+				lst as v
+			loop
+				extend_numeric (v)
+			end
 		end
 
 feature -- Access
@@ -42,7 +85,7 @@ feature -- Access
 			non_negative: Result >= 0
 		end
 
-	item (i: INTEGER): YAML_VALUE
+	i_th alias "[]" (i: INTEGER): YAML_VALUE
 			-- Item at index `i`.
 		require
 			valid_index: i >= 1 and i <= count
@@ -70,6 +113,16 @@ feature -- Access
 			Result := items.last
 		ensure
 			result_attached: Result /= Void
+		end
+
+	chained_item alias "/" (a_key: YAML_STRING): YAML_VALUE
+			-- <Precursor>.
+		do
+			if a_key.value.is_integer then
+				Result := i_th (a_key.value.to_integer)
+			else
+				Result := Precursor (a_key)
+			end
 		end
 
 feature -- Status report
@@ -104,7 +157,17 @@ feature -- Element change
 			items.extend (a_value)
 		ensure
 			one_more: count = old count + 1
-			added: item (count) = a_value
+			added: last = a_value
+		end
+
+	put_front (a_value: YAML_VALUE)
+		require
+			value_not_void: a_value /= Void
+		do
+			items.put_front (a_value)
+		ensure
+			one_more: count = old count + 1
+			added: first = a_value
 		end
 
 	put (a_value: YAML_VALUE; i: INTEGER)
@@ -115,7 +178,7 @@ feature -- Element change
 		do
 			items [i] := a_value
 		ensure
-			replaced: item (i) = a_value
+			replaced: i_th (i) = a_value
 		end
 
 	remove (i: INTEGER)
@@ -127,6 +190,16 @@ feature -- Element change
 			items.remove
 		ensure
 			one_less: count = old count - 1
+		end
+
+	prune_all (v: YAML_VALUE)
+			-- Remove all occurrences of `v'.
+		require
+			v_not_void: v /= Void
+		do
+			items.prune_all (v)
+		ensure
+			not_has_new_value: not items.has (v)
 		end
 
 	wipe_out
@@ -144,6 +217,82 @@ feature -- Element change
 		ensure
 			flow_style_set: is_flow_style = a_value
 		end
+
+feature -- Helpers
+
+	extend_string (s: READABLE_STRING_GENERAL)
+		do
+			extend (create {YAML_STRING}.make (s))
+		end
+
+	extend_numeric (v: NUMERIC)
+		do
+			if attached {INTEGER_32_REF} v as i32 then
+				extend_integer_32 (i32)
+			elseif attached {INTEGER_64_REF} v as i64 then
+				extend_integer_64 (i64)
+			elseif attached {NATURAL_32_REF} v as n32 then
+				extend_natural_32 (n32)
+			elseif attached {NATURAL_64_REF} v as n64 then
+				extend_natural_64 (n64)
+			elseif attached {REAL_32_REF} v as r32 then
+				extend_real_32 (r32)
+			elseif attached {REAL_64_REF} v as r64 then
+				extend_real_64 (r64)
+			elseif attached {INTEGER_8_REF} v as i then
+				extend_integer_32 (i.to_integer_32)
+			elseif attached {INTEGER_16_REF} v as i then
+				extend_integer_32 (i.to_integer_32)
+			elseif attached {NATURAL_8_REF} v as n then
+				extend_natural_32 (n.to_natural_32)
+			elseif attached {NATURAL_16_REF} v as n then
+				extend_natural_32 (n.to_natural_32)
+			else
+				check False end
+				extend_integer_32 (0)
+			end
+		end
+
+	extend_integer_32 (i: INTEGER_32)
+		do
+			extend (create {YAML_INTEGER}.make_integer_32 (i))
+		end
+
+	extend_integer_64 (i: INTEGER_64)
+		do
+			extend (create {YAML_INTEGER}.make_integer_64 (i))
+		end
+
+	extend_natural_32 (n: NATURAL_32)
+		do
+			extend (create {YAML_INTEGER}.make_integer_64 (n.to_integer_64))
+		end
+
+	extend_natural_64 (n: NATURAL_64)
+		do
+			extend (create {YAML_INTEGER}.make_integer_64 (n.to_integer_64))
+		end
+
+	extend_real_32 (r: REAL_32)
+		do
+			extend (create {YAML_REAL}.make_real_32 (r))
+		end
+
+	extend_real_64 (r: REAL_64)
+		do
+			extend (create {YAML_REAL}.make_real_64 (r))
+		end
+
+	extend_boolean (b: BOOLEAN)
+		do
+			extend (create {YAML_BOOLEAN}.make (b))
+		end
+
+	extend_null
+		do
+			extend (create {YAML_NULL})
+		end
+
 
 feature -- Visitor
 

@@ -14,6 +14,13 @@ feature -- Access
 	anchor: detachable STRING_32
 			-- Optional anchor name for this value.
 
+	chained_item alias "/" (a_key: YAML_STRING): YAML_VALUE
+			-- Item associated with key `a_key` if exists.
+			-- Note: if item does not exists, return also JSON_NULL.
+		do
+			create {YAML_NULL} Result
+		end
+
 feature -- Status report
 
 	is_scalar: BOOLEAN
@@ -64,44 +71,6 @@ feature -- Status report
 			Result := False
 		end
 
-feature -- Conversion
-
-	as_scalar: YAML_SCALAR
-			-- This value as a scalar.
-		require
-			is_scalar: is_scalar
-		do
-			check attached {YAML_SCALAR} Current as s then
-				Result := s
-			end
-		ensure
-			result_attached: Result /= Void
-		end
-
-	as_sequence: YAML_SEQUENCE
-			-- This value as a sequence.
-		require
-			is_sequence: is_sequence
-		do
-			check attached {YAML_SEQUENCE} Current as s then
-				Result := s
-			end
-		ensure
-			result_attached: Result /= Void
-		end
-
-	as_mapping: YAML_MAPPING
-			-- This value as a mapping.
-		require
-			is_mapping: is_mapping
-		do
-			check attached {YAML_MAPPING} Current as m then
-				Result := m
-			end
-		ensure
-			result_attached: Result /= Void
-		end
-
 feature -- Element change
 
 	set_tag (a_tag: like tag)
@@ -118,6 +87,20 @@ feature -- Element change
 			anchor := a_anchor
 		ensure
 			anchor_set: anchor = a_anchor
+		end
+
+feature -- Status report
+
+	same_string (a_string: READABLE_STRING_GENERAL): BOOLEAN
+			-- Current value is a string value, and same content as `a_string`?
+		do
+				-- To redefined in descendants.
+		end
+
+	same_caseless_string (a_string: READABLE_STRING_GENERAL): BOOLEAN
+			-- Current value is a string value, and same caseless content as `a_string`?	
+		do
+				-- To redefined in descendants.
 		end
 
 feature -- Visitor

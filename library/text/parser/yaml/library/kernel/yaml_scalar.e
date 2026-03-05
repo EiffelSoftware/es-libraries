@@ -3,7 +3,7 @@ note
 	date: "$Date$"
 	revision: "$Revision$"
 
-class
+deferred class
 	YAML_SCALAR
 
 inherit
@@ -17,93 +17,10 @@ inherit
 			is_string
 		end
 
-create
---	make,
---	make_string,
-	make_null,
-	make_boolean,
-	make_integer,
-	make_real
-
---convert
---	make ({READABLE_STRING_8, STRING_8, IMMUTABLE_STRING_8, READABLE_STRING_GENERAL, STRING_GENERAL, IMMUTABLE_STRING_GENERAL})
-
-feature {NONE} -- Initialization
-
-	make (a_value: READABLE_STRING_GENERAL)
-			-- Initialize with string `a_value`.
-		require
-			value_attached: a_value /= Void
-		do
-			value := a_value.to_string_32
-			style := Style_plain
-		ensure
-			value_set: value.same_string (a_value)
-			style_plain: style = Style_plain
-		end
-
-	make_null
-			-- Initialize as null value.
-		do
-			value := "null"
-			is_null_value := True
-			style := Style_plain
-		ensure
-			is_null: is_null
-		end
-
-	make_boolean (a_value: BOOLEAN)
-			-- Initialize with boolean `a_value`.
-		do
-			if a_value then
-				value := "true"
-			else
-				value := "false"
-			end
-			is_boolean_value := True
-			style := Style_plain
-		ensure
-			is_boolean: is_boolean
-			correct_value: (a_value and value.same_string ("true")) or (not a_value and value.same_string ("false"))
-		end
-
-	make_integer (a_value: INTEGER_64)
-			-- Initialize with integer `a_value`.
-		do
-			value := a_value.out
-			is_integer_value := True
-			style := Style_plain
-		ensure
-			is_integer: is_integer
-		end
-
-	make_real (a_value: REAL_64)
-			-- Initialize with real `a_value`.
-		do
-			value := a_value.out
-			is_real_value := True
-			style := Style_plain
-		ensure
-			is_real: is_real
-		end
-
-	make_string (a_value: READABLE_STRING_GENERAL)
-			-- Initialize with string `a_value`, explicitly marked as string.
-		require
-			value_attached: a_value /= Void
-		do
-			value := a_value.to_string_32
-			is_string_value := True
-			style := Style_double_quoted
-		ensure
-			is_string: is_string
-			value_set: value.same_string (a_value)
-		end
-
 feature -- Access
 
-	value: STRING_32
-			-- Raw string value.
+--	value: STRING_32
+--			-- Raw string value.
 
 	style: INTEGER
 			-- Scalar style (plain, single-quoted, double-quoted, literal, folded).
@@ -116,41 +33,39 @@ feature -- Status report
 	is_null: BOOLEAN
 			-- <Precursor>
 		do
-			Result := is_null_value
 		end
 
 	is_boolean: BOOLEAN
 			-- <Precursor>
 		do
-			Result := is_boolean_value
 		end
 
 	is_integer: BOOLEAN
 			-- <Precursor>
 		do
-			Result := is_integer_value
 		end
 
 	is_real: BOOLEAN
 			-- <Precursor>
 		do
-			Result := is_real_value
 		end
 
 	is_string: BOOLEAN
 			-- <Precursor>
 		do
-			Result := is_string_value
 		end
 
 feature -- Conversion
+
+	to_string_value: STRING_32
+		deferred
+		end
 
 	to_boolean: BOOLEAN
 			-- Convert to boolean.
 		require
 			is_boolean: is_boolean
 		do
-			Result := value.same_string ("true") or value.same_string ("True") or value.same_string ("TRUE")
 		end
 
 	to_integer_64: INTEGER_64
@@ -158,7 +73,6 @@ feature -- Conversion
 		require
 			is_integer: is_integer
 		do
-			Result := value.to_integer_64
 		end
 
 	to_real_64: REAL_64
@@ -166,28 +80,27 @@ feature -- Conversion
 		require
 			is_real_or_integer: is_real or is_integer
 		do
-			Result := value.to_real_64
 		end
 
 	to_string_32: STRING_32
 			-- Get value as STRING_32.
 		do
-			Result := value
+			Result := to_string_value
 		ensure
 			result_attached: Result /= Void
 		end
 
 feature -- Element change
 
-	set_value (a_value: STRING_32)
-			-- Set `value` to `a_value`.
-		require
-			value_attached: a_value /= Void
-		do
-			value := a_value
-		ensure
-			value_set: value.same_string (a_value)
-		end
+--	set_value (a_value: STRING_32)
+--			-- Set `value` to `a_value`.
+--		require
+--			value_attached: a_value /= Void
+--		do
+--			value := a_value
+--		ensure
+--			value_set: value.same_string (a_value)
+--		end
 
 	set_style (a_style: INTEGER)
 			-- Set `style` to `a_style`.
@@ -211,7 +124,10 @@ feature -- Output
 
 	representation: STRING_32
 			-- <Precursor>
+		local
+			value: like to_string_value
 		do
+			value := to_string_value
 			inspect style
 			when Style_plain then
 				Result := value.twin
@@ -253,27 +169,14 @@ feature -- Constants
 
 feature {NONE} -- Implementation
 
-	is_null_value: BOOLEAN
-			-- Is this explicitly a null value?
-
-	is_boolean_value: BOOLEAN
-			-- Is this explicitly a boolean value?
-
-	is_integer_value: BOOLEAN
-			-- Is this explicitly an integer value?
-
-	is_real_value: BOOLEAN
-			-- Is this explicitly a real value?
-
-	is_string_value: BOOLEAN
-			-- Is this explicitly a string value?
-
 	escaped_single_quoted: STRING_32
 			-- Escape single quotes by doubling them.
 		local
 			i: INTEGER
 			c: CHARACTER_32
+			value: like to_string_value
 		do
+			value := to_string_value
 			create Result.make (value.count)
 			from
 				i := 1
@@ -295,7 +198,9 @@ feature {NONE} -- Implementation
 		local
 			i: INTEGER
 			c: CHARACTER_32
+			value: like to_string_value
 		do
+			value := to_string_value
 			create Result.make (value.count)
 			from
 				i := 1
@@ -322,7 +227,6 @@ feature {NONE} -- Implementation
 		end
 
 invariant
-	value_attached: value /= Void
 	valid_style: style >= Style_plain and style <= Style_folded
 
 note
