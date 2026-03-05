@@ -16,6 +16,8 @@ inherit
 
 	CMS_HOOK_AUTO_REGISTER
 
+	CMS_HOOK_MENU_SYSTEM_ALTER
+
 	CMS_WITH_WEBAPI
 
 	SHARED_EXECUTION_ENVIRONMENT
@@ -64,6 +66,7 @@ feature -- Hooks configuration
 		do
 			auto_subscribe_to_hooks (a_hooks)
 			a_hooks.subscribe_to_block_hook (Current)
+			a_hooks.subscribe_to_menu_system_alter_hook (Current)
 		end
 
 feature -- Hooks
@@ -88,18 +91,35 @@ feature -- Hooks
 			a_response.add_block (b, "footer")
 		end
 
+	menu_system_alter (a_menu_system: CMS_MENU_SYSTEM; a_response: CMS_RESPONSE)
+		local
+			lnk: CMS_LOCAL_LINK
+		do
+			debug ("cms")
+				create lnk.make ("Debug", "debug/")
+				lnk.set_weight (10)
+				a_menu_system.management_menu.extend (lnk)
+			end
+		end
+
 feature -- Handler		
 
 	handle_debug (api: CMS_API; req: WSF_REQUEST; res: WSF_RESPONSE)
 		local
 			r: CMS_RESPONSE
 			s: STRING
+			lnk: CMS_LOCAL_LINK
 		do
 			if req.is_get_request_method then
 				create {GENERIC_VIEW_CMS_RESPONSE} r.make (req, res, api)
 				r.set_title ("DEBUG")
 
 				create s.make_empty
+				lnk := r.webapi_link ("WebApi debug", "debug/"); lnk.set_target ("_debug")
+				r.add_to_primary_tabs (lnk)
+				lnk := r.webapi_link ("WebApi router", "debug/router/"); lnk.set_target ("_debug")
+				r.add_to_primary_tabs (lnk)
+
 				append_info_to ("Name", api.setup.site_name, r, s)
 				append_info_to ("Url", api.setup.site_url, r, s)
 
@@ -166,20 +186,11 @@ feature -- Handler
 				t.append ("<li>")
 				t.append (html_encoded (ri.debug_output))
 				t.append ("</li>%N")
---				if attached then
---					
---				end
---				across
---					ri.request_methods as m
---				loop
---					
---				end
-
 			end
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
