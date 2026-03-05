@@ -9,83 +9,203 @@ class
 inherit
 	YAML_VALUE
 		redefine
-			is_mapping
+			is_mapping,
+			chained_item
 		end
 
-	ITERABLE [TUPLE [key: YAML_STRING; value: YAML_VALUE]]
+	TABLE_ITERABLE [YAML_VALUE, YAML_STRING]
 
 create
-	make
+	make_empty, make_with_capacity, make
 
 feature {NONE} -- Initialization
 
-	make
-			-- Initialize empty mapping.
+	make_with_capacity (nb: INTEGER)
+			-- Initialize with a capacity of `nb' items.
 		do
-			create keys.make (10)
-			create values.make (10)
+			create items.make (nb)
 			is_flow_style := False
 		ensure
 			empty: is_empty
 			block_style: not is_flow_style
 		end
 
+	make_empty
+			-- Initialize as empty object.
+		do
+			make_with_capacity (0)
+		end
+
+	make
+			-- Initialize with default capacity.
+		do
+			make_with_capacity (10)
+		end
+
 feature -- Access
 
-	keys: ARRAYED_LIST [YAML_STRING]
-			-- Keys in this mapping (preserving order).
-
-	values: ARRAYED_LIST [YAML_VALUE]
-			-- Values in this mapping (preserving order).
+	items: HASH_TABLE [YAML_VALUE, YAML_STRING]
 
 	count: INTEGER
 			-- Number of key-value pairs.
 		do
-			Result := keys.count
+			Result := items.count
 		ensure
 			non_negative: Result >= 0
 		end
 
-	value_at alias "[]" (a_key: YAML_STRING): detachable YAML_VALUE
+	item alias "[]" (a_key: YAML_STRING): detachable YAML_VALUE
 			-- Value associated with string key `a_key`, or Void if not found.
 		require
 			key_attached: a_key /= Void
-		local
-			i: INTEGER
 		do
-			from
-				i := 1
-			until
-				i > keys.count or Result /= Void
-			loop
-				if attached keys [i] as k then
-					if a_key.value.same_string (k.value) then
-						Result := values [i]
-					end
-				end
-				i := i + 1
+			Result := items [a_key]
+		end
+
+	string_item (a_key: YAML_STRING): detachable YAML_STRING
+		do
+			if attached {YAML_STRING} item (a_key) as s then
+				Result := s
 			end
 		end
 
-	key_at (i: INTEGER): YAML_STRING
-			-- Key at index `i`.
-		require
-			valid_index: i >= 1 and i <= count
+	integer_item (a_key: YAML_STRING): detachable YAML_INTEGER
 		do
-			Result := keys [i]
-		ensure
-			result_attached: Result /= Void
+			if attached {YAML_INTEGER} item (a_key) as n then
+				Result := n
+			end
 		end
 
-	value_at_index (i: INTEGER): YAML_VALUE
-			-- Value at index `i`.
-		require
-			valid_index: i >= 1 and i <= count
+	real_item (a_key: YAML_STRING): detachable YAML_REAL
 		do
-			Result := values [i]
-		ensure
-			result_attached: Result /= Void
+			if attached {YAML_REAL} item (a_key) as r then
+				Result := r
+			end
 		end
+
+	boolean_item (a_key: YAML_STRING): detachable YAML_BOOLEAN
+		do
+			if attached {YAML_BOOLEAN} item (a_key) as b then
+				Result := b
+			end
+		end
+
+	date_item (a_key: YAML_STRING): detachable YAML_DATE
+		do
+			if attached {YAML_DATE} item (a_key) as d then
+				Result := d
+			end
+		end
+
+	mapping_item (a_key: YAML_STRING): detachable YAML_MAPPING
+		do
+			if attached {YAML_MAPPING} item (a_key) as m then
+				Result := m
+			end
+		end
+
+	sequence_item (a_key: YAML_STRING): detachable YAML_SEQUENCE
+		do
+			if attached {YAML_SEQUENCE} item (a_key) as s then
+				Result := s
+			end
+		end
+
+	chained_item alias "/" (a_key: YAML_STRING): YAML_VALUE
+			-- <Precursor>.
+		do
+			if attached item (a_key) as v then
+				Result := v
+			else
+				Result := Precursor (a_key)
+			end
+		end
+
+feature -- Access basic values
+
+ 	string_8_value (a_key: YAML_STRING): detachable READABLE_STRING_8
+ 		require
+ 			is_string_value: attached string_item (a_key)
+ 		do
+ 			if attached string_item (a_key) as s then
+ 				check s.value.is_valid_as_string_8 end
+ 				Result := s.value_as_string_8
+ 			end
+ 		end
+
+ 	string_32_value (a_key: YAML_STRING): detachable READABLE_STRING_32
+ 		require
+ 			is_string_value: attached string_item (a_key)
+ 		do
+ 			if attached string_item (a_key) as s then
+ 				Result := s.value
+ 			end
+ 		end
+
+ 	integer_32_value (a_key: YAML_STRING): INTEGER_32
+		require
+ 			is_integer_32_value: attached integer_item (a_key) as yint and then yint.is_integer_32
+ 		do
+ 			if attached integer_item (a_key) as v then
+ 				Result := v.value_as_integer_32
+ 			end
+ 		end
+
+ 	integer_64_value (a_key: YAML_STRING): INTEGER_64
+		require
+ 			is_integer_64_value: attached integer_item (a_key)
+ 		do
+ 			if attached integer_item (a_key) as v then
+ 				Result := v.value_as_integer_64
+ 			end
+ 		end
+
+ 	natural_32_value (a_key: YAML_STRING): NATURAL_32
+		require
+ 			is_natural_32: attached integer_item (a_key) as yint and then yint.is_natural_32
+ 		do
+ 			if attached integer_item (a_key) as v then
+ 				Result := v.value_as_natural_32
+ 			end
+ 		end
+
+ 	natural_64_value (a_key: YAML_STRING): NATURAL_64
+		require
+ 			is_natural_64: attached integer_item (a_key) as yint and then yint.is_natural_64
+ 		do
+ 			if attached integer_item (a_key) as v then
+ 				Result := v.value_as_natural_64
+ 			end
+ 		end
+
+ 	real_32_value (a_key: YAML_STRING): REAL_32
+		require
+ 			is_real_32_value: attached real_item (a_key) as jnum and then jnum.is_real_32
+ 		do
+ 			if attached real_item (a_key) as v then
+ 				Result := v.value_as_real_32
+ 			end
+ 		end
+
+ 	real_64_value (a_key: YAML_STRING): REAL_64
+		require
+ 			is_real_64_value: attached real_item (a_key)
+ 		do
+ 			if attached real_item (a_key) as v then
+ 				Result := v.value_as_real_64
+ 			end
+ 		end
+
+ 	boolean_value (a_key: YAML_STRING): BOOLEAN
+		require
+ 			is_boolean_value: attached boolean_item (a_key)
+ 		do
+ 			if attached boolean_item (a_key) as b then
+	 			Result := b.value
+	 		else
+	 			check is_boolean: False end
+ 			end
+ 		end
 
 feature -- Status report
 
@@ -95,7 +215,7 @@ feature -- Status report
 	is_empty: BOOLEAN
 			-- Is mapping empty?
 		do
-			Result := keys.is_empty
+			Result := items.is_empty
 		end
 
 	has_key (a_key: YAML_STRING): BOOLEAN
@@ -103,7 +223,7 @@ feature -- Status report
 		require
 			key_attached: a_key /= Void
 		do
-			Result := value_at (a_key) /= Void
+			Result := items.has_key (a_key)
 		end
 
 	is_flow_style: BOOLEAN
@@ -111,10 +231,10 @@ feature -- Status report
 
 feature -- Iteration
 
-	new_cursor: YAML_MAPPING_CURSOR
-			-- Fresh cursor for iteration.
+	new_cursor: TABLE_ITERATION_CURSOR [YAML_VALUE, YAML_STRING]
+			-- Fresh cursor associated with current structure
 		do
-			create Result.make (Current)
+			Result := items.new_cursor
 		end
 
 feature -- Element change
@@ -125,27 +245,8 @@ feature -- Element change
 		require
 			key_attached: a_key /= Void
 			value_attached: a_value /= Void
-		local
-			i: INTEGER
-			found: BOOLEAN
 		do
-			from
-				i := 1
-			until
-				i > keys.count or found
-			loop
-				if attached keys [i] as existing_key then
-					if existing_key.value.same_string (a_key.value) then
-						values [i] := a_value
-						found := True
-					end
-				end
-				i := i + 1
-			end
-			if not found then
-				keys.extend (a_key)
-				values.extend (a_value)
-			end
+			items.force (a_value, a_key)
 		ensure
 			has_key: has_key (a_key)
 		end
@@ -156,7 +257,67 @@ feature -- Element change
 			key_attached: a_key /= Void
 			value_attached: a_value /= Void
 		do
-			put (create {YAML_STRING}.make_string (a_value), a_key)
+			put (create {YAML_STRING}.make_plain (a_value), a_key)
+		ensure
+			has_key: has_key (a_key)
+		end
+
+	put_boolean (a_value: BOOLEAN; a_key: YAML_STRING)
+			-- Associate `a_value` with string key `a_key`.
+		require
+			key_attached: a_key /= Void
+		do
+			put (create {YAML_BOOLEAN}.make (a_value), a_key)
+		ensure
+			has_key: has_key (a_key)
+		end
+
+	put_integer_64 (a_value: INTEGER_64; a_key: YAML_STRING)
+			-- Associate `a_value` with string key `a_key`.
+		require
+			key_attached: a_key /= Void
+		do
+			put (create {YAML_INTEGER}.make_integer_64 (a_value), a_key)
+		ensure
+			has_key: has_key (a_key)
+		end
+
+	put_integer_32 (a_value: INTEGER_32; a_key: YAML_STRING)
+			-- Associate `a_value` with string key `a_key`.
+		require
+			key_attached: a_key /= Void
+		do
+			put (create {YAML_INTEGER}.make_integer_32 (a_value), a_key)
+		ensure
+			has_key: has_key (a_key)
+		end
+
+	put_natural_32 (a_value: NATURAL_32; a_key: YAML_STRING)
+			-- Associate `a_value` with string key `a_key`.
+		require
+			key_attached: a_key /= Void
+		do
+			put (create {YAML_INTEGER}.make_integer_64 (a_value.to_integer_64), a_key)
+		ensure
+			has_key: has_key (a_key)
+		end
+
+	put_real_64 (a_value: REAL_64; a_key: YAML_STRING)
+			-- Associate `a_value` with string key `a_key`.
+		require
+			key_attached: a_key /= Void
+		do
+			put (create {YAML_REAL}.make_real_64 (a_value), a_key)
+		ensure
+			has_key: has_key (a_key)
+		end
+
+	put_real_32 (a_value: REAL_32; a_key: YAML_STRING)
+			-- Associate `a_value` with string key `a_key`.
+		require
+			key_attached: a_key /= Void
+		do
+			put (create {YAML_REAL}.make_real_32 (a_value), a_key)
 		ensure
 			has_key: has_key (a_key)
 		end
@@ -165,26 +326,8 @@ feature -- Element change
 			-- Remove entry with string key `a_key`.
 		require
 			key_attached: a_key /= Void
-		local
-			i: INTEGER
-			found: BOOLEAN
 		do
-			from
-				i := 1
-			until
-				i > keys.count or found
-			loop
-				if attached keys [i] as k then
-					if k.value.same_string (a_key.value) then
-						keys.go_i_th (i)
-						keys.remove
-						values.go_i_th (i)
-						values.remove
-						found := True
-					end
-				end
-				i := i + 1
-			end
+			items.remove (a_key)
 		ensure
 			removed: not has_key (a_key)
 		end
@@ -192,8 +335,7 @@ feature -- Element change
 	wipe_out
 			-- Remove all entries.
 		do
-			keys.wipe_out
-			values.wipe_out
+			items.wipe_out
 		ensure
 			empty: is_empty
 		end
@@ -212,6 +354,14 @@ feature -- Visitor
 			-- <Precursor>
 		do
 			a_visitor.visit_mapping (Current)
+		end
+
+feature -- Internal		
+
+	current_keys: ARRAY [YAML_STRING]
+			-- Array containing actually used keys.
+		do
+			Result := items.current_keys
 		end
 
 feature -- Output
@@ -235,17 +385,16 @@ feature {NONE} -- Implementation
 		do
 			create Result.make (100)
 			Result.append_character ('{')
-			from
-				i := 1
-			until
-				i > keys.count
+			i := 1
+			across
+				items as v
 			loop
 				if i > 1 then
 					Result.append (", ")
 				end
-				Result.append (keys [i].representation)
+				Result.append ((@v.key).representation)
 				Result.append (": ")
-				Result.append (values [i].representation)
+				Result.append (v.representation)
 				i := i + 1
 			end
 			Result.append_character ('}')
@@ -257,23 +406,20 @@ feature {NONE} -- Implementation
 			i: INTEGER
 		do
 			create Result.make (200)
-			from
-				i := 1
-			until
-				i > keys.count
+			i := 1
+			across
+				items as v
 			loop
-				Result.append (keys [i].representation)
+				Result.append ((@v.key).representation)
 				Result.append (": ")
-				Result.append (values [i].representation)
+				Result.append (v.representation)
 				Result.append_character ('%N')
 				i := i + 1
 			end
 		end
 
 invariant
-	keys_attached: keys /= Void
-	values_attached: values /= Void
-	same_count: keys.count = values.count
+	items_attached: items /= Void
 
 note
 	copyright: "Copyright (c) 1984-2026, Eiffel Software and others"

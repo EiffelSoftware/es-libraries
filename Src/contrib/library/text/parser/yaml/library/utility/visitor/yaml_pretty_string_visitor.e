@@ -66,18 +66,20 @@ feature -- Visiting
 		do
 			if a_scalar.is_null then
 				output.append ("null")
-			elseif a_scalar.is_boolean then
-				output.append (a_scalar.value)
-			elseif a_scalar.is_integer or a_scalar.is_real then
-				output.append (a_scalar.value)
+			elseif attached {YAML_BOOLEAN} a_scalar as y_bool then
+				output.append_boolean (y_bool.value)
+			elseif attached {YAML_INTEGER} a_scalar as y_int then
+				output.append_integer_64 (y_int.value)
+			elseif attached {YAML_REAL} a_scalar as y_real then
+				output.append_double (y_real.value)
 			else
 				-- String scalar
-				if needs_quoting (a_scalar.value) then
+				if needs_quoting (a_scalar.to_string_value) then
 					output.append_character ('"')
-					output.append (escaped_string (a_scalar.value))
+					output.append (escaped_string (a_scalar.to_string_value))
 					output.append_character ('"')
 				else
-					output.append (a_scalar.value)
+					output.append (a_scalar.to_string_value)
 				end
 			end
 		end
@@ -119,41 +121,39 @@ feature -- Visiting
 				output.append ("{}")
 			elseif a_mapping.is_flow_style then
 				output.append ("{")
-				from
-					i := 1
-				until
-					i > a_mapping.count
+				i := 1
+				across
+					a_mapping as val
 				loop
 					if i > 1 then
 						output.append (", ")
 					end
-					a_mapping.key_at (i).accept (Current)
+					(@val.key).accept (Current)
 					output.append (": ")
-					a_mapping.value_at_index (i).accept (Current)
+					val.accept (Current)
 					i := i + 1
 				end
 				output.append ("}")
 			else
-				from
-					i := 1
-				until
-					i > a_mapping.count
+				i := 1
+				across
+					a_mapping as val
 				loop
 					if i > 1 then
 						output.append_character ('%N')
 						write_indent
 					end
-					a_mapping.key_at (i).accept (Current)
+					(@val.key).accept (Current)
 					output.append (":")
-					if a_mapping.value_at_index (i).is_mapping or a_mapping.value_at_index (i).is_sequence then
+					if val.is_mapping or val.is_sequence then
 						output.append_character ('%N')
 						current_indent := current_indent + indent_size
 						write_indent
-						a_mapping.value_at_index (i).accept (Current)
+						val.accept (Current)
 						current_indent := current_indent - indent_size
 					else
 						output.append (" ")
-						a_mapping.value_at_index (i).accept (Current)
+						val.accept (Current)
 					end
 					i := i + 1
 				end

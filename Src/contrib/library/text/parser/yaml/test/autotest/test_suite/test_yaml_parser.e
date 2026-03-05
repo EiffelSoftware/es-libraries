@@ -21,7 +21,7 @@ feature -- Test routines
 			parsed := parser.parse_string ("hello")
 			assert ("parsed_not_void", parsed /= Void)
 			assert ("is_scalar", attached parsed as r and then r.is_scalar)
-			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.value.same_string ("hello"))
+			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.to_string_value.same_string ("hello"))
 		end
 
 	test_parse_integer
@@ -60,6 +60,58 @@ feature -- Test routines
 			parsed := parser.parse_string ("3.14")
 			assert ("parsed_not_void", parsed /= Void)
 			assert ("is_real", attached {YAML_SCALAR} parsed as s and then s.is_real)
+		end
+
+	test_parse_date_canonical
+			-- Test parsing canonical timestamp: 2001-12-15T02:59:43.1Z
+		local
+			parser: YAML_PARSER
+			parsed: detachable YAML_VALUE
+		do
+			create parser.make
+			parsed := parser.parse_string ("2001-12-15T02:59:43.1Z")
+			assert ("parsed_not_void", parsed /= Void)
+			assert ("is_date", attached {YAML_SCALAR} parsed as s and then s.is_date)
+			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.to_string_value.same_string ("2001-12-15T02:59:43.1Z"))
+		end
+
+	test_parse_date_only
+			-- Test parsing date-only: 2002-12-14
+		local
+			parser: YAML_PARSER
+			parsed: detachable YAML_VALUE
+		do
+			create parser.make
+			parsed := parser.parse_string ("2002-12-14")
+			assert ("parsed_not_void", parsed /= Void)
+			assert ("is_date", attached {YAML_SCALAR} parsed as s and then s.is_date)
+			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.to_string_value.same_string ("2002-12-14"))
+		end
+
+	test_parse_date_iso8601
+			-- Test parsing ISO8601 timestamp: 2001-12-14t21:59:43.10-05:00
+		local
+			parser: YAML_PARSER
+			parsed: detachable YAML_VALUE
+		do
+			create parser.make
+			parsed := parser.parse_string ("2001-12-14t21:59:43.10-05:00")
+			assert ("parsed_not_void", parsed /= Void)
+			assert ("is_date", attached {YAML_SCALAR} parsed as s and then s.is_date)
+			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.to_string_value.same_string ("2001-12-14t21:59:43.10-05:00"))
+		end
+
+	test_parse_date_spaced
+			-- Test parsing spaced timestamp: 2001-12-14 21:59:43.10 -5
+		local
+			parser: YAML_PARSER
+			parsed: detachable YAML_VALUE
+		do
+			create parser.make
+			parsed := parser.parse_string ("2001-12-14 21:59:43.10 -5")
+			assert ("parsed_not_void", parsed /= Void)
+			assert ("is_date", attached {YAML_SCALAR} parsed as s and then s.is_date)
+			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.to_string_value.same_string ("2001-12-14 21:59:43.10 -5"))
 		end
 
 	test_parse_boolean_true
@@ -110,7 +162,7 @@ feature -- Test routines
 			parsed := parser.parse_string ("'hello world'")
 			assert ("parsed_not_void", parsed /= Void)
 			assert ("is_string", attached {YAML_SCALAR} parsed as s and then s.is_string)
-			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.value.same_string ("hello world"))
+			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.to_string_value.same_string ("hello world"))
 		end
 
 	test_parse_double_quoted_string
@@ -123,7 +175,7 @@ feature -- Test routines
 			parsed := parser.parse_string ("%"hello world%"")
 			assert ("parsed_not_void", parsed /= Void)
 			assert ("is_string", attached {YAML_SCALAR} parsed as s and then s.is_string)
-			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.value.same_string ("hello world"))
+			assert ("value_correct", attached {YAML_SCALAR} parsed as s and then s.to_string_value.same_string ("hello world"))
 		end
 
 	test_parse_double_quoted_escape_newline
@@ -135,7 +187,7 @@ feature -- Test routines
 			create parser.make
 			parsed := parser.parse_string ("%"hello\nworld%"")
 			assert ("parsed_not_void", parsed /= Void)
-			assert ("has_newline", attached {YAML_SCALAR} parsed as s and then s.value.has ('%N'))
+			assert ("has_newline", attached {YAML_SCALAR} parsed as s and then s.to_string_value.has ('%N'))
 		end
 
 	test_parse_flow_sequence
@@ -234,7 +286,7 @@ person:
 			assert ("is_mapping", attached parsed as r and then r.is_mapping)
 			if attached {YAML_MAPPING} parsed as m then
 				assert ("has_person", m.has_key ("person"))
-				if attached m.value_at ("person") as person then
+				if attached m ["person"] as person then
 					assert ("person_is_mapping", person.is_mapping)
 				end
 			end

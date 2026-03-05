@@ -9,6 +9,7 @@
 		</file_rule>
 		<option namespace="EYAML.Library"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf" readonly="true"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf" readonly="true"/>
 		<cluster name="yaml" location=".\">
 			<cluster name="yaml_kernel" location=".\kernel\" recursive="true"/>
 			<cluster name="yaml_parser" location=".\parser\" recursive="true"/>

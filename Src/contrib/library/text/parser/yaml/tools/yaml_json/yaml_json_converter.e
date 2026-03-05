@@ -173,12 +173,14 @@ feature {NONE} -- YAML to JSON Conversion
 	yaml_to_json_value (a_yaml: YAML_VALUE): detachable JSON_VALUE
 			-- Convert YAML value to JSON value.
 		do
-			if a_yaml.is_scalar then
-				Result := yaml_scalar_to_json (a_yaml.as_scalar)
-			elseif a_yaml.is_sequence then
-				Result := yaml_sequence_to_json (a_yaml.as_sequence)
-			elseif a_yaml.is_mapping then
-				Result := yaml_mapping_to_json (a_yaml.as_mapping)
+			if a_yaml.is_scalar and then attached {YAML_SCALAR} a_yaml as s then
+				Result := yaml_scalar_to_json (s)
+			elseif attached {YAML_SEQUENCE} a_yaml as seq then
+				Result := yaml_sequence_to_json (seq)
+			elseif attached {YAML_MAPPING} a_yaml as map then
+				Result := yaml_mapping_to_json (map)
+			else
+				check known_value_type: False end
 			end
 		end
 
@@ -193,8 +195,10 @@ feature {NONE} -- YAML to JSON Conversion
 				create {JSON_NUMBER} Result.make_integer (a_scalar.to_integer_64)
 			elseif a_scalar.is_real then
 				create {JSON_NUMBER} Result.make_real (a_scalar.to_real_64)
+			elseif a_scalar.is_date then
+				create {JSON_STRING} Result.make_from_string_32 (a_scalar.to_string_value)
 			else
-				create {JSON_STRING} Result.make_from_string_32 (a_scalar.value)
+				create {JSON_STRING} Result.make_from_string_32 (a_scalar.to_string_value)
 			end
 		ensure
 			result_attached: Result /= Void
@@ -221,22 +225,17 @@ feature {NONE} -- YAML to JSON Conversion
 	yaml_mapping_to_json (a_mapping: YAML_MAPPING): JSON_OBJECT
 			-- Convert YAML mapping to JSON object.
 		local
-			i: INTEGER
 			key: YAML_VALUE
-			value: YAML_VALUE
 			key_string: STRING_32
 			json_value: detachable JSON_VALUE
 		do
 			create Result.make_with_capacity (a_mapping.count)
-			from
-				i := 1
-			until
-				i > a_mapping.count
+			across
+				a_mapping as value
 			loop
-				key := a_mapping.key_at (i)
-				value := a_mapping.value_at_index (i)
+				key := @value.key
 				if attached {YAML_SCALAR} key as scalar_key then
-					key_string := scalar_key.value
+					key_string := scalar_key.to_string_value
 				else
 					key_string := key.representation
 				end
@@ -246,7 +245,6 @@ feature {NONE} -- YAML to JSON Conversion
 				else
 					Result.put (create {JSON_NULL}, key_string)
 				end
-				i := i + 1
 			end
 		ensure
 			result_attached: Result /= Void
@@ -258,13 +256,13 @@ feature {NONE} -- JSON to YAML Conversion
 			-- Convert JSON value to YAML value.
 		do
 			if attached {JSON_NULL} a_json then
-				create {YAML_SCALAR} Result.make_null
+				create {YAML_NULL} Result
 			elseif attached {JSON_BOOLEAN} a_json as jb then
-				create {YAML_SCALAR} Result.make_boolean (jb.item)
+				create {YAML_BOOLEAN} Result.make (jb.item)
 			elseif attached {JSON_NUMBER} a_json as jn then
 				Result := json_number_to_yaml (jn)
 			elseif attached {JSON_STRING} a_json as js then
-				create {YAML_STRING} Result.make_string (js.unescaped_string_32)
+				create {YAML_STRING} Result.make_plain (js.unescaped_string_32)
 			elseif attached {JSON_ARRAY} a_json as ja then
 				Result := json_array_to_yaml (ja)
 			elseif attached {JSON_OBJECT} a_json as jo then
@@ -279,9 +277,9 @@ feature {NONE} -- JSON to YAML Conversion
 		do
 			repr := a_number.representation
 			if repr.has ('.') or repr.has ('e') or repr.has ('E') then
-				create Result.make_real (a_number.real_64_item)
+				create {YAML_REAL} Result.make (a_number.real_64_item)
 			else
-				create Result.make_integer (a_number.integer_64_item)
+				create {YAML_INTEGER} Result.make (a_number.integer_64_item)
 			end
 		ensure
 			result_attached: Result /= Void
@@ -298,7 +296,7 @@ feature {NONE} -- JSON to YAML Conversion
 				if yaml_item /= Void then
 					Result.extend (yaml_item)
 				else
-					Result.extend (create {YAML_SCALAR}.make_null)
+					Result.extend (create {YAML_NULL})
 				end
 			end
 		ensure
@@ -313,12 +311,12 @@ feature {NONE} -- JSON to YAML Conversion
 		do
 			create Result.make
 			across a_object as entry loop
-				create key_scalar.make (@ entry.key.unescaped_string_32)
+				create key_scalar.make_plain (@ entry.key.unescaped_string_32)
 				yaml_value := json_to_yaml_value (entry)
 				if yaml_value /= Void then
 					Result.put (yaml_value, key_scalar)
 				else
-					Result.put (create {YAML_SCALAR}.make_null, key_scalar)
+					Result.put (create {YAML_NULL}, key_scalar)
 				end
 			end
 		ensure
