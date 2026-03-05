@@ -531,6 +531,11 @@ feature -- Handler
 					else
 						a_auth_api.cms_api.response_api.send_bad_request ("There were issue with your application, invalid or missing values.", req, res)
 					end
+				elseif a_auth_api.cms_api.user_is_authenticated then
+					r.set_title ("Register an account")
+					r.set_main_content ("You are already registered!")
+					r.set_redirection ("/")
+					r.execute
 				else
 						-- Using registration block ... return empty content for now.
 						-- FIXME: find a way to know if block will be displayed, if not generate default web form.
