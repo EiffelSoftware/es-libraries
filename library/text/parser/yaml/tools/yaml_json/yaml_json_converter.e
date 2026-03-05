@@ -195,6 +195,8 @@ feature {NONE} -- YAML to JSON Conversion
 				create {JSON_NUMBER} Result.make_integer (a_scalar.to_integer_64)
 			elseif a_scalar.is_real then
 				create {JSON_NUMBER} Result.make_real (a_scalar.to_real_64)
+			elseif a_scalar.is_date then
+				create {JSON_STRING} Result.make_from_string_32 (a_scalar.to_string_value)
 			else
 				create {JSON_STRING} Result.make_from_string_32 (a_scalar.to_string_value)
 			end

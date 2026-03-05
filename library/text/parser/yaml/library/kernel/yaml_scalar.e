@@ -14,7 +14,8 @@ inherit
 			is_boolean,
 			is_integer,
 			is_real,
-			is_string
+			is_string,
+			is_date
 		end
 
 feature -- Access
@@ -51,6 +52,11 @@ feature -- Status report
 		end
 
 	is_string: BOOLEAN
+			-- <Precursor>
+		do
+		end
+
+	is_date: BOOLEAN
 			-- <Precursor>
 		do
 		end

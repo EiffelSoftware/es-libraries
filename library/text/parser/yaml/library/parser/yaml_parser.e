@@ -804,6 +804,8 @@ feature {NONE} -- Implementation
 					create {YAML_BOOLEAN} Result.make (True)
 				elseif lower_text.same_string_general ("false") or lower_text.same_string_general ("no") or lower_text.same_string_general ("off") then
 					create {YAML_BOOLEAN} Result.make (False)
+				elseif is_date_string (a_text) then
+					create {YAML_DATE} Result.make_from_string (a_text)
 				elseif is_integer_string (a_text) then
 					create {YAML_INTEGER} Result.make_from_string (a_text)
 				elseif is_real_string (a_text) then
@@ -881,6 +883,21 @@ feature {NONE} -- Implementation
 				if i = 1 then
 					Result := False
 				end
+			end
+		end
+
+	is_date_string (a_text: STRING_32): BOOLEAN
+			-- Is `a_text` a YAML timestamp (canonical, ISO8601, spaced, or date-only)?
+		local
+			s: STRING_32
+		do
+			s := a_text.twin
+			s.left_adjust
+			s.right_adjust
+			if s.count >= 10 then
+				Result := s [1].is_digit and s [2].is_digit and s [3].is_digit and s [4].is_digit
+					and s [5] = '-' and s [6].is_digit and s [7].is_digit
+					and s [8] = '-' and s [9].is_digit and s [10].is_digit
 			end
 		end
 

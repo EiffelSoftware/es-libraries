@@ -90,6 +90,13 @@ feature -- Access
 			end
 		end
 
+	date_item (a_key: YAML_STRING): detachable YAML_DATE
+		do
+			if attached {YAML_DATE} item (a_key) as d then
+				Result := d
+			end
+		end
+
 	mapping_item (a_key: YAML_STRING): detachable YAML_MAPPING
 		do
 			if attached {YAML_MAPPING} item (a_key) as m then

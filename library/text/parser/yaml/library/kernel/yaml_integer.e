@@ -37,12 +37,12 @@ feature {NONE} -- Initialization
 			if s.is_integer_64 then
 				value := s.to_integer_64
 			else
-					-- TODO
-					-- Support for hexa
 				if s.starts_with ("0x") then
 					create hex.make
 					hex.parse_string_with_type (s, hex.type_integer_64)
 					value := hex.parsed_integer_64
+				elseif s.starts_with ("0b") then
+					-- TODO: add support for Octal
 				end
 			end
 			style := Style_plain

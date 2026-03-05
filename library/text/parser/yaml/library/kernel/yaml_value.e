@@ -71,6 +71,12 @@ feature -- Status report
 			Result := False
 		end
 
+	is_date: BOOLEAN
+			-- Is this value a date/timestamp?
+		do
+			Result := False
+		end
+
 feature -- Element change
 
 	set_tag (a_tag: like tag)

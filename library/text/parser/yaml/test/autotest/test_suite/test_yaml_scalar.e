@@ -149,4 +149,37 @@ feature -- Test routines
 			assert ("has_tag", attached scalar.tag as t and then t.same_string ("!!str"))
 		end
 
+	test_make_date_canonical
+			-- Test creating a date scalar (canonical format).
+		local
+			scalar: YAML_DATE
+		do
+			create scalar.make_from_string ("2001-12-15T02:59:43.1Z")
+			assert ("is_scalar", scalar.is_scalar)
+			assert ("is_date", scalar.is_date)
+			assert ("value_correct", scalar.to_string_value.same_string ("2001-12-15T02:59:43.1Z"))
+		end
+
+	test_make_date_only
+			-- Test creating a date scalar (date-only format).
+		local
+			scalar: YAML_DATE
+		do
+			create scalar.make_from_string ("2002-12-14")
+			assert ("is_date", scalar.is_date)
+			assert ("value_correct", scalar.to_string_value.same_string ("2002-12-14"))
+		end
+
+	test_make_date_from_date_time
+			-- Test creating a date scalar from DATE_TIME.
+		local
+			scalar: YAML_DATE
+			dt: DATE_TIME
+		do
+			create dt.make (2001, 12, 15, 2, 59, 43)
+			create scalar.make_from_date_time (dt)
+			assert ("is_date", scalar.is_date)
+			assert ("parseable", scalar.is_parseable)
+		end
+
 end
