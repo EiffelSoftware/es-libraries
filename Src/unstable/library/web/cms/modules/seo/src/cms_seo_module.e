@@ -10,6 +10,8 @@ class
 
 inherit
 	CMS_MODULE
+		rename
+			date_to_yyyy_mm_dd_string as date_to_yyyy_mm_dd_string_with_separator
 		redefine
 			setup_hooks
 		end
