@@ -277,9 +277,9 @@ feature {NONE} -- JSON to YAML Conversion
 		do
 			repr := a_number.representation
 			if repr.has ('.') or repr.has ('e') or repr.has ('E') then
-				create {YAML_REAL} Result.make (a_number.real_64_item)
+				create {YAML_REAL} Result.make_real_64 (a_number.real_64_item)
 			else
-				create {YAML_INTEGER} Result.make (a_number.integer_64_item)
+				create {YAML_INTEGER} Result.make_integer_64 (a_number.integer_64_item)
 			end
 		ensure
 			result_attached: Result /= Void
