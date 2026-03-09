@@ -112,6 +112,9 @@ feature -- Execution
 		local
 			jarr: JSON_ARRAY
 		do
+			if attached a_router.base_url as l_base then
+				r.resource.put_string (l_base, "base_url")
+			end
 			create jarr.make_empty
 			across
 				a_router as ri
@@ -137,6 +140,6 @@ feature -- Documentation
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
