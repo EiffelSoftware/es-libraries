@@ -103,6 +103,12 @@ feature -- Status report
 			Result := value.is_empty
 		end
 
+	is_whitespace: BOOLEAN
+			-- Is whitespace?
+		do
+			Result := value.is_whitespace
+		end
+
 	is_integer: BOOLEAN
 			-- Is `value' an integer?
 		do
@@ -147,7 +153,7 @@ feature -- Visitor
 		end
 
 note
-	copyright: "2011-2017, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Alexander Kogtenkov, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
