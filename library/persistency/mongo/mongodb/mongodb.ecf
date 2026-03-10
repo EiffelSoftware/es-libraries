@@ -14,11 +14,11 @@
 				<platform value="windows"/>
 			</condition>
 		</external_include>
-		<external_include location="/usr/local/include/libmongoc-1.0">
+		<external_cflag value="`pkg-config --cflags libmongoc-1.0`">
 			<condition>
 				<platform excluded_value="windows"/>
 			</condition>
-		</external_include>
+		</external_cflag>
 		<external_cflag value="-DWIN32 -D_WINDOWS -D_WIN32_WINNT=0x0600 -DWINVER=0x0600 -D_CRT_SECURE_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS">
 			<condition>
 				<platform value="windows"/>

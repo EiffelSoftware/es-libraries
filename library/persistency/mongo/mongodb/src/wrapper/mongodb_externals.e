@@ -362,10 +362,10 @@ feature -- Client
 			"C inline use <mongoc/mongoc.h>"
 		alias
 			"[
-				size_t i, n;
+				size_t n;
 				mongoc_server_description_t ** res;
 				res = mongoc_client_get_server_descriptions ((const mongoc_client_t *)$a_client, &n);
-				$a_size = n;
+				*$a_size = (EIF_INTEGER_64) n;
 				return res;
 			]"
 		end

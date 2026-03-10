@@ -117,7 +117,7 @@ feature {NONE} -- Implementation
 		external
 			"C inline use <bson/bson.h>"
 		alias
-			"bson_strerror_r ((const bson_error_t *)$a_error, (char *)$a_buf, $a_buflen);"
+			"bson_strerror_r (((bson_error_t *)$a_error)->code, (char *)$a_buf, (size_t)$a_buflen);"
 		end
 
 end

@@ -641,7 +641,12 @@ feature {NONE} -- C externals
 	c_bson_iter_timestamp (a_iter: POINTER; a_timestamp: TYPED_POINTER [INTEGER_64]; a_increment: TYPED_POINTER [INTEGER_64])
 		external "C inline use <bson/bson.h>"
 		alias
-			"bson_iter_timestamp((bson_iter_t *)$a_iter, $a_timestamp, $a_increment);"
+			"[
+				uint32_t ts, inc;
+				bson_iter_timestamp((bson_iter_t *)$a_iter, &ts, &inc);
+				*$a_timestamp = (EIF_INTEGER_64) ts;
+				*$a_increment = (EIF_INTEGER_64) inc;
+			]"
 		end
 
 	c_bson_iter_date_time (a_iter: POINTER): INTEGER_64
