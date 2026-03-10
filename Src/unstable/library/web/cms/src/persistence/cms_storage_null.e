@@ -147,6 +147,11 @@ feature -- Custom
 		do
 		end
 
+	custom_values_for (a_type: READABLE_STRING_8): detachable STRING_TABLE [detachable READABLE_STRING_32]
+			-- Values as list of [name, value].
+		do
+		end
+
 note
 	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"

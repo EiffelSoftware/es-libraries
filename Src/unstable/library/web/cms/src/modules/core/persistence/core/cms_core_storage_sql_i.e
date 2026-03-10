@@ -819,11 +819,41 @@ feature -- Misc
 			sql_finalize_query (sql_select_all_custom_values)
 		end
 
+	custom_values_for (a_type: READABLE_STRING_8): detachable STRING_TABLE [detachable READABLE_STRING_32]
+			-- Values as list of [name, value].
+		local
+			l_parameters: STRING_TABLE [detachable ANY]
+		do
+			error_handler.reset
+			create {STRING_TABLE [detachable READABLE_STRING_32]} Result.make (5)
+
+			create l_parameters.make (1)
+			l_parameters.put (a_type, "type")
+
+			sql_query (sql_select_custom_values_for, l_parameters)
+			if not has_error then
+				from
+					sql_start
+				until
+					sql_after or has_error
+				loop
+					if attached sql_read_string (1) as s_name then
+						Result [s_name] := sql_read_string_32 (2)
+					end
+					sql_forth
+				end
+			end
+			sql_finalize_query (sql_select_custom_values_for)
+		end
+
+	sql_select_custom_values_for: STRING = "SELECT name, value FROM custom_values WHERE type=:type ;"
+				-- SQL to list of custom values for a specific type
+
 	sql_select_all_custom_values: STRING = "SELECT type, name, value FROM custom_values;"
-				-- SQL Insert to add a new custom value.
+				-- SQL to list of custom values
 
 	sql_select_custom_value: STRING = "SELECT value FROM custom_values WHERE type=:type AND name=:name;"
-				-- SQL Insert to add a new custom value.
+				-- SQL to get a custom value :name for :type
 
 	sql_insert_custom_value: STRING = "INSERT INTO custom_values (type, name, value) VALUES (:type, :name, :value);"
 				-- SQL Insert to add a new custom value.
@@ -836,6 +866,6 @@ feature -- Misc
 
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
