@@ -1783,13 +1783,17 @@ feature -- Environment/ module
 			else
 				p := a_dir.extended (a_name)
 			end
-			l_path := p.appended_with_extension ("json")
-			if ut.file_path_exists (l_path) then
-				create {JSON_CONFIG} Result.make_from_file (l_path)
+			if attached p.extension as ext and then ut.file_path_exists (p) then
+				create {JSON_CONFIG} Result.make_from_file (p)
 			else
-				l_path := p.appended_with_extension ("ini")
+				l_path := p.appended_with_extension ("json")
 				if ut.file_path_exists (l_path) then
-					create {INI_CONFIG} Result.make_from_file (l_path)
+					create {JSON_CONFIG} Result.make_from_file (l_path)
+				else
+					l_path := p.appended_with_extension ("ini")
+					if ut.file_path_exists (l_path) then
+						create {INI_CONFIG} Result.make_from_file (l_path)
+					end
 				end
 			end
 			if Result = Void then
