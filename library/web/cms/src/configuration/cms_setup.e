@@ -382,7 +382,7 @@ feature -- Metadata
 			end
 		end
 
-	set_metadata (k: READABLE_STRING_GENERAL; v: detachable READABLE_STRING_32)
+	set_metadata (k: READABLE_STRING_GENERAL; v: detachable READABLE_STRING_GENERAL)
 		local
 			tb: like metadata_table
 		do
@@ -774,6 +774,6 @@ feature -- Element change
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
