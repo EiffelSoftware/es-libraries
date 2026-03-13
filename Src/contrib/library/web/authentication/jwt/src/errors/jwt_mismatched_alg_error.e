@@ -26,7 +26,7 @@ feature -- Access
 
 	header_alg: READABLE_STRING_8
 
-	id: STRING = "ALG_MISMATCH"
+	id: IMMUTABLE_STRING_8 = "ALG_MISMATCH"
 
 	message: READABLE_STRING_8
 		do

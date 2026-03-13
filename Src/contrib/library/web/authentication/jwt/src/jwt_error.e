@@ -8,7 +8,7 @@ deferred class
 
 feature -- Access
 
-	id: STRING
+	id: IMMUTABLE_STRING_8
 		deferred
 		end
 
