@@ -83,8 +83,8 @@ feature {CMS_API} -- Module management
 						prev_v := v
 						v := l_up_details.target_version
 						if
-							version_compared_to (v, prev_v) >= 0 and -- greater or equal to the installed version (or previous updated version)
-							version_compared_to (v, l_module_version) <= 0 -- Lower or equal to the target version
+							version_compared_to (v, prev_v, 4) >= 0 and -- greater or equal to the installed version (or previous updated version)
+							version_compared_to (v, l_module_version, 4) <= 0 -- Lower or equal to the target version
 						then
 							l_sql_storage.sql_execute_file_script (l_up_details.location, Void)
 						else
@@ -105,7 +105,7 @@ feature {CMS_API} -- Module management
 			end
 		end
 
-feature {NONE} -- Implementation		
+feature {NONE} -- Implementation
 
 	version_details (v: READABLE_STRING_GENERAL): TUPLE [major, minor: INTEGER; built: INTEGER; tag: detachable READABLE_STRING_GENERAL]
 		local
@@ -151,24 +151,38 @@ feature {NONE} -- Implementation
 			Result := [maj, min, bui, s]
 		end
 
-	version_compared_to (v1, v2: like version_details): INTEGER
-			-- smaller=-1 equal=0 greater=1
+	version_compared_to (v1, v2: like version_details; a_level: INTEGER): INTEGER
+			-- smaller=-1 equal=0 greater=1.
+			-- take into account version data until level `a_level`,
+			-- level  = 1: major
+			-- level  = 2: major + minor
+			-- level >= 3: major + minor + build
+		require
+			a_level >= 1
 		do
 			if v1.major = v2.major then
-				if v1.minor = v2.minor then
-					if v1.built = v2.built then
-						Result := 0
-					elseif v1.built <= v2.built then
-						Result := -1
+				if a_level >= 2 then
+					if v1.minor = v2.minor then
+						if a_level >= 3 then
+							if v1.built = v2.built then
+								Result := 0
+							elseif v1.built <= v2.built then
+								Result := -1
+							else
+								Result := +1
+							end
+						else
+							Result := 0
+						end
 					else
-						Result := +1
+						if v1.minor <= v2.minor then
+							Result := -1
+						else
+							Result := +1
+						end
 					end
 				else
-					if v1.minor <= v2.minor then
-						Result := -1
-					else
-						Result := +1
-					end
+					Result := 0
 				end
 			else
 				if v1.major <= v2.major then
@@ -188,9 +202,9 @@ feature {NONE} -- Implementation
 						local
 							d: INTEGER
 						do
-							d := version_compared_to (t1.from_version, t2.from_version)
+							d := version_compared_to (t1.from_version, t2.from_version, 4)
 							if d = 0 then
-								d := version_compared_to (t1.target_version, t2.target_version)
+								d := version_compared_to (t1.target_version, t2.target_version, 4)
 								Result := d >= 0
 							else
 								Result := d < 0
@@ -252,7 +266,7 @@ feature {NONE} -- Implementation
 						lev := 2 -- minor
 					elseif lev >= 2 then
 						v_from := v.major.out + "_" + v.minor.out
-						lev := 1 -- major
+						lev := 1 -- major						
 					elseif lev >= 1 then
 						v_from := v.major.out
 						lev := 0 -- exit
@@ -280,9 +294,9 @@ feature {NONE} -- Implementation
 									v_from_details := version_details (v_src)
 									v_to_details := version_details (v_to)
 									if
-											-- Between `v` and `max_v`
-										version_compared_to (v_from_details, v) >= 0 and
-										version_compared_to (v_to_details, max_v) <= 0
+											-- Between `v_lev` and `max_v`
+										version_compared_to (v_from_details, v, lev + 1) >= 0 and
+										version_compared_to (v_to_details, max_v, lev + 1) <= 0
 									then
 										l_choices.force ([p.extended (fn), version_details (v_src), v_to_details])
 									end
@@ -299,6 +313,6 @@ feature {NONE} -- Implementation
 		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end

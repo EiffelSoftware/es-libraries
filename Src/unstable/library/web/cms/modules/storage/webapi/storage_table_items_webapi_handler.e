@@ -71,12 +71,12 @@ feature -- Execution
 					l_storage := storage_api.sql_storage
 					if l_storage /= Void then
 						l_is_sqlite3 := l_storage.generator.ends_with ("SQLITE3")
-						
+
 							-- Sanitize table name (basic check - only allow alphanumeric, underscore, and dash)
 						if attached table_name as tname and then is_valid_table_name (tname.to_string_8) then
 							create sql_query.make_from_string ("SELECT * FROM ")
 							sql_query.append (tname.to_string_8)
-							
+
 								-- Add LIMIT and OFFSET for pagination
 							if l_is_sqlite3 then
 								sql_query.append (" LIMIT ")
@@ -110,7 +110,7 @@ feature -- Execution
 										k := @entry.key
 										if attached entry as val then
 											if attached {READABLE_STRING_GENERAL} val as s then
-												jobj.put_string (s.to_string_8, k)
+												jobj.put_string (s, k)
 											elseif attached {INTEGER_64} val as i then
 												jobj.put_integer (i, k)
 											elseif attached {INTEGER_32} val as i32 then
@@ -135,7 +135,7 @@ feature -- Execution
 								rep.add_integer_64_field ("count", rows.count)
 								rep.add_integer_64_field ("offset", offset)
 								rep.add_integer_64_field ("limit", limit)
-								
+
 									-- Indicate if there might be more rows
 								if rows.count = limit then
 									rep.add_boolean_field ("has_more", True)
