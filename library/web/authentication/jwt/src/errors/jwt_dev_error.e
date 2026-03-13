@@ -22,7 +22,7 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	id: STRING
+	id: IMMUTABLE_STRING_8
 
 	message: READABLE_STRING_8
 

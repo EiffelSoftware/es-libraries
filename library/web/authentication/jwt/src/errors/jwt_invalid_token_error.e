@@ -11,7 +11,7 @@ inherit
 
 feature -- Access
 
-	id: STRING = "INVALID"
+	id: IMMUTABLE_STRING_8 = "INVALID"
 
 	message: READABLE_STRING_8
 		do

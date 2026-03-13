@@ -23,7 +23,7 @@ feature -- Access
 
 	alg: READABLE_STRING_8
 
-	id: STRING = "ALG"
+	id: IMMUTABLE_STRING_8 = "ALG"
 
 	message: READABLE_STRING_8
 		do

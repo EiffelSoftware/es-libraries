@@ -23,7 +23,7 @@ feature -- Access
 
 	claim_name: READABLE_STRING_8
 
-	id: STRING = "CLAIM"
+	id: IMMUTABLE_STRING_8 = "CLAIM"
 
 	message: READABLE_STRING_8
 		do

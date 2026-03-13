@@ -11,7 +11,7 @@ inherit
 
 feature -- Access
 
-	id: STRING = "UNVERIFIED"
+	id: IMMUTABLE_STRING_8 = "UNVERIFIED"
 
 	message: READABLE_STRING_8
 		do
