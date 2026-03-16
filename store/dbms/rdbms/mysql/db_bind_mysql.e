@@ -217,6 +217,13 @@ feature -- Access
 			end
 		end
 
+	has_time: BOOLEAN
+		do
+			if attached buffer as l_buf then
+				Result := count >= c_sizeof_mysql_time
+			end
+		end
+
 	read_hour: INTEGER
 			-- Read from the buffer.
 		do

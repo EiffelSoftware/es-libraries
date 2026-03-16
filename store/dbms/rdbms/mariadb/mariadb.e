@@ -875,9 +875,32 @@ feature -- External features
 						i > 19
 					loop
 						l_int_8 := l_area.read_integer_8 (i - 1)
-						last_date_data.append_code (l_int_8.as_natural_32)
-						i := i + 1
+						if l_int_8 = 0 then
+							i := 20 -- Jump to the end, it is likely to be a DATE and not a DATE_TIME
+						else
+							last_date_data.append_code (l_int_8.as_natural_32)
+							i := i + 1
+						end
 					end
+				end
+			end
+		end
+
+	has_time (no_descriptor: INTEGER; ind: INTEGER): BOOLEAN
+			-- Return if the date from row set `no_descriptor'
+			-- and field `ind' has time information.
+		do
+			if statement_pointers.item (no_descriptor) /= default_pointer and then attached results.item (no_descriptor) as l_results then
+				Result := l_results.i_th (ind).has_time
+			else
+				if
+					no_descriptor = last_date_data_descriptor and
+					ind = last_date_data_ind
+				then
+					Result := last_date_data.count > 10 -- ("YYYY-MM-DD").count = 10
+				else
+					get_date_data (no_descriptor, ind).do_nothing
+					Result := has_time (no_descriptor, ind)
 				end
 			end
 		end
@@ -893,7 +916,9 @@ feature -- External features
 					no_descriptor = last_date_data_descriptor and
 					ind = last_date_data_ind
 				then
-					Result := last_date_data.substring (12, 13).to_integer
+					if last_date_data.count > 10 then -- YYYY-MM-DD has 10 characters
+						Result := last_date_data.substring (12, 13).to_integer
+					end
 				else
 					Result := get_date_data (no_descriptor, ind)
 					Result := get_hour (no_descriptor, ind)
@@ -912,7 +937,9 @@ feature -- External features
 					no_descriptor = last_date_data_descriptor and
 					ind = last_date_data_ind
 				then
-					Result := last_date_data.substring (18, 19).to_integer
+					if last_date_data.count > 10 then -- YYYY-MM-DD has 10 characters
+						Result := last_date_data.substring (18, 19).to_integer
+					end
 				else
 					Result := get_date_data (no_descriptor, ind)
 					Result := get_sec (no_descriptor, ind)
@@ -931,7 +958,9 @@ feature -- External features
 					no_descriptor = last_date_data_descriptor and
 					ind = last_date_data_ind
 				then
-					Result := last_date_data.substring (15, 16).to_integer
+					if last_date_data.count > 10 then -- YYYY-MM-DD has 10 characters
+						Result := last_date_data.substring (15, 16).to_integer
+					end
 				else
 					Result := get_date_data (no_descriptor, ind)
 					Result := get_min (no_descriptor, ind)
