@@ -129,6 +129,16 @@ feature -- Access
 			end
 		end
 
+	read_date (a_index: INTEGER): detachable DATE
+			-- Retrieved value at `a_index' position in `item'.
+		do
+			if attached {DB_TUPLE} item as l_item then
+				if attached {DATE} l_item.item (a_index) as ll_item then
+					Result := ll_item
+				end
+			end
+		end
+
 	read_boolean (a_index: INTEGER): detachable BOOLEAN
 			-- Retrieved value at `a_index' position in `item'.
 		do

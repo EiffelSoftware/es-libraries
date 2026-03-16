@@ -226,7 +226,7 @@ feature -- Query
 					check is_real_32: False end
 				end
 			end
-		end		
+		end
 
 	sql_read_date_time (a_index: INTEGER): detachable DATE_TIME
 			-- Retrieved value at `a_index' position in `item'.
@@ -236,8 +236,25 @@ feature -- Query
 			l_item := sql_item (a_index)
 			if attached {DATE_TIME} l_item as dt then
 				Result := dt
+			elseif attached {DATE} l_item as d then
+				create Result.make_by_date (d)
 			else
 				check is_date_time_or_null: l_item = Void end
+			end
+		end
+
+	sql_read_date (a_index: INTEGER): detachable DATE
+			-- Retrieved value at `a_index' position in `item'.
+		local
+			l_item: like sql_item
+		do
+			l_item := sql_item (a_index)
+			if attached {DATE} l_item as d then
+				Result := d
+			elseif attached {DATE_TIME} l_item as dt then
+				Result := dt.date
+			else
+				check is_date_or_null: l_item = Void end
 			end
 		end
 
