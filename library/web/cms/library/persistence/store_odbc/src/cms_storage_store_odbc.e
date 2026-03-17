@@ -27,9 +27,10 @@ feature {NONE} -- Initialization
 	make (a_connection: DATABASE_CONNECTION)
 			-- <Precursor>
 		do
-			Precursor (a_connection)
 			create odbc_driver.make_from_string_general ("odbc")
 			create driver.make_from_string ("odbc")
+
+			Precursor (a_connection)
 		end
 
 	make_with_driver (a_connection: DATABASE_CONNECTION; a_driver: detachable READABLE_STRING_GENERAL)
