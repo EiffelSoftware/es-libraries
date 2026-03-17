@@ -110,12 +110,12 @@ feature -- Execution
 						io.error.put_new_line
 					end
 					across
-						headers as ic
+						headers as h
 					loop
 						io.error.put_string ("> ")
-						io.error.put_string (ic.key)
+						io.error.put_string (@h.key)
 						io.error.put_string (": ")
-						io.error.put_string (ic.item)
+						io.error.put_string (h)
 						io.error.put_new_line
 					end
 					io.error.put_string ("> ... ")
@@ -223,15 +223,15 @@ feature -- Execution
 							create l_form.make
 							create l_last.make
 							across
-								l_form_data as ic
+								l_form_data as p
 							loop
-								if attached {HTTP_CLIENT_REQUEST_STRING_PARAMETER} ic.item as strparam then
+								if attached {HTTP_CLIENT_REQUEST_STRING_PARAMETER} p as strparam then
 									curl.formadd_string_string (l_form, l_last,
 											{CURL_FORM_CONSTANTS}.curlform_copyname, strparam.name,
 											{CURL_FORM_CONSTANTS}.curlform_copycontents, strparam.value,
 											{CURL_FORM_CONSTANTS}.curlform_end
 										)
-								elseif attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} ic.item as fileparam then
+								elseif attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} p as fileparam then
 									curl.formadd_string_string (l_form, l_last,
 											{CURL_FORM_CONSTANTS}.curlform_copyname, "file",
 											{CURL_FORM_CONSTANTS}.curlform_file, fileparam.location.name,
@@ -252,9 +252,9 @@ feature -- Execution
 
 					--| Header
 				across
-					l_headers as curs
+					l_headers as h
 				loop
-					p_slist := curl.slist_append (p_slist, curs.key + ": " + curs.item)
+					p_slist := curl.slist_append (p_slist, @h.key + ": " + h)
 				end
 				p_slist := curl.slist_append (p_slist, "Expect:")
 				curl_easy.setopt_slist (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_httpheader, p_slist)

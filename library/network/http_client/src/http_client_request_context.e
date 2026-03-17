@@ -136,9 +136,9 @@ feature -- Element change
 			-- Add collection of http header lines `lst'
 		do
 			across
-				lst as c
+				lst as i
 			loop
-				add_header_line (c.item)
+				add_header_line (i)
 			end
 		end
 
@@ -284,7 +284,7 @@ feature -- URL helpers
 				end
 
 				across
-					query_parameters as ic
+					query_parameters as p
 				loop
 					if l_first_param then
 						a_url.append_character ('?')
@@ -292,9 +292,9 @@ feature -- URL helpers
 						a_url.append_character ('&')
 					end
 					l_first_param := False
-					uri_percent_encoder.append_query_name_encoded_string_to (ic.item.name, a_url)
+					uri_percent_encoder.append_query_name_encoded_string_to (p.name, a_url)
 					a_url.append_character ('=')
-					ic.item.append_query_value_encoded_to (a_url)
+					p.append_query_value_encoded_to (a_url)
 				end
 			end
 		end
@@ -346,14 +346,14 @@ feature {NONE} -- Implementation
 		do
 			create Result.make (64)
 			across
-				a_params as ic
+				a_params as p
 			loop
 				if not Result.is_empty then
 					Result.append_character ('&')
 				end
-				uri_percent_encoder.append_query_name_encoded_string_to (ic.item.name, Result)
+				uri_percent_encoder.append_query_name_encoded_string_to (p.name, Result)
 				Result.append_character ('=')
-				ic.item.append_query_value_encoded_to (Result)
+				p.append_query_value_encoded_to (Result)
 			end
 		end
 
@@ -362,14 +362,14 @@ feature {NONE} -- Implementation
 		do
 			create Result.make (64)
 			across
-				a_params as ic
+				a_params as p
 			loop
 				if not Result.is_empty then
 					Result.append_character ('&')
 				end
-				x_www_form_url_encoder.append_percent_encoded_string_to (ic.item.name, Result)
+				x_www_form_url_encoder.append_percent_encoded_string_to (p.name, Result)
 				Result.append_character ('=')
-				ic.item.append_form_url_encoded_to (Result)
+				p.append_form_url_encoded_to (Result)
 			end
 		end
 

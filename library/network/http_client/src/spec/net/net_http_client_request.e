@@ -285,18 +285,18 @@ feature -- Access
 					l_cookie := Void
 					if not headers.is_empty then
 						across
-							headers as ic
+							headers as h
 						loop
-							l_header_key := ic.key
+							l_header_key := @h.key
 							if l_header_key.same_string_general ("Host") then
 									-- FIXME: already handled elsewhere!
 							elseif l_header_key.same_string_general ("Cookie") then
 									-- FIXME: need cookie merging.
-								l_cookie := ic.item
+								l_cookie := h
 							else
-								s.append (ic.key)
+								s.append (@h.key)
 								s.append (": ")
-								s.append (ic.item)
+								s.append (h)
 								s.append (Http_end_of_header_line)
 							end
 						end
@@ -474,17 +474,17 @@ feature {NONE} -- Helpers
 		do
 			create Result.make (100)
 			across
-				a_form_parameters as ic
+				a_form_parameters as p
 			loop
 				Result.append ("--")
 				Result.append (a_mime_boundary)
 				Result.append (http_end_of_header_line)
 				Result.append ("Content-Disposition: form-data; name=")
 				Result.append_character ('%"')
-				Result.append (string_to_mime_encoded_string (ic.item.name))
+				Result.append (string_to_mime_encoded_string (p.name))
 				Result.append_character ('%"')
 				if
-					attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} ic.item as fileparam and then
+					attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} p as fileparam and then
 					attached fileparam.file_name as fn
 				then
 					Result.append ("; filename=")
@@ -492,14 +492,14 @@ feature {NONE} -- Helpers
 					Result.append (string_to_mime_encoded_string (fn))
 					Result.append_character ('%"')
 				end
-				if attached ic.item.content_type as ct then
+				if attached p.content_type as ct then
 					Result.append (http_end_of_header_line)
 					Result.append ("Content-Type: ")
 					Result.append (ct)
 				end
 				Result.append (http_end_of_header_line)
 				Result.append (http_end_of_header_line)
-				ic.item.append_as_mime_encoded_to (Result)
+				p.append_as_mime_encoded_to (Result)
 				Result.append (http_end_of_header_line)
 			end
 			Result.append ("--")
@@ -861,9 +861,9 @@ feature {NONE} -- Helpers
 			i,j: INTEGER
 		do
 			across
-				a_data as ic
+				a_data as p
 			loop
-				i := i + ic.item.count + ic.item.name.count
+				i := i + p.count + p.name.count
 			end
 			create ran.set_seed (i) -- FIXME: use a real random seed.
 			ran.start
@@ -877,7 +877,7 @@ feature {NONE} -- Helpers
 			loop
 				ran.forth
 				j := (ran.real_item * s.count).truncated_to_integer.max (1)
-				Result.append_character (s[j])
+				Result.append_character (s [j])
 			end
 			check Result.count = 40 and Result.starts_with ("---") end
 		end

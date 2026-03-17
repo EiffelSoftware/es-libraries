@@ -31,7 +31,7 @@ feature -- Access
 
 	has (a_parameter_name: READABLE_STRING_GENERAL): BOOLEAN
 		do
-			Result := across items as ic some a_parameter_name.same_string (ic.item.name)  end
+			Result := across items as i some a_parameter_name.same_string (i.name)  end
 		end
 
 feature -- Element change
@@ -46,9 +46,9 @@ feature -- Element change
 		do
 			if attached parameters (a_parameter_name) as lst then
 				across
-					lst as ic
+					lst as i
 				loop
-					items.prune_all (ic.item)
+					items.prune_all (i)
 				end
 			end
 		end
@@ -59,14 +59,14 @@ feature -- Element change
 			res: ARRAYED_LIST [G]
 		do
 			across
-				items as ic
+				items as i
 			loop
-				if a_parameter_name.same_string (ic.item.name) then
+				if a_parameter_name.same_string (i.name) then
 					if res = Void then
 						create res.make (1)
 						Result := res
 					end
-					res.force (ic.item)
+					res.force (i)
 				end
 			end
 		end
