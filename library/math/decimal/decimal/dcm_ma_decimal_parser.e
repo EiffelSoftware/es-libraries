@@ -31,7 +31,7 @@ feature -- Status report
 
 feature -- Basic operations
 
-	parse (a_string: STRING)
+	parse (a_string: READABLE_STRING_8)
 			-- Parse `a_string'.
 		require
 			a_string_not_void: a_string /= Void

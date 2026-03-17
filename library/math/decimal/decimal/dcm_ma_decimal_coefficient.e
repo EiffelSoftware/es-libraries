@@ -148,7 +148,7 @@ feature -- Status report
 
 feature {DECIMAL} -- Status setting
 
-	set_from_substring (s: STRING; coefficient_begin, coefficient_end: INTEGER)
+	set_from_substring (s: READABLE_STRING_8; coefficient_begin, coefficient_end: INTEGER)
 			-- Set from `s', skip the decimal point if it is present.
 		require
 			s_not_void: s /= Void
