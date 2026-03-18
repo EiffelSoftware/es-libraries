@@ -18,7 +18,7 @@ feature -- Status report
 	has_file_parameter: BOOLEAN
 			-- Has any file parameter?
 		do
-			Result := across items as ic some attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} ic.item end
+			Result := across items as i some attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} i end
 		end
 
 note

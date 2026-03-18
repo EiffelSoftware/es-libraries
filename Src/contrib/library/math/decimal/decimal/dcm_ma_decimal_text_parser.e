@@ -84,7 +84,7 @@ feature -- Access
 	decimal_point_index: INTEGER
 			-- Index of decimal point if any
 
-	last_parsed: detachable STRING
+	last_parsed: detachable READABLE_STRING_8
 			-- Last parsed string
 
 feature -- Status report
@@ -133,7 +133,7 @@ feature -- Status report
 
 feature -- Basic operations
 
-	parse (s: STRING)
+	parse (s: READABLE_STRING_8)
 			-- Parse `s'.
 		do
 			parse_ctx (s, shared_decimal_context, False)
@@ -141,7 +141,7 @@ feature -- Basic operations
 			last_parsed_string_affected: last_parsed = s
 		end
 
-	parse_with_decimal_point_comma (s: STRING)
+	parse_with_decimal_point_comma (s: READABLE_STRING_8)
 			-- Parse `s' with comma as decimal point.
 		require
 			s_not_void: s /= Void
@@ -154,7 +154,7 @@ feature -- Basic operations
 			last_decimal_not_void_when_no_error: not error implies last_decimal /= Void
 		end
 
-	parse_ctx (s: STRING; ctx: DCM_MA_DECIMAL_CONTEXT; parse_comma_as_decimal_point: BOOLEAN)
+	parse_ctx (s: READABLE_STRING_8; ctx: DCM_MA_DECIMAL_CONTEXT; parse_comma_as_decimal_point: BOOLEAN)
 			-- Parse `s' using `ctx' wrt `parse_comma_as_decimal_point'.
 		require
 			s_not_void: s /= Void
@@ -174,7 +174,7 @@ feature -- Basic operations
 
 feature {DECIMAL} -- Basic operations
 
-	parse_and_create_last_decimal (s: STRING; ctx: DCM_MA_DECIMAL_CONTEXT)
+	parse_and_create_last_decimal (s: READABLE_STRING_8; ctx: DCM_MA_DECIMAL_CONTEXT)
 			-- Parse `s' and create `last_decimal' using `ctx'.
 		do
 			decimal_parse (s)
@@ -188,7 +188,7 @@ feature {DECIMAL} -- Basic operations
 			last_decimal_created_if_no_error: not error implies last_decimal /= Void
 		end
 
-	decimal_parse (s: STRING)
+	decimal_parse (s: READABLE_STRING_8)
 			-- Effective parse of `s'.
 		require
 			s_not_void: s /= Void
@@ -257,7 +257,7 @@ feature {DECIMAL} -- Basic operations
 			last_parsed_is_s: last_parsed = s
 		end
 
-	process_start (c: CHARACTER; index: INTEGER; s: STRING)
+	process_start (c: CHARACTER; index: INTEGER; s: READABLE_STRING_8)
 			-- Process `c' at `index' in `s' when in `state_start'.
 		require
 			state_start: state = State_start
@@ -305,7 +305,7 @@ feature {DECIMAL} -- Basic operations
 			next_state: error or else state /= State_start
 		end
 
-	handle_i (s: STRING; index: INTEGER)
+	handle_i (s: READABLE_STRING_8; index: INTEGER)
 			-- Handle the case of 'i' or 'I' recognized in `s' at `index'.
 		require
 			s_not_void: s /= Void
@@ -326,7 +326,7 @@ feature {DECIMAL} -- Basic operations
 			definition: not error implies is_infinity and then state = State_infinity
 		end
 
-	process_sign (c: CHARACTER; index: INTEGER; s: STRING)
+	process_sign (c: CHARACTER; index: INTEGER; s: READABLE_STRING_8)
 			-- Process `c' at `index' in `s' when in `state_sign'.
 		require
 			state_sign: state = State_sign
@@ -506,7 +506,7 @@ feature {DECIMAL} -- Basic operations
 			end
 		end
 
-	case_insensitive_substring_equal (s: STRING; i_begin, i_end: INTEGER; t: STRING): BOOLEAN
+	case_insensitive_substring_equal (s: READABLE_STRING_8; i_begin, i_end: INTEGER; t: READABLE_STRING_8): BOOLEAN
 			-- Is s[i_begin, i_end] equal to t[1, tcount] - case insensitive?
 		require
 			s_not_void: s /= Void

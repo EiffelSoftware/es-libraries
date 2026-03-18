@@ -365,9 +365,9 @@ feature {NONE} -- Implementation
 				attached res.headers as hds
 			then
 				across
-					hds as c
+					hds as i
 				loop
-					h.append (c.item.name + ": " + c.item.value + "%R%N")
+					h.append (i.name + ": " + i.value + "%R%N")
 				end
 			end
 			print (h)

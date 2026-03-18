@@ -90,12 +90,12 @@ feature -- Execution
 						io.error.put_new_line
 					end
 					across
-						headers as ic
+						headers as h
 					loop
 						io.error.put_string ("> ")
-						io.error.put_string (ic.key)
+						io.error.put_string (@h.key)
 						io.error.put_string (": ")
-						io.error.put_string (ic.item)
+						io.error.put_string (h)
 						io.error.put_new_line
 					end
 					io.error.put_string ("> ... ")
@@ -199,15 +199,15 @@ feature -- Execution
 						end
 						if l_use_curl_form then
 							across
-								l_form_data as ic
+								l_form_data as p
 							loop
-								if attached {HTTP_CLIENT_REQUEST_STRING_PARAMETER} ic.item as strparam then
+								if attached {HTTP_CLIENT_REQUEST_STRING_PARAMETER} p as strparam then
 									cmd.append_string_general (" --form %"")
 									cmd.append (strparam.name)
 									cmd.append_character ('=')
 									cmd.append (strparam.value)
 									cmd.append_character ('%"')
-								elseif attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} ic.item as fileparam then
+								elseif attached {HTTP_CLIENT_REQUEST_FILE_PARAMETER} p as fileparam then
 									cmd.append_string_general (" --form-escape ")
 									cmd.append ("file")
 									cmd.append_string_general ("=%"")
@@ -226,12 +226,12 @@ feature -- Execution
 
 					--| Header
 				across
-					l_headers as curs
+					l_headers as h
 				loop
 					cmd.append_string_general (" --header %"")
-					cmd.append_string_general (curs.key)
+					cmd.append_string_general (@h.key)
 					cmd.append_character(':')
-					cmd.append_string_general (curs.item)
+					cmd.append_string_general (h)
 					cmd.append_character ('%"')
 				end
 

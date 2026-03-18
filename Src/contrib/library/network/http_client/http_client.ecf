@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-20-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-20-0 http://www.eiffel.com/developers/xml/configuration-1-20-0.xsd" name="http_client" uuid="628F5A96-021B-4191-926B-B3BF49272866" library_target="http_client">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="http_client" uuid="628F5A96-021B-4191-926B-B3BF49272866" library_target="http_client">
+	<description>HTTP client</description>
 	<target name="http_client">
 		<root all_classes="true"/>
 		<file_rule>
@@ -73,19 +74,19 @@
 					</cluster>
 					<cluster name="concurrency_other" location="$|implementation\concurrency\other\" recursive="true" hidden="true">
 						<condition>
-							<custom name="curl_http_client_disabled" excluded_value="true"/>
 							<concurrency excluded_value="thread"/>
+							<custom name="curl_http_client_disabled" excluded_value="true"/>
 						</condition>
 					</cluster>
 					<cluster name="concurrency_thread" location="$|implementation\concurrency\thread\" recursive="true" hidden="true">
 						<condition>
-							<custom name="curl_http_client_disabled" excluded_value="true"/>
 							<concurrency value="thread"/>
+							<custom name="curl_http_client_disabled" excluded_value="true"/>
 						</condition>
 					</cluster>
 				</cluster>
 			</cluster>
-			<cluster name="default" location="$|default" recursive="false"/>
+			<cluster name="default" location="$|default\"/>
 			<cluster name="default_null" location="$|default\null\">
 				<condition>
 					<custom name="net_http_client_disabled" value="true"/>

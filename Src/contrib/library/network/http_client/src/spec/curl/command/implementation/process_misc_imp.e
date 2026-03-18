@@ -237,9 +237,9 @@ feature -- Helpers
 			end
 			if args /= Void then
 				across
-					args as ic
+					args as a
 				loop
-					arg := ic.item
+					arg := a
 					Result.append_character (' ')
 					if arg.has (' ') then
 						Result.append_character ('%"')

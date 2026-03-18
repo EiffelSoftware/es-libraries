@@ -89,9 +89,9 @@ feature -- Access
 			across
 				headers as hds
 			loop
-				k := hds.item.name
+				k := hds.name
 				if k.same_string (a_name) then
-					v := hds.item.value
+					v := hds.value
 					if s = Void then
 						create s.make_from_string (v)
 					else
@@ -111,12 +111,12 @@ feature -- Access
 			across
 				headers as hds
 			loop
-				k := hds.item.name
+				k := hds.name
 				if k.same_string (a_name) then
 					if Result = Void then
 						create {ARRAYED_LIST [READABLE_STRING_8]} Result.make (1)
 					end
-					Result.force (hds.item.value)
+					Result.force (hds.value)
 				end
 			end
 		end
@@ -193,15 +193,15 @@ feature -- Access
 				attached redirections as lst
 			then
 				across
-					lst as c
+					lst as i
 				loop
-					if attached c.item.status_line as s then
+					if attached i.status_line as s then
 						Result.append (s)
 						Result.append ("%R%N")
 					end
-					Result.append (c.item.raw_header)
+					Result.append (i.raw_header)
 					Result.append ("%R%N")
-					if attached c.item.body as l_body then
+					if attached i.body as l_body then
 						Result.append (l_body)
 					end
 				end
@@ -407,7 +407,7 @@ feature {NONE} -- Implementation
 			-- Internal cached value for the headers			
 
 ;note
-	copyright: "2011-2020, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

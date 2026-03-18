@@ -23,7 +23,7 @@ feature {NONE} -- Initialization
 			initialize (a_url, ctx)
 		ensure
 			context_set: context = ctx
-			ctx_header_set: ctx /= Void implies across ctx.headers as ctx_h all attached headers.item (ctx_h.key) as v and then v.same_string (ctx_h.item) end
+			ctx_header_set: ctx /= Void implies across ctx.headers as ctx_h all attached headers.item (@ctx_h.key) as v and then v.same_string (ctx_h) end
 		end
 
 	initialize (a_url: READABLE_STRING_8; ctx: like context)
@@ -98,11 +98,11 @@ feature {HTTP_CLIENT_SESSION} -- Execution
 		do
 			l_headers := headers
 			across
-				ctx.headers as ctx_headers
+				ctx.headers as h
 			loop
 					--| fill header from `ctx'
 					--| and use `force' to overwrite the "session" value if any
-				l_headers.force (ctx_headers.item, ctx_headers.key)
+				l_headers.force (h, @h.key)
 			end
 		end
 

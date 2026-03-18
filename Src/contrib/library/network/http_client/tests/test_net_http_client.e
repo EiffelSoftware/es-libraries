@@ -53,9 +53,9 @@ feature -- Tests
 				create h.make_empty
 				if attached res.headers as hds then
 					across
-						hds as c
+						hds as i
 					loop
-						h.append (c.item.name + ": " + c.item.value + "%R%N")
+						h.append (i.name + ": " + i.value + "%R%N")
 					end
 				end
 				if attached res.body as l_body then
@@ -70,9 +70,9 @@ feature -- Tests
 				create h.make_empty
 				if attached res.headers as hds then
 					across
-						hds as c
+						hds as i
 					loop
-						h.append (c.item.name + ": " + c.item.value + "%R%N")
+						h.append (i.name + ": " + i.value + "%R%N")
 					end
 				end
 				if attached res.body as l_body then
