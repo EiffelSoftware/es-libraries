@@ -134,6 +134,9 @@ int eif_mysql_column_type(MYSQL_RES *result_ptr, int ind)
 		case MYSQL_TYPE_DATETIME:
 			result = EIF_C_DATE_TYPE;
 			break;
+		case MYSQL_TYPE_DATE:
+			result = EIF_C_DATE_TYPE;
+			break;
 		case MYSQL_TYPE_FLOAT:
 			result = EIF_C_REAL_32_TYPE;
 			break;

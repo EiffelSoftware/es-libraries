@@ -1,4 +1,4 @@
-﻿note
+note
 	description: "MySQL specification"
 	legal: "See notice at end of class."
 	status: "See notice at end of class."
@@ -875,9 +875,32 @@ feature -- External features
 						i > 19
 					loop
 						l_int_8 := l_area.read_integer_8 (i - 1)
-						last_date_data.append_code (l_int_8.as_natural_32)
-						i := i + 1
+						if l_int_8 = 0 then
+							i := 20 -- Jump to the end, it is likely to be a DATE and not a DATE_TIME
+						else
+							last_date_data.append_code (l_int_8.as_natural_32)
+							i := i + 1
+						end
 					end
+				end
+			end
+		end
+
+	has_time (no_descriptor: INTEGER; ind: INTEGER): BOOLEAN
+			-- Return if the date from row set `no_descriptor'
+			-- and field `ind' has time information.
+		do
+			if statement_pointers.item (no_descriptor) /= default_pointer and then attached results.item (no_descriptor) as l_results then
+				Result := l_results.i_th (ind).has_time
+			else
+				if
+					no_descriptor = last_date_data_descriptor and
+					ind = last_date_data_ind
+				then
+					Result := last_date_data.count > 10 -- ("YYYY-MM-DD").count = 10
+				else
+					get_date_data (no_descriptor, ind).do_nothing
+					Result := has_time (no_descriptor, ind)
 				end
 			end
 		end
@@ -893,7 +916,9 @@ feature -- External features
 					no_descriptor = last_date_data_descriptor and
 					ind = last_date_data_ind
 				then
-					Result := last_date_data.substring (12, 13).to_integer
+					if last_date_data.count > 10 then -- YYYY-MM-DD has 10 characters
+						Result := last_date_data.substring (12, 13).to_integer
+					end
 				else
 					Result := get_date_data (no_descriptor, ind)
 					Result := get_hour (no_descriptor, ind)
@@ -912,7 +937,9 @@ feature -- External features
 					no_descriptor = last_date_data_descriptor and
 					ind = last_date_data_ind
 				then
-					Result := last_date_data.substring (18, 19).to_integer
+					if last_date_data.count > 10 then -- YYYY-MM-DD has 10 characters
+						Result := last_date_data.substring (18, 19).to_integer
+					end
 				else
 					Result := get_date_data (no_descriptor, ind)
 					Result := get_sec (no_descriptor, ind)
@@ -931,7 +958,9 @@ feature -- External features
 					no_descriptor = last_date_data_descriptor and
 					ind = last_date_data_ind
 				then
-					Result := last_date_data.substring (15, 16).to_integer
+					if last_date_data.count > 10 then -- YYYY-MM-DD has 10 characters
+						Result := last_date_data.substring (15, 16).to_integer
+					end
 				else
 					Result := get_date_data (no_descriptor, ind)
 					Result := get_min (no_descriptor, ind)
@@ -1009,16 +1038,85 @@ feature -- External features
 		end
 
 	get_decimal (no_descriptor: INTEGER; ind: INTEGER): detachable TUPLE [digits: STRING_8; sign, precision, scale: INTEGER]
-			-- Function used to get decimal info
+			-- Function used to get decimal info.
+			-- Returns Void if the column value is SQL NULL.
+		local
+			l_str: detachable STRING
+			l_area: MANAGED_POINTER
+			l_length, i: INTEGER
 		do
-			Result := ["0", 1, 1, 0]
+			if is_null_data (no_descriptor, ind) then
+				Result := Void
+			else
+					-- Prepared-statement path: read from bound result buffers.
+				if statement_pointers.item (no_descriptor) /= default_pointer and then attached results.item (no_descriptor) as l_results then
+					if attached l_results.i_th (ind).read_string as l_s then
+						l_str := l_s.twin
+					end
+				else
+						-- Simple query path: fetch textual representation via MySQL C API.
+					l_area := string_buffer
+					l_length := get_data_len (no_descriptor, ind)
+					if l_length > 0 then
+						if l_length >= l_area.count then
+							l_area.resize (l_length)
+						end
+						l_length := eif_mysql_column_data (row_pointers.item (no_descriptor), ind, l_area.item, l_length)
+						if l_length > 0 then
+							create l_str.make (l_length)
+							l_str.set_count (l_length)
+							from
+								i := 1
+							until
+								i > l_length
+							loop
+								l_str.put (l_area.read_integer_8 (i - 1).to_character_8, i)
+								i := i + 1
+							end
+						end
+					end
+				end
+				if attached l_str then
+					Result := decimal_tuple_from_string (l_str)
+				end
+			end
 		end
 
 	decimal_tuple_from_string (a_str: STRING_8): detachable TUPLE [digits: STRING_8; sign, precision, scale: INTEGER]
-			-- Decimal tuple from string
-			-- Simple implementation
+			-- Decimal tuple from string `a_str'.
+			-- `digits' contains only decimal digits without sign or decimal separator.
+		local
+			l_str: STRING
+			l_sign, l_scale, l_point_pos: INTEGER
 		do
-			Result := ["0", 1, 1, 0]
+			create l_str.make_from_string (a_str)
+			l_str.left_adjust
+			l_str.right_adjust
+			if not l_str.is_empty then
+					-- Extract sign.
+				if l_str.starts_with ("-") then
+					l_sign := 0
+					l_str.remove_head (1)
+				else
+					l_sign := 1
+					if l_str.starts_with ("+") then
+						l_str.remove_head (1)
+					end
+				end
+
+					-- Extract scale and remove decimal separator.
+				l_point_pos := l_str.index_of ('.', 1)
+				if l_point_pos = 0 then
+					l_scale := 0
+				else
+					l_scale := l_str.count - l_point_pos
+					l_str.remove (l_point_pos)
+				end
+
+				if not l_str.is_empty then
+					Result := [l_str, l_sign, l_str.count, l_scale]
+				end
+			end
 		end
 
 	database_make (i: INTEGER)
