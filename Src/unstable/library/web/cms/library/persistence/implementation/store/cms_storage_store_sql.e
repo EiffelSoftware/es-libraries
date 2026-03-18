@@ -9,6 +9,10 @@ deferred class
 inherit
 	CMS_STORAGE_SQL
 
+	GLOBAL_SETTINGS
+
+	DECIMAL_ACCESS
+
 feature {NONE} -- Initialization
 
 	make (a_connection: DATABASE_CONNECTION)
@@ -20,10 +24,13 @@ feature {NONE} -- Initialization
 			debug ("cms_debug")
 --				write_information_log (generator + ".make - is database connected?  "+ a_connection.is_connected.out )
 			end
-
 			create {DATABASE_HANDLER_IMPL} db_handler.make (a_connection)
-
 			create error_handler.make
+
+			set_decimal_functions (agent create_decimal, agent is_decimal, agent decimal_factors, agent decimal_output)
+			set_default_decimal_scale (2)
+			set_is_decimal_used (True)
+
 		end
 
 feature -- Status report
@@ -49,6 +56,89 @@ feature {NONE} -- Implementation
 
 	connection: DATABASE_CONNECTION
 			-- Current database connection.	
+
+feature -- Decimal Callbacks
+
+	create_decimal (a_digits: STRING_8; a_sign, a_precision, a_scale: INTEGER): ANY
+			-- Create decimal
+		local
+			l_d: DECIMAL
+			l_s: STRING_8
+		do
+			create l_s.make (a_precision + 2)
+			if a_sign = 0 then
+				l_s.append_character ('-')
+			end
+
+			if a_scale = 0 then
+				l_s.append (a_digits)
+			elseif a_scale > 0 then
+				if a_scale < a_digits.count then
+						-- 1.234
+					l_s.append (a_digits.substring (1, a_digits.count - a_scale))
+					l_s.append_character ('.')
+					l_s.append (a_digits.substring (a_digits.count - a_scale + 1, a_digits.count))
+				else
+						-- 0.1234
+					l_s.append ("0.")
+					append_characters (l_s, '0', (a_scale - a_digits.count))
+					l_s.append (a_digits)
+				end
+			else
+				l_s.append (a_digits)
+				append_characters (l_s, '0', (-a_scale))
+			end
+			create l_d.make_from_string (l_s)
+			Result := l_d
+		end
+
+	append_characters (a_str: STRING_8; a_c: CHARACTER; a_n: INTEGER)
+			-- Append `a_n' `a_c' into `a_str'.
+		local
+			i: INTEGER
+		do
+			from
+				i := 0
+			until
+				i = a_n
+			loop
+				a_str.append_character (a_c)
+				i := i + 1
+			end
+		end
+
+	is_decimal (a_obj: ANY): BOOLEAN
+			-- Is decimal?
+		do
+			Result := attached {DECIMAL} a_obj
+		end
+
+	decimal_factors (a_obj: ANY): TUPLE [digits: STRING_8; sign, precision, scale: INTEGER]
+			-- Decimal factors
+		local
+			l_sign: INTEGER
+		do
+			if attached {DECIMAL} a_obj as l_d then
+				if l_d.is_negative then
+					l_sign := 0
+				else
+					l_sign := 1
+				end
+				Result := [l_d.coefficient.out, l_sign, l_d.count, -l_d.exponent]
+			else
+				Result := ["0", 1, 1, 0]
+			end
+		end
+
+	decimal_output (a_obj: ANY): STRING_8
+			-- Decimal output
+		do
+			if attached {DECIMAL} a_obj as l_d then
+				Result := l_d.to_engineering_string
+			else
+				Result := "0"
+			end
+		end
 
 feature -- Query
 
@@ -226,7 +316,7 @@ feature -- Query
 					check is_real_32: False end
 				end
 			end
-		end		
+		end
 
 	sql_read_date_time (a_index: INTEGER): detachable DATE_TIME
 			-- Retrieved value at `a_index' position in `item'.
@@ -236,8 +326,25 @@ feature -- Query
 			l_item := sql_item (a_index)
 			if attached {DATE_TIME} l_item as dt then
 				Result := dt
+			elseif attached {DATE} l_item as d then
+				create Result.make_by_date (d)
 			else
 				check is_date_time_or_null: l_item = Void end
+			end
+		end
+
+	sql_read_date (a_index: INTEGER): detachable DATE
+			-- Retrieved value at `a_index' position in `item'.
+		local
+			l_item: like sql_item
+		do
+			l_item := sql_item (a_index)
+			if attached {DATE} l_item as d then
+				Result := d
+			elseif attached {DATE_TIME} l_item as dt then
+				Result := dt.date
+			else
+				check is_date_or_null: l_item = Void end
 			end
 		end
 

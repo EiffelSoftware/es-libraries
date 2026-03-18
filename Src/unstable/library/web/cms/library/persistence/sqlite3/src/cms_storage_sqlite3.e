@@ -385,6 +385,31 @@ feature -- Operation
 			create Result.make (y,m,d,h,min,sec)
 		end
 
+	string_to_date (a_string: READABLE_STRING_GENERAL): DATE
+		local
+			y,m,d: INTEGER
+			s: detachable READABLE_STRING_GENERAL
+			i,j: INTEGER
+		do
+			i := 1
+				-- YYYY
+			j := a_string.index_of ('-', i)
+			s := a_string.substring (i, j - 1)
+			y := s.to_integer
+			i := j + 1
+				-- /MM
+			j := a_string.index_of ('-', i)
+			s := a_string.substring (i, j - 1)
+			m := s.to_integer
+			i := j + 1
+				-- /DD
+			j := a_string.index_of (' ', i)
+			s := a_string.substring (i, j - 1)
+			d := s.to_integer
+
+			create Result.make (y,m,d)
+		end
+
 feature -- Access		
 
 	sql_start
@@ -524,8 +549,30 @@ feature -- Access
 			l_item := sql_item (a_index)
 			if attached {DATE_TIME} l_item as dt then
 				Result := dt
+			elseif attached {DATE} l_item as d then
+				create Result.make_by_date (d)
 			elseif attached {READABLE_STRING_GENERAL} l_item as s then
 				Result := string_to_date_time (s)
+			else
+				check is_date_time_nor_null: l_item = Void end
+			end
+		end
+
+	sql_read_date (a_index: INTEGER): detachable DATE
+			-- Retrieved value at `a_index' position in `item'.
+		local
+			l_item: like sql_item
+		do
+			l_item := sql_item (a_index)
+			if attached {DATE} l_item as d then
+				Result := d
+			elseif attached {DATE_TIME} l_item as l_datetime then
+				Result := l_datetime.date
+			elseif attached {READABLE_STRING_GENERAL} l_item as s then
+				Result := string_to_date (s)
+			elseif attached {INTEGER_32_REF} l_item as i32 then
+
+				Result := (create {DATE_TIME}.make_from_epoch (i32.item)).date
 			else
 				check is_date_time_nor_null: l_item = Void end
 			end

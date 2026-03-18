@@ -162,6 +162,11 @@ feature -- Access
 			Result := sql_storage.sql_read_date_time (a_index)
 		end
 
+	sql_read_date (a_index: INTEGER_32): detachable DATE
+		do
+			Result := sql_storage.sql_read_date (a_index)
+		end
+
 feature -- Conversion
 
 	sql_statement (a_statement: READABLE_STRING_8): READABLE_STRING_8

@@ -507,6 +507,11 @@ feature -- Access
 		deferred
 		end
 
+	sql_read_date (a_index: INTEGER): detachable DATE
+			-- Retrieved value at `a_index' position in `item'.
+		deferred
+		end
+
 	sql_read_boolean (a_index: INTEGER): detachable BOOLEAN
 			-- Retrieved value at `a_index' position in `item'.
 		local
