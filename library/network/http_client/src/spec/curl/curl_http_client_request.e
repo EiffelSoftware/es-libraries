@@ -468,7 +468,7 @@ feature {NONE} -- Implementation
 
 	response_status_code (cmd_res: PROCESS_COMMAND_RESULT): INTEGER
 		local
-			s: STRING
+			s: READABLE_STRING_8
 			i,j: INTEGER
 		do
 			if cmd_res.exit_code = 0 then
