@@ -117,6 +117,10 @@ feature -- Execution
 												jobj.put_integer (i32.to_integer_64, k)
 											elseif attached {REAL_64} val as r64 then
 												jobj.put_real (r64, k)
+											elseif attached {REAL_32} val as r32 then
+												jobj.put_real (r32, k)
+											elseif attached {DECIMAL} val as dec then
+												jobj.put_string (dec.to_scientific_string, k)
 											elseif attached {BOOLEAN} val as b then
 												jobj.put_boolean (b, k)
 											else
