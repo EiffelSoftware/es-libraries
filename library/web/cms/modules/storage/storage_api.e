@@ -247,7 +247,7 @@ feature {NONE} -- Query Execution
 						until
 							proxy.sql_after or proxy.has_error
 						loop
-							create l_row.make (l_col_count)
+							create l_row.make_equal_caseless (l_col_count)
 							from
 								i := 1
 							until
@@ -257,15 +257,7 @@ feature {NONE} -- Query Execution
 								if l_col_name = Void then
 									l_col_name := "col#" + i.out
 								end
-								if attached proxy.sql_read_string_32 (i) as val then
-									l_row [l_col_name] := val
-								elseif attached proxy.sql_read_integer_64 (i) as val then
-									l_row [l_col_name] := val
-								elseif attached proxy.sql_read_real_64 (i) as val then
-									l_row [l_col_name] := val
-								elseif attached proxy.sql_read_boolean (i) as val then
-									l_row [l_col_name] := val
-								elseif attached proxy.sql_item (i) as v then
+								if attached proxy.sql_item (i) as v then
 									l_row [l_col_name] := v
 								else
 										-- Try to read as string as fallback

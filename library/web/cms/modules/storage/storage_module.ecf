@@ -6,14 +6,14 @@
 		<file_rule>
 			<exclude>/\..*$</exclude>
 		</file_rule>
-		<option warning="error" />
+		<option warning="error"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="cms" location="..\..\cms.ecf" readonly="false"/>
 		<library name="cms_model" location="..\..\library\model\cms_model.ecf" readonly="false"/>
+		<library name="decimal" location="$ISE_LIBRARY\contrib\library\math\decimal\decimal\decimal.ecf"/>
 		<library name="http" location="$ISE_LIBRARY\contrib\library\network\protocol\http\http.ecf"/>
 		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json.ecf" readonly="false"/>
 		<library name="wsf" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\wsf.ecf"/>
 		<cluster name="src" location=".\" recursive="true"/>
 	</target>
 </system>
-
