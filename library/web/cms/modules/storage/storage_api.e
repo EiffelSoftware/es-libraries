@@ -240,7 +240,7 @@ feature {NONE} -- Query Execution
 						-- Use the proxy's SQL execution methods
 					proxy.sql_query (l_query, l_parameters)
 					if not proxy.has_error then
-						create Result.make (100)
+						create Result.make (10)
 						from
 							proxy.sql_start
 							l_col_count := proxy.sql_columns_count
@@ -263,6 +263,9 @@ feature {NONE} -- Query Execution
 										-- Try to read as string as fallback
 									if attached proxy.sql_read_string_8 (i) as val then
 										l_row [l_col_name] := val
+									else
+											-- Null
+										l_row [l_col_name] := Void
 									end
 								end
 								i := i + 1
