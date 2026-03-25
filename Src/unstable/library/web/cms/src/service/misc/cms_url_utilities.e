@@ -204,19 +204,25 @@ feature -- Url
 						end
 					end
 				else
-					Result := a_path.to_string_8
+					create Result.make_from_string (a_path)
 				end
 			else
-				Result := based_path (a_path)
+				create Result.make_from_string (based_path (a_path))
 			end
 			if q /= Void then
-				Result.append_character ('?')
+				if Result.has ('?') then
+					Result.append_character ('&')
+				else
+					Result.append_character ('?')
+				end
 				Result.append (q)
 			end
 			if f /= Void then
 				Result.append_character ('#')
 				Result.append (f)
 			end
+		ensure
+			Result /= a_path
 		end
 
 	checked_url (a_url: READABLE_STRING_8): READABLE_STRING_8
