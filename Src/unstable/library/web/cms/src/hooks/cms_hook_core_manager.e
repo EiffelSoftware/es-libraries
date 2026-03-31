@@ -75,6 +75,26 @@ feature -- Hook: value alter
 			end
 		end
 
+	subscribe_to_template_value_table_alter_hook (h: CMS_HOOK_TEMPLATE_VALUE_TABLE_ALTER)
+			-- Add `h' as subscriber of value table alter hooks CMS_HOOK_TEMPLATE_VALUE_TABLE_ALTER.		
+		do
+			subscribe_to_hook (h, {CMS_HOOK_TEMPLATE_VALUE_TABLE_ALTER})
+		end
+
+	invoke_template_value_table_alter (a_template_id: READABLE_STRING_GENERAL; a_table: CMS_VALUE_TABLE; a_origin_module: detachable TYPE [CMS_MODULE])
+			-- Invoke value table alter hook for table `a_table'.		
+		do
+			if attached subscribers ({CMS_HOOK_TEMPLATE_VALUE_TABLE_ALTER}) as lst then
+				across
+					lst as hk
+				loop
+					if attached {CMS_HOOK_TEMPLATE_VALUE_TABLE_ALTER} hk as h then
+						h.template_value_table_alter (a_template_id, a_table, a_origin_module)
+					end
+				end
+			end
+		end
+
 feature -- Hook: response
 
 	subscribe_to_response_alter_hook (h: CMS_HOOK_RESPONSE_ALTER)
@@ -400,6 +420,6 @@ feature -- Hook: import
 
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
