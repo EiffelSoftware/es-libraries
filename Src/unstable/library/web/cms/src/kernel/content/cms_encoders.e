@@ -214,6 +214,8 @@ feature -- Helper conversions to and from string
 				Result.append_character ('0')
 			end
 			Result.append (d.day.out)
+		ensure
+			instance_free: class
 		end
 
 	date_from_yyyy_mm_dd_string	(s: READABLE_STRING_GENERAL; sep: CHARACTER): detachable DATE
