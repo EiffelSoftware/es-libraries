@@ -335,6 +335,7 @@ feature -- Hooks
 --						end
 						e := api.new_html_email (l_contact_email_address, l_params.contact_subject_text, email_html_message ("message", r, vars))
 						e.set_from_address (l_params.admin_email)
+						e.set_reply_to_address (l_params.contact_email)
 --						debug ("cms_contact")
 --							write_debug_log (generator + ".handle_post_contact: send_contact_email")
 --						end

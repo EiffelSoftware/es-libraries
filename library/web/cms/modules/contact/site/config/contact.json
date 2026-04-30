@@ -1,6 +1,6 @@
 {
-	"--email": "webmaster@example.com",
-	"subjet": "Thank you for contacting us",
+	"email": "contact@example.com",
+	"subject": "Thank you for contacting us",
 	"recaptcha": {
 		"site_key":"",
 		"secret_key":""
