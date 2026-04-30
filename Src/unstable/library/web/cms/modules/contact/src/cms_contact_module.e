@@ -267,7 +267,7 @@ feature -- Hooks
 			msg: CONTACT_MESSAGE
 			l_params: CONTACT_EMAIL_SERVICE_PARAMETERS
 			e: CMS_EMAIL
-			vars: STRING_TABLE [READABLE_STRING_8]
+			vars: STRING_TABLE [READABLE_STRING_GENERAL]
 			l_contact_email_address: READABLE_STRING_8
 		do
 			debug ("cms_contact")
@@ -305,30 +305,40 @@ feature -- Hooks
 					create l_params.make (api, Current)
 
 						-- Send internal email to admin.
-					vars.put (html_encoded (l_name.value), "name")
-					vars.put (html_encoded (l_contact_email_address), "email")
-					vars.put (html_encoded (l_message.value), "message")
+					vars.put (l_name.value, "name")
+					vars.put (l_contact_email_address, "email")
+					vars.put (l_message.value, "message")
 
-					debug ("cms_contact")
+--					debug ("cms_contact")
 --						write_debug_log (generator + ".handle_post_contact: send notification email")
-					end
+--					end
 
-					e := api.new_html_email (l_params.admin_email, "Contact message from " + html_encoded (l_name.value) + " (" + html_encoded (l_contact_email_address) + ")" , email_html_message ("notification", r, vars))
+					e := api.new_html_email (l_params.contact_email, "Contact message from " + utf_8_encoded (l_name.value) + " (" + utf_8_encoded (l_contact_email_address) + ")" , email_html_message ("notification", r, vars))
 					e.set_from_address (l_params.admin_email)
 							-- Reply to the contact email address.
 					e.set_reply_to_address (l_contact_email_address)
 					api.process_email (e)
 
+					if not l_params.contact_email.same_string (l_params.admin_email) then
+						e := api.new_html_email (l_params.admin_email, "Contact message from " + utf_8_encoded (l_name.value) + " (" + utf_8_encoded (l_contact_email_address) + ")" , email_html_message ("notification", r, vars))
+						e.set_from_address (l_params.admin_email)
+								-- Reply to the contact email address.
+						e.set_reply_to_address (l_contact_email_address)
+						api.process_email (e)
+
+					end
+
 					if not api.has_error then
 							-- Send Contact email to the user
-						debug ("cms_contact")
+--						debug ("cms_contact")
 --							write_information_log (generator + ".handle_post_contact: preparing the message.")
-						end
+--						end
 						e := api.new_html_email (l_contact_email_address, l_params.contact_subject_text, email_html_message ("message", r, vars))
 						e.set_from_address (l_params.admin_email)
-						debug ("cms_contact")
+						e.set_reply_to_address (l_params.contact_email)
+--						debug ("cms_contact")
 --							write_debug_log (generator + ".handle_post_contact: send_contact_email")
-						end
+--						end
 						api.process_email (e)
 					end
 
@@ -387,9 +397,9 @@ feature -- Hooks
 				end
 			else
 					-- Internal server error
-				debug ("cms_contact")
+--				debug ("cms_contact")
 --					write_error_log (generator + ".handle_post_contact:  Internal Server error")
-				end
+--				end
 				r.values.force (True, "has_error")
 				r.set_status_code ({HTTP_CONSTANTS}.internal_server_error)
 				if attached smarty_template_block_with_values (Current, "post_contact", api, vars) as l_tpl_block then
@@ -419,7 +429,7 @@ feature {NONE} -- Helpers
 
 feature {NONE} -- Contact Message
 
-	email_html_message (a_message_id: READABLE_STRING_8; a_response: CMS_RESPONSE; a_html_encoded_values: STRING_TABLE [READABLE_STRING_8]): STRING
+	email_html_message (a_message_id: READABLE_STRING_8; a_response: CMS_RESPONSE; a_html_encoded_values: STRING_TABLE [READABLE_STRING_GENERAL]): STRING_8
 			-- html message related to `a_message_id'.
 		local
 			res: PATH
@@ -428,9 +438,9 @@ feature {NONE} -- Contact Message
 			exp: CMS_STRING_EXPANDER [READABLE_STRING_8]
 			tb_res: CMS_STRING_TABLE_RESOLVER [READABLE_STRING_8]
 		do
-			debug ("cms_contact")
+--			debug ("cms_contact")
 --				write_debug_log (generator + ".email_html_message for [" + a_message_id + " ]")
-			end
+--			end
 
 			create res.make_from_string ("templates")
 			res := res.extended ("email_").appended (a_message_id).appended_with_extension ("tpl")
@@ -438,14 +448,14 @@ feature {NONE} -- Contact Message
 			if p /= Void then
 				if attached p.entry as e then
 					create tpl.make (a_message_id, Void, p.parent, e)
-					debug ("cms_contact")
+--					debug ("cms_contact")
 --						write_debug_log (generator + ".email_html_message from smarty template:" + tpl.out)
-					end
+--					end
 				else
 					create tpl.make (a_message_id, Void, p.parent, p)
-					debug ("cms_contact")
+--					debug ("cms_contact")
 --						write_debug_log (generator + ".email_html_message from smarty template:" + tpl.out)
-					end
+--					end
 				end
 				across
 					a_html_encoded_values as ic
@@ -466,7 +476,7 @@ feature {NONE} -- Contact Message
 						Result.append ("<li>")
 						Result.append (html_encoded (ic.key))
 						Result.append (": ")
-						Result.append (ic.item) -- Already html encoded.
+						Result.append (html_encoded (ic.item)) -- Already html encoded.
 						Result.append ("</li>%N")
 					end
 				end
@@ -475,13 +485,13 @@ feature {NONE} -- Contact Message
 				across
 					a_html_encoded_values as ic
 				loop
-					tb_res.put (ic.item, ic.key)
+					tb_res.put (html_encoded (ic.item), html_encoded (ic.key))
 				end
 				create exp.make (tb_res)
 				exp.expand_string (Result)
-				debug ("cms_contact")
+--				debug ("cms_contact")
 --					write_debug_log (generator + ".email_html_message using built-in message:" + Result)
-				end
+--				end
 			end
 		end
 
@@ -569,9 +579,9 @@ feature {NONE} -- Google recaptcha uri template
 			api: RECAPTCHA_API
 			l_errors: STRING
 		do
-			debug ("cms_contact")
+--			debug ("cms_contact")
 --				write_debug_log (generator + ".is_captcha_verified with response: [" + utf_8_encoded (a_response) + "]")
-			end
+--			end
 			create api.make (a_secret, a_response)
 			if cfg.is_version_3 then
 				Result := api.verify_score (0.5, recaptcha_action)
@@ -588,9 +598,9 @@ feature {NONE} -- Google recaptcha uri template
 					l_errors.append (ic.item)
 					l_errors.append_character ('%N')
 				end
-				debug ("cms_contact")
+--				debug ("cms_contact")
 --					write_error_log (generator + ".is_captcha_verified api_errors [" + l_errors + "]")
-				end
+--				end
 			end
 		end
 
