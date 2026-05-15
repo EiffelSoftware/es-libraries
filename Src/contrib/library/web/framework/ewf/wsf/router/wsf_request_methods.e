@@ -223,6 +223,15 @@ feature -- Basic operations
 			Result.add_methods (a_other)
 		end
 
+	minus alias "-" (a_other: WSF_REQUEST_METHODS): WSF_REQUEST_METHODS
+			-- Merge Current and a_other into Result
+		require
+			a_other_not_void: a_other /= Void
+		do
+			create Result.make_from_iterable (Current)
+			Result.remove_methods (a_other)
+		end
+
 feature -- Element change
 
 	enable_get
@@ -455,6 +464,22 @@ feature {WSF_REQUEST_METHODS} -- Implementation
 			end
 		end
 
+	remove_methods (lst: ITERABLE [READABLE_STRING_8])
+			-- Disable methods from `lst'.
+		require
+			lst_all_attached: lst /= Void and then across lst as c all c.item /= Void end
+		do
+			if not is_locked then
+				across
+					lst as c
+				loop
+					if not c.item.is_empty and has (c.item) then
+						prune_method (c.item)
+					end
+				end
+			end
+		end
+
 feature {NONE} -- Implementation		
 
 	add_method_using_constant (v: READABLE_STRING_8)
@@ -520,7 +545,7 @@ invariant
 	methods_are_uppercase: across methods as c all c.item.same_string (c.item.as_upper) end
 
 ;note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Alexander Kogtenkov, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Olivier Ligot, Colin Adams, Alexander Kogtenkov, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
