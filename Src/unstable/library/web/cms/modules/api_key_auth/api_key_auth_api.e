@@ -67,7 +67,7 @@ feature -- Factory
 			Result := new_token_with_expiration (a_user, a_scopes, 0)
 		end
 
-	new_token_with_expiration (a_user: CMS_USER; a_scopes: detachable ITERABLE [READABLE_STRING_GENERAL]; a_expiration_in_seconds: NATURAL_32): detachable TUPLE [token: API_KEY_AUTH_TOKEN; secret: detachable READABLE_STRING_8]
+	new_token_with_expiration (a_user: CMS_USER; a_scopes: detachable ITERABLE [READABLE_STRING_GENERAL]; a_expiration_in_seconds: NATURAL_32): detachable TUPLE [token: API_KEY_AUTH_TOKEN; secret: READABLE_STRING_8]
 			-- Token for `a_user` with specified `a_scopes` and `a_expiration_in_seconds`
 			-- If `a_expiration_in_seconds` exceeds configuration limit, uses configuration value
 		require
@@ -105,11 +105,25 @@ feature -- Factory
 			end
 			tok.set_scopes (a_scopes)
 			sec := tok.secret
-			record_user_token (tok)
-			if has_error then
-				tok := Void
-			else
-				Result := [tok, sec]
+			if sec /= Void then
+				record_user_token (tok)
+				if has_error then
+					tok := Void
+				else
+					Result := [tok, sec]
+				end
+			end
+		end
+
+	token_prefix_from_key (k: READABLE_STRING_GENERAL): detachable READABLE_STRING_GENERAL
+		local
+			i: INTEGER
+		do
+			if k.starts_with (secret_key_prefix) then
+				i := k.index_of ('_', secret_key_prefix.count + 1)
+				if i > 0 then
+					Result := k.head (i - 1)
+				end
 			end
 		end
 
@@ -237,6 +251,28 @@ feature -- Change
 			Result := api_key_auth_storage.token (a_key_id)
 		end
 
+	disable_user_token (a_api_token: API_KEY_AUTH_TOKEN)
+		require
+			a_api_token.is_active
+		do
+			a_api_token.set_inactive
+			update_user_token (a_api_token)
+		end
+
+	enable_user_token (a_api_token: API_KEY_AUTH_TOKEN)
+		require
+			a_api_token.is_inactive
+		do
+			a_api_token.set_active
+			update_user_token (a_api_token)
+		end
+
+	revoke_user_token (a_api_token: API_KEY_AUTH_TOKEN)
+		do
+			a_api_token.set_revoked
+			update_user_token (a_api_token)
+		end
+
 	discard_user_token (a_user: CMS_USER; a_key_id: READABLE_STRING_GENERAL)
 			-- Discard `a_token` from `a_user`.
 		require
@@ -244,6 +280,57 @@ feature -- Change
 			valid_token: not a_key_id.is_whitespace
 		do
 			api_key_auth_storage.discard_user_token (a_user, a_key_id)
+		end
+
+	rotation_user_token (a_token: API_KEY_AUTH_TOKEN): like new_token
+			-- Replace `a_token` with a new key for the same user: same scopes, same optional name,
+			-- and expiry set to `a_token.expiration_date - a_token.creation_date` after the new key's creation when both exist.
+			-- On success, same tuple as `new_token` (`token`, one-time `secret`); on failure `Void` (old key unchanged).
+			-- Note: return type is the same detachable tuple as `new_token` so the plaintext secret is available once; use `Result.token` for the new {API_KEY_AUTH_TOKEN} alone.
+		local
+			l_old_key_id: READABLE_STRING_GENERAL
+			l_new: like new_token
+			l_need_meta_update: BOOLEAN
+			l_ttl: DATE_TIME_DURATION
+		do
+			if
+				a_token.is_revoked or else a_token.is_expired (Void)
+				or else not a_token.user.has_id
+			then
+				Result := Void
+			else
+				l_old_key_id := a_token.key_id
+				l_new := new_token (a_token.user, a_token.scopes)
+				if l_new = Void or else has_error then
+					Result := Void
+				else
+					l_need_meta_update := False
+					if attached a_token.name as l_old_name then
+						l_new.token.set_name (l_old_name)
+						l_need_meta_update := True
+					end
+					if attached a_token.creation_date as l_old_created and attached a_token.expiration_date as l_old_exp then
+						l_ttl := l_old_exp.relative_duration (l_old_created)
+						if l_ttl.seconds_count >= 0 and then attached l_new.token.creation_date as l_new_created then
+							l_new.token.set_expiration_date (l_new_created + l_ttl)
+							l_need_meta_update := True
+						end
+					end
+					if l_need_meta_update then
+						update_user_token (l_new.token)
+					end
+					if has_error then
+						Result := Void
+					else
+						revoke_user_token (a_token)
+						if has_error then
+							Result := Void
+						else
+							Result := l_new
+						end
+					end
+				end
+			end
 		end
 
 	discard_all_user_tokens (a_user: CMS_USER)

@@ -31,6 +31,7 @@ feature {NONE} -- Router/administration
 			if attached module.api_key_auth_api as l_api_key_auth_api then
 				create h.make (Current, l_api_key_auth_api)
 				a_router.handle ("/user/{uid}/api_key_token", h, a_router.methods_get_post)
+				a_router.handle ("/user/{uid}/api_key_token/{key}/", h, a_router.methods_get_post_put_delete - a_router.methods_post)
 			end
 		end
 

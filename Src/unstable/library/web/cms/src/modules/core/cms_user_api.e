@@ -330,7 +330,7 @@ feature -- Change User
 			end
 		end
 
-	update_username (a_user: CMS_USER; a_new_username: READABLE_STRING_32)
+	update_username (a_user: CMS_USER; a_new_username: READABLE_STRING_GENERAL)
 			-- Update username of `a_user' to `a_new_username'.
 		require
 			has_id: a_user.has_id
@@ -847,6 +847,6 @@ feature -- Change Temp User
 --		end
 
 note
-	copyright: "2011-2025, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
+	copyright: "2011-2026, Jocelyn Fiat, Javier Velilla, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 end
