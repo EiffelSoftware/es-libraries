@@ -329,9 +329,9 @@ feature -- Request execution
 
 			if a_is_view_only then
 				hdiv.extend (create {WSF_FORM_SUBMIT_INPUT}.make_with_text ("op", but_edit_text))
-				if a_token.is_revoked then
-					hdiv.extend (create {WSF_FORM_SUBMIT_INPUT}.make_with_text ("op", but_delete_text))
-				end
+--				if a_token.is_revoked then
+--					hdiv.extend (create {WSF_FORM_SUBMIT_INPUT}.make_with_text ("op", but_delete_text))
+--				end
 			else
 				if
 					attached a_token.scopes as l_scopes and then
@@ -528,8 +528,7 @@ feature -- Request execution
 		require
 			a_api_token.is_active
 		do
-			a_api_token.set_inactive
-			api_key_auth_api.update_user_token (a_api_token)
+			api_key_auth_api.disable_user_token (a_api_token)
 			if api_key_auth_api.has_error then
 				rep.add_error_message ("Error when trying to disable API key " + html_encoded (a_api_token.key_id) + " !")
 			else
@@ -544,8 +543,7 @@ feature -- Request execution
 		require
 			a_api_token.is_inactive
 		do
-			a_api_token.set_active
-			api_key_auth_api.update_user_token (a_api_token)
+			api_key_auth_api.enable_user_token (a_api_token)
 			if api_key_auth_api.has_error then
 				rep.add_error_message ("Error when trying to enable API key " + html_encoded (a_api_token.key_id) + " !")
 			else
@@ -558,8 +556,7 @@ feature -- Request execution
 
 	revoke_token (a_token_user: CMS_USER; a_api_token: API_KEY_AUTH_TOKEN; rep: like new_generic_response; a_redir_on_success: detachable READABLE_STRING_8)
 		do
-			a_api_token.set_revoked
-			api_key_auth_api.update_user_token (a_api_token)
+			api_key_auth_api.revoke_user_token (a_api_token)
 			if api_key_auth_api.has_error then
 				rep.add_error_message ("Error when trying to revoke API key " + html_encoded (a_api_token.key_id) + " !")
 			else

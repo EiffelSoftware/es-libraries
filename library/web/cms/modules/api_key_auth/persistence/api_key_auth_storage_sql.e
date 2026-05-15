@@ -248,7 +248,7 @@ feature -- Change/token
 				across
 					l_tokens as t
 				loop
-					discard_user_token (t.user, t.key)
+					discard_user_token (t.user, t.key_id)
 				end
 				if a_discarded_count /= Void then
 					a_discarded_count.replace (l_tokens.count)
