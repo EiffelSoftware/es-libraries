@@ -85,6 +85,9 @@ feature -- Request execution
 		local
 			rep: like new_generic_response
 			s: STRING_8
+			l_display_token: API_KEY_AUTH_TOKEN
+			l_display_secret: detachable READABLE_STRING_8
+			l_rot: detachable like api_key_auth_api.new_token
 		do
 			create s.make_empty
 			rep := new_generic_response (req, res)
@@ -103,6 +106,8 @@ feature -- Request execution
 							enable_token (a_token_user, a_token, rep, Void)
 						elseif p_op.same_string (but_revoke_text) then
 							revoke_token (a_token_user, a_token, rep, Void)
+						elseif p_op.same_string (but_rotate_text) then
+							l_rot := rotate_token (a_token_user, a_token, rep, Void)
 						else
 							rep.add_error_message ("Unsupported operation " + html_encoded (p_op.string_representation))
 						end
@@ -111,7 +116,13 @@ feature -- Request execution
 					rep.add_error_message ("Bad request ...")
 				end
 			end
-			add_token_to_body (a_token, Void, s, a_token.is_revoked, rep)
+			l_display_token := a_token
+			l_display_secret := Void
+			if attached l_rot as r then
+				l_display_token := r.token
+				l_display_secret := r.secret
+			end
+			add_token_to_body (l_display_token, l_display_secret, s, l_display_token.is_revoked, rep)
 			rep.set_main_content (s)
 
 			rep.add_to_primary_tabs (api.local_link ("API keys", api.parent_location_of (rep.location)))
@@ -126,6 +137,7 @@ feature -- Request execution
 			rep: CMS_RESPONSE
 			fset: WSF_FORM_FIELD_SET
 			ftxt: WSF_FORM_TEXT_INPUT
+			fexp: WSF_FORM_DATE_INPUT
 			sub: WSF_FORM_SUBMIT_INPUT
 			l_form: CMS_FORM
 			s: STRING
@@ -193,6 +205,11 @@ feature -- Request execution
 			create ftxt.make_with_text ("name", "")
 			ftxt.set_placeholder ("Optional name")
 			fset.extend (ftxt)
+
+			create fexp.make ("expiration_date")
+			fexp.set_label ("Expiration date (optional)")
+			fexp.set_description ("Leave empty to use the default expiration from configuration. The key expires at the end of the selected day (UTC).")
+			fset.extend (fexp)
 
 			if attached api_key_auth_api.scopes_declarations as l_scopes_decl then
 				fset.extend_html_text ("<strong>Scopes:</strong>")
@@ -362,6 +379,9 @@ feature -- Request execution
 					hdiv.extend (create {WSF_FORM_SUBMIT_INPUT}.make_with_text ("op", but_enable_text))
 				end
 				hdiv.extend (create {WSF_FORM_SUBMIT_INPUT}.make_with_text ("op", but_revoke_text))
+				if not a_token.is_expired (Void) then
+					hdiv.extend (create {WSF_FORM_SUBMIT_INPUT}.make_with_text ("op", but_rotate_text))
+				end
 
 			end
 			f.extend (hdiv)
@@ -384,6 +404,7 @@ feature -- Request execution
 	but_update_text: STRING = "Update"
 	but_clean_text: STRING = "Clean revoked or expired"
 	but_create_new_token_text: STRING = "Create API key"
+	but_rotate_text: STRING = "Rotate"
 
 	post_api_token (u: CMS_USER; a_token_user: CMS_USER; req: WSF_REQUEST; res: WSF_RESPONSE)
 			-- Execute handler for `req' and respond in `res'.
@@ -394,6 +415,7 @@ feature -- Request execution
 			l_api_tokens_local_link: CMS_LOCAL_LINK
 			s: STRING_8
 			l_scopes: ARRAYED_LIST [READABLE_STRING_8]
+			l_rot: detachable like api_key_auth_api.new_token
 		do
 			if attached req.form_parameter ("op") as p_op then
 				rep := new_generic_response (req, res)
@@ -413,6 +435,13 @@ feature -- Request execution
 							enable_token (a_token_user, l_api_token, rep, req.percent_encoded_path_info)
 						elseif p_op.same_string (but_update_text) then
 							update_token (a_token_user, l_api_token, rep, req.percent_encoded_path_info)
+						elseif p_op.same_string (but_rotate_text) then
+							l_rot := rotate_token (a_token_user, l_api_token, rep, Void)
+							if attached l_rot as r then
+								create s.make_empty
+								add_token_to_body (r.token, r.secret, s, True, rep)
+								rep.set_main_content (s)
+							end
 						elseif p_op.same_string (but_edit_text) then
 							rep.set_redirection (api.joined_paths (<<req.percent_encoded_path_info, url_encoded (l_key_id)>>))
 						else
@@ -445,10 +474,8 @@ feature -- Request execution
 					else
 						l_scopes := Void
 					end
-					l_tok_and_secret := api_key_auth_api.new_token (a_token_user, l_scopes)
-					if l_tok_and_secret = Void or else api_key_auth_api.has_error then
-						rep.add_error_message ("Error when trying to create a new API key !")
-					else
+					l_tok_and_secret := new_token_from_form (a_token_user, l_scopes, req, rep)
+					if attached l_tok_and_secret then
 						tok := l_tok_and_secret.token
 						if attached {WSF_STRING} req.form_parameter ("name") as p_name then
 							tok.set_name (p_name.value)
@@ -462,6 +489,8 @@ feature -- Request execution
 
 						rep.theme.append_cms_link_to_html (rep.local_link ("See all API keys", rep.location), Void, s)
 --									rep.set_redirection (req.percent_encoded_path_info)
+					elseif api_key_auth_api.has_error then
+						rep.add_error_message ("Error when trying to create a new API key !")
 					end
 				else
 					rep := Void
@@ -565,6 +594,73 @@ feature -- Request execution
 					rep.set_redirection (a_redir_on_success)
 				end
 			end
+		end
+
+	rotate_token (a_token_user: CMS_USER; a_api_token: API_KEY_AUTH_TOKEN; rep: like new_generic_response; a_redir_on_success: detachable READABLE_STRING_8): detachable like api_key_auth_api.new_token
+			-- Replace `a_api_token` with a new key and return the one-time secret tuple.
+		local
+			l_rot: like api_key_auth_api.new_token
+		do
+			if a_api_token.is_revoked or a_api_token.is_expired (Void) then
+				rep.add_error_message ("Cannot rotate revoked or expired API key.")
+			else
+				l_rot := api_key_auth_api.rotation_user_token (a_api_token)
+				if l_rot = Void or else api_key_auth_api.has_error then
+					rep.add_error_message ("Error when trying to rotate API key " + html_encoded (a_api_token.key_id) + " !")
+				else
+					rep.add_success_message ("API key rotated. The previous key has been revoked.")
+					Result := l_rot
+				end
+			end
+		end
+
+	new_token_from_form (a_token_user: CMS_USER; a_scopes: detachable LIST [READABLE_STRING_8]; req: WSF_REQUEST; rep: like new_generic_response): detachable like api_key_auth_api.new_token
+			-- Create a new token, optionally using `expiration_date` from `req`.
+		local
+			l_now: DATE_TIME
+			l_exp_dt: DATE_TIME
+			l_secs: INTEGER_64
+		do
+			if
+				attached {WSF_STRING} req.form_parameter ("expiration_date") as p_exp and then
+				not p_exp.value.is_whitespace
+			then
+				if attached date_from_form_string (p_exp.value) as l_exp_date then
+					l_exp_dt := expiration_date_time_from_date (l_exp_date)
+					create l_now.make_now_utc
+					if l_exp_dt <= l_now then
+						rep.add_error_message ("Expiration date must be in the future.")
+					elseif attached l_exp_dt.relative_duration (l_now) as l_dur then
+						l_secs := l_dur.seconds_count
+						if l_secs <= 0 then
+							rep.add_error_message ("Expiration date must be in the future.")
+						else
+							Result := api_key_auth_api.new_token_with_expiration (a_token_user, a_scopes, l_secs.to_natural_32)
+						end
+					end
+				else
+					rep.add_error_message ("Invalid expiration date.")
+				end
+			else
+				Result := api_key_auth_api.new_token (a_token_user, a_scopes)
+			end
+		end
+
+	date_from_form_string (s: READABLE_STRING_GENERAL): detachable DATE
+			-- Parse HTML `date` value `yyyy-MM-dd`.
+		do
+			if s.count >= 10 then
+				Result := api.date_from_yyyy_mm_dd_string (s.substring (1, 10), '-')
+			end
+		end
+
+	expiration_date_time_from_date (d: DATE): DATE_TIME
+			-- End of `d` in UTC, used as token expiration instant.
+		local
+			l_time: TIME
+		do
+			create l_time.make (23, 59, 59)
+			create Result.make_by_date_time (d, l_time)
 		end
 
 note
