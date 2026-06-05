@@ -1502,6 +1502,19 @@ feature -- Access: API
 			Result := l_api
 		end
 
+	email_api: CMS_EMAIL_API
+			-- API to access email related data.
+		local
+			l_api: like internal_email_api
+		do
+			l_api := internal_email_api
+			if l_api = Void then
+				create l_api.make (Current)
+				internal_email_api := l_api
+			end
+			Result := l_api
+		end
+
 	response_api: CMS_RESPONSE_API
 			-- API to send predefined cms responses.
 		do
@@ -1638,7 +1651,10 @@ feature {NONE}-- Implementation
 			-- Error handler.
 
 	internal_user_api: detachable like user_api
-			-- Cached value for `user_api`.
+			-- Cached value for `user_api'.
+
+	internal_email_api: detachable like email_api
+			-- Cached value for `email_api'.
 
 feature -- Environment/ theme
 

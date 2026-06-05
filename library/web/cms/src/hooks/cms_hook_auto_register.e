@@ -33,6 +33,9 @@ feature -- Hook
 			if attached {CMS_HOOK_VALUE_TABLE_ALTER} Current as h_value then
 				a_hooks.subscribe_to_value_table_alter_hook (h_value)
 			end
+			if attached {CMS_HOOK_TEMPLATE_VALUE_TABLE_ALTER} Current as h_template_value then
+				a_hooks.subscribe_to_template_value_table_alter_hook (h_template_value)
+			end
 			if attached {CMS_HOOK_RESPONSE_ALTER} Current as h_resp then
 				a_hooks.subscribe_to_response_alter_hook (h_resp)
 			end

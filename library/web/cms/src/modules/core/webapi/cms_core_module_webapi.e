@@ -25,11 +25,17 @@ feature -- Security
 			Result.force (perm_admin_users)
 			Result.force (perm_view_users)
 			Result.force (perm_use_access_token)
+			Result.force (perm_view_mails)
+			Result.force (perm_send_mails)
+			Result.force (perm_manage_mail_templates)
 		end
 
 	perm_admin_users: STRING = "admin users"
 	perm_view_users: STRING = "view users"
 	perm_use_access_token: STRING = "use access_token"
+	perm_view_mails: STRING = "view mails"
+	perm_send_mails: STRING = "send mails"
+	perm_manage_mail_templates: STRING = "manage mail templates"
 
 feature {NONE} -- Router/administration
 
@@ -43,9 +49,14 @@ feature {NONE} -- Router/administration
 			a_router.handle ("", l_root, a_router.methods_get)
 			a_router.handle ("/", l_root, a_router.methods_get)
 			a_router.handle ("/user/{uid}/access_token", create {CMS_ACCESS_TOKEN_WEBAPI_HANDLER}.make (a_api), a_router.methods_get_post)
+			a_router.handle ("/user/{uid}/mails/", create {CMS_USER_MAILS_WEBAPI_HANDLER}.make (a_api), a_router.methods_get)
 			a_router.handle ("/user/{uid}", create {CMS_USER_WEBAPI_HANDLER}.make (a_api), a_router.methods_get)
 			a_router.handle ("/user/", create {CMS_USER_WEBAPI_HANDLER}.make (a_api), a_router.methods_get)
 			a_router.handle ("/users/", create {CMS_USERS_WEBAPI_HANDLER}.make (a_api), a_router.methods_get_post)
+			a_router.handle ("/mails/templates/builtin-variables", create {CMS_MAIL_TEMPLATES_BUILTIN_VARIABLES_WEBAPI_HANDLER}.make (a_api), a_router.methods_get)
+			a_router.handle ("/mails/templates/", create {CMS_MAIL_TEMPLATES_WEBAPI_HANDLER}.make (a_api), a_router.methods_get_post)
+			a_router.handle ("/mails/template/{tpl_name}/", create {CMS_MAIL_TEMPLATE_WEBAPI_HANDLER}.make (a_api), a_router.methods_get_put_delete)
+			a_router.handle ("/mails/", create {CMS_MAILS_WEBAPI_HANDLER}.make (a_api), a_router.methods_get_post)
 		end
 
 feature -- Access: filter
