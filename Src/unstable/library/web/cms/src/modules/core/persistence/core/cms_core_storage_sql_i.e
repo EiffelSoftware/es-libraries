@@ -398,52 +398,56 @@ feature -- Emails
 			retry
 		end
 
-	mails_to (a_user: detachable CMS_USER; a_offset: INTEGER; a_count: INTEGER): detachable LIST [CMS_EMAIL]
+	mails_to (a_user: detachable CMS_USER; a_offset: INTEGER; a_count: INTEGER): detachable CMS_DATA_LIST [CMS_EMAIL]
 			-- <Precursor>.
 		local
 			l_parameters: detachable STRING_TABLE [detachable ANY]
-			l_sql: READABLE_STRING_8
+			l_sql, l_sql_count: READABLE_STRING_8
+			l_total_count: INTEGER
 		do
-			error_handler.reset
-			create l_parameters.make (2)
-
+			create l_parameters.make (4)
 			l_parameters.put ("email", "msgtype")
 
 			if a_user /= Void then
 				l_parameters.put (a_user.id, "user_to")
 				l_sql := sql_select_messages_by_user_to
+				l_sql_count := sql_select_messages_by_user_to_count
 			else
 				l_sql := sql_select_messages
+				l_sql_count := sql_select_messages_count
 			end
 
-			if a_count > 0 then
-				check l_sql.ends_with_general (";") end
-				l_sql := l_sql.substring (1, l_sql.count - 1) -- Remove ';'
-				l_sql := l_sql + " LIMIT " + a_count.out
-				l_sql := l_sql + " OFFSET " + a_offset.out
-				l_sql := l_sql + " ;"
-			end
+			reset_error
 
-			from
-				if a_count > 0 then
-					create {ARRAYED_LIST [CMS_EMAIL]} Result.make (a_count)
-				else
-					create {ARRAYED_LIST [CMS_EMAIL]} Result.make (10)
-				end
-				if l_parameters.is_empty then
-					l_parameters := Void
-				end
+			sql_query (l_sql_count, l_parameters)
+			if not has_error then
+				l_total_count := sql_read_integer_32 (1)
+			end
+			sql_finalize_query (l_sql_count)
+
+			if not has_error then
+				l_parameters.put (a_offset, "offset")
+				l_parameters.put (a_count, "size")
+
 				sql_query (l_sql, l_parameters)
-				sql_start
-			until
-				sql_after or has_error
-			loop
-				if attached fetch_mail as l_msg then
-					Result.force (l_msg)
+				if not has_error then
+					create Result.make_partial (a_offset, a_count, l_total_count)
+					from
+						sql_start
+					until
+						sql_after or has_error
+					loop
+						if attached fetch_mail as l_msg then
+							Result.force (l_msg)
+						else
+							check has_mail: False end
+						end
+						sql_forth
+					end
 				end
-				sql_forth
+
+				sql_finalize_query (l_sql)
 			end
-			sql_finalize_query (l_sql)
 		end
 
 	mail_to_json (m: CMS_EMAIL): JSON_OBJECT
@@ -721,9 +725,13 @@ feature -- Emails
 
 	sql_insert_message: STRING = "INSERT INTO messages (mid, date, msgtype, status, user_from, user_to, subject, data) VALUES (:mid, :date, :msgtype, :status, :user_from, :user_to, :subject, :data);"
 
-	sql_select_messages_by_user_to: STRING = "SELECT mid, date, msgtype, status, user_from, user_to, subject, data FROM messages WHERE msgtype=:msgtype AND user_to=:user_to ORDER by date DESC, mid DESC;"
+	sql_select_messages_by_user_to: STRING = "SELECT mid, date, msgtype, status, user_from, user_to, subject, data FROM messages WHERE msgtype=:msgtype AND user_to=:user_to ORDER by date DESC, mid DESC LIMIT :size OFFSET :offset ;"
 
-	sql_select_messages: STRING = "SELECT mid, date, msgtype, status, user_from, user_to, subject, data FROM messages WHERE msgtype=:msgtype ORDER by date DESC, mid DESC;"
+	sql_select_messages_by_user_to_count: STRING = "SELECT COUNT(*) FROM messages WHERE msgtype=:msgtype AND user_to=:user_to;"
+
+	sql_select_messages: STRING = "SELECT mid, date, msgtype, status, user_from, user_to, subject, data FROM messages WHERE msgtype=:msgtype ORDER by date DESC, mid DESC LIMIT :size OFFSET :offset ;"
+
+	sql_select_messages_count: STRING = "SELECT COUNT(*) FROM messages WHERE msgtype=:msgtype ;"
 
 feature -- Misc
 
