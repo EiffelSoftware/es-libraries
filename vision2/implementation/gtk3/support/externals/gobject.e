@@ -104,6 +104,13 @@ feature -- Gobject value
 			"g_value_set_boolean ((GValue*) $a_value, (gboolean) $a_boolean)"
 		end
 
+	frozen ev_g_value_set_boolean (a_value: POINTER; a_boolean: BOOLEAN)
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"ev_g_value_set_boolean ((GValue*) $a_value, (gboolean) $a_boolean)"
+		end
+
 	frozen g_value_get_boolean (a_value: POINTER): BOOLEAN
 		external
 			"C inline use <ev_gtk.h>"

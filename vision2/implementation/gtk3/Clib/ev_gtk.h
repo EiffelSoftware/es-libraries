@@ -268,4 +268,13 @@ ev_gdk_cursor_new_from_pixbuf_safe (GdkDisplay *display, GdkPixbuf *pixbuf, gint
 	return gdk_cursor_new_from_pixbuf (display, pixbuf, x, y);
 }
 
+static void
+ev_g_value_set_boolean (GValue *value, gboolean b)
+{
+	if (!G_VALUE_HOLDS_BOOLEAN (value)) {
+		g_value_init (value, G_TYPE_BOOLEAN);
+	}
+	g_value_set_boolean (value, b);
+}
+
 #endif
