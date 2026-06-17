@@ -1013,7 +1013,7 @@ feature -- GdkPixbuf
 		external
 			"C inline use <ev_gtk.h>"
 		alias
-			"gdk_pixbuf_scale_simple ((GdkPixbuf*) $a_gdkpixbuf, (int) $a_width, (int) $a_height, (int) $a_interp_mode)"
+			"return (EIF_POINTER) ev_gdk_pixbuf_scale_simple_safe ((GdkPixbuf*) $a_gdkpixbuf, (gint) $a_width, (gint) $a_height, (GdkInterpType) $a_interp_mode);"
 		end
 
 	frozen gdk_pixbuf_scale (src, dest: POINTER; dest_x, dest_y, dest_width, dest_height: INTEGER_32; offset_x, offset_y, scale_x, scale_y: REAL_64; interp_type: INTEGER_32)
@@ -1064,7 +1064,7 @@ feature -- GdkPixbuf
 		external
 			"C inline use <ev_gtk.h>"
 		alias
-			"return gdk_pixbuf_get_from_surface ((cairo_surface_t *) $a_surface, (gint) $a_x, (gint) $a_y, (gint) $a_width, (gint) $a_height);"
+			"return (EIF_POINTER) ev_gdk_pixbuf_get_from_surface_safe ((cairo_surface_t *) $a_surface, (gint) $a_x, (gint) $a_y, (gint) $a_width, (gint) $a_height);"
 		end
 
 	frozen gdk_pixbuf_get_from_window (a_window: POINTER; a_src_x, a_src_y, a_width, a_height: INTEGER): POINTER
@@ -1072,7 +1072,7 @@ feature -- GdkPixbuf
 		external
 			"C inline use <ev_gtk.h>"
 		alias
-			"return gdk_pixbuf_get_from_window ((GdkWindow *) $a_window, (gint) $a_src_x, (gint) $a_src_y, (gint) $a_width, (gint) $a_height);"
+			"return (EIF_POINTER) ev_gdk_pixbuf_get_from_window_safe ((GdkWindow *) $a_window, (gint) $a_src_x, (gint) $a_src_y, (gint) $a_width, (gint) $a_height);"
 		end
 
 	frozen gdk_pixbuf_get_pixels (a_pixbuf: POINTER): POINTER
@@ -1164,14 +1164,14 @@ feature -- GdkPixbuf
 		external
 			"C inline use <ev_gtk.h>"
 		alias
-			"return gdk_pixbuf_new ((GdkColorspace) $a_colorspace, (gboolean) $a_has_alpha, (int) $a_bits_per_sample, (int) $a_width, (int) $a_height);"
+			"return (EIF_POINTER) ev_gdk_pixbuf_new_safe ((GdkColorspace) $a_colorspace, (gboolean) $a_has_alpha, (gint) $a_bits_per_sample, (gint) $a_width, (gint) $a_height);"
 		end
 
 	frozen gdk_pixbuf_new_subpixbuf (a_pixbuf: POINTER; src_x, src_y, width, height: INTEGER_32): POINTER
 		external
 			"C inline use <ev_gtk.h>"
 		alias
-			"return gdk_pixbuf_new_subpixbuf ((GdkPixbuf*)$a_pixbuf, (int) $src_x, (int) $src_y, (int) $width, (int) $height);"
+			"return (EIF_POINTER) ev_gdk_pixbuf_new_subpixbuf_safe ((GdkPixbuf*) $a_pixbuf, (gint) $src_x, (gint) $src_y, (gint) $width, (gint) $height);"
 		end
 
 	frozen gdk_pixbuf_fill (a_pixbuf: POINTER; rgba: INTEGER_32)
@@ -1421,7 +1421,25 @@ feature -- Selection, Drag, Drop
 
 	frozen gdk_cursor_new_from_pixbuf (a_display, a_pixbuf: POINTER; a_x, a_y: INTEGER_32): POINTER
 		external
-			"C signature (GdkDisplay*, GdkPixbuf*, gint, gint): GdkCursor* use <ev_gtk.h>"
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_POINTER) ev_gdk_cursor_new_from_pixbuf_safe ((GdkDisplay*) $a_display, (GdkPixbuf*) $a_pixbuf, (gint) $a_x, (gint) $a_y);"
+		end
+
+	frozen gdk_cursor_new_from_pixbuf_safe (a_display, a_pixbuf: POINTER; a_x, a_y: INTEGER_32): POINTER
+			-- Like `gdk_cursor_new_from_pixbuf' but clamps hotspot and falls back to the default arrow.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_POINTER) ev_gdk_cursor_new_from_pixbuf_safe ((GdkDisplay*) $a_display, (GdkPixbuf*) $a_pixbuf, (gint) $a_x, (gint) $a_y);"
+		end
+
+	frozen safe_pixmap_dimension (a_dimension: INTEGER_32): INTEGER_32
+			-- Return a valid GdkPixbuf dimension, at least 1 pixel.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_INTEGER_32) ev_safe_pixmap_dimension ((gint) $a_dimension);"
 		end
 
 	frozen gdk_selection_property_get (a_window: POINTER; a_data: TYPED_POINTER [POINTER]; a_target: POINTER; prop_type: TYPED_POINTER [INTEGER_32]): INTEGER_32

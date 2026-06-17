@@ -54,9 +54,13 @@ feature -- Status Setting
 
 	set_size (a_width, a_height: INTEGER)
 			-- Set the size of the pixmap to `a_width' by `a_height'.
+		local
+			l_width, l_height: INTEGER
 		do
+			l_width := app_implementation.safe_pixmap_dimension (a_width)
+			l_height := app_implementation.safe_pixmap_dimension (a_height)
 			release_previous_cairo_surface
-			cairo_surface := {CAIRO}.image_surface_create ({CAIRO}.format_argb32, a_width, a_height)
+			cairo_surface := {CAIRO}.image_surface_create ({CAIRO}.format_argb32, l_width, l_height)
 			get_new_cairo_context
 			init_default_values
 		end

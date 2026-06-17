@@ -22,9 +22,13 @@ feature -- Initialization
 
 	make_with_size (a_width, a_height: INTEGER)
 			-- Create with size.
+		local
+			l_width, l_height: INTEGER
 		do
 			if {GTK}.gtk_maj_ver >= 2 then
-				set_gdkpixbuf ({GDK}.gdk_pixbuf_new ({GDK}.gdk_colorspace_rgb_enum, True, 8, a_width, a_height))
+				l_width := {GDK}.safe_pixmap_dimension (a_width)
+				l_height := {GDK}.safe_pixmap_dimension (a_height)
+				set_gdkpixbuf ({GDK}.gdk_pixbuf_new ({GDK}.gdk_colorspace_rgb_enum, True, 8, l_width, l_height))
 				{GDK}.gdk_pixbuf_fill (gdk_pixbuf, 0)
 			else
 				create internal_pixmap.make_with_size (a_width, a_height)
@@ -229,17 +233,20 @@ feature -- Command
 			l_imp: detachable EV_PIXEL_BUFFER_IMP
 			l_pixbuf: POINTER
 			l_scale_type: INTEGER_32
+			l_width, l_height: INTEGER
 		do
 			create Result
 			l_imp ?= Result.implementation
 			check l_imp /= Void then end
+			l_width := {GDK}.safe_pixmap_dimension (a_width)
+			l_height := {GDK}.safe_pixmap_dimension (a_height)
 				-- The code below was taken from `{EV_PIXMAP_IMP}.stretch'.
-			if a_width <= 16 and then a_height <= 16 then
+			if l_width <= 16 and then l_height <= 16 then
 				l_scale_type := {GDK}.gdk_interp_nearest
 			else
 				l_scale_type := {GDK}.gdk_interp_bilinear
 			end
-			l_pixbuf := {GDK}.gdk_pixbuf_scale_simple (gdk_pixbuf, a_width, a_height, l_scale_type)
+			l_pixbuf := {GDK}.gdk_pixbuf_scale_simple (gdk_pixbuf, l_width, l_height, l_scale_type)
 				-- We need to pass in a copy of the pixbuf as subpixbuf shares the pixels.
 			if not {GDK}.gdk_is_pixbuf (l_pixbuf) then
 				debug ("gtk_log")

@@ -55,6 +55,13 @@ feature -- Gobject value
 			"g_value_init ((GValue*) $a_value, G_TYPE_INT)"
 		end
 
+	frozen g_value_init_boolean (a_value: POINTER)
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"g_value_init ((GValue*) $a_value, G_TYPE_BOOLEAN)"
+		end
+
 	frozen g_value_init_pointer (a_value: POINTER)
 		external
 			"C inline use <ev_gtk.h>"

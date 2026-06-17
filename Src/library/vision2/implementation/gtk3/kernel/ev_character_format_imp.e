@@ -222,7 +222,7 @@ feature {EV_RICH_TEXT_IMP} -- Implementation
 				a_text_tag := {GTK2}.gtk_text_tag_table_lookup (a_tag_table, a_text_tag_name.item)
 				if a_text_tag = default_pointer then
 					a_text_tag := {GTK2}.gtk_text_tag_new (a_text_tag_name.item)
-					{GOBJECT}.g_object_set_integer (a_text_tag, {GTK_PROPERTIES}.size, height_in_points * {PANGO}.scale)
+					{GOBJECT}.g_object_set_integer (a_text_tag, {GTK_PROPERTIES}.size, app_imp.pango_font_size_from_points (height_in_points))
 					{GTK2}.gtk_text_tag_table_add (a_tag_table, a_text_tag)
 				end
 				{GTK2}.gtk_text_buffer_apply_tag (a_text_buffer, a_text_tag, a_start_iter, a_end_iter)
@@ -370,7 +370,7 @@ feature {EV_RICH_TEXT_IMP} -- Implementation
 					{GOBJECT}.g_object_set_pointer (Result, {GTK_PROPERTIES}.family, propvalue.item)
 				end
 				if applicable_attributes.font_height then
-					{GOBJECT}.g_object_set_integer (Result, {GTK_PROPERTIES}.size, height_in_points * {PANGO}.scale)
+					{GOBJECT}.g_object_set_integer (Result, {GTK_PROPERTIES}.size, app_implementation.pango_font_size_from_points (height_in_points))
 				end
 				if applicable_attributes.font_shape then
 					if shape = {EV_FONT_CONSTANTS}.shape_italic then

@@ -496,6 +496,7 @@ feature -- Drawing operations
 				l_y := y + device_y_offset
 
 				a_pango_layout := {PANGO}.cairo_create_layout (l_drawable)
+				app_implementation.sync_pango_layout_with_gtk_widget (a_pango_layout, app_implementation.default_gtk_window)
 
 				a_cs := App_implementation.c_string_from_eiffel_string (a_text)
 				{PANGO}.layout_set_text (a_pango_layout, a_cs.item, a_cs.string_length)
@@ -914,18 +915,44 @@ feature {EV_GTK_DEPENDENT_APPLICATION_IMP, EV_ANY_I} -- Implementation
 
 	pixbuf_from_drawable_at_position (src_x, src_y, dest_x, dest_y, a_width, a_height: INTEGER): POINTER
 			-- Return a GdkPixbuf object from the current Gdkpixbuf structure
+		local
+			l_width, l_height: INTEGER
+			l_drawable: POINTER
+			l_surface: POINTER
+			l_app_imp: like app_implementation
 		do
-			Result := {GDK}.gdk_pixbuf_new (0, True, 8, a_width, a_height)
+			l_app_imp := app_implementation
+			l_width := l_app_imp.safe_pixmap_dimension (a_width)
+			l_height := l_app_imp.safe_pixmap_dimension (a_height)
+			l_drawable := cairo_context
+			if not l_drawable.is_default_pointer then
+				l_surface := {CAIRO}.get_target (l_drawable)
+				if not l_surface.is_default_pointer then
+					Result := {GDK}.gdk_pixbuf_get_from_surface (l_surface, src_x, src_y, l_width, l_height)
+				end
+			end
+			if Result.is_default_pointer then
+				Result := {GDK}.gdk_pixbuf_new (0, True, 8, l_width, l_height)
+			end
 		end
 
 	pixbuf_from_drawable_with_size (a_width, a_height: INTEGER): POINTER
 			-- Return a GdkPixbuf object from the current Gdkpixbuf structure with dimensions `a_width' * `a_height'
 		local
 			a_pixbuf: POINTER
+			l_app_imp: like app_implementation
+			l_width, l_height: INTEGER
 		do
+			l_app_imp := app_implementation
+			l_width := l_app_imp.safe_pixmap_dimension (a_width)
+			l_height := l_app_imp.safe_pixmap_dimension (a_height)
 			a_pixbuf := pixbuf_from_drawable
-			Result := {GDK}.gdk_pixbuf_scale_simple (a_pixbuf, a_width, a_height, {GDK}.gdk_interp_bilinear)
-			{GOBJECT}.g_object_unref (a_pixbuf)
+			if not a_pixbuf.is_default_pointer then
+				Result := {GDK}.gdk_pixbuf_scale_simple (a_pixbuf, l_width, l_height, {GDK}.gdk_interp_bilinear)
+				{GOBJECT}.g_object_unref (a_pixbuf)
+			else
+				Result := {GDK}.gdk_pixbuf_new (0, True, 8, l_width, l_height)
+			end
 		end
 
 feature {NONE} -- Implementation

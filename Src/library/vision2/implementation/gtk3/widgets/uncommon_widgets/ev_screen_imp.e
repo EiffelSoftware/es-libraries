@@ -825,7 +825,8 @@ feature -- Drawing / Fill Operations
 			if
 				has_x11_support and then
 				not drawable_x_window.is_default_pointer and then
-				not drawable_x_display.is_default_pointer
+				not drawable_x_display.is_default_pointer and then
+				a_width > 0 and then a_height > 0
 			then
 				{GDK}.gdk_window_invalidate_rect (drawable, default_pointer, True)
 				if tile /= Void then

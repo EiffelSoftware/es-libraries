@@ -381,7 +381,8 @@ feature {EV_INTERMEDIARY_ROUTINES} -- Implementation
 		end
 
 	process_button_event (a_gdk_event: POINTER; a_recursive: BOOLEAN)
-			-- "button-press-event" signal occurred
+			-- "button-press-event" signal occurred.
+			-- Also used when Vision2 routes button events from the global GDK queue.
 		local
 			l_screen_x, l_screen_y: INTEGER
 		do
@@ -419,9 +420,10 @@ feature {EV_INTERMEDIARY_ROUTINES} -- Implementation
 feature {EV_APPLICATION_IMP} -- Implementation
 
 	button_actions_handled_by_signals: BOOLEAN
-			-- Are the button actions (press/release) handled by signals?
+			-- Are the button actions (press/release) handled by GTK signals?
+			-- Drawing areas rely on the global GDK event queue; keep False like other widgets.
 		do
-			Result := True
+			Result := False
 		end
 
 feature {NONE} -- Implementation

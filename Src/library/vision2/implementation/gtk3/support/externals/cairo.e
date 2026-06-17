@@ -212,6 +212,16 @@ feature -- Cairo context
 			is_class: class
 		end
 
+	get_target (cr: POINTER): POINTER
+			-- Return the target surface for `cr'.
+		external
+			"C signature (cairo_t*): cairo_surface_t* use <cairo.h>"
+		alias
+			"cairo_get_target"
+		ensure
+			is_class: class
+		end
+
 feature -- Cairo surface
 
 	cairo_recording_surface_create_with_size (content, width, height: INTEGER): POINTER
@@ -230,7 +240,7 @@ feature -- Cairo surface
 			"C inline use <ev_gtk.h>"
 		alias
 			"[
-				cairo_image_surface_create ((cairo_format_t ) $format, (int) $width, (int) $height)
+				cairo_image_surface_create ((cairo_format_t ) $format, ev_safe_pixmap_dimension ((gint) $width), ev_safe_pixmap_dimension ((gint) $height))
 			]"
 		ensure
 			is_class: class
@@ -402,9 +412,9 @@ feature -- Cairo surface
 
 	image_surface_create (format: INTEGER_8; width: INTEGER_32; height: INTEGER_32): POINTER
 		external
-			"C signature (cairo_format_t, int, int): cairo_surface_t* use <cairo.h>"
+			"C inline use <ev_gtk.h>"
 		alias
-			"cairo_image_surface_create"
+			"return (EIF_POINTER) cairo_image_surface_create ((cairo_format_t) $format, ev_safe_pixmap_dimension ((gint) $width), ev_safe_pixmap_dimension ((gint) $height));"
 		ensure
 			is_class: class
 		end

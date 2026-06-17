@@ -134,6 +134,8 @@ feature {NONE} -- Initialization
 						{EV_GTK_EVENT_STRINGS}.commit_event_string,
 						agent on_char_event (?))
 
+				install_text_scaling_notifications
+
 			else
 				-- We are unable to launch the gtk toolkit, probably due to a DISPLAY issue.
 				print ("EiffelVision application could not launch, check DISPLAY environment variable%N")
@@ -377,6 +379,7 @@ feature {EV_ANY_I} -- Implementation
 			l_has_grab_widget: BOOLEAN
 			l_event_string: detachable STRING
 			l_call_theme_events: BOOLEAN
+			l_schedule_text_scaling_update: BOOLEAN
 			l_any_event, l_user_event, l_gdk_event_is_sent: BOOLEAN
 		do
 			from
@@ -397,6 +400,7 @@ feature {EV_ANY_I} -- Implementation
 					l_any_event := True
 					l_call_event := True
 					l_propagate_event := False
+					l_schedule_text_scaling_update := False
 
 					l_grab_widget := {GTK}.gtk_grab_get_current
 					if l_grab_widget.is_default_pointer then
@@ -541,22 +545,16 @@ feature {EV_ANY_I} -- Implementation
 						l_user_event := True
 					when GDK_PROXIMITY_IN, GDK_PROXIMITY_OUT then
 						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_PROXIMITY_IN", event_widget)
+							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
-					when GDK_PROPERTY_NOTIFY then
+						l_call_event := False
+						{GTK}.gtk_main_do_event (gdk_event)
+					when GDK_PROPERTY_NOTIFY, GDK_EXPOSE, GDK_NO_EXPOSE then
 						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_PROPERTY_NOTIFY", event_widget)
+							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
-					when GDK_EXPOSE then
-							-- This is only called on gtk 1.2 as expose compression is
-							-- performed in gdk with 2.x and above.
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_EXPOSE", event_widget)
-						end
-					when GDK_NO_EXPOSE then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_NO_EXPOSE", event_widget)
-						end
+						l_call_event := False
+						{GTK}.gtk_main_do_event (gdk_event)
 					when GDK_FOCUS_CHANGE then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_FOCUS_CHANGE", event_widget)
@@ -613,14 +611,12 @@ feature {EV_ANY_I} -- Implementation
 							end
 							l_gtk_widget_imp := Void
 						end
-					when GDK_SELECTION_CLEAR then
+					when GDK_SELECTION_CLEAR, GDK_SELECTION_REQUEST then
 						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_SELECTION_CLEAR", event_widget)
+							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
-					when GDK_SELECTION_REQUEST then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_SELECTION_REQUEST", event_widget)
-						end
+						l_call_event := False
+						{GTK}.gtk_main_do_event (gdk_event)
 					when GDK_SELECTION_NOTIFY then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_SELECTION_NOTIFY", event_widget)
@@ -639,18 +635,18 @@ feature {EV_ANY_I} -- Implementation
 							l_text_field_imp.on_change_actions
 						end
 						l_widget_imp := Void
-					when GDK_CLIENT_EVENT then
+					when GDK_CLIENT_EVENT, GDK_VISIBILITY_NOTIFY then
 						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_CLIENT_EVENT", event_widget)
+							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
-					when GDK_VISIBILITY_NOTIFY then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_VISIBILITY_NOTIFY", event_widget)
-						end
+						l_call_event := False
+						{GTK}.gtk_main_do_event (gdk_event)
 					when GDK_WINDOW_STATE then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_WINDOW_STATE", event_widget)
 						end
+						l_call_event := False
+						{GTK}.gtk_main_do_event (gdk_event)
 						l_top_level_window_imp ?= eif_object_from_gtk_object (event_widget)
 						if l_top_level_window_imp /= Void then
 							l_top_level_window_imp.call_window_state_event (
@@ -755,40 +751,19 @@ feature {EV_ANY_I} -- Implementation
 							l_gtk_window_imp.call_close_request_actions
 							l_gtk_window_imp := Void
 						end
-					when GDK_DESTROY then
+					when GDK_DESTROY, GDK_DRAG_ENTER, GDK_DRAG_LEAVE, GDK_DRAG_MOTION, GDK_DRAG_STATUS, GDK_DROP_FINISHED, GDK_NOTHING then
 						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_DESTROY", event_widget)
+							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
-					when GDK_DRAG_ENTER then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_DRAG_ENTER", event_widget)
-						end
-					when GDK_DRAG_LEAVE then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_DRAG_LEAVE", event_widget)
-						end
-					when GDK_DRAG_MOTION then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_DRAG_MOTION", event_widget)
-						end
-					when GDK_DRAG_STATUS then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_DRAG_STATUS", event_widget)
-						end
+						l_call_event := False
+						{GTK}.gtk_main_do_event (gdk_event)
 					when GDK_DROP_START then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_DROP_START", event_widget)
 						end
 							-- Some text has been drag dropped on a widget.
+						l_call_event := False
 						handle_dnd (gdk_event)
-					when GDK_DROP_FINISHED then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_DROP_FINISHED", event_widget)
-						end
-					when GDK_NOTHING then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_NOTHING", event_widget)
-					 	end
 					when GDK_SETTING then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_SETTING", event_widget)
@@ -801,10 +776,16 @@ feature {EV_ANY_I} -- Implementation
 						elseif l_event_string.is_equal (once "gtk-font-name") then
 							-- Font change
 							l_call_theme_events := True
+						elseif l_event_string.is_equal (once "gtk-xft-dpi") then
+							-- Text scaling via gtk-xft-dpi; refresh after GTK processes the setting.
+							l_schedule_text_scaling_update := True
 						end
 						l_event_string := Void
 						{GTK}.gtk_main_do_event (gdk_event)
 
+						if l_schedule_text_scaling_update then
+							schedule_text_scaling_update
+						end
 						if
 							l_call_theme_events and then
 							attached theme_changed_actions_internal as l_theme_changed_actions
@@ -812,62 +793,17 @@ feature {EV_ANY_I} -- Implementation
 							l_theme_changed_actions.call (Void)
 						end
 						l_call_theme_events := False
-					when GDK_OWNER_CHANGE then
+					when
+						GDK_OWNER_CHANGE, GDK_GRAB_BROKEN, GDK_DAMAGE,
+						GDK_TOUCH_BEGIN, GDK_TOUCH_UPDATE, GDK_TOUCH_END, GDK_TOUCH_CANCEL,
+						GDK_TOUCHPAD_SWIPE, GDK_TOUCHPAD_PINCH,
+						GDK_PAD_BUTTON_PRESS, GDK_PAD_BUTTON_RELEASE, GDK_PAD_RING, GDK_PAD_STRIP, GDK_PAD_GROUP_MODE
+					then
 						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_OWNER_CHANGE", event_widget)
+							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
-					when GDK_GRAB_BROKEN then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_GRAB_BROKEN", event_widget)
-						end
-					when GDK_DAMAGE then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_DAMAGE", event_widget)
-						end
-					when GDK_TOUCH_BEGIN then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_TOUCH_BEGIN", event_widget)
-						end
-					when GDK_TOUCH_UPDATE then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_TOUCH_UPDATE", event_widget)
-						end
-					when GDK_TOUCH_END then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_TOUCH_END", event_widget)
-						end
-					when GDK_TOUCH_CANCEL then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_TOUCH_CANCEL", event_widget)
-						end
-					when GDK_TOUCHPAD_SWIPE then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_TOUCHPAD_SWIPE", event_widget)
-						end
-					when GDK_TOUCHPAD_PINCH then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_TOUCHPAD_PINCH", event_widget)
-						end
-					when GDK_PAD_BUTTON_PRESS then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_PAD_BUTTON_PRESS", event_widget)
-						end
-					when GDK_PAD_BUTTON_RELEASE then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_PAD_BUTTON_RELEASE", event_widget)
-						end
-					when GDK_PAD_RING then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_PAD_RING", event_widget)
-						end
-					when GDK_PAD_STRIP then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_PAD_STRIP", event_widget)
-						end
-					when GDK_PAD_GROUP_MODE then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "?GDK_PAD_GROUP_MODE", event_widget)
-						end
+						l_call_event := False
+						{GTK}.gtk_main_do_event (gdk_event)
 					when GDK_EVENT_LAST then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "?GDK_EVENT_LAST", event_widget)
@@ -1089,7 +1025,7 @@ feature -- Basic operation
 			a_gdkevent_not_null: not a_gdk_event.is_default_pointer
 		local
 			l_pnd_item: detachable EV_PICK_AND_DROPABLE_IMP
-			l_gdk_window: POINTER
+			l_gdk_window, l_event_widget: POINTER
 			l_stored_display_data: like stored_display_data
 			l_top_level_window_imp: detachable EV_WINDOW_IMP
 			l_popup_parent: detachable EV_POPUP_WINDOW_IMP
@@ -1118,6 +1054,12 @@ feature -- Basic operation
 				l_gdk_window := l_stored_display_data.window
 				if not l_gdk_window.is_default_pointer then
 					l_pnd_item ?= gtk_widget_from_gdk_window (l_gdk_window)
+				end
+				if l_pnd_item = Void then
+					l_event_widget := {GTK}.gtk_get_event_widget (a_gdk_event)
+					if not l_event_widget.is_default_pointer then
+						l_pnd_item ?= eif_object_from_gtk_object (l_event_widget)
+					end
 				end
 			end
 
@@ -1158,32 +1100,23 @@ feature -- Basic operation
 			if not l_ignore_event then
 				if
 					pick_and_drop_source = Void and then
-					not a_recursive and then
-					(l_pnd_item = Void or else not l_pnd_item.button_actions_handled_by_signals)
+					not a_recursive
 				then
 						-- We don't want signals firing during transport.
 					{GTK}.gtk_main_do_event (a_gdk_event)
 				end
-				if l_pnd_item /= Void then
-					if
-						not a_recursive and then
-						l_pnd_item.button_actions_handled_by_signals and then
-						attached {EV_ANY_IMP} l_pnd_item as l_any_imp
-					then
-						l_any_imp.process_button_event (a_gdk_event, a_recursive)
-					else
-						l_pnd_item.on_mouse_button_event (
-							{GDK}.gdk_event_button_struct_type (a_gdk_event),
-							{GDK}.gdk_event_button_struct_x (a_gdk_event).truncated_to_integer,
-							{GDK}.gdk_event_button_struct_y (a_gdk_event).truncated_to_integer,
-							{GDK}.gdk_event_button_struct_button (a_gdk_event),
-							0.5,
-							0.5,
-							0.5,
-							l_screen_x,
-							l_screen_y
-						)
-					end
+				if l_pnd_item /= Void and then not a_recursive then
+					l_pnd_item.on_mouse_button_event (
+						{GDK}.gdk_event_button_struct_type (a_gdk_event),
+						{GDK}.gdk_event_button_struct_x (a_gdk_event).truncated_to_integer,
+						{GDK}.gdk_event_button_struct_y (a_gdk_event).truncated_to_integer,
+						{GDK}.gdk_event_button_struct_button (a_gdk_event),
+						0.5,
+						0.5,
+						0.5,
+						l_screen_x,
+						l_screen_y
+					)
 				end
 			end
 			use_stored_display_data := False
@@ -1721,6 +1654,78 @@ feature {NONE} -- External implementation
 			]"
 		end
 
+feature {NONE} -- Text scaling
+
+	install_text_scaling_notifications
+			-- Monitor desktop text scaling changes.
+		local
+			l_gsettings: POINTER
+			l_notify_xft_dpi: EV_GTK_C_STRING
+		do
+			create l_notify_xft_dpi.set_with_eiffel_string ("notify::gtk-xft-dpi")
+			gtk_marshal.signal_connect (
+				default_gtk_settings,
+				l_notify_xft_dpi,
+				agent on_text_scaling_settings_changed,
+				False)
+			l_gsettings := text_scaling_gsettings
+			if l_gsettings /= default_pointer then
+				gtk_marshal.signal_connect (
+					l_gsettings,
+					create {EV_GTK_C_STRING}.set_with_eiffel_string ("changed::text-scaling-factor"),
+					agent on_text_scaling_settings_changed,
+					False)
+			end
+		end
+
+	on_text_scaling_settings_changed
+			-- Desktop text scaling settings have changed.
+		do
+			schedule_text_scaling_update
+		end
+
+	schedule_text_scaling_update
+			-- Defer text scaling refresh until the event loop is idle.
+		do
+			if not text_scaling_update_scheduled then
+				text_scaling_update_scheduled := True
+				do_once_on_idle (agent process_pending_text_scaling_update)
+			end
+		end
+
+	process_pending_text_scaling_update
+			-- Apply a pending desktop text scaling refresh.
+		do
+			text_scaling_update_scheduled := False
+			if text_scaling_settings_changed then
+				refresh_text_scaling_factor_cache
+				notify_text_scaling_changed
+				if attached theme_changed_actions_internal as l_theme_changed_actions then
+					l_theme_changed_actions.call (Void)
+				end
+			end
+		end
+
+	text_scaling_update_scheduled: BOOLEAN
+			-- Is a deferred text scaling update already queued?
+
+	notify_text_scaling_changed
+			-- Notify all top-level windows that effective DPI has changed.
+		local
+			l_dpi: NATURAL_32
+			l_window: EV_WINDOW
+		do
+			l_dpi := (text_scaling_factor * 96).truncated_to_integer_64.to_natural_32
+			across windows as ic loop
+				l_window := ic
+				if
+					l_window.full and then
+					attached {EV_WINDOW_IMP} l_window.implementation as l_window_imp
+				then
+					l_window_imp.trigger_dpi_actions (l_dpi, l_window_imp.width, l_window_imp.height)
+				end
+			end
+		end
 
 feature {NONE} -- Externals
 
@@ -1728,7 +1733,7 @@ feature {NONE} -- Externals
 		-- Pointer to the global static mutex
 
 note
-	copyright:	"Copyright (c) 1984-2024, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

@@ -511,7 +511,7 @@ feature -- Status report
 			else
 				font_weight := {EV_FONT_CONSTANTS}.weight_black
 			end
-			font_size := {PANGO}.font_description_get_size (a_font_description) // {PANGO}.scale
+			font_size := app_implementation.points_from_pango_font_size ({PANGO}.font_description_get_size (a_font_description))
 
 			if {PANGO}.font_description_get_style (a_font_description) > 0 then
 				font_style := {EV_FONT_CONSTANTS}.shape_italic

@@ -109,7 +109,14 @@ feature -- Event handling
 	init_dpi_changed_actions (a_dpi_changed_actions: like dpi_changed_actions)
 			-- Initialize `a_dpi_changed_actions' accordingly to the current widget.
 		do
-			-- TODO
+		end
+
+	trigger_dpi_actions (a_dpi: NATURAL_32; a_width, a_height: INTEGER)
+			-- Notify listeners that the effective display DPI has changed.
+		do
+			if attached dpi_changed_actions_internal as l_actions then
+				l_actions.call ([a_dpi, screen_x, screen_y, a_width, a_height])
+			end
 		end
 
 	init_file_drop_actions (a_file_drop_actions: like file_drop_actions)
@@ -752,7 +759,7 @@ feature {EV_ANY, EV_ANY_I, EV_INTERMEDIARY_ROUTINES} -- Implementation
 	interface: detachable EV_WIDGET note option: stable attribute end;
 
 note
-	copyright:	"Copyright (c) 1984-2024, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
