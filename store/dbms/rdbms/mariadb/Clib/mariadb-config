@@ -39,13 +39,14 @@ while test $# -gt 0; do
 		if [ $needs_libs = $false_val ]; then
 			needs_libs=$true_val
 			postfix=" $postfix_path $ISE_LIBRARY/library/store/spec/$ISE_PLATFORM/lib/mariadb_store.lib"
-			result=" $result "`$pkg_config --libs`"
+			result=" $result `$pkg_config --libs` "
 		fi
 		;;
+
 		--cflags)
 		if [ $needs_cflags = $false_val ]; then
 			needs_cflags=$true_val
-			result=" $result "`$pkg_config --cflags`"
+			result=" $result `$pkg_config --cflags`"
 		fi
 		;;
 		*)
