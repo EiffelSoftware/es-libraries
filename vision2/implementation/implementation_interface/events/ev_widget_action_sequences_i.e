@@ -362,7 +362,7 @@ feature -- Event handling
 		ensure
 			not_void: Result /= Void
 		end
-
+		
 feature {EV_ANY_I} -- Implementation
 
 	resize_actions_internal: detachable EV_GEOMETRY_ACTION_SEQUENCE
@@ -391,7 +391,7 @@ feature {EV_ANY_I} -- Implementation
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2019, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

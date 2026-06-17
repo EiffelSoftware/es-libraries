@@ -35,6 +35,7 @@ feature -- Initialize
 		local
 			dlg: POINTER
  		do
+			invalidate_text_scaling_factor_cache
  				-- The following call seems to be needed for any Xlib function.
 			dlg := {GTK2}.gtk_dialog_new
 				-- take ownership
@@ -68,16 +69,85 @@ feature -- Initialize
 
 feature -- Implementation
 
+	text_scaling_factor: REAL_64
+			-- Desktop text scaling factor (GNOME `text-scaling-factor' or gtk-xft-dpi).
+		do
+			if text_scaling_factor_internal <= 0.0 or else text_scaling_settings_changed then
+				refresh_text_scaling_factor_cache
+			end
+			Result := text_scaling_factor_internal
+		end
+
+	text_scaling_factor_internal: REAL_64
+			-- Cached value for `text_scaling_factor'; -1.0 means not yet computed.
+
+	safe_pixmap_dimension (a_dimension: INTEGER): INTEGER
+			-- Return a valid GdkPixbuf dimension, at least 1 pixel.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_INTEGER) ev_safe_pixmap_dimension ((gint) $a_dimension);"
+		end
+
+	pango_font_size_from_points (a_point_value: INTEGER): INTEGER
+			-- Pango font size for `a_point_value' points; desktop scaling is applied via the Pango context resolution.
+		do
+			Result := (a_point_value * {PANGO}.scale + 0.5).truncated_to_integer
+		end
+
+	points_from_pango_font_size (a_pango_size: INTEGER): INTEGER
+			-- Point size encoded in Pango font size `a_pango_size'.
+		do
+			Result := (a_pango_size / {PANGO}.scale + 0.5).truncated_to_integer
+		end
+
+	invalidate_text_scaling_factor_cache
+			-- Force `text_scaling_factor' to be recomputed on next access.
+		do
+			text_scaling_factor_internal := -1.0
+		end
+
+	refresh_text_scaling_factor_cache
+			-- Update `text_scaling_factor_internal' from the desktop environment.
+		do
+			text_scaling_factor_internal := query_text_scaling_factor
+		end
+
+	text_scaling_settings_changed: BOOLEAN
+			-- Has the desktop text scaling factor changed since it was last cached?
+		local
+			l_current: REAL_64
+		do
+			if text_scaling_factor_internal <= 0.0 then
+				Result := True
+			else
+				l_current := query_text_scaling_factor
+				Result := (l_current - text_scaling_factor_internal).abs > 0.001
+			end
+		end
+
 	pixel_value_from_point_value (a_point_value: INTEGER): INTEGER
 			-- Returns the number of screen pixels represented by `a_point_value'
-		do
-			Result := ((a_point_value / 3 * 4) + 0.5).truncated_to_integer
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_INTEGER) ev_pixels_from_points ((gint) $a_point_value);"
 		end
 
 	point_value_from_pixel_value (a_pixel_value: INTEGER): INTEGER
 			-- Returns the number of points represented by `a_pixel_value' screen pixels value
-		do
-			Result := ((a_pixel_value / 4 * 3) + 0.5).truncated_to_integer
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_INTEGER) ev_points_from_pixels ((gint) $a_pixel_value);"
+		end
+
+	sync_pango_layout_with_gtk_widget (a_layout, a_widget: POINTER)
+			-- Match `a_layout' resolution to `a_widget''s Pango context (needed for off-screen Cairo drawing).
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"ev_sync_pango_layout_with_gtk_widget ((PangoLayout*) $a_layout, (GtkWidget*) $a_widget);"
 		end
 
 	pango_layout: POINTER
@@ -375,8 +445,24 @@ feature {NONE} -- Externals
 			"(EIF_POINTER) *((gchar**) $a_gchar_array + (int) ($an_index - 1))"
 		end
 
+	query_text_scaling_factor: REAL_64
+			-- Query the current desktop text scaling factor.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_REAL_64) ev_text_scaling_factor ();"
+		end
+
+	text_scaling_gsettings: POINTER
+			-- GSettings object for org.gnome.desktop.interface, if available.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_POINTER) ev_text_scaling_gsettings_new ();"
+		end
+
 note
-	copyright:	"Copyright (c) 1984-2023, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

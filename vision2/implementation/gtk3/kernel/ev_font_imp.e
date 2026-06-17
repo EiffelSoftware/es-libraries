@@ -123,20 +123,26 @@ feature -- Element change
 
 	set_height (a_height: INTEGER)
 			-- Set `a_height' as preferred font size in screen pixels
+		local
+			l_size: like string_size
 		do
 			height_in_points := app_implementation.point_value_from_pixel_value (a_height)
-			height  := a_height
-			{PANGO}.font_description_set_size (font_description, height_in_points * {PANGO}.scale)
+			{PANGO}.font_description_set_size (font_description, app_implementation.pango_font_size_from_points (height_in_points))
 			calculate_font_metrics
+			l_size := string_size (once "Ag")
+			height := l_size.integer_32_item (2)
 		end
 
 	set_height_in_points (a_height: INTEGER)
 			-- Set `a_height' as preferred font size in screen pixels
+		local
+			l_size: like string_size
 		do
 			height_in_points := a_height
-			height := app_implementation.pixel_value_from_point_value (a_height)
-			{PANGO}.font_description_set_size (font_description, height_in_points * {PANGO}.scale)
+			{PANGO}.font_description_set_size (font_description, app_implementation.pango_font_size_from_points (height_in_points))
 			calculate_font_metrics
+			l_size := string_size (once "Ag")
+			height := l_size.integer_32_item (2)
 		end
 
 	set_values (a_family, a_weight, a_shape, a_height: INTEGER;

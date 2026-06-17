@@ -45,6 +45,8 @@ feature {NONE} -- Initialization
 			panel_manager.refresh_all
 		end
 
+feature {TEXT_PANEL} -- Font update
+
 	update_font
 			-- Font was changed, must redraw tokens due to possible width change.
 		do
@@ -811,6 +813,7 @@ feature {NONE} -- Implementation
 			editor_font_preference.change_actions.extend (agent update_font)
 			keyword_font_preference.change_actions.extend (agent update_font)
 			font_zoom_factor_preference.change_actions.extend (agent update_font)
+			(create {EV_ENVIRONMENT}).application.theme_changed_actions.extend (agent update_font)
 			header_font_preference.change_actions.extend (agent update)
 			link_color_preference.change_actions.extend (agent update)
 			link_background_color_preference.change_actions.extend (agent update)

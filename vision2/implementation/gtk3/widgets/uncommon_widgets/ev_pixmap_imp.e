@@ -231,8 +231,14 @@ feature -- Element change
 
 	pixbuf: POINTER
 			-- Converts the Cairo surface to a GdkPixbuf
+		local
+			l_width, l_height: INTEGER
 		do
-			Result:= {GDK}.gdk_pixbuf_get_from_surface (cairo_surface, 0, 0, width, height)
+			l_width := app_implementation.safe_pixmap_dimension (width)
+			l_height := app_implementation.safe_pixmap_dimension (height)
+			if not cairo_surface.is_default_pointer then
+				Result := {GDK}.gdk_pixbuf_get_from_surface (cairo_surface, 0, 0, l_width, l_height)
+			end
 		end
 
 	set_with_default
@@ -247,20 +253,22 @@ feature -- Element change
 		local
 			a_gdkpixbuf, scaled_pixbuf: POINTER
 			a_scale_type: INTEGER
-			l_width, l_height: INTEGER
+			l_width, l_height, l_target_width, l_target_height: INTEGER
 		do
 			l_width := width
 			l_height := height
-			if l_width /= a_x or else l_height /= a_y then
+			l_target_width := app_implementation.safe_pixmap_dimension (a_x)
+			l_target_height := app_implementation.safe_pixmap_dimension (a_y)
+			if l_width /= l_target_width or else l_height /= l_target_height then
 				a_gdkpixbuf := pixbuf_from_drawable
-				if l_width <= 16 and then l_height <= 16 then
+				if l_target_width <= 16 and then l_target_height <= 16 then
 						-- For small images this method scales better
 					a_scale_type := {GDK}.gdk_interp_nearest
 				else
 						-- For larger images this mode provides better scaling
 					a_scale_type := {GDK}.gdk_interp_bilinear
 				end
-				scaled_pixbuf := {GDK}.gdk_pixbuf_scale_simple (a_gdkpixbuf, a_x, a_y, a_scale_type)
+				scaled_pixbuf := {GDK}.gdk_pixbuf_scale_simple (a_gdkpixbuf, l_target_width, l_target_height, a_scale_type)
 				{GOBJECT}.g_object_unref (a_gdkpixbuf)
 				set_pixmap_from_pixbuf (scaled_pixbuf)
 				{GOBJECT}.g_object_unref (scaled_pixbuf)
@@ -269,9 +277,13 @@ feature -- Element change
 
 	set_size (a_width, a_height: INTEGER)
 			-- Set the size of the pixmap to `a_width' by `a_height'.
+		local
+			l_width, l_height: INTEGER
 		do
+			l_width := app_implementation.safe_pixmap_dimension (a_width)
+			l_height := app_implementation.safe_pixmap_dimension (a_height)
 			release_previous_cairo_surface
-			cairo_surface := {CAIRO}.image_surface_create ({CAIRO}.format_argb32, a_width, a_height)
+			cairo_surface := {CAIRO}.image_surface_create ({CAIRO}.format_argb32, l_width, l_height)
 			get_new_cairo_context
 			init_default_values
 		end
@@ -291,8 +303,17 @@ feature {EV_GTK_DEPENDENT_APPLICATION_IMP, EV_ANY_I} -- Implementation
 
 	pixbuf_from_drawable_at_position (src_x, src_y, dest_x, dest_y, a_width, a_height: INTEGER): POINTER
 			-- Return a GdkPixbuf object from the current Gdkpixbuf structure
+		local
+			l_width, l_height: INTEGER
 		do
-			Result := {GDK}.gdk_pixbuf_get_from_surface (cairo_surface, src_x, src_y, a_width, a_height)
+			l_width := app_implementation.safe_pixmap_dimension (a_width)
+			l_height := app_implementation.safe_pixmap_dimension (a_height)
+			if not cairo_surface.is_default_pointer then
+				Result := {GDK}.gdk_pixbuf_get_from_surface (cairo_surface, src_x, src_y, l_width, l_height)
+			end
+			if Result.is_default_pointer then
+				Result := {GDK}.gdk_pixbuf_new (0, True, 8, l_width, l_height)
+			end
 		end
 
 feature {EV_INTERMEDIARY_ROUTINES} -- Implementation
@@ -379,8 +400,8 @@ feature -- Duplication
 			cr: POINTER
 		do
 			if attached {EV_PIXMAP_IMP} other.implementation as l_other_imp then
-				l_width := l_other_imp.width
-				l_height := l_other_imp.height
+				l_width := app_implementation.safe_pixmap_dimension (l_other_imp.width)
+				l_height := app_implementation.safe_pixmap_dimension (l_other_imp.height)
 				release_previous_cairo_surface
 				cairo_surface := {CAIRO}.image_surface_create ({CAIRO}.format_argb32, l_width, l_height)
 				get_new_cairo_context
@@ -398,12 +419,15 @@ feature {EV_ANY_I, EV_GTK_DEPENDENT_APPLICATION_IMP} -- Implementation
 			-- Attempt to load pixmap data from a file specified by `file_name'.
 		local
 			cr: POINTER
+			l_width, l_height: INTEGER
 		do
+			l_width := app_implementation.safe_pixmap_dimension ({GDK}.gdk_pixbuf_get_width (a_pixbuf))
+			l_height := app_implementation.safe_pixmap_dimension ({GDK}.gdk_pixbuf_get_height (a_pixbuf))
 			release_previous_cairo_surface
 			cairo_surface := {CAIRO}.image_surface_create (
 				{CAIRO}.FORMAT_ARGB32,
-				{GDK}.gdk_pixbuf_get_width (a_pixbuf),
-				{GDK}.gdk_pixbuf_get_height (a_pixbuf)
+				l_width,
+				l_height
 			)
 			get_new_cairo_context
 			cr := cairo_context

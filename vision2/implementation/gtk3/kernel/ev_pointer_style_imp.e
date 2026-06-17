@@ -50,7 +50,7 @@ feature {NONE} -- Initlization
 			if {GDK}.gdk_is_pixbuf (l_pix_buf_imp.gdk_pixbuf) then
 				set_gdkpixbuf ({GDK}.gdk_pixbuf_copy (l_pix_buf_imp.gdk_pixbuf))
 				set_x_hotspot (a_x_hotspot)
-				set_y_hotspot (a_x_hotspot)
+				set_y_hotspot (a_y_hotspot)
 			end
 		end
 
@@ -286,8 +286,8 @@ feature -- Implementation
 				check
 					l_image_not_null: l_image /= default_pointer
 				end
-				Result := {GDK}.gdk_cursor_new_from_pixbuf (
-					{GDK}.gdk_display_get_default,
+				Result := {GDK}.gdk_cursor_new_from_pixbuf_safe (
+					a_display,
 					l_image,
 					attached_interface.x_hotspot,
 					attached_interface.y_hotspot
