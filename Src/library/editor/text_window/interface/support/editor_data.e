@@ -813,7 +813,9 @@ feature {NONE} -- Implementation
 			editor_font_preference.change_actions.extend (agent update_font)
 			keyword_font_preference.change_actions.extend (agent update_font)
 			font_zoom_factor_preference.change_actions.extend (agent update_font)
-			(create {EV_ENVIRONMENT}).application.theme_changed_actions.extend (agent update_font)
+			if attached (create {EV_ENVIRONMENT}).application as app then
+				app.theme_changed_actions.extend (agent update_font)
+			end
 			header_font_preference.change_actions.extend (agent update)
 			link_color_preference.change_actions.extend (agent update)
 			link_background_color_preference.change_actions.extend (agent update)
@@ -826,7 +828,7 @@ feature {NONE} -- Implementation
 		attribute end
 
 note
-	copyright: "Copyright (c) 1984-2023, Eiffel Software and others"
+	copyright: "Copyright (c) 1984-2026, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
