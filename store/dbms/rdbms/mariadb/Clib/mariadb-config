@@ -38,7 +38,7 @@ while test $# -gt 0; do
 		--libs)
 		if [ $needs_libs = $false_val ]; then
 			needs_libs=$true_val
-			postfix=" $postfix_path $ISE_LIBRARY/library/store/spec/$ISE_PLATFORM/lib/mariadb_store.lib"
+			postfix=" $postfix_path $ISE_LIBRARY/library/store/spec/$ISE_PLATFORM/lib/libmariadb_store.a"
 			result=" $result `$pkg_config --libs` "
 		fi
 		;;
