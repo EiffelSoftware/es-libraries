@@ -209,6 +209,62 @@ MYSQL *eif_mysql_connect(const char *user, const char *pass, const char *host, i
 }
 
 /*
+ * Function:	eif_mysql_connect_ex(const char *user, const char *pass,
+ *					const char *host, int port, const char *base,
+ *					const char *read_default_group,
+ *					int has_ssl_enforce, my_bool ssl_enforce,
+ *					int has_ssl_verify_server_cert, my_bool ssl_verify_server_cert)
+ * Description:	Same as `eif_mysql_connect', but allows setting the
+ *				MYSQL_READ_DEFAULT_GROUP, MYSQL_OPT_SSL_ENFORCE and
+ *				MYSQL_OPT_SSL_VERIFY_SERVER_CERT options before connecting.
+ * Arguments:	const char *user:	Username to connect as
+ *				const char *pass:	Password for identification
+ *				const char *host:	MySQL Server hostname
+ *				int port:			Port to connect to MySQL Server
+ *				const char *base:	Database to be selected
+ *				const char *read_default_group:	Option group (e.g. "client")
+ *					to read from the standard MySQL option files, such as
+ *					`~/.my.cnf', or NULL to not read any option file.
+ *				int has_ssl_enforce, my_bool ssl_enforce:	When
+ *					`has_ssl_enforce' is nonzero, MYSQL_OPT_SSL_ENFORCE is
+ *					set to `ssl_enforce'.
+ *				int has_ssl_verify_server_cert, my_bool ssl_verify_server_cert:
+ *					When `has_ssl_verify_server_cert' is nonzero,
+ *					MYSQL_OPT_SSL_VERIFY_SERVER_CERT is set to
+ *					`ssl_verify_server_cert'.
+ * Returns:		Pointer to MYSQL structure as returned by mysql_init(...)
+ */
+MYSQL *eif_mysql_connect_ex(const char *user, const char *pass, const char *host, int port, const char *base,
+	const char *read_default_group,
+	int has_ssl_enforce, my_bool ssl_enforce,
+	int has_ssl_verify_server_cert, my_bool ssl_verify_server_cert)
+{
+	MYSQL *res1 = (MYSQL *) 0;
+	MYSQL *res2 = (MYSQL *) 0;
+
+	res1 = mysql_init((MYSQL *) 0);
+
+	if (read_default_group != (const char *) 0) {
+		mysql_options(res1, MYSQL_READ_DEFAULT_GROUP, read_default_group);
+	}
+	if (has_ssl_enforce) {
+		mysql_options(res1, MYSQL_OPT_SSL_ENFORCE, &ssl_enforce);
+	}
+	if (has_ssl_verify_server_cert) {
+		mysql_options(res1, MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_verify_server_cert);
+	}
+
+	res2 = mysql_real_connect(res1, host, user, pass, base, port,
+		(const char *) 0, CLIENT_REMEMBER_OPTIONS | CLIENT_MULTI_RESULTS);
+
+	/* See `eif_mysql_connect' above for why `res1' is always returned,
+	 * regardless of the value of `res2'.
+	 */
+
+	return res1;
+}
+
+/*
  * Function:	void eif_mysql_enable_multi_statements (MYSQL *mysql_ptr)
  * Description:	Enable multiple statement support
  * Arguments:	MYSQL *mysql_ptr:	Pointer to MYSQL structure

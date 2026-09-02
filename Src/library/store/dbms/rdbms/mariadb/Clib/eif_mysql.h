@@ -44,6 +44,10 @@ extern unsigned long eif_mysql_column_length (MYSQL_RES *result_ptr, int ind);
 extern int eif_mysql_column_name(MYSQL_RES *result_ptr, int ind, char *ar, int a_max_len);
 extern int eif_mysql_column_type (MYSQL_RES *result_ptr, int ind);
 extern MYSQL *eif_mysql_connect(const char *user, const char *pass, const char *host, int port, const char *base);
+extern MYSQL *eif_mysql_connect_ex(const char *user, const char *pass, const char *host, int port, const char *base,
+	const char *read_default_group,
+	int has_ssl_enforce, my_bool ssl_enforce,
+	int has_ssl_verify_server_cert, my_bool ssl_verify_server_cert);
 extern unsigned long eif_mysql_data_length (MYSQL_RES *result_ptr, int ind);
 extern int eif_mysql_date_data (MYSQL_ROW row_ptr, int ind, char *ar);
 extern void eif_mysql_disconnect(MYSQL *mysql_ptr);
