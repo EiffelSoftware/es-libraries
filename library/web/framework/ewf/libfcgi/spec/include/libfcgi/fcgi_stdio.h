@@ -15,6 +15,10 @@
 #ifndef _FCGI_STDIO
 #define _FCGI_STDIO 1
 
+#ifndef NO_FCGI_DEFINES
+#define NO_FCGI_DEFINES
+#endif
+
 #include <stdio.h>
 #include <sys/types.h>
 #include "fcgiapp.h"
