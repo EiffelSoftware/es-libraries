@@ -68,6 +68,101 @@ feature -- Constants
 
 	database_handle_name: STRING = "MYSQL"
 
+feature -- Settings
+
+	ssl_enforced_option: detachable CELL [BOOLEAN]
+	ssl_server_cert_verified_option: detachable CELL [BOOLEAN]
+
+	read_default_group: detachable READABLE_STRING_GENERAL
+			-- Option group (e.g. "client") to read from the standard MySQL/MariaDB
+			-- option files (such as `my.cnf' and the user's `~/.my.cnf')
+			-- before connecting, or Void (the default) to not read any
+			-- option file.
+			-- Set via `set_read_default_group'.
+
+	set_read_default_group (a_group: detachable READABLE_STRING_GENERAL)
+			-- Set `read_default_group' to `a_group'.
+			-- Use "client" to have the connection read the standard
+			-- "[client]" section, in particular from the user's `~/.my.cnf'.
+		do
+			read_default_group := a_group
+		ensure
+			read_default_group_set: read_default_group = a_group
+		end
+
+	ssl_enforced: BOOLEAN
+			-- Whether the connection must be encrypted (MYSQL_OPT_SSL_ENFORCE),
+			-- or Void (the default) to use the client library's default behavior.
+			-- Set via `set_ssl_enforced' or `unset_ssl_enforced'.
+		do
+			if attached ssl_enforced_option as opt then
+				Result := opt.item
+			else
+				Result := True -- Default
+			end
+		end
+
+	set_ssl_enforced (a_value: BOOLEAN)
+			-- Force `ssl_enforced' to `a_value'.
+		local
+			opt: CELL [BOOLEAN]
+		do
+			opt := ssl_enforced_option
+			if opt = Void then
+				create ssl_enforced_option.put (a_value)
+			else
+				opt.replace (a_value)
+			end
+		ensure
+			ssl_enforced_set: ssl_enforced = a_value
+		end
+
+	unset_ssl_enforced
+			-- Reset `ssl_enforced' to Void so that the client library's
+			-- default behavior is used.
+		do
+			ssl_enforced_option := Void
+		ensure
+			unset: ssl_enforced_option = Void
+		end
+
+	ssl_server_cert_verified: BOOLEAN
+			-- Whether the server certificate is verified against the
+			-- configured Certificate Authority (MYSQL_OPT_SSL_VERIFY_SERVER_CERT),
+			-- or Void (the default) to use the client library's default behavior.
+			-- Set via `set_ssl_server_cert_verified' or `unset_ssl_server_cert_verified'.
+		do
+			if attached ssl_server_cert_verified_option as opt then
+				Result := opt.item
+			else
+				Result := True -- Default
+			end
+		end
+
+	set_ssl_server_cert_verified (a_value: BOOLEAN)
+			-- Force `ssl_server_cert_verified' to `a_value'.
+		local
+			opt: CELL [BOOLEAN]
+		do
+			opt := ssl_server_cert_verified_option
+			if opt = Void then
+				create ssl_server_cert_verified_option.put (a_value)
+			else
+				opt.replace (a_value)
+			end
+		ensure
+			ssl_server_cert_verified_set: ssl_server_cert_verified = a_value
+		end
+
+	unset_ssl_server_cert_verified
+			-- Reset `ssl_server_cert_verified' to Void so that the client
+			-- library's default behavior is used.
+		do
+			ssl_server_cert_verified_option := Void
+		ensure
+			unset: ssl_server_cert_verified_option = Void
+		end
+		
 feature -- For DATABASE_STATUS
 
 	is_error_updated: BOOLEAN
@@ -1132,6 +1227,10 @@ feature -- External features
 			l_pass: C_STRING
 			l_port: INTEGER
 			l_user: C_STRING
+			l_group: detachable C_STRING
+			l_group_pointer: POINTER
+			l_has_ssl_enforce, l_ssl_enforce: BOOLEAN
+			l_has_ssl_verify_server_cert, l_ssl_verify_server_cert: BOOLEAN
 		do
 			create l_user.make (user_name)
 			create l_pass.make (user_passwd)
@@ -1146,7 +1245,30 @@ feature -- External features
 				l_port := 3306
 			end
 			create l_base.make (application)
-			mysql_pointer := eif_mysql_connect (l_user.item, l_pass.item, l_host.item, l_port, l_base.item)
+			if attached read_default_group as l_read_default_group then
+				create l_group.make (utf32_to_utf8 (l_read_default_group.as_string_32))
+				l_group_pointer := l_group.item
+			else
+				l_group_pointer := default_pointer
+			end
+			if attached ssl_enforced_option as opt then
+				l_has_ssl_enforce := True
+				l_ssl_enforce := opt.item
+			end
+			if attached ssl_server_cert_verified_option as opt then
+				l_has_ssl_verify_server_cert := True
+				l_ssl_verify_server_cert := opt.item
+			end
+
+			if l_group_pointer.is_default_pointer and not l_has_ssl_enforce and not l_has_ssl_verify_server_cert then
+				mysql_pointer := eif_mysql_connect (l_user.item, l_pass.item, l_host.item, l_port, l_base.item)
+			else
+				mysql_pointer := eif_mysql_connect_ex (l_user.item, l_pass.item, l_host.item, l_port, l_base.item,
+					l_group_pointer,
+					l_has_ssl_enforce, l_ssl_enforce,
+					l_has_ssl_verify_server_cert, l_ssl_verify_server_cert
+				)
+			end
 				-- Default to Disabled, otherwise procedure creation will probably fail,
 				-- as normally there are more than one statements for procedure creation.
 			disable_multiple_statements
@@ -1397,6 +1519,19 @@ feature {NONE} -- C Externals
 			"C | %"eif_mysql.h%""
 		end
 
+	eif_mysql_connect_ex (user_name, user_passwd, hostname: POINTER; port: INTEGER; application: POINTER;
+			a_read_default_group: POINTER;
+			a_has_ssl_enforce: BOOLEAN; a_ssl_enforce: BOOLEAN;
+			a_has_ssl_verify_server_cert: BOOLEAN; a_ssl_verify_server_cert: BOOLEAN): POINTER
+			-- Same as `eif_mysql_connect', additionally setting
+			-- MYSQL_READ_DEFAULT_GROUP to `a_read_default_group' (unless a default
+			-- pointer), and MYSQL_OPT_SSL_ENFORCE / MYSQL_OPT_SSL_VERIFY_SERVER_CERT
+			-- to `a_ssl_enforce' / `a_ssl_verify_server_cert' when their respective
+			-- `a_has_...' flag is True.
+		external
+			"C | %"eif_mysql.h%""
+		end
+
 	eif_mysql_data_length (result_ptr: POINTER; ind: INTEGER): INTEGER
 		external
 			"C | %"eif_mysql.h%""
@@ -1499,7 +1634,7 @@ feature {NONE} -- C Externals
 		end
 
 note
-	copyright:	"Copyright (c) 1984-2018, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source:		"[
 			Eiffel Software
