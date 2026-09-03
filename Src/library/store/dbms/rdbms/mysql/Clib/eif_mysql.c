@@ -190,8 +190,16 @@ MYSQL *eif_mysql_connect(const char *user, const char *pass, const char *host, i
 {
 	MYSQL *res1 = (MYSQL *) 0;
 	MYSQL *res2 = (MYSQL *) 0;
+	enum mysql_protocol_type l_protocol = MYSQL_PROTOCOL_TCP;
 
 	res1 = mysql_init((MYSQL *) 0);
+
+	/* `host' and `port' always come from Eiffel as an explicit TCP endpoint.
+	 * Without forcing MYSQL_PROTOCOL_TCP, the client library silently
+	 * switches to a local Unix socket (ignoring `port' entirely) whenever
+	 * `host' is "localhost", which is not what callers of this API expect.
+	 */
+	mysql_options(res1, MYSQL_OPT_PROTOCOL, &l_protocol);
 
 	res2 = mysql_real_connect(res1, host, user, pass, base, port,
 		(const char *) 0, CLIENT_REMEMBER_OPTIONS | CLIENT_MULTI_RESULTS);
@@ -241,8 +249,14 @@ MYSQL *eif_mysql_connect_ex(const char *user, const char *pass, const char *host
 {
 	MYSQL *res1 = (MYSQL *) 0;
 	MYSQL *res2 = (MYSQL *) 0;
+	enum mysql_protocol_type l_protocol = MYSQL_PROTOCOL_TCP;
 
 	res1 = mysql_init((MYSQL *) 0);
+
+	/* See `eif_mysql_connect' above: force TCP so that `host' = "localhost"
+	 * does not silently get redirected to a local Unix socket.
+	 */
+	mysql_options(res1, MYSQL_OPT_PROTOCOL, &l_protocol);
 
 	if (read_default_group != (const char *) 0) {
 		mysql_options(res1, MYSQL_READ_DEFAULT_GROUP, read_default_group);
