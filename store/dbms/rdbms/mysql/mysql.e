@@ -1269,9 +1269,16 @@ feature -- External features
 					l_has_ssl_verify_server_cert, l_ssl_verify_server_cert
 				)
 			end
-				-- Default to Disabled, otherwise procedure creation will probably fail,
-				-- as normally there are more than one statements for procedure creation.
-			disable_multiple_statements
+			if eif_mysql_get_error_code (mysql_pointer) = 0 then
+					-- Only touch the connection if it actually succeeded: calling
+					-- any mysql_* function (such as disabling multiple statements)
+					-- on a handle whose `mysql_real_connect' failed makes the client
+					-- library report a spurious "server has gone away" (2006) error,
+					-- which then masks the real connection error (e.g. 2002, 2003).
+					-- Default to Disabled, otherwise procedure creation will probably fail,
+					-- as normally there are more than one statements for procedure creation.
+				disable_multiple_statements
+			end
 			is_error_updated := False
 			is_warning_updated := False
 		end
