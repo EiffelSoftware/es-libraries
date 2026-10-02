@@ -136,27 +136,34 @@ feature -- Status report
 			l_pixel_buffer.unlock
 		end
 
--- To uncomment when GTK's implementation is working
---
---	working_area_from_position (a_x, a_y: INTEGER): EV_RECTANGLE
---			-- Area available for windows of monitor nearest to coordinates (a_x, a_y).
---			-- E.g. it should exclude the taskbar if any.
---		require
---			not_destroyed: not is_destroyed
---		do
---			Result := implementation.working_area_from_position (a_x, a_y)
---		end
+	working_area_from_position (a_x, a_y: INTEGER): EV_RECTANGLE
+			-- Area available for windows of monitor nearest to coordinates (a_x, a_y).
+			-- E.g. it should exclude the taskbar if any.
+			--
+			-- Prefer this over `monitor_area_from_position' when placing a window: it
+			-- excludes the desktop panels, so a window positioned against it is not
+			-- covered by the taskbar, the GNOME top bar or a dock.
+		require
+			not_destroyed: not is_destroyed
+		do
+			Result := implementation.working_area_from_position (a_x, a_y)
+		end
 
---	working_area_from_window (a_window: EV_WINDOW): EV_RECTANGLE
---			-- Area available for windows of monitor of which most of `a_window' is located.
---			-- Returns nearest working area if `a_window' does not overlap any monitors.
---			-- E.g. it should exclude the taskbar if any.
---		require
---			not_destroyed: not is_destroyed
---			not_window_destroyed: not a_window.is_destroyed
---		do
---			Result := implementation.working_area_from_window (a_window)
---		end
+	working_area_from_window (a_window: EV_WINDOW): EV_RECTANGLE
+			-- Area available for windows of monitor of which most of `a_window' is located.
+			-- Returns nearest working area if `a_window' does not overlap any monitors.
+			-- E.g. it should exclude the taskbar if any.
+			--
+			-- This is the feature to use instead of `width' and `height' when sizing or
+			-- placing something relative to "the screen": `width' and `height' always
+			-- describe the primary monitor, which is not necessarily the one `a_window'
+			-- is on, nor the largest.
+		require
+			not_destroyed: not is_destroyed
+			not_window_destroyed: not a_window.is_destroyed
+		do
+			Result := implementation.working_area_from_window (a_window)
+		end
 
 feature -- Basic operation
 
@@ -240,7 +247,12 @@ feature -- Basic operation
 feature -- Measurement
 
 	width: INTEGER
-			-- Horizontal size in pixels.
+			-- Horizontal size in pixels of the PRIMARY monitor.
+			--
+			-- Note: this is not the size of the monitor a given window is on, and on a
+			-- multi-monitor desktop it is not the size of the desktop either (see
+			-- `virtual_width'). To size or place something relative to the display a
+			-- window actually occupies, use `working_area_from_window'.
 		do
 			Result := implementation.width
 		ensure then
@@ -249,7 +261,8 @@ feature -- Measurement
 		end
 
 	height: INTEGER
-			-- Vertical size in pixels.
+			-- Vertical size in pixels of the PRIMARY monitor.
+			--| See the note on `width'.
 		do
 			Result := implementation.height
 		ensure then

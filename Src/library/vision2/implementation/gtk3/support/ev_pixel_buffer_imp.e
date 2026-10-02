@@ -372,9 +372,12 @@ feature -- Command
 			check l_pixbuf_imp /= Void then end
 
 				-- Retrieve pixbuf from drawable and set the previous background color 'l_grey_value' to transparent alpha.
-				-- TODO check how to replace gdk_pixbuf_get_from_drawable
---			l_pixbuf_ptr := {GDK}.gdk_pixbuf_get_from_drawable (default_pointer, l_pixmap_imp.drawable, default_pointer, 0, 0, 0, 0, l_width, l_height)
-			l_pixbuf_ptr := {GDK}.gdk_pixbuf_get_from_window ({GDK}.gdk_screen_get_root_window ({GDK}.gdk_screen_get_default), 0, 0, l_width, l_height)
+				-- Note: this read the root window at (0,0) instead of `l_pixmap', so the
+				-- text was composited out of whatever happened to be on the desktop's
+				-- top left corner. `pixbuf_from_drawable_at_position' is the
+				-- replacement for the gdk_pixbuf_get_from_drawable the comment was
+				-- looking for: `EV_PIXMAP_IMP' reads back its own cairo surface.
+			l_pixbuf_ptr := l_pixmap_imp.pixbuf_from_drawable_at_position (0, 0, 0, 0, l_width, l_height)
 			l_pixbuf_ptr2 := {GDK}.gdk_pixbuf_add_alpha (l_pixbuf_ptr, True, l_grey_value, l_grey_value, l_grey_value)
 				-- Clean up
 			{GOBJECT}.g_object_unref (l_pixbuf_ptr)

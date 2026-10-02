@@ -800,6 +800,12 @@ feature -- Access
 			Result := keyboard_modifier_mask & {GTK}.gdk_shift_mask_enum = {GTK}.gdk_shift_mask_enum
 		end
 
+	primary_button_pressed: BOOLEAN
+			-- Is the primary mouse button currently pressed?
+		do
+			Result := keyboard_modifier_mask & {GTK}.gdk_button1_mask_enum.to_natural_32 = {GTK}.gdk_button1_mask_enum.to_natural_32
+		end
+
 	caps_lock_on: BOOLEAN
 			-- Is the Caps or Shift Lock key currently on?
 		do

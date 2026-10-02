@@ -31,21 +31,28 @@ feature -- Command
 			l_rect: EV_RECTANGLE
 		do
 			create l_screen
-			create l_rect.make (l_screen.virtual_left, l_screen.virtual_top, l_screen.virtual_width, l_screen.virtual_height)
+				-- Position against the work area of the monitor holding the anchor point,
+				-- not against the bounding box of the whole virtual screen. That bounding
+				-- box covers gaps that are on no monitor at all whenever the screens differ
+				-- in size or alignment, and it includes the space taken by desktop panels.
+			l_rect := l_screen.working_area_from_position (a_prefer_x, a_prefer_y)
 			if l_rect.has_x_y (a_dialog.width + a_prefer_x, a_dialog.height + a_prefer_y + a_base_height) then
 				-- If enough space set position base on left top corner.
 				a_dialog.set_position (a_prefer_x, a_prefer_y + a_base_height)
-			elseif l_rect.has_x_y (l_screen.virtual_right, a_prefer_y + a_dialog.height + a_base_height) then
+			elseif l_rect.has_x_y (l_rect.right, a_prefer_y + a_dialog.height + a_base_height) then
 				-- If enough space set position base on right top corner.
-				a_dialog.set_position (l_screen.virtual_right - a_dialog.width, a_prefer_y + a_base_height)
+				a_dialog.set_position (l_rect.right - a_dialog.width, a_prefer_y + a_base_height)
 			elseif l_rect.has_x_y (a_prefer_x + a_dialog.width, a_prefer_y - a_dialog.height) then
 				-- If enough space set position base on left bottom corner.
 				a_dialog.set_position (a_prefer_x, a_prefer_y - a_dialog.height)
-			elseif l_rect.has_x_y (l_screen.virtual_right - a_dialog.width, a_prefer_y - a_dialog.height) then
+			elseif l_rect.has_x_y (l_rect.right - a_dialog.width, a_prefer_y - a_dialog.height) then
 				-- If enough space set positon base on right bottom corner.
-				a_dialog.set_position (l_screen.virtual_right - a_dialog.width, a_prefer_y - a_dialog.height)
+				a_dialog.set_position (l_rect.right - a_dialog.width, a_prefer_y - a_dialog.height)
 			else
-				check not_possible_in_this_case: False end
+					-- None of the four corners fits, which happens as soon as the dialog is
+					-- larger than the monitor work area. Clamp it into view instead of failing
+					-- an assertion and leaving the dialog wherever it happened to be.
+				set_position_clamped (a_dialog, a_prefer_x, a_prefer_y + a_base_height, l_rect)
 			end
 		end
 
@@ -58,7 +65,11 @@ feature -- Command
 			l_rect: EV_RECTANGLE
 		do
 			create l_screen
-			create l_rect.make (l_screen.virtual_left, l_screen.virtual_top, l_screen.virtual_width, l_screen.virtual_height)
+				-- Position against the work area of the monitor holding the anchor point,
+				-- not against the bounding box of the whole virtual screen. That bounding
+				-- box covers gaps that are on no monitor at all whenever the screens differ
+				-- in size or alignment, and it includes the space taken by desktop panels.
+			l_rect := l_screen.working_area_from_position (a_prefer_x, a_prefer_y)
 			if l_rect.has_x_y (a_prefer_x - a_dialog.width + a_indicator_width, a_prefer_y + a_dialog.height + internal_shared.tool_bar_size) then
 				-- If enough space set position base on right top corner.
 				a_dialog.set_position (a_prefer_x - a_dialog.width + a_indicator_width, a_prefer_y + internal_shared.tool_bar_size)
@@ -86,7 +97,11 @@ feature -- Command
 			l_rect: EV_RECTANGLE
 		do
 			create l_screen
-			create l_rect.make (l_screen.virtual_left, l_screen.virtual_top, l_screen.virtual_width, l_screen.virtual_height)
+				-- Position against the work area of the monitor holding the anchor point,
+				-- not against the bounding box of the whole virtual screen. That bounding
+				-- box covers gaps that are on no monitor at all whenever the screens differ
+				-- in size or alignment, and it includes the space taken by desktop panels.
+			l_rect := l_screen.working_area_from_position (a_prefer_x, a_prefer_y)
 			if l_rect.has_x_y (a_prefer_x - a_dialog.width + internal_shared.tool_bar_size, a_prefer_y + a_dialog.height + a_indicator_width) then
 				-- If enough space set position base on right top corner.
 				a_dialog.set_position (a_prefer_x - a_dialog.width + internal_shared.tool_bar_size, a_prefer_y + a_indicator_width)
@@ -114,7 +129,11 @@ feature -- Command
 			l_rect: EV_RECTANGLE
 		do
 			create l_screen
-			create l_rect.make (l_screen.virtual_left, l_screen.virtual_top, l_screen.virtual_width, l_screen.virtual_height)
+				-- Position against the work area of the monitor holding the anchor point,
+				-- not against the bounding box of the whole virtual screen. That bounding
+				-- box covers gaps that are on no monitor at all whenever the screens differ
+				-- in size or alignment, and it includes the space taken by desktop panels.
+			l_rect := l_screen.working_area_from_position (a_prefer_x, a_prefer_y)
 			if l_rect.has_x_y (a_prefer_x - a_dialog.width + a_indicator_width, a_prefer_y + a_dialog.height + a_height) then
 				-- If enough space set position base on right top corner.
 				a_dialog.set_position (a_prefer_x - a_dialog.width + a_indicator_width, a_prefer_y + a_height)
@@ -128,11 +147,26 @@ feature -- Command
 				-- If enough space set position base on left bottom corner.
 				a_dialog.set_position (a_prefer_x, a_prefer_y - a_dialog.height)
 			else
-				check not_possible_in_this_case: False end
+					-- None of the four corners fits, which happens as soon as the dialog is
+					-- larger than the monitor work area. Clamp it into view instead of failing
+					-- an assertion and leaving the dialog wherever it happened to be.
+				set_position_clamped (a_dialog, a_prefer_x, a_prefer_y + a_height, l_rect)
 			end
 		end
 
 feature {NONE}  -- Implementation
+
+	set_position_clamped (a_dialog: EV_POSITIONABLE; a_x, a_y: INTEGER; a_area: EV_RECTANGLE)
+			-- Position `a_dialog' at (`a_x', `a_y'), pulled back inside `a_area' when it
+			-- would otherwise hang over an edge.
+		require
+			a_dialog_not_void: a_dialog /= Void
+			a_area_not_void: a_area /= Void
+		do
+			a_dialog.set_position (
+				a_x.min (a_area.right - a_dialog.width).max (a_area.left),
+				a_y.min (a_area.bottom - a_dialog.height).max (a_area.top))
+		end
 
 	internal_shared: SD_SHARED;
 			-- All singletons.

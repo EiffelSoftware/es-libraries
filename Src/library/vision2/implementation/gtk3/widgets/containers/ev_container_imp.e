@@ -406,11 +406,29 @@ feature -- Command
 
 	destroy
 			-- Render `Current' unusable.
+		local
+			l_marshal_is_enabled, l_marshal_was_disabled: BOOLEAN
 		do
 			if attached_interface.prunable then
+					-- Unparenting a child makes GTK unrealize, unmap and hide it, which fires signals
+					-- whose Eiffel handlers may destroy that very child (for instance when a dialog
+					-- recycles its content from its own hide action). GTK then keeps using the
+					-- child, whose parent is gone, and crashes in `gtk_widget_unparent'.
+					-- Nobody is interested in these events as `Current' is being destroyed,
+					-- so do not let them reach Eiffel while the content is removed.
+				l_marshal_is_enabled := {EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_is_enabled
+				{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (False)
+				l_marshal_was_disabled := True
 				attached_interface.wipe_out
+				{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (l_marshal_is_enabled)
+				l_marshal_was_disabled := False
 			end
 			Precursor {EV_WIDGET_IMP}
+		rescue
+				-- Never leave the marshal disabled, otherwise no GTK event reaches Eiffel anymore.
+			if l_marshal_was_disabled then
+				{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (l_marshal_is_enabled)
+			end
 		end
 
 feature -- Event handling

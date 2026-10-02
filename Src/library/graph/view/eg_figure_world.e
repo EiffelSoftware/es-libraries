@@ -357,6 +357,7 @@ feature -- List change
 			links.wipe_out
 			selected_figures.wipe_out
 			root_cluster.wipe_out
+			front_links_count := 0
 		end
 
 feature -- Element change
@@ -464,7 +465,7 @@ feature -- Element change
 		do
 			if attached factory as l_factory then
 				link_figure := l_factory.new_link_figure (a_link)
-				put_front (link_figure)
+				put_link_figure_below_linkables (link_figure)
 				links.extend (link_figure)
 
 				if attached {EG_LINKABLE_FIGURE} items_to_figure_lookup_table.item (a_link.source) as l_source then
@@ -932,6 +933,57 @@ feature {NONE} -- Implementation
 
 	real_grid_y: REAL
 			-- Real grid width in y direction.
+
+	front_links_count: INTEGER
+			-- Number of link figures at the front of `Current' (the bottom-most layers),
+			-- as last placed by `put_link_figure_below_linkables'.
+			-- Only a hint: figures can be removed or moved elsewhere (for instance into a
+			-- cluster figure) behind our back, so it is checked before being used.
+
+	put_link_figure_below_linkables (a_link_figure: EG_LINK_FIGURE)
+			-- Insert `a_link_figure' below all the linkable figures of `Current',
+			-- that is right after the links already at the front.
+			--| Using `put_front' gives the same picture, but moves every figure of `Current'
+			--| for each new link, which is quadratic when building a large diagram.
+			--| Inserting after the front links only moves the figures above them.
+		require
+			a_link_figure_not_void: a_link_figure /= Void
+			not_has_a_link_figure: not has (a_link_figure)
+		local
+			n, l_index: INTEGER
+		do
+			n := front_links_count
+			if not (
+				n <= count and then
+				(n = 0 or else attached {EG_LINK_FIGURE} i_th (n)) and then
+				(n = count or else not attached {EG_LINK_FIGURE} i_th (n + 1)))
+			then
+					-- The hint is outdated, count again the links at the front.
+				from
+					n := 0
+				until
+					n = count or else not attached {EG_LINK_FIGURE} i_th (n + 1)
+				loop
+					n := n + 1
+				end
+			end
+			if n = 0 then
+				put_front (a_link_figure)
+			else
+					-- Like `put_front', keep the cursor on the same item.
+				l_index := index
+				go_i_th (n)
+				put_right (a_link_figure)
+				if l_index > n then
+					l_index := l_index + 1
+				end
+				go_i_th (l_index)
+			end
+			front_links_count := n + 1
+		ensure
+			has_a_link_figure: has (a_link_figure)
+			at_end_of_front_links: i_th (front_links_count) = a_link_figure
+		end
 
 	insert_cluster (a_cluster: EG_CLUSTER)
 			-- Insert `a_cluster' to view and all its containing subclusters (recursive)

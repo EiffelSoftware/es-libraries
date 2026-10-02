@@ -18,7 +18,8 @@ inherit
 	KEYBOARD_SELECTABLE_TEXT_PANEL
 		redefine
 			user_initialization,
-			recycle
+			recycle,
+			on_key_down
 		end
 
 	REFACTORING_HELPER
@@ -94,6 +95,7 @@ feature {NONE} -- Process Vision2 events
 		local
 			l_line: INTEGER
 		do
+			sync_mouse_button_state (a_screen_x, a_screen_y)
 			if (not text_displayed.is_empty) and then click_count < 4 and then mouse_left_button_down then
 				scroll_and_select (abs_x_pos - left_margin_width, abs_y_pos, a_screen_x, a_screen_y)
 			end
@@ -132,14 +134,59 @@ feature {NONE} -- Process Vision2 events
 			-- Process release of mouse buttons.
 		do
 			if button = 1 then
-				mouse_left_button_down := False
-				if editor_drawing_area.has_capture then
-					editor_drawing_area.disable_capture
+				if mouse_left_button_down then
+					mouse_left_button_down := False
+					if editor_drawing_area.has_capture then
+						editor_drawing_area.disable_capture
+					end
+					if autoscroll.interval /= 0 then
+						autoscroll.set_interval (0)
+					end
+					queue_mouse_up (button)
 				end
 			elseif button = 3 then
 				mouse_right_button_down := False
+				queue_mouse_up (button)
 			end
-			queue_mouse_up (button)
+		end
+
+	sync_mouse_button_state (a_screen_x, a_screen_y: INTEGER)
+			-- Stop selection extension when the toolkit reports the button is up.
+		do
+			if mouse_left_button_down and then not ev_application.primary_button_pressed then
+				finish_mouse_selection_if_active (0, 0, a_screen_x, a_screen_y)
+			end
+		end
+
+	finish_mouse_selection_if_active (x_pos, y_pos, a_screen_x, a_screen_y: INTEGER)
+			-- Process a mouse button up if a selection drag is still active.
+		do
+			if mouse_left_button_down then
+				on_mouse_button_up (x_pos, y_pos, 1, 0, 0, 0, a_screen_x, a_screen_y)
+			end
+		end
+
+	cancel_active_mouse_selection
+			-- Stop an in-progress mouse selection and clear any existing selection.
+		do
+			finish_mouse_selection_if_active (0, 0, 0, 0)
+			if has_selection then
+				disable_selection
+			end
+		end
+
+	on_key_down (ev_key: EV_KEY)
+			-- Process key down events.
+		do
+			if
+				ev_key /= Void and then
+				ev_key.code = Key_escape and then
+				(mouse_left_button_down or has_selection)
+			then
+				cancel_active_mouse_selection
+			else
+				Precursor (ev_key)
+			end
 		end
 
 	on_mouse_enter

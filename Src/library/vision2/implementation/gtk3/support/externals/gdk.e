@@ -15,6 +15,30 @@ feature -- Backends
 			"return gdk_set_allowed_backends ( (const gchar*) $a_backends);"
 		end
 
+	frozen gdk_display_is_x11: BOOLEAN
+			-- Is the default display driven by the X11 backend?
+			--
+			--| This asks GDK which backend it actually instantiated, which is not the
+			--| same question as `{GTK}.is_x11_session'. Under XWayland the session type
+			--| is "wayland" while the live display is a GdkX11Display, because
+			--| `EV_APPLICATION_IMP.make' restricts the allowed backends to
+			--| "x11,wayland,broadway,*" precisely so that the X11 code paths remain
+			--| usable. Only meaningful once `gtk_init' has run.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_BOOLEAN) ev_gdk_display_is_x11 ();"
+		end
+
+	frozen gdk_display_is_wayland: BOOLEAN
+			-- Is the default display driven by the Wayland backend?
+			--| See `gdk_display_is_x11'.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_BOOLEAN) ev_gdk_display_is_wayland ();"
+		end
+
 feature -- GdkPixBuf
 
 	gdk_is_pixbuf (obj: POINTER): BOOLEAN
@@ -68,6 +92,20 @@ feature -- GdkDisplay
 		end
 
 
+	frozen gdk_window_get_scale_factor (a_window: POINTER): INTEGER_32
+			-- Internal scale factor of `a_window' (1 for standard DPI, 2+ for HiDPI displays).
+			-- This is the ratio between the window's logical (user) coordinates and the
+			-- backing-store pixels GTK actually renders into. It changes when the window
+			-- moves to a monitor with a different scale, which is signalled by
+			-- "notify::scale-factor" on the GdkWindow.
+		note
+			eis: "name=gdk_window_get_scale_factor", "src=https://developer.gnome.org/gdk3/stable/gdk3-Windows.html#gdk-window-get-scale-factor"
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return gdk_window_get_scale_factor ((GdkWindow*) $a_window)"
+		end
+
 	frozen gdk_display_get_n_monitors (a_display: POINTER): INTEGER_32
 			-- Gets the number of monitors that belong to display.
 			-- The returned number is valid until the next emission of the `monitor-added` or `monitor-removed` signal.
@@ -77,6 +115,16 @@ feature -- GdkDisplay
 			"C inline use <ev_gtk.h>"
 		alias
 			"return gdk_display_get_n_monitors ((GdkDisplay*) $a_display)"
+		end
+
+	frozen gdk_display_get_monitor (a_display: POINTER; a_monitor_num: INTEGER_32): POINTER
+			-- Monitor number `a_monitor_num' of `a_display', or NULL when out of range.
+		note
+			eis: "name=gdk_display_get_monitor", "src=https://developer.gnome.org/gdk3/stable/GdkDisplay.html#gdk-display-get-monitor"
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (GdkMonitor*) gdk_display_get_monitor ((GdkDisplay*) $a_display, (int) $a_monitor_num);"
 		end
 
 	frozen gdk_display_get_monitor_at_point (a_display: POINTER; a_x, a_y: INTEGER_32): POINTER
@@ -383,6 +431,20 @@ feature -- GdkDrawing
 			"C inline use <ev_gtk.h>"
 		alias
 			"return gdk_drawing_context_get_cairo_context ((GdkDrawingContext *) $a_context);"
+		end
+
+	frozen gdk_window_create_cairo_context (a_window: POINTER): POINTER
+			-- New cairo context drawing straight onto `a_window', or a null pointer
+			-- if `a_window' is null. The caller owns the result and has to release it.
+			--
+			--| For a window this process owns, the supported route is
+			--| `gdk_window_begin_draw_frame' + `gdk_drawing_context_get_cairo_context'
+			--| above. This one exists for the root window, which no frame can be begun
+			--| on, and is what `EV_SCREEN_IMP' draws through.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_POINTER) ev_gdk_window_create_cairo_context ((GdkWindow *) $a_window);"
 		end
 
 	frozen gdk_cairo_set_source_pixbuf (a_context: POINTER; a_pixbuf: POINTER; a_pixbuf_x, a_pixbuf_y: REAL_64)

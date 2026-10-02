@@ -143,6 +143,12 @@ feature -- Access
 			Result := key_pressed (vk_shift)
 		end
 
+	primary_button_pressed: BOOLEAN
+			-- Is the primary mouse button currently pressed?
+		do
+			Result := key_pressed (vk_lbutton)
+		end
+
 	caps_lock_on: BOOLEAN
 			-- Is the caps lock key currently on?
 		do

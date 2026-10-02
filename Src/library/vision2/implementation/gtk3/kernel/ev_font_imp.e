@@ -124,13 +124,21 @@ feature -- Element change
 	set_height (a_height: INTEGER)
 			-- Set `a_height' as preferred font size in screen pixels
 		local
-			l_size: like string_size
+			l_line_height, l_pango_size: INTEGER
 		do
-			height_in_points := app_implementation.point_value_from_pixel_value (a_height)
-			{PANGO}.font_description_set_size (font_description, app_implementation.pango_font_size_from_points (height_in_points))
+				-- `height' is the line height of the font (see `set_height_in_points'), not its em size,
+				-- so size the font such that its line height is `a_height'. Otherwise `height' would not
+				-- be `a_height' and scaled fonts (see EV_MODEL_TEXT) would be about a third too large.
+			l_pango_size := app_implementation.pango_font_size_from_points (app_implementation.point_value_from_pixel_value (a_height)).max (1)
+			{PANGO}.font_description_set_size (font_description, l_pango_size)
+			l_line_height := string_size (once "Ag").integer_32_item (2)
+			if l_line_height > 0 and then l_line_height /= a_height then
+				l_pango_size := (l_pango_size * a_height / l_line_height).rounded.max (1)
+				{PANGO}.font_description_set_size (font_description, l_pango_size)
+			end
+			height_in_points := app_implementation.points_from_pango_font_size (l_pango_size)
 			calculate_font_metrics
-			l_size := string_size (once "Ag")
-			height := l_size.integer_32_item (2)
+			height := a_height
 		end
 
 	set_height_in_points (a_height: INTEGER)

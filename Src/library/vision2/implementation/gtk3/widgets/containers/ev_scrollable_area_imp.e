@@ -226,24 +226,17 @@ feature {NONE} -- Implementation
 	scrolled_window: POINTER
 
 	on_size_allocate (a_x: INTEGER; a_y: INTEGER; a_width: INTEGER; a_height: INTEGER)
-			-- Set item in center of `Current' if smaller.
 		do
 			Precursor {EV_VIEWPORT_IMP} (a_x, a_y, a_width, a_height)
-			if attached item as l_item then
-				if attached {EV_WIDGET_IMP} l_item.implementation as item_imp then
-					check container_widget /= default_pointer end
-						-- Move if and only if container widget is a Window.
-					if {GTK}.gtk_is_window (container_widget) then
-						{GTK}.gtk_window_move (
-								container_widget,
-								((fixed_width - item_imp.width) // 2).max (0),
-								((fixed_height - item_imp.height) // 2).max (0)
-							)
-					end
-				else
-					check is_widget_imp: False end
-				end
-			end
+				-- Note: this used to try to center the item inside `Current' when the
+				-- item is the smaller of the two, by calling `gtk_window_move' on
+				-- `container_widget' with coordinates relative to `fixed_widget'.
+				-- `gtk_window_move' takes root coordinates, so the values passed were
+				-- meaningless as a desktop position; the call only survived because
+				-- `container_widget' is the GtkBox built in `make' and the
+				-- `gtk_is_window' guard could therefore never hold.
+				-- Centering the item would mean `gtk_fixed_move (fixed_widget,
+				-- container_widget, ...)', which has never been the behaviour here.
 		end
 
 	update_viewport_item_size (a_viewport_width, a_viewport_height: INTEGER)
@@ -252,15 +245,9 @@ feature {NONE} -- Implementation
 		end
 
 	child_has_resized (item_imp: EV_WIDGET_IMP)
-			-- If child has resized and smaller than parent then set position in center of `Current'.
 		do
-			if {GTK}.gtk_is_window (container_widget)  then
-				{GTK}.gtk_window_move (
-						container_widget,
-						((fixed_width - item_imp.width) // 2).max (0),
-						((fixed_height - item_imp.height) // 2).max (0)
-					)
-			end
+				-- Nothing to do: see the note in `on_size_allocate' about the centering
+				-- that the removed `gtk_window_move' call was meant to perform.
 		end
 
 	horizontal_adjustment: POINTER

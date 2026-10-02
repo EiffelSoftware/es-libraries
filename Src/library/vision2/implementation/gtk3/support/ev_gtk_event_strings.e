@@ -36,6 +36,12 @@ feature -- Event names
 	configure_event_name: STRING = "configure-event"
 			-- configure_event_name constant.
 
+	scale_factor_notify_event_name: STRING = "notify::scale-factor"
+			-- scale_factor_notify_event_name constant.
+			--| Emitted on a GtkWidget when the display scale factor it renders at changes,
+			--| which is what happens when the widget moves between monitors of different
+			--| scale. See `{GTK}.gtk_widget_get_scale_factor'.
+
 	map_signal_name: STRING = "map"
 			-- map signal name constant.
 			--| The ::map signal is emitted when widget is going to be mapped, that is when the widget is visible

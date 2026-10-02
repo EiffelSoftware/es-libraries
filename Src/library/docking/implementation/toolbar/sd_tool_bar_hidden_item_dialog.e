@@ -103,7 +103,7 @@ feature {NONE}  -- Initlization
 				else
 					if
 						attached {SD_TOOL_BAR_WIDGET_ITEM} a_hidden_items.item as l_widget_item and then
-						attached l_widget_item.widget as w and then 
+						attached l_widget_item.widget as w and then
 						attached w.parent as l_parent
 					then
 						l_parent.prune (w)
@@ -134,8 +134,23 @@ feature {NONE}  -- Initlization
 
 	init_close
 			-- Initialization close events
+			--| Do not close on `focus_out_actions': under some window managers (e.g. XQuartz)
+			--| the popup gets the focus when mapped and loses it at once to the window the
+			--| user just clicked in, so Current vanished immediately.
+			--| Close on a pointer press outside Current, or on Escape, instead.
+		local
+			agt_ptr_press: like application_pointer_press_agent
+			agt_key_press: like application_key_press_agent
 		do
-			focus_out_actions.extend (agent on_focus_out)
+
+			agt_ptr_press := agent on_application_pointer_press
+			agt_key_press := agent on_application_key_press
+
+			application_pointer_press_agent := agt_ptr_press
+			application_key_press_agent := agt_key_press
+
+			ev_application.pointer_button_press_actions.extend (agt_ptr_press)
+			ev_application.key_press_actions.extend (agt_key_press)
 		end
 
 feature {SD_TOOL_BAR_MANAGER} -- Command
@@ -148,6 +163,8 @@ feature {SD_TOOL_BAR_MANAGER} -- Command
 			l_docking_manager: detachable SD_DOCKING_MANAGER
 			l_assit: SD_TOOL_BAR_ZONE_ASSISTANT
 		do
+				-- Focus out no longer closes Current, so close it before the modal customize dialog shows up.
+			close
 			if attached parent_tool_bar.customize_dialog as l_dialog_2 and then not l_dialog_2.is_destroyed then
 				l_dialog_2.set_focus
 			else
@@ -246,16 +263,63 @@ feature {NONE} -- Implementation
 	internal_tool_bar: SD_WIDGET_TOOL_BAR
 			-- Tool bar contain all hidden items and "Customize" label
 
-	on_focus_out
-			-- Handle focus out actions
+	on_application_pointer_press (a_widget: EV_WIDGET; a_button, a_screen_x, a_screen_y: INTEGER)
+			-- Close Current when the pointer is pressed outside of it.
 		do
-			if is_displayed then
-				-- FIXIT: can't destroy directly?
---				destroy
-				ev_application.do_once_on_idle (agent destroy)
-				parent_tool_bar.docking_manager.command.resize (True)
+			if is_destroyed then
+				remove_application_actions
+			elseif
+				is_displayed and then
+				not (a_screen_x >= screen_x and a_screen_x < screen_x + width and
+					a_screen_y >= screen_y and a_screen_y < screen_y + height)
+			then
+				close
 			end
 		end
+
+	on_application_key_press (a_widget: EV_WIDGET; a_key: EV_KEY)
+			-- Close Current on Escape.
+		do
+			if is_destroyed then
+				remove_application_actions
+			elseif a_key.code = {EV_KEY_CONSTANTS}.key_escape then
+				close
+			end
+		end
+
+	close
+			-- Destroy Current (once idle), and stop listening to application events.
+		do
+			if not is_closing then
+				is_closing := True
+				remove_application_actions
+				if not is_destroyed then
+					-- FIXIT: can't destroy directly?
+					ev_application.do_once_on_idle (agent destroy)
+					parent_tool_bar.docking_manager.command.resize (True)
+				end
+			end
+		end
+
+	remove_application_actions
+			-- Remove the agents registered on `ev_application' by `init_close'.
+		do
+			if attached application_pointer_press_agent as agt then
+				ev_application.pointer_button_press_actions.prune_all (agt)
+			end
+			if attached application_key_press_agent as agt then
+				ev_application.key_press_actions.prune_all (agt)
+			end
+		end
+
+	is_closing: BOOLEAN
+			-- Has `close' been called?
+
+	application_pointer_press_agent: detachable PROCEDURE [EV_WIDGET, INTEGER, INTEGER, INTEGER]
+			-- Agent for `on_application_pointer_press'.
+
+	application_key_press_agent: detachable PROCEDURE [EV_WIDGET, EV_KEY]
+			-- Agent for `on_application_key_press'.
 
 	internal_vertical_box: EV_VERTICAL_BOX
 			-- Top level vertical box
@@ -271,7 +335,7 @@ invariant
 
 note
 	library:	"SmartDocking: Library of reusable components for Eiffel."
-	copyright:	"Copyright (c) 1984-2017, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

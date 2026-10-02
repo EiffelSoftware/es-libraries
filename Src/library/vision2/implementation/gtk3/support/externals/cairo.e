@@ -437,6 +437,34 @@ feature -- Cairo surface
 			is_class: class
 		end
 
+	set_device_scale (surface: POINTER; x_scale, y_scale: REAL_64)
+			-- Set the device scale of `surface' so that one user-space unit
+			-- corresponds to `x_scale' by `y_scale' backing-store pixels.
+			-- Used to render `surface' crisply on HiDPI displays while keeping
+			-- its logical (user-space) size unchanged.
+		require
+			surface_not_null: not surface.is_default_pointer
+		external
+			"C signature (cairo_surface_t*, double, double) use <cairo.h>"
+		alias
+			"cairo_surface_set_device_scale"
+		ensure
+			is_class: class
+		end
+
+	get_device_scale (surface: POINTER; x_scale, y_scale: TYPED_POINTER [REAL_64])
+			-- Device scale of `surface', as set by `set_device_scale'.
+			-- 1.0 by default, i.e. one user-space unit per backing-store pixel.
+		require
+			surface_not_null: not surface.is_default_pointer
+		external
+			"C signature (cairo_surface_t*, double*, double*) use <cairo.h>"
+		alias
+			"cairo_surface_get_device_scale"
+		ensure
+			is_class: class
+		end
+
 	image_surface_get_format (surface: POINTER): INTEGER_8
 		external
 			"C signature (cairo_surface_t*): cairo_format_t use <cairo.h>"
@@ -1001,6 +1029,29 @@ feature -- Cairo Rectangle Int
 			"C inline use <ev_gtk.h>"
 		alias
 			"return cairo_region_create_rectangle ((const cairo_rectangle_int_t *)$a_rectangle);"
+		ensure
+			is_class: class
+		end
+
+	frozen cairo_region_create: POINTER
+			-- A new, empty region.
+			--
+			--| An empty region is what makes a window transparent to input when handed
+			--| to `gtk_widget_input_shape_combine_region'. Passing a null pointer there
+			--| means the opposite -- reset to "the whole window takes input".
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return cairo_region_create ();"
+		ensure
+			is_class: class
+		end
+
+	frozen cairo_region_destroy (a_region: POINTER)
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"cairo_region_destroy ((cairo_region_t *)$a_region);"
 		ensure
 			is_class: class
 		end

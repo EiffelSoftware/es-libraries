@@ -174,7 +174,12 @@ feature {EV_ANY} -- Size change
 			p_root: POINTER
 			l_prev_rect, l_rect: like pixbuf_rectangle
 			l_was_shown: BOOLEAN
+			l_app_imp: like app_implementation
 		do
+			l_app_imp := app_implementation
+				-- Note: `l_rect' is in logical coordinates, like `pixbuf_rectangle' and
+				-- everything that later compares against it; only the root window read
+				-- below is done in root coordinates.
 			create l_rect.make (x_position, y_position, width, height)
 
 			l_prev_rect := pixbuf_rectangle
@@ -192,7 +197,9 @@ feature {EV_ANY} -- Size change
 					if l_was_shown then
 						hide
 					end
-					pixbuf := {GDK}.gdk_pixbuf_get_from_window (p_root, l_rect.x, l_rect.y, l_rect.width, l_rect.height)
+					pixbuf := {GDK}.gdk_pixbuf_get_from_window (p_root,
+							l_app_imp.to_device_x (l_rect.x), l_app_imp.to_device_y (l_rect.y),
+							l_rect.width, l_rect.height)
 					if l_was_shown then
 						show
 					end

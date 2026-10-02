@@ -523,7 +523,9 @@ feature -- Icon
 			"return (GList*)gtk_icon_theme_list_icons ((GtkIconTheme *)$icon_theme, (const gchar *)$a_context);"
 		end
 
-	gtk_icon_theme_load_icon (icon_theme: POINTER; icon_name: POINTER; size: INTEGER_8; flags: INTEGER_8; error: POINTER ) : POINTER
+	gtk_icon_theme_load_icon (icon_theme: POINTER; icon_name: POINTER; size: INTEGER_32; flags: INTEGER_32; error: POINTER ) : POINTER
+			-- Note: `size' and `flags' used to be declared as INTEGER_8, which silently
+			-- capped any icon request at 127 pixels and truncated the lookup flags.
 		note
 			eis: "name=gtk_icon_theme_load_icon", "src=https://developer.gnome.org/gtk3/stable/GtkIconTheme.html#gtk-icon-theme-load-icon"
 		external
@@ -535,6 +537,25 @@ feature -- Icon
 				                          (gint)$size,
 				                          (GtkIconLookupFlags)$flags,
 				                          (GError **)$error)
+			]"
+		end
+
+	gtk_icon_theme_load_icon_for_scale (icon_theme: POINTER; icon_name: POINTER; size: INTEGER_32; scale: INTEGER_32; flags: INTEGER_32; error: POINTER ) : POINTER
+			-- Like `gtk_icon_theme_load_icon', but looks up the icon for `scale'.
+			-- `size' stays a size in logical (user) pixels; the returned pixbuf is
+			-- `size' * `scale' pixels wide, so it stays crisp on a HiDPI display.
+		note
+			eis: "name=gtk_icon_theme_load_icon_for_scale", "src=https://developer.gnome.org/gtk3/stable/GtkIconTheme.html#gtk-icon-theme-load-icon-for-scale"
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"[
+				gtk_icon_theme_load_icon_for_scale ((GtkIconTheme *)$icon_theme,
+				                                    (const gchar *)$icon_name,
+				                                    (gint)$size,
+				                                    (gint)$scale,
+				                                    (GtkIconLookupFlags)$flags,
+				                                    (GError **)$error)
 			]"
 		end
 

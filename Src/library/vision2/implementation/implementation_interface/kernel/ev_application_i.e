@@ -334,6 +334,11 @@ feature -- Access
 		deferred
 		end
 
+	primary_button_pressed: BOOLEAN
+			-- Is the primary mouse button currently pressed?
+		deferred
+		end
+
 	alt_pressed: BOOLEAN
 			-- Is alt key currently pressed?
 		deferred

@@ -25,6 +25,9 @@ typedef struct {
 } menu_position;
 
 extern void c_gtk_menu_position_func (GtkMenu * menu, gint * x, gint * y, gboolean * push_in,  gpointer user_data);
+extern void c_ev_gtk_menu_popup (GtkMenu *menu, GtkWidget *anchor_widget, gint x, gint y, guint button, guint32 activate_time);
+extern void ev_gtk_set_pending_menu_trigger_event (const GdkEvent *event);
+extern void ev_gtk_clear_pending_menu_trigger_event (void);
 extern void c_gtk_return_combo_toggle (GtkWidget *widget, GtkWidget** user_data);
 extern void enable_ev_gtk_log (int a_mode);
 
