@@ -71,8 +71,16 @@ feature -- Implementation
 
 	text_scaling_factor: REAL_64
 			-- Desktop text scaling factor (GNOME `text-scaling-factor' or gtk-xft-dpi).
+			--
+			--| Answered from the cache alone. `text_scaling_settings_changed' used to be
+			--| consulted here too, which meant building a GSettings object, reading
+			--| dconf and unreffing it on every single call -- and this is called from
+			--| font metrics, so it sits on the drawing path. The cache is kept current
+			--| by the notify::gtk-xft-dpi and changed::text-scaling-factor handlers
+			--| installed by `EV_APPLICATION_IMP.install_text_scaling_notifications',
+			--| which is what the polling was duplicating.
 		do
-			if text_scaling_factor_internal <= 0.0 or else text_scaling_settings_changed then
+			if text_scaling_factor_internal <= 0.0 then
 				refresh_text_scaling_factor_cache
 			end
 			Result := text_scaling_factor_internal
@@ -115,6 +123,9 @@ feature -- Implementation
 
 	text_scaling_settings_changed: BOOLEAN
 			-- Has the desktop text scaling factor changed since it was last cached?
+			--| Queries the desktop settings, so it belongs on the notification path
+			--| (`process_pending_text_scaling_update') rather than on every read of
+			--| `text_scaling_factor'.
 		local
 			l_current: REAL_64
 		do
@@ -381,10 +392,13 @@ feature -- Implementation
 		local
 			l_wm_name: POINTER
 		do
-			if {GTK}.is_x11_session then
+				-- Ask GDK which backend is live rather than the environment which session
+				-- type it is: under XWayland the latter says "wayland" while the X11
+				-- window manager name is perfectly readable.
+			if {GDK}.gdk_display_is_x11 then
 				l_wm_name := gdk_x11_screen_get_window_manager_name ({GDK_HELPERS}.default_screen)
 				create Result.make_from_c (l_wm_name)
-			elseif {GTK}.is_wayland_session then
+			elseif {GDK}.gdk_display_is_wayland then
 				Result := once "wayland"
 			else
 				Result := once "unknown"

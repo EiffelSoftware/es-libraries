@@ -52,7 +52,8 @@ inherit
 			draw_polyline,
 			fill_ellipse,
 			fill_polygon,
-			fill_pie_slice
+			fill_pie_slice,
+			pixbuf_from_drawable_at_position
 		end
 
 	EV_GTK_DEPENDENT_ROUTINES
@@ -76,12 +77,41 @@ feature {NONE} -- Initialization
 
 --			initialize_drawing
 
-				-- Set offset values to match Win32 implementation.
-			device_x_offset := -app_implementation.screen_virtual_x.as_integer_16
-			device_y_offset := -app_implementation.screen_virtual_y.as_integer_16
+				-- Note: `device_x_offset' and `device_y_offset' are computed on demand
+				-- (to match the Win32 implementation, the logical origin is the top left
+				-- of the primary monitor), so there is nothing to snapshot here.
 
 			set_is_initialized (True)
 			-- Set up action sequence connections and create graphics context.
+		end
+
+feature {EV_GTK_DEPENDENT_APPLICATION_IMP, EV_ANY_I} -- Drawing / Access
+
+	pixbuf_from_drawable_at_position (src_x, src_y, dest_x, dest_y, a_width, a_height: INTEGER): POINTER
+			-- <Precursor>
+			--
+			--| Read straight off the root window rather than through
+			--| `cairo_get_target (cairo_context)' as the inherited version does. That
+			--| version answers from whatever context happens to be current, and
+			--| `sub_pixmap' -- the one caller that matters here -- never opens a drawing
+			--| session, so on `Current' it always fell through to the `gdk_pixbuf_new'
+			--| branch and handed back an uninitialized buffer instead of the screen.
+			--|
+			--| `src_x' / `src_y' are root coordinates: `sub_pixmap' adds
+			--| `device_x_offset' / `device_y_offset' before calling, which is exactly
+			--| the logical-to-root conversion.
+		local
+			l_width, l_height: INTEGER
+		do
+			prepare_drawing
+			l_width := app_implementation.safe_pixmap_dimension (a_width)
+			l_height := app_implementation.safe_pixmap_dimension (a_height)
+			if not drawable.is_default_pointer then
+				Result := {GDK}.gdk_pixbuf_get_from_window (drawable, src_x, src_y, l_width, l_height)
+			end
+			if Result.is_default_pointer then
+				Result := {GDK}.gdk_pixbuf_new (0, True, 8, l_width, l_height)
+			end
 		end
 
 feature -- Status report
@@ -140,8 +170,20 @@ feature -- Drawing / Access
 			-- Pointer to the screen (root window)
 
 	get_cairo_context
+			-- <Precursor>
+			--
+			--| This used to be `cairo_context := drawable', assigning a GdkWindow to a
+			--| field every other feature reads as a cairo_t: `cairo_get_target' was
+			--| being handed it in `pixbuf_from_drawable_at_position', and
+			--| `clear_cairo_context' would have called `cairo_destroy' on it. Nothing
+			--| ever caught fire only because `has_x11_support' was False under
+			--| XWayland, leaving `drawable' null -- so this has to be right before the
+			--| backend detection is fixed, not after.
 		do
-			cairo_context := drawable
+			if cairo_context.is_default_pointer then
+				prepare_drawing
+				cairo_context := {GDK}.gdk_window_create_cairo_context (drawable)
+			end
 		end
 
 feature -- Status report
@@ -192,23 +234,15 @@ feature -- Status report
 	widget_imp_at_pointer_position: detachable EV_WIDGET_IMP
 			-- Widget implementation at current mouse pointer position (if any)
 		local
-			gdkwin, gtkwid: POINTER
+			gdkwin: POINTER
 			l_display_data: TUPLE [window: POINTER; a_x: INTEGER; a_y: INTEGER; a_mask: NATURAL_32]
+			l_gtk_widget_imp: detachable EV_GTK_WIDGET_IMP
 		do
 			l_display_data := app_implementation.retrieve_display_data
 			gdkwin := l_display_data.window
 			if not gdkwin.is_default_pointer then
-				from
-					{GDK}.gdk_window_get_user_data (gdkwin, $gtkwid)
-				until
-					Result /= Void or else gtkwid.is_default_pointer
-				loop
-					if attached {EV_WIDGET_IMP} ({EV_GTK_CALLBACK_MARSHAL}.eif_object_from_c (gtkwid)) as w_imp then
-						Result := w_imp
-					else
-						gtkwid := {GTK}.gtk_widget_get_parent (gtkwid)
-					end
-				end
+				l_gtk_widget_imp := app_implementation.gtk_widget_from_gdk_window (gdkwin)
+				Result ?= l_gtk_widget_imp
 			end
 		end
 
@@ -220,62 +254,96 @@ feature -- Status report
 
 	monitor_area_from_position (a_x, a_y: INTEGER): EV_RECTANGLE
 			-- Full area of monitor nearest to coordinates (a_x, a_y)
-		local
-			l_mon: POINTER
-			l_rect: POINTER
-			l_x, l_y, l_width, l_height: INTEGER
 		do
-			l_mon := {GDK}.gdk_display_get_monitor_at_point ({GDK}.gdk_display_get_default, a_x + device_x_offset, a_y + device_y_offset)
-			l_rect := {GDK}.c_gdk_rectangle_struct_allocate
-			{GDK}.gdk_monitor_get_geometry(l_mon, l_rect)
-
-			l_x := {GDK}.gdk_rectangle_struct_x (l_rect) - device_x_offset
-			l_y := {GDK}.gdk_rectangle_struct_y (l_rect) - device_y_offset
-			l_width := {GDK}.gdk_rectangle_struct_width (l_rect)
-			l_height := {GDK}.gdk_rectangle_struct_height (l_rect)
-			l_rect.memory_free
-
-			create Result.make (l_x, l_y, l_width, l_height)
+			Result := monitor_rectangle (monitor_at_position (a_x, a_y), False)
 		end
 
 	monitor_area_from_window (a_window: EV_WINDOW): EV_RECTANGLE
 			-- Full area of monitor of which most of `a_window' is located.
 			-- Returns nearest monitor area if `a_window' does not overlap any monitors.
-		local
-			l_window_imp: detachable EV_WINDOW_IMP
-			l_rect: POINTER
-			l_x, l_y, l_width, l_height: INTEGER
-			l_monitor: POINTER
 		do
-			l_window_imp ?= a_window.implementation
-			check l_window_imp /= Void then end
-			l_monitor := {GDK}.gdk_display_get_monitor_at_window ({GDK}.gdk_display_get_default, {GTK}.gtk_widget_get_window (l_window_imp.c_object))
-
-			l_rect := {GDK}.c_gdk_rectangle_struct_allocate
-			{GDK}.gdk_monitor_get_geometry(l_monitor, l_rect)
-
-			l_x := {GDK}.gdk_rectangle_struct_x (l_rect) - device_x_offset
-			l_y := {GDK}.gdk_rectangle_struct_y (l_rect) - device_y_offset
-			l_width := {GDK}.gdk_rectangle_struct_width (l_rect)
-			l_height := {GDK}.gdk_rectangle_struct_height (l_rect)
-			l_rect.memory_free
-
-			create Result.make (l_x, l_y, l_width, l_height)
+			Result := monitor_rectangle (monitor_of_window (a_window), False)
 		end
 
 	working_area_from_position (a_x, a_y: INTEGER): EV_RECTANGLE
 			-- <Precursor>
 		do
-				--| FIXME Implement with respect to desktop background.
-			Result := monitor_area_from_position (a_x, a_y)
+			Result := monitor_rectangle (monitor_at_position (a_x, a_y), True)
 		end
 
 	working_area_from_window (a_window: EV_WINDOW): EV_RECTANGLE
 			-- <Precursor>
 		do
-				--| FIXME Implement with respect to desktop background.
-			Result := monitor_area_from_window (a_window)
+			Result := monitor_rectangle (monitor_of_window (a_window), True)
 		end
+
+feature {NONE} -- Monitor geometry
+
+	monitor_at_position (a_x, a_y: INTEGER): POINTER
+			-- GdkMonitor at logical position (`a_x', `a_y'), or the nearest one.
+			-- Null when the display reports no monitor.
+		do
+			Result := {GDK}.gdk_display_get_monitor_at_point (
+				{GDK}.gdk_display_get_default,
+				a_x + device_x_offset,
+				a_y + device_y_offset)
+		end
+
+	monitor_of_window (a_window: EV_WINDOW): POINTER
+			-- GdkMonitor holding most of `a_window', or the nearest one.
+			-- Null when `a_window' is not realized or the display reports no monitor.
+		local
+			l_gdk_window: POINTER
+		do
+			if attached {EV_WINDOW_IMP} a_window.implementation as l_window_imp then
+				l_gdk_window := {GTK}.gtk_widget_get_window (l_window_imp.c_object)
+				if not l_gdk_window.is_default_pointer then
+					Result := {GDK}.gdk_display_get_monitor_at_window (
+						{GDK}.gdk_display_get_default, l_gdk_window)
+				end
+			end
+		end
+
+	monitor_rectangle (a_monitor: POINTER; a_working_area: BOOLEAN): EV_RECTANGLE
+			-- Geometry of `a_monitor', in Vision2 logical coordinates.
+			--
+			-- When `a_working_area', the area left free by desktop panels rather than the
+			-- full monitor: the GNOME top bar and dock, a taskbar, and so on. On a typical
+			-- GNOME desktop that is an inset of several tens of pixels on two edges, so a
+			-- dialog positioned against the full monitor area lands underneath them.
+			--
+			-- Falls back to the primary monitor, and then to the primary monitor size,
+			-- when `a_monitor' is null: `gdk_display_get_monitor_at_point' and
+			-- `gdk_display_get_monitor_at_window' both return null rather than a default.
+		local
+			l_rect: POINTER
+			l_monitor: POINTER
+		do
+			l_monitor := a_monitor
+			if l_monitor.is_default_pointer then
+				l_monitor := app_implementation.screen_primary_monitor
+			end
+			if l_monitor.is_default_pointer then
+				create Result.make (0, 0, width, height)
+			else
+				l_rect := {GDK}.c_gdk_rectangle_struct_allocate
+				if a_working_area then
+					{GDK}.gdk_monitor_get_workarea (l_monitor, l_rect)
+				else
+					{GDK}.gdk_monitor_get_geometry (l_monitor, l_rect)
+				end
+				create Result.make (
+					{GDK}.gdk_rectangle_struct_x (l_rect) - device_x_offset,
+					{GDK}.gdk_rectangle_struct_y (l_rect) - device_y_offset,
+					{GDK}.gdk_rectangle_struct_width (l_rect),
+					{GDK}.gdk_rectangle_struct_height (l_rect))
+				l_rect.memory_free
+			end
+		ensure
+			has_area: Result.width > 0 and then Result.height > 0
+		end
+
+feature -- Status report
 
 feature -- Basic operation		
 
@@ -426,22 +494,55 @@ feature -- Measurement
 
 	horizontal_resolution: INTEGER
 			-- Number of logical pixels per inch along horizontal axis
+			--| Logical, like every other size Vision2 hands out on GTK 3; see
+			--| `logical_resolution'.
 		do
-			Result := {GDK}.gdk_screen_get_resolution ({GDK}.gdk_screen_get_default)
-			if Result = -1 then
-					-- If no resolution has been set then default to 96.
-				Result := 96
-			end
+			Result := logical_resolution
 		end
 
 	vertical_resolution: INTEGER
 			-- Number of logical pixels per inch along vertical axis
 		do
+			Result := logical_resolution
+		end
+
+	logical_resolution: INTEGER
+			-- Number of logical pixels per inch of the display.
+			--
+			-- This is the resolution to size things with. Widths, heights, paddings
+			-- and pixmaps are all logical on GTK 3: GTK multiplies them by
+			-- `screen_scale_factor' itself when it renders. It is the X server DPI
+			-- divided by that factor, so it stays at 96 on a scaled display unless
+			-- the user enlarged the text (a 288 Xft.dpi at scale 3 gives 96, 360
+			-- gives 120).
+			--
+			--| Returning `effective_resolution' here instead, as was tried for a while,
+			--| scales everything twice: an application seeing 288 dpi picks icons and
+			--| margins three times larger, and GTK then triples them again.
+		do
 			Result := {GDK}.gdk_screen_get_resolution ({GDK}.gdk_screen_get_default)
-			if Result = -1 then
+			if Result <= 0 then
 					-- If no resolution has been set then default to 96.
 				Result := 96
 			end
+		ensure
+			positive: Result > 0
+		end
+
+	effective_resolution: INTEGER
+			-- Number of device pixels per inch of the display, i.e. `logical_resolution'
+			-- times the GDK integer scale factor.
+			--
+			-- On a 3840x2160 panel scaled to 1536x864 logical pixels, GTK reports 96 dpi
+			-- and a scale factor of 3, and the effective resolution is 288 dpi.
+			--
+			--| Only for code that works in device pixels, such as choosing how much
+			--| detail to render into a backing store. Anything that sizes widgets or
+			--| picks a pixmap to show at its own size wants `logical_resolution'.
+		do
+			Result := logical_resolution * app_implementation.screen_scale_factor.max (1)
+		ensure
+			positive: Result > 0
 		end
 
 	height: INTEGER
@@ -484,9 +585,20 @@ feature {NONE} -- Externals (XTEST extension)
 
 	device_x_offset: INTEGER
 			-- <Precursor>
+			--| Read live rather than cached at creation: the virtual screen origin moves
+			--| whenever a monitor is plugged in, unplugged or rearranged, and an
+			--| `EV_SCREEN' that outlives such a change would otherwise keep converting
+			--| coordinates with a stale origin.
+		do
+			Result := app_implementation.to_device_x (0)
+		end
 
 	device_y_offset: INTEGER
 			-- <Precursor>
+			--| See `device_x_offset'.
+		do
+			Result := app_implementation.to_device_y (0)
+		end
 
 	gdk_test_simulate_button_symbol: POINTER
 			-- Symbol for `gdk_test_simulate_button'
@@ -600,8 +712,10 @@ feature {NONE} -- Implementation
 	update_if_needed
 			-- Update `Current' if needed
 		do
-			device_x_offset := -app_implementation.screen_virtual_x.as_integer_16
-			device_y_offset := -app_implementation.screen_virtual_y.as_integer_16
+				-- Nothing to do: `device_x_offset' and `device_y_offset' are now computed
+				-- on demand from the application screen metadata, so they can never be
+				-- stale. Kept because the X11 drawing routines call it after each
+				-- operation.
 		end
 
 feature -- Drawing / Clear Operations
@@ -629,8 +743,8 @@ feature -- Drawing / Clear Operations
 				end
 				internal_set_color (True, tmp_bg_color.red, tmp_bg_color.green, tmp_bg_color.blue)
 				{GDK_X11}.draw_rectangle (drawable_x_window, drawable_x_display, gc, True,
-					(x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
+					(x + device_x_offset),
+					(y + device_y_offset),
 					a_width,
 					a_height)
 				internal_set_color (True, tmp_fg_color.red, tmp_fg_color.green, tmp_fg_color.blue)
@@ -657,10 +771,10 @@ feature -- Drawing
 				{GDK_X11}.draw_line (
 					drawable_x_window, drawable_x_display,
 					gc,
-					(x1 + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y1 + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(x2 + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y2 + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value)
+					(x1 + device_x_offset),
+					(y1 + device_y_offset),
+					(x2 + device_x_offset),
+					(y2 + device_y_offset)
 				)
 				update_if_needed
 			end
@@ -686,8 +800,8 @@ feature -- Drawing
 					drawable_x_window, drawable_x_display,
 					gc,
 					False,
-					(x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
+					(x + device_x_offset),
+					(y + device_y_offset),
 					a_width - 1,
 					a_height - 1,
 					0,
@@ -714,8 +828,8 @@ feature -- Drawing
 	 			{GDK_X11}.draw_point (
 	 				drawable_x_window, drawable_x_display,
 	 				gc,
-	 				(x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-	 				(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value)
+	 				(x + device_x_offset),
+	 				(y + device_y_offset)
 	 			)
 	 			update_if_needed
 			end
@@ -745,8 +859,8 @@ feature -- Drawing
 					drawable_x_window, drawable_x_display,
 					gc,
 					False,
-					(x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
+					(x + device_x_offset),
+					(y + device_y_offset),
 					a_width,
 					a_height,
 					(a_start_angle * a_radians + 0.5).truncated_to_integer,
@@ -765,8 +879,10 @@ feature -- Drawing
 					{REFACTORING_HELPER}.to_implement ("update this code to support different environments like (Wayland)")
 			end
 			pre_drawing
-			if
-				has_x11_support and then
+			if not has_x11_support then
+					-- No usable root window: paint it in an overlay instead.
+				overlay_toggle_rectangle (False, x, y, a_width, a_height)
+			elseif
 				not drawable_x_window.is_default_pointer and then
 				not drawable_x_display.is_default_pointer and then
 				a_width > 0 and then a_height > 0
@@ -777,8 +893,8 @@ feature -- Drawing
 					drawable_x_window, drawable_x_display,
 					gc,
 					False,
-					(x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
+					(x + device_x_offset),
+					(y + device_y_offset),
 					a_width - 1,
 					a_height - 1
 				)
@@ -822,8 +938,10 @@ feature -- Drawing / Fill Operations
 			-- with size `a_width' and `a_height'. Fill with `background_color'.
 		do
 			pre_drawing
-			if
-				has_x11_support and then
+			if not has_x11_support then
+					-- No usable root window: paint it in an overlay instead.
+				overlay_toggle_rectangle (True, x, y, a_width, a_height)
+			elseif
 				not drawable_x_window.is_default_pointer and then
 				not drawable_x_display.is_default_pointer and then
 				a_width > 0 and then a_height > 0
@@ -836,8 +954,8 @@ feature -- Drawing / Fill Operations
 					drawable_x_window, drawable_x_display,
 					gc,
 					True,
-					(x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
+					(x + device_x_offset),
+					(y + device_y_offset),
 					a_width,
 					a_height
 				)
@@ -862,8 +980,8 @@ feature -- Drawing / Fill Operations
 				if tile /= Void then
 					{GDK_X11}.x_set_fill_style (drawable_x_display, gc, {GDK_X11}.x_fill_tiled)
 				end
-				{GDK_X11}.draw_arc (drawable_x_window, drawable_x_display, gc, True, (x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value), a_width,
+				{GDK_X11}.draw_arc (drawable_x_window, drawable_x_display, gc, True, (x + device_x_offset),
+					(y + device_y_offset), a_width,
 					a_height, 0, whole_circle)
 				{GDK_X11}.x_set_fill_style (drawable_x_display, gc, {GDK_X11}.x_fill_solid)
 				update_if_needed
@@ -916,8 +1034,8 @@ feature -- Drawing / Fill Operations
 					drawable_x_window, drawable_x_display,
 					gc,
 					False,
-					(x + device_x_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
-					(y + device_y_offset).max ({INTEGER_16}.min_value).min ({INTEGER_16}.max_value),
+					(x + device_x_offset),
+					(y + device_y_offset),
 					a_width,
 					a_height,
 					(a_start_angle * radians_to_gdk_angle).truncated_to_integer,
@@ -949,6 +1067,12 @@ feature -- Drawing / Session
 			end
 			drawable_x_window := default_pointer
 			drawable_x_display := default_pointer
+			if is_in_top_drawing_session then
+					-- Release the context `get_cairo_context' may have created on the
+					-- root window, rather than keeping one alive for the lifetime of the
+					-- application across resolution and monitor changes.
+				clear_cairo_context
+			end
 			Precursor
 		end
 
@@ -1091,14 +1215,16 @@ feature -- Drawing / Basic operation
 			-- Redraw the entire area.
 		do
 			prepare_drawing
-			if not cairo_context.is_default_pointer then
-				{GDK}.gdk_window_invalidate_rect (cairo_context, default_pointer, True)
+				-- Note: this used to invalidate `cairo_context' and pass it to
+				-- `gtk_widget_queue_draw'. Both want the window, which is `drawable';
+				-- `cairo_context' only happened to hold one because `get_cairo_context'
+				-- was assigning it, and a GdkWindow is not a GtkWidget in any case.
+			if not drawable.is_default_pointer then
+				{GDK}.gdk_window_invalidate_rect (drawable, default_pointer, True)
 				-- FIXME JV gdk_window_process_updates has been deprecated since version 3.22 and should not be used in newly-written code.
 				--{GDK}.gdk_window_process_updates (drawable, True)
-				--{GTK}.gtk_widget_queue_draw (drawable)
 				-- https://stackoverflow.com/questions/34912757/how-do-you-force-a-screen-refresh-in-gtk-3-8
-				{GTK}.gtk_widget_queue_draw (cairo_context)
-	--			app_implementation.process_pending_events_on_default_context				
+	--			app_implementation.process_pending_events_on_default_context
 			end
 		end
 
@@ -1137,6 +1263,195 @@ feature {NONE} -- Drawing / implementation
 			end
 		end
 
+feature {NONE} -- Screen feedback overlay
+
+	overlay: EV_SCREEN_FEEDBACK_OVERLAY
+			-- Feedback painted on top of the screen, shared by every `EV_SCREEN'.
+			-- See `EV_SCREEN_FEEDBACK_OVERLAY' for why it is shared and how the
+			-- draw-twice-to-erase protocol survives the lack of a root window.
+		once
+			create Result.make
+		end
+
+	overlay_is_supported: BOOLEAN
+			-- Can feedback be painted on top of the screen in a transparent window?
+			--
+			--| Requires a compositing manager and an RGBA visual. Without both, the
+			--| overlay would come up as an opaque rectangle covering the screen, which
+			--| is a great deal worse than the missing feedback it is meant to replace,
+			--| so this stays False and the drawing routines do nothing, as before.
+		local
+			l_screen: POINTER
+		once
+			Result := True
+			if attached {EXECUTION_ENVIRONMENT}.item (once "EV_SCREEN_OVERLAY") as e then
+				Result := not e.is_case_insensitive_equal_general ("no")
+			end
+			if Result then
+				l_screen := {GDK}.gdk_screen_get_default
+				Result :=
+					not l_screen.is_default_pointer and then
+					not {GDK}.gdk_screen_get_rgba_visual (l_screen).is_default_pointer and then
+					{GDK}.gdk_screen_is_composited (l_screen)
+			end
+		end
+
+	is_overlay_drawing_mode: BOOLEAN
+			-- Is the current mode one the overlay stands in for?
+			--
+			--| Only the reversible modes. A caller drawing in copy mode wants to put
+			--| pixels on the screen and keep them, which the overlay does not pretend
+			--| to offer; invert and xor are the ones used for transient feedback, and
+			--| the only ones whose erase step the shape toggling can reproduce.
+		do
+			Result :=
+				drawing_mode = drawing_mode_invert or else
+				drawing_mode = drawing_mode_xor
+		end
+
+	overlay_toggle_rectangle (a_filled: BOOLEAN; a_x, a_y, a_width, a_height: INTEGER)
+			-- Show or erase the feedback rectangle described by the arguments.
+		local
+			l_color: detachable EV_COLOR
+		do
+			if
+				overlay_is_supported and then
+				is_overlay_drawing_mode and then
+				a_width > 0 and then a_height > 0
+			then
+				l_color := internal_foreground_color
+				if l_color = Void then
+					l_color := foreground_color
+				end
+				overlay.toggle_rectangle (a_filled, a_x, a_y, a_width, a_height, line_width.max (1),
+					l_color.red, l_color.green, l_color.blue)
+				refresh_overlay
+			end
+		end
+
+	refresh_overlay
+			-- Bring the overlay window in line with `overlay.shapes'.
+		require
+			overlay_is_supported
+		local
+			l_window: POINTER
+		do
+			if overlay.shapes.is_empty then
+				l_window := overlay.window
+				if not l_window.is_default_pointer then
+					{GTK}.gtk_widget_hide (l_window)
+				end
+			else
+				build_overlay_window
+				l_window := overlay.window
+				if not l_window.is_default_pointer then
+					overlay.set_origin (virtual_x, virtual_y)
+					{GTK}.gtk_window_move (l_window,
+						app_implementation.to_device_x (overlay.origin_x),
+						app_implementation.to_device_y (overlay.origin_y))
+					{GTK}.gtk_window_resize (l_window, virtual_width, virtual_height)
+					{GTK}.gtk_widget_show (l_window)
+					{GTK}.gtk_widget_queue_draw (l_window)
+				end
+			end
+		end
+
+	build_overlay_window
+			-- Create the overlay window on first use.
+		require
+			overlay_is_supported
+		local
+			c_window, c_region: POINTER
+			d: EV_DRAWING_AREA
+		do
+			if overlay.window.is_default_pointer then
+				c_window := {GTK}.gtk_window_new ({GTK}.gtk_window_popup_enum)
+				{GTK}.gtk_widget_set_visual (c_window, {GDK}.gdk_screen_get_rgba_visual ({GDK}.gdk_screen_get_default))
+				{GTK}.gtk_widget_set_app_paintable (c_window, True)
+				{GTK}.gtk_window_set_skip_taskbar_hint (c_window, True)
+				{GTK}.gtk_window_set_accept_focus (c_window, False)
+
+					-- The overlay covers every window on the screen, so it must not take
+					-- a single pointer event: the drag that asked for this feedback is
+					-- still tracking motion over the widgets underneath. An empty input
+					-- region lets everything through.
+				c_region := {CAIRO}.cairo_region_create
+				{GTK}.gtk_widget_input_shape_combine_region (c_window, c_region)
+				{CAIRO}.cairo_region_destroy (c_region)
+
+				create d
+				overlay.set_drawing (d)
+				if attached {EV_DRAWING_AREA_IMP} d.implementation as d_imp then
+					{GTK}.gtk_container_add (c_window, d_imp.c_object)
+					{GTK}.gtk_widget_show (d_imp.c_object)
+				end
+				d.expose_actions.extend (agent paint_overlay)
+				overlay.set_window (c_window)
+			end
+		end
+
+	paint_overlay (a_x, a_y, a_width, a_height: INTEGER)
+			-- Repaint the overlay window.
+		local
+			cr: POINTER
+			l_line_width, l_x, l_y: REAL_64
+			i, n: INTEGER
+		do
+			if attached overlay.drawing as d then
+				d.start_drawing_session
+				if attached {EV_DRAWING_AREA_IMP} d.implementation as d_imp then
+						-- Erase to fully transparent rather than to a background colour:
+						-- everything not covered by a shape has to show the screen.
+					d_imp.start_transparency (0.0)
+					d.clear
+					if d_imp.background_transparency_set then
+						d_imp.stop_transparency
+					end
+					cr := d_imp.cairo_context
+				end
+				if not cr.is_default_pointer then
+					from
+						i := 1
+						n := overlay.shapes.count
+					until
+						i > n
+					loop
+						if attached overlay.shapes.i_th (i) as s then
+							l_x := (s.x - overlay.origin_x).to_double
+							l_y := (s.y - overlay.origin_y).to_double
+							if s.filled then
+								{CAIRO}.set_source_rgba (cr, s.red, s.green, s.blue, overlay_fill_alpha)
+								{CAIRO}.rectangle (cr, l_x, l_y, s.width.to_double, s.height.to_double)
+								{CAIRO}.fill (cr)
+							else
+								l_line_width := s.line_width.to_double
+								{CAIRO}.set_source_rgba (cr, s.red, s.green, s.blue, overlay_line_alpha)
+								{CAIRO}.set_line_width (cr, l_line_width)
+									-- Cairo centres a stroke on the path, so inset it by
+									-- half the line width to keep the whole border inside
+									-- the rectangle the caller asked for.
+								{CAIRO}.rectangle (cr,
+									l_x + l_line_width / 2.0,
+									l_y + l_line_width / 2.0,
+									(s.width.to_double - l_line_width).max (1.0),
+									(s.height.to_double - l_line_width).max (1.0))
+								{CAIRO}.stroke (cr)
+							end
+						end
+						i := i + 1
+					end
+				end
+				d.end_drawing_session
+			end
+		end
+
+	overlay_line_alpha: REAL_64 = 0.85
+			-- Opacity of a feedback border.
+
+	overlay_fill_alpha: REAL_64 = 0.30
+			-- Opacity of a filled feedback area. Well short of opaque: these cover
+			-- whole panes during a resize and the user needs to see what is behind.
+
 feature {NONE} -- Implementation
 
 	app_implementation: EV_APPLICATION_IMP
@@ -1155,7 +1470,15 @@ feature {NONE} -- Implementation
 	dispose
 			-- Cleanup
 		do
-			if has_x11_support then
+			if not cairo_context.is_default_pointer then
+				release_cairo_context (cairo_context)
+				cairo_context := default_pointer
+			end
+				-- Note: guarded on `drawing_initialized' as well. `gc' and `drawable' are
+				-- only ever set by `initialize_drawing', which is deferred until the
+				-- first drawing operation, so an `EV_SCREEN' that was queried but never
+				-- drawn on legitimately has neither.
+			if has_x11_support and then drawing_initialized then
 				if
 					not gc.is_default_pointer and
 					not drawable.is_default_pointer

@@ -122,7 +122,7 @@ feature {NONE} -- Initialization
 
 
 					-- We do not want X Errors to exit the system so we ignore them indefinitely.
-				if is_x11_session then
+				if is_x11_backend then
 					{GDK_X11}.gdk_x11_display_error_trap_push ({GDK}.gdk_display_get_default)
 				end
 
@@ -135,6 +135,8 @@ feature {NONE} -- Initialization
 						agent on_char_event (?))
 
 				install_text_scaling_notifications
+				install_monitor_notifications
+				install_drag_source_hooks
 
 			else
 				-- We are unable to launch the gtk toolkit, probably due to a DISPLAY issue.
@@ -163,34 +165,62 @@ feature {NONE} -- Initialization
 	update_screen_meta_data
 			-- Update the default screen meta data.
 		local
-			l_rect: POINTER
-			l_supports_composite_symbol: POINTER
-			l_workarea: POINTER
+			l_origin_x, l_origin_y: INTEGER
+			l_virtual_x, l_virtual_y, l_virtual_width, l_virtual_height: INTEGER
+			l_primary_width, l_primary_height, l_monitor_count: INTEGER
 		do
 			is_display_remote := False
 
 				-- Check whether display supports transparency
-			l_supports_composite_symbol := gdk_screen_is_composited_symbol
-			if l_supports_composite_symbol /= default_pointer then
-				is_display_alpha_capable := gdk_screen_is_composited_call (l_supports_composite_symbol, {GDK}.gdk_screen_get_default)
+			if gdk_screen_is_composited_symbol /= default_pointer then
+				is_display_alpha_capable := gdk_screen_is_composited_call (gdk_screen_is_composited_symbol, {GDK}.gdk_screen_get_default)
 			end
 
-			screen_monitor_count := {GDK}.gdk_display_get_n_monitors ({GDK}.gdk_display_get_default)
-			l_rect := reusable_rectangle_struct
-
+			ev_gdk_query_virtual_screen (
+				$l_origin_x, $l_origin_y,
+				$l_virtual_x, $l_virtual_y, $l_virtual_width, $l_virtual_height,
+				$l_primary_width, $l_primary_height, $l_monitor_count)
+			screen_origin_x := l_origin_x
+			screen_origin_y := l_origin_y
+			screen_virtual_x := l_virtual_x
+			screen_virtual_y := l_virtual_y
+			screen_virtual_width := l_virtual_width
+			screen_virtual_height := l_virtual_height
+			screen_width := l_primary_width
+			screen_height := l_primary_height
+			screen_monitor_count := l_monitor_count
 			screen_primary_monitor := {GDK}.gdk_display_get_primary_monitor ({GDK}.gdk_display_get_default)
-			{GDK}.gdk_monitor_get_geometry (screen_primary_monitor, l_rect)
+			screen_scale_factor := query_screen_scale_factor
+		end
 
-			screen_virtual_x := -{GDK}.gdk_rectangle_struct_x (l_rect)
-			screen_virtual_y := -{GDK}.gdk_rectangle_struct_y (l_rect)
-			screen_width := {GDK}.gdk_rectangle_struct_width (l_rect)
-			screen_height := {GDK}.gdk_rectangle_struct_height (l_rect)
-
-			l_workarea := {GDK}.c_gdk_rectangle_struct_allocate
-			c_get_screen_geometry (l_workarea)
-			screen_virtual_width := {GDK}.gdk_rectangle_struct_width (l_workarea)
-			screen_virtual_height := {GDK}.gdk_rectangle_struct_height (l_workarea)
-			l_workarea.memory_free
+	query_screen_scale_factor: INTEGER
+			-- Display scale factor reported by GDK for the primary monitor,
+			-- or 1 when it cannot be determined.
+			--
+			-- GTK splits HiDPI information across two channels: a logical resolution
+			-- (`gdk_screen_get_resolution', normally kept at 96) and this integer scale
+			-- factor. The effective density of the display is the product of the two,
+			-- so anything that sizes in physical pixels has to take this into account.
+		local
+			l_monitor: POINTER
+			l_display: POINTER
+		do
+			l_display := {GDK}.gdk_display_get_default
+			if not l_display.is_default_pointer then
+				l_monitor := screen_primary_monitor
+				if l_monitor.is_default_pointer and then {GDK}.gdk_display_get_n_monitors (l_display) > 0 then
+						-- No primary monitor is designated, fall back to the first one.
+					l_monitor := {GDK}.gdk_display_get_monitor (l_display, 0)
+				end
+				if not l_monitor.is_default_pointer then
+					Result := {GDK}.gdk_monitor_get_scale_factor (l_monitor)
+				end
+			end
+			if Result <= 0 then
+				Result := 1
+			end
+		ensure
+			positive: Result >= 1
 		end
 
 	gdk_display_supports_composite_symbol: POINTER
@@ -225,16 +255,37 @@ feature {NONE} -- Initialization
 
 feature {EV_ANY_I} -- Status report
 
-	is_x11_session: BOOLEAN
+	is_x11_backend: BOOLEAN
+			-- Is the live GDK display driven by the X11 backend?
+			--
+			--| Asked of GDK rather than of XDG_SESSION_TYPE: under XWayland the session
+			--| type is "wayland" while the display is a GdkX11Display, which is exactly
+			--| what `make' arranges above by restricting the allowed backends. Testing
+			--| the environment instead used to answer False there, silently disabling
+			--| every X11 path -- all `EV_SCREEN' drawing and the X error trap included.
+			--| Evaluated once, so it must not be called before `gtk_init_check'.
 		once
-			Result := {GTK}.is_x11_session
+			Result := {GDK}.gdk_display_is_x11
 		end
 
 	has_x11_support: BOOLEAN
 			-- Has X11 support ?
 		once
 				--| note: related to drawing on screen (see EV_SCREEN) with gtk3 implementation
-			Result := is_x11_session
+				--|
+				--| Deliberately narrower than `is_x11_backend'. This one gates drawing on
+				--| and capturing from the X11 ROOT window, and under XWayland the root
+				--| window, while perfectly valid and readable, is empty: the screen is
+				--| composited by the Wayland compositor and never reaches it. Measured
+				--| here -- filling a rectangle on `EV_SCREEN' and reading the same area
+				--| back through `gdk_pixbuf_get_from_window' returns a blank buffer.
+				--|
+				--| So an XWayland session has the X11 backend live yet no usable root
+				--| window, and turning this on there would be a regression rather than a
+				--| fix: `activate_docking_source_hint' below draws the drag feedback in a
+				--| real window precisely when `not has_x11_support', and that fallback is
+				--| what actually shows up on screen today.
+			Result := is_x11_backend and then not {GTK}.is_wayland_session
 			if Result then
 				if {PLATFORM}.is_mac then
 					Result := False
@@ -268,6 +319,8 @@ feature -- Implementation
 
 feature {EV_ANY_I} -- Implementation
 
+	screen_origin_x: INTEGER
+	screen_origin_y: INTEGER
 	screen_virtual_x: INTEGER
 	screen_virtual_y: INTEGER
 	screen_virtual_width: INTEGER
@@ -276,7 +329,74 @@ feature {EV_ANY_I} -- Implementation
 	screen_height: INTEGER
 	screen_monitor_count: INTEGER
 	screen_primary_monitor: POINTER
+	screen_scale_factor: INTEGER
 		-- Screen meta data.
+		--| `screen_origin_x' / `screen_origin_y' are the offset between the GDK root
+		--| coordinate space and the Vision2 logical one; use `to_logical_x' and
+		--| `to_device_x' rather than reading them directly.
+		--| `screen_virtual_x' / `screen_virtual_y' are the top left of the virtual
+		--| desktop expressed in logical coordinates, which is what `EV_SCREEN'
+		--| publishes as `virtual_x' / `virtual_y'. The two pairs differ as soon as a
+		--| monitor sits left of or above the root origin.
+		--| `screen_scale_factor' is the GDK integer scale factor (1 at standard DPI,
+		--| 2 or 3 on HiDPI). It is refreshed by `update_screen_meta_data', which the
+		--| "monitor-added"/"monitor-removed"/"size-changed" handlers already schedule.
+
+	refresh_screen_scale_factor
+			-- Re-read `screen_scale_factor' from GDK.
+			--| Called when a top level window reports that its scale factor changed,
+			--| which happens when it is moved to a monitor with a different scale.
+			--| Cheaper than a full `update_screen_meta_data', which also requeries the
+			--| geometry of every monitor.
+		do
+			screen_scale_factor := query_screen_scale_factor
+		end
+
+feature {EV_ANY_I} -- Coordinate conversion
+
+	to_logical_x (a_root_x: INTEGER): INTEGER
+			-- Logical abscissa corresponding to the root abscissa `a_root_x'.
+			--
+			--| Vision2 puts the origin of its coordinate space at the top left of the
+			--| PRIMARY monitor, to match the Win32 implementation, whereas GDK puts the
+			--| origin of the root coordinate space at the top left of the virtual
+			--| desktop. The two coincide only while the primary monitor is the
+			--| left-most / top-most one, which is why a missing conversion is
+			--| invisible on most single or side-by-side layouts.
+			--|
+			--| Anything read from GDK in root coordinates (`gtk_window_get_position',
+			--| `gtk_widget_translate_coordinates' against the root, the `*_root' fields
+			--| of a GdkEvent) has to go through `to_logical_x' / `to_logical_y' before
+			--| it is handed to the interface, and anything given to GDK in root
+			--| coordinates (`gtk_window_move', `gtk_menu_popup_at_rect',
+			--| `gdk_pixbuf_get_from_window' on the root window) through
+			--| `to_device_x' / `to_device_y' first.
+		do
+			Result := a_root_x + screen_origin_x
+		end
+
+	to_logical_y (a_root_y: INTEGER): INTEGER
+			-- Logical ordinate corresponding to the root ordinate `a_root_y'.
+			--| See `to_logical_x'.
+		do
+			Result := a_root_y + screen_origin_y
+		end
+
+	to_device_x (a_logical_x: INTEGER): INTEGER
+			-- Root abscissa corresponding to the logical abscissa `a_logical_x'.
+			--| See `to_logical_x'.
+		do
+			Result := a_logical_x - screen_origin_x
+		end
+
+	to_device_y (a_logical_y: INTEGER): INTEGER
+			-- Root ordinate corresponding to the logical ordinate `a_logical_y'.
+			--| See `to_logical_x'.
+		do
+			Result := a_logical_y - screen_origin_y
+		end
+
+feature {EV_ANY_I} -- Implementation
 
 	best_available_color_depth: INTEGER
 		-- Best available color depth of display
@@ -389,7 +509,20 @@ feature {EV_ANY_I} -- Implementation
 			until
 				l_no_more_events or else is_destroyed
 			loop
-				gdk_event := {GDK}.gdk_event_get
+				if is_drag_source_active then
+						-- A GTK drag started here (selected text, a color swatch, ...) is in progress.
+						-- GDK only ends it when the events go through its own dispatching, which
+						-- `gdk_event_get' bypasses: the drag would never end and the pointer would
+						-- stay grabbed. So let the main context dispatch the events meanwhile.
+					gdk_event := default_pointer
+					if {GLIB2}.events_pending then
+						l_any_event := True
+						process_pending_events_on_default_context
+					end
+					l_no_more_events := True
+				else
+					gdk_event := {GDK}.gdk_event_get
+				end
 				if not gdk_event.is_default_pointer then
 						-- GDK events are always handled before gtk events.
 					event_widget := {GTK}.gtk_get_event_widget (gdk_event)
@@ -427,8 +560,8 @@ feature {EV_ANY_I} -- Implementation
 						use_stored_display_data := True
 						l_widget_x := {GDK}.gdk_event_motion_struct_x (gdk_event).truncated_to_integer
 						l_widget_y := {GDK}.gdk_event_motion_struct_y (gdk_event).truncated_to_integer
-						l_screen_x := {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + screen_virtual_x
-						l_screen_y := {GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer + screen_virtual_y
+						l_screen_x := to_logical_x ({GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer)
+						l_screen_y := to_logical_y ({GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer)
 						stored_display_data.window := {GDK}.gdk_event_motion_struct_window (gdk_event)
 						stored_display_data.x := l_screen_x
 						stored_display_data.y := l_screen_y
@@ -515,8 +648,8 @@ feature {EV_ANY_I} -- Implementation
 								l_focused_popup_window.handle_mouse_button_event (
 									{GDK}.gdk_button_press_enum,
 									2,
-									{GDK}.gdk_event_scroll_struct_x_root (gdk_event).truncated_to_integer + screen_virtual_x,
-									{GDK}.gdk_event_scroll_struct_y_root (gdk_event).truncated_to_integer + screen_virtual_y
+									to_logical_x ({GDK}.gdk_event_scroll_struct_x_root (gdk_event).truncated_to_integer),
+									to_logical_y ({GDK}.gdk_event_scroll_struct_y_root (gdk_event).truncated_to_integer)
 									)
 							end
 							debug ("refactor_fixme")
@@ -862,15 +995,22 @@ feature {EV_ANY_I} -- Implementation
 		end
 
 	process_pending_events_on_default_context
+			-- Dispatch the events already queued on the default main context, and
+			-- return as soon as there is nothing left to dispatch.
 		local
 			l_event_dispatched: BOOLEAN
 			retried: BOOLEAN
 		do
 			if not retried then
 --				process_gtk_events -- FIXME
+					-- Note: the condition used to be `{GLIB2}.events_pending', i.e. "keep
+					-- iterating while there is nothing to do". Since `g_event_iteration'
+					-- is the non-blocking g_main_context_iteration (NULL, FALSE), that
+					-- span-locked the CPU on an idle main context until an event happened
+					-- to turn up, which is the opposite of what the callers want.
 				from
 				until
-					{GLIB2}.events_pending
+					not {GLIB2}.events_pending
 			    loop
 			    	l_event_dispatched := {GLIB2}.g_event_iteration
 					debug ("gdk_event")
@@ -943,6 +1083,12 @@ feature -- Access
 			-- Is shift key currently pressed?
 		do
 			Result := keyboard_modifier_mask & {GDK}.gdk_shift_mask_enum = {GDK}.gdk_shift_mask_enum
+		end
+
+	primary_button_pressed: BOOLEAN
+			-- Is the primary mouse button currently pressed?
+		do
+			Result := keyboard_modifier_mask & {GDK}.gdk_button1_mask_enum.to_natural_32 = {GDK}.gdk_button1_mask_enum.to_natural_32
 		end
 
 	caps_lock_on: BOOLEAN
@@ -1034,8 +1180,8 @@ feature -- Basic operation
 			l_screen_x, l_screen_y: INTEGER
 		do
 				-- Update screen coords from device to logical.
-			l_screen_x := {GDK}.gdk_event_button_struct_x_root (a_gdk_event).truncated_to_integer + screen_virtual_x
-			l_screen_y := {GDK}.gdk_event_button_struct_y_root (a_gdk_event).truncated_to_integer + screen_virtual_y
+			l_screen_x := to_logical_x ({GDK}.gdk_event_button_struct_x_root (a_gdk_event).truncated_to_integer)
+			l_screen_y := to_logical_y ({GDK}.gdk_event_button_struct_y_root (a_gdk_event).truncated_to_integer)
 
 			use_stored_display_data := True
 			l_stored_display_data := stored_display_data
@@ -1103,6 +1249,7 @@ feature -- Basic operation
 					not a_recursive
 				then
 						-- We don't want signals firing during transport.
+					ev_gtk_set_pending_menu_trigger_event (a_gdk_event)
 					{GTK}.gtk_main_do_event (a_gdk_event)
 				end
 				if l_pnd_item /= Void and then not a_recursive then
@@ -1396,7 +1543,7 @@ feature -- Implementation
 		local
 			l_window: POINTER
 			temp_mask: NATURAL_32
-			temp_x, temp_y: INTEGER
+			temp_x, temp_y, l_dummy_x, l_dummy_y: INTEGER
 			l_stored_display_data: like stored_display_data
 			l_device: POINTER
 		do
@@ -1408,11 +1555,12 @@ feature -- Implementation
 			l_window := {GDK}.gdk_device_get_window_at_position (l_device, $temp_x, $temp_y)
 
 			if not l_window.is_default_pointer then
-				l_window := {GDK}.gdk_window_get_device_position (l_window, l_device, $temp_x, $temp_y, $temp_mask)
+				temp_mask := 0
+				l_window := {GDK}.gdk_window_get_device_position (l_window, l_device, $l_dummy_x, $l_dummy_y, $temp_mask)
 				{GDK_HELPERS}.device_get_position (l_device, $temp_x, $temp_y)
 				l_stored_display_data.window := l_window
-				l_stored_display_data.x := temp_x + screen_virtual_x
-				l_stored_display_data.y := temp_y + screen_virtual_y
+				l_stored_display_data.x := to_logical_x (temp_x)
+				l_stored_display_data.y := to_logical_y (temp_y)
 				l_stored_display_data.mask := temp_mask
 			end
 		end
@@ -1469,8 +1617,14 @@ feature {EV_ANY_I, EV_FONT_IMP, EV_STOCK_PIXMAPS_IMP, EV_INTERMEDIARY_ROUTINES} 
 				until
 					Result /= Void or else gtkwid.is_default_pointer
 				loop
-					Result := {EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES}.eif_object_from_c (gtkwid)
-					gtkwid := {GTK}.gtk_widget_get_parent (gtkwid)
+					if {GTK}.gtk_is_widget (gtkwid) then
+						Result := {EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES}.eif_object_from_c (gtkwid)
+						if Result = Void then
+							gtkwid := {GTK}.gtk_widget_get_parent (gtkwid)
+						end
+					else
+						gtkwid := default_pointer
+					end
 				end
 				if Result /= Void and then Result.is_destroyed then
 					Result := Void
@@ -1607,6 +1761,14 @@ feature {NONE} -- External implementation
 			"C (EIF_INTEGER) | %"ev_c_util.h%""
 		end
 
+	frozen ev_gtk_set_pending_menu_trigger_event (a_gdk_event: POINTER)
+			-- Remember `a_gdk_event' for the next menu popup trigger.
+		external
+			"C inline use <ev_c_util.h>"
+		alias
+			"ev_gtk_set_pending_menu_trigger_event ((const GdkEvent*) $a_gdk_event)"
+		end
+
 	gtk_init
 		external
 			"C [macro <ev_gtk.h>] | %"eif_argv.h%""
@@ -1628,33 +1790,102 @@ feature {NONE} -- External implementation
 		alias
 			"[
 				{
-				  GdkDisplay *display = gdk_display_get_default ();
-				  int num_monitors = gdk_display_get_n_monitors (display);
-
-				  gint x, y, w, h;
-
-				  x = y = G_MAXINT;
-				  w = h = G_MININT;
-
-				  for (int i = 0; i < num_monitors; i++)
-				    {
-				      GdkRectangle rect;
-				      GdkMonitor *monitor = gdk_display_get_monitor (display, i);
-				      gdk_monitor_get_geometry (monitor, &rect);
-
-				      x = MIN (x, rect.x);
-				      y = MIN (y, rect.y);
-				      w = MAX (w, rect.x + rect.width);
-				      h = MAX (h, rect.y + rect.height);
-				    }
-
-				  ((GdkRectangle *)$geometry)->width = w - x;
-				  ((GdkRectangle *)$geometry)->height = h - y;
+				  EvGdkVirtualScreen screen;
+				  ev_gdk_query_virtual_screen (&screen);
+				  ((GdkRectangle *)$geometry)->width = screen.virtual_width;
+				  ((GdkRectangle *)$geometry)->height = screen.virtual_height;
 				}
 			]"
 		end
 
+	frozen ev_gdk_query_virtual_screen (
+		a_origin_x, a_origin_y: TYPED_POINTER [INTEGER_32];
+		a_virtual_x, a_virtual_y, a_virtual_width, a_virtual_height: TYPED_POINTER [INTEGER_32];
+		a_primary_width, a_primary_height, a_monitor_count: TYPED_POINTER [INTEGER_32])
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"[
+				{
+					EvGdkVirtualScreen screen;
+					ev_gdk_query_virtual_screen (&screen);
+					*(gint*) $a_origin_x = screen.origin_x;
+					*(gint*) $a_origin_y = screen.origin_y;
+					*(gint*) $a_virtual_x = screen.virtual_x;
+					*(gint*) $a_virtual_y = screen.virtual_y;
+					*(gint*) $a_virtual_width = screen.virtual_width;
+					*(gint*) $a_virtual_height = screen.virtual_height;
+					*(gint*) $a_primary_width = screen.primary_width;
+					*(gint*) $a_primary_height = screen.primary_height;
+					*(gint*) $a_monitor_count = screen.monitor_count;
+				}
+			]"
+		end
+
+feature {NONE} -- Drag and drop
+
+	install_drag_source_hooks
+			-- Keep track of the GTK drags started in this process, see `is_drag_source_active'.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"ev_gtk_install_drag_source_hooks ();"
+		end
+
+	is_drag_source_active: BOOLEAN
+			-- Is a GTK drag started in this process in progress?
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_BOOLEAN) ev_gtk_is_drag_source_active ();"
+		end
+
 feature {NONE} -- Text scaling
+
+	install_monitor_notifications
+			-- Monitor display topology and resolution changes.
+		do
+			gtk_marshal.signal_connect (
+				{GDK}.gdk_display_get_default,
+				create {EV_GTK_C_STRING}.set_with_eiffel_string ("monitor-added"),
+				agent on_screen_configuration_changed,
+				False)
+			gtk_marshal.signal_connect (
+				{GDK}.gdk_display_get_default,
+				create {EV_GTK_C_STRING}.set_with_eiffel_string ("monitor-removed"),
+				agent on_screen_configuration_changed,
+				False)
+			gtk_marshal.signal_connect (
+				{GDK_HELPERS}.default_screen,
+				create {EV_GTK_C_STRING}.set_with_eiffel_string ("size-changed"),
+				agent on_screen_configuration_changed,
+				False)
+		end
+
+	on_screen_configuration_changed
+			-- Display topology or resolution has changed.
+		do
+			schedule_screen_meta_data_update
+		end
+
+	schedule_screen_meta_data_update
+			-- Defer screen metadata refresh until the event loop is idle.
+		do
+			if not screen_meta_data_update_scheduled then
+				screen_meta_data_update_scheduled := True
+				do_once_on_idle (agent process_pending_screen_meta_data_update)
+			end
+		end
+
+	process_pending_screen_meta_data_update
+			-- Apply a pending screen metadata refresh.
+		do
+			screen_meta_data_update_scheduled := False
+			update_screen_meta_data
+		end
+
+	screen_meta_data_update_scheduled: BOOLEAN
+			-- Is a deferred screen metadata update already queued?
 
 	install_text_scaling_notifications
 			-- Monitor desktop text scaling changes.

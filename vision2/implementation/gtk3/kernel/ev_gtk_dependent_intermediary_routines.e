@@ -220,9 +220,7 @@ feature {EV_ANY_I} -- Externals
 		external
 			"C inline use <ev_gtk.h>"
 		alias
-			"[
-				(EIF_INTEGER) (rt_int_ptr) g_object_get_data (G_OBJECT($a_c_object), "eif_oid")
-			]"
+			"ev_g_object_get_eif_oid ((gpointer) $a_c_object)"
 		ensure
 			is_class: class
 		end

@@ -387,8 +387,8 @@ feature {EV_INTERMEDIARY_ROUTINES} -- Implementation
 			l_screen_x, l_screen_y: INTEGER
 		do
 			if attached app_implementation as l_app_imp then
-				l_screen_x := {GDK}.gdk_event_button_struct_x_root (a_gdk_event).truncated_to_integer + l_app_imp.screen_virtual_x
-				l_screen_y := {GDK}.gdk_event_button_struct_y_root (a_gdk_event).truncated_to_integer + l_app_imp.screen_virtual_y
+				l_screen_x := l_app_imp.to_logical_x ({GDK}.gdk_event_button_struct_x_root (a_gdk_event).truncated_to_integer)
+				l_screen_y := l_app_imp.to_logical_y ({GDK}.gdk_event_button_struct_y_root (a_gdk_event).truncated_to_integer)
 				on_mouse_button_event (
 						{GDK}.gdk_event_button_struct_type (a_gdk_event),
 						{GDK}.gdk_event_button_struct_x (a_gdk_event).truncated_to_integer,

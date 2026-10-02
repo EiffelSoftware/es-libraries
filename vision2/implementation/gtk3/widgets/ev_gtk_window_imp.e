@@ -154,7 +154,7 @@ feature {NONE} -- Implementation
 			-- Set horizontal offset to parent to `a_x'.
 			-- Set vertical offset to parent to `a_y'.
 		do
-			{GTK2}.gtk_window_move (c_object, a_x - app_implementation.screen_virtual_x, a_y - app_implementation.screen_virtual_y)
+			{GTK2}.gtk_window_move (c_object, app_implementation.to_device_x (a_x), app_implementation.to_device_y (a_y))
 		end
 
 	configure_event_pending: BOOLEAN
@@ -182,7 +182,7 @@ feature {NONE} -- Implementation
 			temp_y: INTEGER
 		do
 			{GTK2}.gtk_window_get_position (c_object, $Result, $temp_y)
-			Result := Result + app_implementation.screen_virtual_x
+			Result := app_implementation.to_logical_x (Result)
 		end
 
 	y_position, screen_y: INTEGER
@@ -191,7 +191,7 @@ feature {NONE} -- Implementation
 			temp_x: INTEGER
 		do
 			{GTK2}.gtk_window_get_position (c_object, $temp_x, $Result)
-			Result := Result + app_implementation.screen_virtual_y
+			Result := app_implementation.to_logical_y (Result)
 		end
 
 	default_wm_decorations: INTEGER
@@ -237,8 +237,11 @@ feature {NONE} -- Implementation
 				{GDK}.gdk_window_hide ({GTK}.gtk_widget_get_window (c_object))
 
 					-- Reset the size and position to emulate Win32 behavior.
+					-- Note: `l_x_pos' and `l_y_pos' come from `x_position' / `y_position',
+					-- so they are logical coordinates; go through `set_position' rather
+					-- than calling `gtk_window_move' directly, which expects root ones.
 				{GTK}.gtk_window_set_default_size (c_object, l_width, l_height)
-				{GTK2}.gtk_window_move (c_object, l_x_pos, l_y_pos)
+				set_position (l_x_pos, l_y_pos)
 			end
 		end
 

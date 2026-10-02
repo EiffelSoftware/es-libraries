@@ -11,6 +11,15 @@ inherit
 feature -- Session type
 
 	is_x11_session: BOOLEAN
+			-- Does the environment advertise an X11 session?
+			--
+			--| This is the session type, not the backend GDK ended up using: under
+			--| XWayland the session is "wayland" while the live display is a
+			--| GdkX11Display. Use `{GDK}.gdk_display_is_x11' to decide whether the X11
+			--| protocol is available; this one answers the questions that have to be
+			--| settled before `gtk_init', when there is no display to ask yet, and the
+			--| ones where the session itself is what matters -- whether the X11 root
+			--| window is the real screen, say, which it is not under XWayland.
 		once
 			Result := attached {EXECUTION_ENVIRONMENT}.item ("XDG_SESSION_TYPE") as l_session_type and then
 					l_session_type.is_case_insensitive_equal_general ("x11")
@@ -19,6 +28,8 @@ feature -- Session type
 		end
 
 	is_wayland_session: BOOLEAN
+			-- Does the environment advertise a Wayland session?
+			--| See `is_x11_session'.
 		once
 			Result := attached {EXECUTION_ENVIRONMENT}.item ("XDG_SESSION_TYPE") as l_session_type and then
 					l_session_type.is_case_insensitive_equal_general ("wayland")
@@ -351,6 +362,12 @@ feature -- Widgets
 		end
 
 	frozen gtk_widget_get_allocated_height (a_c_struct: POINTER): INTEGER_32
+		external
+			"C signature (GtkWidget*): int use <ev_gtk.h>"
+		end
+
+	frozen gtk_widget_get_scale_factor (a_widget: POINTER): INTEGER_32
+			-- Scale factor of `a_widget' (1 for standard DPI, 2+ for HiDPI/Retina displays).
 		external
 			"C signature (GtkWidget*): int use <ev_gtk.h>"
 		end

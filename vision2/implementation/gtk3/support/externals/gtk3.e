@@ -250,6 +250,19 @@ feature -- GtkWidget Externals
 			"gtk_widget_set_visual ((GtkWidget *)$widget, (GdkVisual *)$visual)"
 		end
 
+	frozen gtk_widget_input_shape_combine_region (widget: POINTER; region: POINTER)
+			-- Restrict the part of `widget' that reacts to the pointer to `region'.
+			--
+			--| With an empty region the window becomes transparent to input: clicks and
+			--| motion go to whatever is underneath, which is what an overlay drawn on
+			--| top of the whole screen needs. A null `region' resets to the default,
+			--| where the whole window takes input.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"gtk_widget_input_shape_combine_region ((GtkWidget *)$widget, (cairo_region_t *)$region)"
+		end
+
 
 
 feature -- Box		

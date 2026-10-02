@@ -110,6 +110,8 @@ feature {NONE} -- Initialization
 			hb2: EV_HORIZONTAL_BOX
 			vb2: EV_VERTICAL_BOX
 			l_screen: EV_SCREEN
+			l_area: EV_RECTANGLE
+			l_pointer: EV_COORDINATE
 		do
 			foreground_color := implementation.foreground_color
 			background_color := implementation.background_color
@@ -121,8 +123,15 @@ feature {NONE} -- Initialization
 			Precursor
 
 			create l_screen
-			maximum_label_width := l_screen.width - 200
-			maximum_label_height := l_screen.height - 200
+				-- Size against the monitor the dialog is going to appear on rather than the
+				-- primary one: `l_screen.width'/`height' always describe the primary monitor,
+				-- which on a multi-monitor desktop need be neither the current nor the
+				-- largest. The dialog has no window yet, so the pointer position is used to
+				-- pick the monitor -- the same convention as {EV_GRID_CHOICE_ITEM}.
+			l_pointer := l_screen.pointer_position
+			l_area := l_screen.working_area_from_position (l_pointer.x, l_pointer.y)
+			maximum_label_width := l_area.width - 200
+			maximum_label_height := l_area.height - 200
 
 			vb2.extend (pixmap_box)
 			vb2.disable_item_expand (pixmap_box)

@@ -119,7 +119,9 @@ feature -- Redefine
 		local
 			l_tabs: HASH_TABLE [SD_NOTEBOOK_TAB, INTEGER]
 			l_tab_behind_last: EV_RECTANGLE
+			l_rect: EV_RECTANGLE
 			l_last: detachable EV_RECTANGLE
+			l_key, l_last_key: INTEGER
 			l_tab_area: like internal_tab_area
 		do
 			Precursor {SD_HOT_ZONE_OLD_DOCKING} (a_rect)
@@ -132,14 +134,30 @@ feature -- Redefine
 				until
 					l_tabs.after
 				loop
-					l_last := create {EV_RECTANGLE}.make (l_tabs.item_for_iteration.screen_x, l_tabs.item_for_iteration.screen_y, l_tabs.item_for_iteration.width, l_tabs.item_for_iteration.height)
-					l_tab_area.extend (l_last, l_tabs.key_for_iteration)
+					l_key := l_tabs.key_for_iteration
+					create l_rect.make (l_tabs.item_for_iteration.screen_x, l_tabs.item_for_iteration.screen_y, l_tabs.item_for_iteration.width, l_tabs.item_for_iteration.height)
+					l_tab_area.extend (l_rect, l_key)
+						--| The keys are positions in the complete tab list, and `tabs_shown' skips
+						--| the tabs hidden for lack of room, so they are not necessarily 1..count.
+						--| `l_tabs' is a hash table as well, so iteration does not follow key order:
+						--| the rightmost tab has to be tracked by key rather than taken as the last
+						--| one seen.
+					if l_last = Void or else l_key > l_last_key then
+						l_last := l_rect
+						l_last_key := l_key
+					end
 					l_tabs.forth
 				end
 
 				if l_last /= Void then
 					create l_tab_behind_last.make (l_last.right + 1, l_last.top, internal_shared.feedback_tab_width, l_last.height)
-					l_tab_area.extend (l_tab_behind_last, l_tab_area.count + 1)
+						--| `l_last_key' is the greatest key in `l_tab_area', so `l_last_key + 1' is
+						--| free. `count + 1' is not: as soon as a hidden tab leaves a gap in the
+						--| sequence it names a tab that is already there, and `extend' fails its
+						--| `not_present' precondition. Hiding starts from the right but steps over
+						--| the selected tab, so a gap appears whenever the selection sits to the
+						--| right of a hidden tab.
+					l_tab_area.extend (l_tab_behind_last, l_last_key + 1)
 				else
 					check tab_zone_has_at_least_one_tab: False end
 				end

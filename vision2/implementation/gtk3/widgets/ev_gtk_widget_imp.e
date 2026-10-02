@@ -69,7 +69,7 @@ feature {EV_ANY_I, EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES} -- Position retrieval
 				    	$a_x, l_null)
 					Result := a_x
 			end
-			Result := Result + app_implementation.screen_virtual_x
+			Result := app_implementation.to_logical_x (Result)
 		end
 
 	screen_y: INTEGER
@@ -85,7 +85,7 @@ feature {EV_ANY_I, EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES} -- Position retrieval
 				    	l_null, $a_y)
 					Result := a_y
 			end
-			Result := Result + app_implementation.screen_virtual_y
+			Result := app_implementation.to_logical_y (Result)
 		end
 
 feature {EV_ANY_I, EV_INTERMEDIARY_ROUTINES} -- Implementation

@@ -363,7 +363,7 @@ feature {EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES} -- Event handling
 			event_type: INTEGER
 			a_button: POINTER
 			l_x: INTEGER
-			l_screen_virtual_x, l_screen_virtual_y: INTEGER
+			l_screen_x, l_screen_y: INTEGER
 			l_motion_tuple: TUPLE [INTEGER, INTEGER, DOUBLE, DOUBLE, DOUBLE, INTEGER, INTEGER]
 			l_parent_imp: like parent_imp
 		do
@@ -373,12 +373,21 @@ feature {EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES} -- Event handling
 					-- We don't want the button stealing focus.
 			{GTK}.gtk_widget_set_can_focus (a_button, False)
 			if n_args > 0 then
-					-- Store screen virtual coordinates used for normalize gdk event screen coordinates to vision2 screen coordinates.
-				l_screen_virtual_x := app_implementation.screen_virtual_x
-				l_screen_virtual_y := app_implementation.screen_virtual_y
 				gdk_event := {GOBJECT}.g_value_pointer (args)
 				if gdk_event /= default_pointer then
 					event_type := {GDK}.gdk_event_any_struct_type (gdk_event)
+					if
+						event_type = {EV_GTK_ENUMS}.gdk_motion_notify_enum or
+						event_type = {EV_GTK_ENUMS}.gdk_button_press_enum or
+						event_type = {EV_GTK_ENUMS}.gdk_button_release_enum or
+						event_type = {EV_GTK_ENUMS}.gdk_2button_press_enum
+					then
+							-- Normalize the root coordinates of the event into the Vision2
+							-- logical coordinate space, once for all the branches below.
+							-- Only the pointer events carry `x_root' / `y_root'.
+						l_screen_x := app_implementation.to_logical_x ({GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer)
+						l_screen_y := app_implementation.to_logical_y ({GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer)
+					end
 					if event_type = {EV_GTK_ENUMS}.gdk_motion_notify_enum then
 						if pointer_motion_actions_internal /= Void then
 							l_motion_tuple := app_implementation.motion_tuple
@@ -387,8 +396,8 @@ feature {EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES} -- Event handling
 							l_motion_tuple.put_double (0.5, 3)
 							l_motion_tuple.put_double (0.5, 4)
 							l_motion_tuple.put_double (0.5, 5)
-							l_motion_tuple.put_integer ({GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x, 6)
-							l_motion_tuple.put_integer ({GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer + l_screen_virtual_y, 7)
+							l_motion_tuple.put_integer (l_screen_x, 6)
+							l_motion_tuple.put_integer (l_screen_y, 7)
 							pointer_motion_actions_internal.call (
 								l_motion_tuple
 							)
@@ -397,12 +406,12 @@ feature {EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES} -- Event handling
 						event_type = {EV_GTK_ENUMS}.gdk_button_press_enum
 					then
 						if pointer_button_press_actions_internal /= Void then
-							pointer_button_press_actions_internal.call ([{GDK}.gdk_event_button_struct_x (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x, {GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer + l_screen_virtual_y])
+							pointer_button_press_actions_internal.call ([{GDK}.gdk_event_button_struct_x (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, l_screen_x, l_screen_y])
 						end
 						if l_parent_imp /= Void then
-							l_x := {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x - l_parent_imp.screen_x - l_parent_imp.item_x_offset (attached_interface)
+							l_x := l_screen_x - l_parent_imp.screen_x - l_parent_imp.item_x_offset (attached_interface)
 							if l_parent_imp.pointer_button_press_actions_internal /= Void then
-								l_parent_imp.pointer_button_press_actions.call ([l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x, {GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer + l_screen_virtual_y])
+								l_parent_imp.pointer_button_press_actions.call ([l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, l_screen_x, l_screen_y])
 							end
 							if l_parent_imp.item_pointer_button_press_actions_internal /= Void then
 								l_parent_imp.item_pointer_button_press_actions.call ([interface, l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event)])
@@ -412,19 +421,19 @@ feature {EV_GTK_DEPENDENT_INTERMEDIARY_ROUTINES} -- Event handling
 						event_type = {EV_GTK_ENUMS}.gdk_button_release_enum
 					then
 						if l_parent_imp /= Void and then l_parent_imp.pointer_button_release_actions_internal /= Void then
-							l_x := {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x - l_parent_imp.screen_x - l_parent_imp.item_x_offset (attached_interface)
-							l_parent_imp.pointer_button_release_actions.call ([l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x, {GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer + l_screen_virtual_y])
+							l_x := l_screen_x - l_parent_imp.screen_x - l_parent_imp.item_x_offset (attached_interface)
+							l_parent_imp.pointer_button_release_actions.call ([l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, l_screen_x, l_screen_y])
 						end
 					elseif
 						event_type = {EV_GTK_ENUMS}.gdk_2button_press_enum
 					then
 						if pointer_double_press_actions_internal /= Void then
-							pointer_double_press_actions_internal.call ([{GDK}.gdk_event_button_struct_x (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x, {GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer + l_screen_virtual_y])
+							pointer_double_press_actions_internal.call ([{GDK}.gdk_event_button_struct_x (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, l_screen_x, l_screen_y])
 						end
 						if l_parent_imp /= Void then
-							l_x := {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x - l_parent_imp.screen_x - l_parent_imp.item_x_offset (attached_interface)
+							l_x := l_screen_x - l_parent_imp.screen_x - l_parent_imp.item_x_offset (attached_interface)
 							if l_parent_imp.pointer_double_press_actions_internal /= Void then
-								l_parent_imp.pointer_double_press_actions.call ([l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, {GDK}.gdk_event_motion_struct_x_root (gdk_event).truncated_to_integer + l_screen_virtual_x, {GDK}.gdk_event_motion_struct_y_root (gdk_event).truncated_to_integer + l_screen_virtual_y])
+								l_parent_imp.pointer_double_press_actions.call ([l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event), 0.5, 0.5, 0.5, l_screen_x, l_screen_y])
 							end
 							if l_parent_imp.item_pointer_double_press_actions_internal /= Void then
 								l_parent_imp.item_pointer_double_press_actions.call ([attached_interface, l_x, {GDK}.gdk_event_button_struct_y (gdk_event).truncated_to_integer, {GDK}.gdk_event_button_struct_button (gdk_event)])

@@ -628,7 +628,11 @@ feature -- Drawing operations
 		do
 			create Result
 			check attached {EV_PIXMAP_IMP} Result.implementation as pix_imp then
-				a_pix := pixbuf_from_drawable_at_position (area.x, area.y, 0, 0, area.width, area.height)
+					-- `area' is expressed in the coordinate space of the interface, so it
+					-- needs the same device offset as every other drawing routine here.
+					-- It is zero for every drawable but `EV_SCREEN_IMP', whose origin is
+					-- the primary monitor rather than the top left of the virtual desktop.
+				a_pix := pixbuf_from_drawable_at_position (area.x + device_x_offset, area.y + device_y_offset, 0, 0, area.width, area.height)
 				pix_imp.set_pixmap_from_pixbuf (a_pix)
 				{GOBJECT}.g_object_unref (a_pix)
 			end
@@ -915,20 +919,55 @@ feature {EV_GTK_DEPENDENT_APPLICATION_IMP, EV_ANY_I} -- Implementation
 
 	pixbuf_from_drawable_at_position (src_x, src_y, dest_x, dest_y, a_width, a_height: INTEGER): POINTER
 			-- Return a GdkPixbuf object from the current Gdkpixbuf structure
+			--
+			--| `src_x' / `src_y' and the result are in logical pixels. The backing store
+			--| need not be: `gdk_window_create_similar_surface', which `EV_DRAWING_AREA_IMP'
+			--| builds its surface with, applies the window scale factor, so on a HiDPI
+			--| display the surface holds `scale' pixels per logical one. And
+			--| `gdk_pixbuf_get_from_surface' reads the backing store directly without
+			--| consulting that scale -- verified against GTK 3.24 -- so asking it for the
+			--| logical size returns the top left corner rather than the whole drawable.
+			--|
+			--| The scale is read off the surface rather than assumed, so this stays right
+			--| whichever way the surface was created.
 		local
 			l_width, l_height: INTEGER
 			l_drawable: POINTER
 			l_surface: POINTER
+			l_device_pixbuf: POINTER
+			l_scale_x, l_scale_y: REAL_64
+			l_scale: INTEGER
 			l_app_imp: like app_implementation
 		do
 			l_app_imp := app_implementation
 			l_width := l_app_imp.safe_pixmap_dimension (a_width)
 			l_height := l_app_imp.safe_pixmap_dimension (a_height)
+			if cairo_context.is_default_pointer then
+					-- Note: this used to read `cairo_context' and give up when it was
+					-- null, which is the state every drawable is in outside a drawing
+					-- session -- `EV_DRAWING_AREA_IMP.end_drawing_session' clears it. So
+					-- `sub_pixmap' on a drawing area answered a blank buffer rather than
+					-- its contents. The surface behind the context outlives the session,
+					-- so asking for the context here is enough to reach it.
+				get_cairo_context
+			end
 			l_drawable := cairo_context
 			if not l_drawable.is_default_pointer then
 				l_surface := {CAIRO}.get_target (l_drawable)
 				if not l_surface.is_default_pointer then
-					Result := {GDK}.gdk_pixbuf_get_from_surface (l_surface, src_x, src_y, l_width, l_height)
+					{CAIRO}.get_device_scale (l_surface, $l_scale_x, $l_scale_y)
+					l_scale := l_scale_x.rounded.max (1)
+					if l_scale = 1 then
+						Result := {GDK}.gdk_pixbuf_get_from_surface (l_surface, src_x, src_y, l_width, l_height)
+					else
+						l_device_pixbuf := {GDK}.gdk_pixbuf_get_from_surface (l_surface,
+								src_x * l_scale, src_y * l_scale,
+								l_width * l_scale, l_height * l_scale)
+						if not l_device_pixbuf.is_default_pointer then
+							Result := {GDK}.gdk_pixbuf_scale_simple (l_device_pixbuf, l_width, l_height, {GDK}.gdk_interp_bilinear)
+							{GOBJECT}.g_object_unref (l_device_pixbuf)
+						end
+					end
 				end
 			end
 			if Result.is_default_pointer then

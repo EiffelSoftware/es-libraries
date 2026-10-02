@@ -333,6 +333,14 @@ feature {NONE} -- Implementation
 		local
 			l_c_object: like c_object
 		do
+				-- Note: do NOT disconnect the recorded connections here. `dispose' runs
+				-- inside a GC cycle, and a recorded connection may target a c_object
+				-- other than `Current's own (see `real_signal_connect') which nothing
+				-- keeps alive -- `GTK_SIGNAL_MARSHAL_CONNECTION' stores a bare pointer.
+				-- Probing such a pointer is a read of freed memory, and once the block
+				-- has been reused the probe succeeds against the new occupant and the
+				-- disconnect corrupts its heap. See the comment in
+				-- `GTK_SIGNAL_MARSHAL_CONNECTION.dispose'.
 			l_c_object := c_object
 			if
 				not l_c_object.is_default_pointer and then

@@ -306,6 +306,14 @@ feature -- Status report
 			Result := implementation.shift_pressed
 		end
 
+	primary_button_pressed: BOOLEAN
+			-- Is the primary mouse button currently pressed?
+		require
+			not_destroyed: not is_destroyed
+		do
+			Result := implementation.primary_button_pressed
+		end
+
 	caps_lock_on: BOOLEAN
 			-- Is caps lock key currently on?
 		require

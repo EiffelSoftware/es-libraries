@@ -92,6 +92,11 @@ feature -- Access
 			-- This is low-level, not trivial in Cocoa (see HID manager)
 		end
 
+	primary_button_pressed: BOOLEAN
+			-- Is the primary mouse button currently pressed?
+		do
+		end
+
 	caps_lock_on: BOOLEAN
 			-- Is the Caps or Shift Lock key currently on?
 		do

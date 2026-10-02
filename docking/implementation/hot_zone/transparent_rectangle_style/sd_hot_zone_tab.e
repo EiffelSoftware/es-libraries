@@ -98,8 +98,9 @@ feature {NONE} -- Implementation
 		local
 			l_tabs: HASH_TABLE [SD_NOTEBOOK_TAB, INTEGER]
 			l_rect: EV_RECTANGLE
+			l_last: detachable EV_RECTANGLE
 			l_tab_behind_last: EV_RECTANGLE
-			l_last_key_for_iteration: INTEGER
+			l_key, l_last_key: INTEGER
 			l_tab_zone: like zone
 		do
 			create internal_tab_area.make (1)
@@ -110,23 +111,24 @@ feature {NONE} -- Implementation
 			until
 				l_tabs.after
 			loop
+				l_key := l_tabs.key_for_iteration
 				create l_rect.make (l_tabs.item_for_iteration.screen_x, l_tabs.item_for_iteration.screen_y, l_tabs.item_for_iteration.width, l_tabs.item_for_iteration.height)
-				internal_tab_area.extend (l_rect, l_tabs.key_for_iteration)
+				internal_tab_area.extend (l_rect, l_key)
+					--| Hash table iteration does not follow key order, and the keys are
+					--| positions in the complete tab list, with gaps where tabs are hidden
+					--| for lack of room. The rightmost tab is the one with the greatest key,
+					--| and that key plus one is the only one guaranteed to be free.
+				if l_last = Void or else l_key > l_last_key then
+					l_last := l_rect
+					l_last_key := l_key
+				end
 				l_tabs.forth
 			end
-			if not attached l_rect then
-				create l_rect
+			if not attached l_last then
+				create l_last
 			end
-			create l_tab_behind_last.make (l_rect.right + 1, l_rect.top, internal_shared.feedback_tab_width, l_rect.height)
-			from
-				internal_tab_area.start
-			until
-				internal_tab_area.after
-			loop
-				l_last_key_for_iteration := internal_tab_area.key_for_iteration
-				internal_tab_area.forth
-			end
-			internal_tab_area.extend (l_tab_behind_last, l_last_key_for_iteration + 1)
+			create l_tab_behind_last.make (l_last.right + 1, l_last.top, internal_shared.feedback_tab_width, l_last.height)
+			internal_tab_area.extend (l_tab_behind_last, l_last_key + 1)
 			Precursor (a_rect)
 			internal_rectangle_title_area := l_tab_zone.title_area
 		end

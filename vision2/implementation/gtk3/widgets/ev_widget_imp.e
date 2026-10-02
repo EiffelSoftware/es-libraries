@@ -108,7 +108,38 @@ feature -- Event handling
 
 	init_dpi_changed_actions (a_dpi_changed_actions: like dpi_changed_actions)
 			-- Initialize `a_dpi_changed_actions' accordingly to the current widget.
+		local
+			l_c_object: like c_object
 		do
+				-- GtkWidget exposes the display scale factor as a read only "scale-factor"
+				-- property and renotifies it whenever the widget ends up on a monitor with a
+				-- different scale. That is the only notification GTK gives us when a window
+				-- crosses between a HiDPI and a standard monitor; without it the DPI actions
+				-- are only ever fired for a desktop wide text scaling change.
+				--
+				-- Connecting here rather than at creation time keeps the signal off widgets
+				-- that never subscribe, and avoids capturing `Current' in an agent from
+				-- within a creation procedure (which void safety rejects).
+			l_c_object := c_object
+			if not l_c_object.is_default_pointer then
+				real_signal_connect (
+					l_c_object,
+					{EV_GTK_EVENT_STRINGS}.scale_factor_notify_event_name,
+					agent on_scale_factor_changed)
+			end
+		end
+
+	on_scale_factor_changed
+			-- The GTK scale factor of `Current' has changed, which happens when it is
+			-- moved to a monitor with a different scale.
+		do
+			if not is_destroyed then
+					-- The application wide screen metadata caches the scale factor and
+					-- `{EV_MONITOR_DPI_DETECTOR_IMP}.dpi' is derived from it, so it has to be
+					-- refreshed before any listener asks for the new DPI.
+				app_implementation.refresh_screen_scale_factor
+				trigger_dpi_actions ({EV_MONITOR_DPI_DETECTOR_IMP}.dpi, width, height)
+			end
 		end
 
 	trigger_dpi_actions (a_dpi: NATURAL_32; a_width, a_height: INTEGER)

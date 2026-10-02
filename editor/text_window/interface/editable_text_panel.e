@@ -870,6 +870,10 @@ feature {NONE} -- Mouse copy cut
 			-- stop mouse copy/cut.
 		do
 			mouse_copy_cut := False
+			mouse_left_button_down := False
+			if editor_drawing_area.has_capture then
+				editor_drawing_area.disable_capture
+			end
 			editor_drawing_area.set_pointer_style (basic_pointer)
 			forget_mouse_moves := True
 			if autoscroll.interval /= 0 then
@@ -955,6 +959,7 @@ feature {NONE} -- Mouse copy cut
 					end
 				elseif ev_key.code = Key_escape then
 					cancel_mouse_copy_cut
+					cancel_active_mouse_selection
 				end
 			end
 			Precursor (ev_key)

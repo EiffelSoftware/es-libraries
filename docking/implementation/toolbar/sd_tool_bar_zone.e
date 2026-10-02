@@ -74,6 +74,8 @@ feature {NONE} -- Initialization
 			create drag_area_rectangle
 			create assistant.make (Current)
 			create tail_indicator.make
+				-- Connected once here: `replace' may be called several times.
+			tail_indicator.select_actions.extend (agent assistant.on_tail_indicator_selected)
 			init_drag_area (a_docking_manager)
 			add_tool_bar_zone (Current)
 			replace (a_content)
@@ -357,7 +359,6 @@ feature -- Command
 			tail_indicator.set_pixmap (internal_shared.icons.tool_bar_customize_indicator)
 			tail_indicator.set_pixel_buffer (internal_shared.icons.tool_bar_customize_indicator_buffer)
 			tail_indicator.set_tooltip (internal_shared.interface_names.tooltip_toolbar_tail_indicator)
-			tail_indicator.select_actions.extend (agent assistant.on_tail_indicator_selected)
 
 			compute_minmum_size
 			update_maximum_size

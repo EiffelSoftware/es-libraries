@@ -32,14 +32,23 @@ feature -- Basic operation
 
 	close
 			-- Close connection `connection_id` for object `c_object`.
+			--
+			--| Only safe while `c_object' is known to be alive, which is why this is
+			--| called from `destroy' and never from `dispose'. There is deliberately no
+			--| `gtk_is_widget' guard: that macro dereferences the pointer it is meant to
+			--| validate -- `((GTypeInstance*) obj)->g_class->g_type' -- so on a freed
+			--| widget it reads freed memory. Worse, once the block is reused the macro
+			--| answers True for the new occupant and the disconnect below is applied to
+			--| an unrelated object, which is what produced
+			--| "instance '0x...' has no handler with id '...'" followed by a segfault.
 		do
 			if
 				is_connected and then
 				not c_object.is_default_pointer
 			then
 				{GOBJECT}.signal_disconnect (c_object, connection_id)
-				is_connected := False
 			end
+			is_connected := False
 		end
 
 feature -- Status
@@ -49,10 +58,16 @@ feature -- Status
 feature -- Disposal
 
 	dispose
+			-- Called by the Eiffel GC when `Current' is destroyed.
+			--
+			--| Deliberately does nothing. Disconnecting from here is not safe: `c_object'
+			--| is a bare pointer that nothing keeps alive, so by the time the GC reclaims
+			--| `Current' the GTK instance may be long gone, and there is no way to test
+			--| that without dereferencing it. Leaving the connection in place keeps the
+			--| connected agent rooted for as long as `c_object' lives, which is a leak --
+			--| but a bounded one, and far preferable to corrupting the heap.
+			--| Close connections explicitly through `destroy' instead.
 		do
-				--FIXME: disconnecting from the dispose is not a good idea
-				--		the c_object does not seem to be a valid GtkObject instance.
---			close
 		end
 
 note

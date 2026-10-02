@@ -29,7 +29,183 @@ c_gtk_menu_position_func (GtkMenu * menu, gint * x, gint * y, gboolean *push_in,
 	*x = posp->x_position;
 	*y = posp->y_position;
 	free (posp);
-}	
+}
+
+static GdkEvent *ev_gtk_pending_menu_trigger_event = NULL;
+
+void
+ev_gtk_set_pending_menu_trigger_event (const GdkEvent *event)
+{
+	g_clear_pointer (&ev_gtk_pending_menu_trigger_event, gdk_event_free);
+	if (event != NULL) {
+		ev_gtk_pending_menu_trigger_event = gdk_event_copy (event);
+	}
+}
+
+void
+ev_gtk_clear_pending_menu_trigger_event (void)
+{
+	g_clear_pointer (&ev_gtk_pending_menu_trigger_event, gdk_event_free);
+}
+
+static GdkWindow *
+ev_gtk_menu_popup_window (GtkMenu *menu, GtkWidget *anchor_widget)
+{
+	GdkWindow *window = NULL;
+	GtkWidget *widget = anchor_widget;
+
+	if (widget != NULL && GTK_IS_WIDGET (widget)) {
+		gtk_widget_realize (widget);
+		window = gtk_widget_get_window (widget);
+		if (window != NULL) {
+			return window;
+		}
+	}
+
+	widget = gtk_menu_get_attach_widget (menu);
+	if (widget != NULL && GTK_IS_WIDGET (widget)) {
+		gtk_widget_realize (widget);
+		window = gtk_widget_get_window (widget);
+		if (window != NULL) {
+			return window;
+		}
+	}
+
+	gtk_widget_realize (GTK_WIDGET (menu));
+	window = gtk_widget_get_window (GTK_WIDGET (menu));
+	if (window != NULL) {
+		return window;
+	}
+
+	{
+		GdkDisplay *display = gdk_display_get_default ();
+		GdkScreen *screen = display != NULL ? gdk_display_get_default_screen (display) : NULL;
+		if (screen != NULL) {
+			return gdk_screen_get_root_window (screen);
+		}
+	}
+
+	return NULL;
+}
+
+static GdkEvent *
+ev_gtk_menu_trigger_event (guint button, guint32 activate_time, GdkWindow *rect_window, gint x, gint y, GdkDevice *device, gboolean *free_event, GdkEventButton *stack_event)
+{
+	GdkEvent *event;
+	gint origin_x = 0;
+	gint origin_y = 0;
+
+	*free_event = FALSE;
+
+	if (ev_gtk_pending_menu_trigger_event != NULL) {
+		return ev_gtk_pending_menu_trigger_event;
+	}
+
+	event = gtk_get_current_event ();
+	if (event != NULL) {
+		*free_event = TRUE;
+		return event;
+	}
+
+	if (rect_window == NULL || stack_event == NULL) {
+		return NULL;
+	}
+
+	memset (stack_event, 0, sizeof (GdkEventButton));
+	stack_event->type = GDK_BUTTON_PRESS;
+	gdk_window_get_origin (rect_window, &origin_x, &origin_y);
+	stack_event->window = g_object_ref (rect_window);
+	stack_event->time = activate_time;
+	stack_event->x = (gdouble) x;
+	stack_event->y = (gdouble) y;
+	stack_event->x_root = (gdouble) (origin_x + x);
+	stack_event->y_root = (gdouble) (origin_y + y);
+	stack_event->button = button;
+	if (device != NULL) {
+		stack_event->device = device;
+	}
+	return (GdkEvent *) stack_event;
+}
+
+void
+c_ev_gtk_menu_popup (GtkMenu *menu, GtkWidget *anchor_widget, gint x, gint y, guint button, guint32 activate_time)
+{
+	GdkEventButton stack_event;
+	GdkEvent *trigger_event;
+	GdkWindow *rect_window = NULL;
+	GdkRectangle rect;
+	GdkDisplay *display;
+	GdkSeat *seat;
+	GdkDevice *device = NULL;
+	gboolean free_trigger_event;
+	gint origin_x = 0;
+	gint origin_y = 0;
+	gint screen_x;
+	gint screen_y;
+
+	g_return_if_fail (GTK_IS_MENU (menu));
+
+	display = gtk_widget_get_display (GTK_WIDGET (menu));
+	if (display == NULL) {
+		display = gdk_display_get_default ();
+	}
+	seat = gdk_display_get_default_seat (display);
+	if (seat != NULL) {
+		device = gdk_seat_get_pointer (seat);
+	}
+
+	/* An EV_MENU's GtkMenu is already the sub menu of its own GtkMenuItem,
+	 * and GTK refuses to attach it twice. The popup is positioned from
+	 * `anchor_widget' anyway (see ev_gtk_menu_popup_window). */
+	if (anchor_widget != NULL && GTK_IS_WIDGET (anchor_widget) &&
+		gtk_menu_get_attach_widget (menu) == NULL) {
+		gtk_menu_attach_to_widget (menu, anchor_widget, NULL);
+	}
+
+	rect_window = ev_gtk_menu_popup_window (menu, anchor_widget);
+	rect.x = x;
+	rect.y = y;
+	rect.width = 1;
+	rect.height = 1;
+
+	if (rect_window != NULL) {
+		gdk_window_get_origin (rect_window, &origin_x, &origin_y);
+		screen_x = origin_x + rect.x;
+		screen_y = origin_y + rect.y;
+	} else {
+		screen_x = x;
+		screen_y = y;
+	}
+
+	trigger_event = ev_gtk_menu_trigger_event (button, activate_time, rect_window, rect.x, rect.y, device, &free_trigger_event, &stack_event);
+
+	if (rect_window != NULL && trigger_event != NULL) {
+		gtk_widget_realize (GTK_WIDGET (menu));
+		gtk_menu_popup_at_rect (menu,
+			rect_window,
+			&rect,
+			GDK_GRAVITY_NORTH_WEST,
+			GDK_GRAVITY_NORTH_WEST,
+			trigger_event);
+	} else {
+		menu_position *pos = g_malloc (sizeof (menu_position));
+		pos->x_position = screen_x;
+		pos->y_position = screen_y;
+		gtk_widget_realize (GTK_WIDGET (menu));
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+		gtk_menu_popup (menu, NULL, NULL, c_gtk_menu_position_func, pos, button, activate_time);
+		G_GNUC_END_IGNORE_DEPRECATIONS
+	}
+
+	if (free_trigger_event && trigger_event != NULL) {
+		gdk_event_free (trigger_event);
+	}
+	ev_gtk_clear_pending_menu_trigger_event ();
+
+	if (rect_window != NULL && trigger_event == (GdkEvent *) &stack_event) {
+		g_clear_object (&stack_event.window);
+	}
+}
 
 void
 c_gtk_return_combo_toggle (GtkWidget *widget, GtkWidget** user_data)
@@ -75,17 +251,23 @@ void ev_gtk_log (
 			break;
 		case G_LOG_LEVEL_DEBUG:
 			level = "DEBUG";
+			break;
 		default:
 			level = "UNKNOWN";
 			fatal = TRUE;
 		}
 
-		if ( strlen (log_domain) + strlen (level) + strlen (message) + 2 < 1000 )
-			sprintf (buf, "%s-%s %s", log_domain, level, message);
-		else if ( strlen (log_domain) + strlen (level) + 1 < 1000 )
-			sprintf (buf, "%s-%s\n", log_domain, level);
-		else
-			sprintf (buf, "GTK-%s\n", level);		
+			/* Note: `snprintf' truncates rather than overflowing, which removes the
+			 * need for the three length-tested `sprintf' calls this used to be. The
+			 * tests were right -- they bounded the write at exactly `sizeof buf' --
+			 * but GCC cannot tie a separate `strlen' test to the call it guards, so
+			 * it warned about the unguarded range every build.
+			 * `log_domain' is NULL for the default domain, and passing that to a %s
+			 * is undefined rather than merely ugly. */
+		snprintf (buf, sizeof buf, "%s-%s %s",
+			log_domain != NULL ? log_domain : "GTK",
+			level,
+			message != NULL ? message : "");
 
 		printf ("%s\n", buf);
 		if (fatal && a_debug_mode > 1)
