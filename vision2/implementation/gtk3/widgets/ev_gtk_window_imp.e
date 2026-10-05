@@ -215,14 +215,7 @@ feature {NONE} -- Implementation
 			l_x_pos, l_y_pos, l_width, l_height: INTEGER_32
 		do
 			if is_show_requested then
-				if
-					is_modal and then
-					attached internal_blocking_window as l_internal_blocking_window and then
-					not l_internal_blocking_window.is_destroyed and then
-					l_internal_blocking_window.is_show_requested
-				then
-					l_internal_blocking_window.decrease_modal_window_count
-				end
+				release_modal_blocked_window
 
 				l_x_pos := x_position
 				l_y_pos := y_position
@@ -263,11 +256,19 @@ feature {NONE} -- Implementation
 		do
 			l_window_imp ?= a_window.implementation
 			check l_window_imp /= Void then end
-			is_modal := True
-			l_window_imp.increase_modal_window_count
-			show_relative_to_window (a_window)
+			if not is_modal then
+				is_modal := True
+				l_window_imp.increase_modal_window_count
+				modal_blocked_window := l_window_imp
+				show_relative_to_window (a_window)
+			end
+				-- Otherwise `Current' is already shown modal (by an enclosing call):
+				-- `l_window_imp' must not be counted twice, as `Current' will
+				-- release it only once, and it would then ignore all clicks.
 			block
 			is_modal := False
+				-- In case `Current' was hidden without going through `hide'.
+			release_modal_blocked_window
 				-- No need to call `set_blocking_window' to Void since this is done when
 				-- current is hidden.
 
@@ -279,6 +280,20 @@ feature {NONE} -- Implementation
 						-- focus to the previously focused window which may or may not be `l_window_imp',
 						-- this leads to odd behavior when closing the modal dialog so we always raise the window.
 					{GDK}.gdk_window_raise ({GTK}.gtk_widget_get_window (l_window_imp.c_object))
+				end
+			end
+		end
+
+	modal_blocked_window: detachable EV_WINDOW_IMP
+			-- Window whose modal window count was increased by `show_modal_to_window'.
+
+	release_modal_blocked_window
+			-- Decrease the modal window count of `modal_blocked_window', once.
+		do
+			if attached modal_blocked_window as l_window_imp then
+				modal_blocked_window := Void
+				if not l_window_imp.is_destroyed and then l_window_imp.has_modal_window then
+					l_window_imp.decrease_modal_window_count
 				end
 			end
 		end
