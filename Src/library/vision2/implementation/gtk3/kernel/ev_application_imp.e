@@ -70,6 +70,10 @@ feature {NONE} -- Initialization
 				end
 			end
 
+				-- GLib aborts if no GSettings schemas can be found (e.g. in GtkFileChooser).
+				-- This must happen prior to any use of GLib settings, as the environment is read only once.
+			ensure_gsettings_schemas_available
+
 				--Disable overlay scrollbar as this causes problems for web backend.
 			put ("0", "LIBOVERLAY_SCROLLBAR")
 
@@ -251,6 +255,123 @@ feature {NONE} -- Initialization
 			"C inline use <ev_gtk.h>"
 		alias
 			"return (FUNCTION_CAST(gboolean, (GdkScreen*)) $a_function)((GdkScreen*) $a_screen);"
+		end
+
+	ensure_gsettings_schemas_available
+			-- Prevent the fatal GLib error "No GSettings schemas are installed on the system"
+			-- by adding a data directory to "XDG_DATA_DIRS" if no compiled schemas
+			-- are found in the locations searched by GLib.
+			-- It also helps GTK to find icon themes (hicolor, Adwaita) located in the same data directory.
+			-- Candidates are the data directory of the GTK installation in use,
+			-- then usual locations on Unix systems (Linux, BSD, macOS, ...).
+		local
+			l_data_dirs: READABLE_STRING_32
+			l_found: BOOLEAN
+			l_candidates: ARRAYED_LIST [PATH]
+			l_dir: PATH
+		do
+			if not {PLATFORM}.is_windows and item ("GSETTINGS_SCHEMA_DIR") = Void then
+				if attached item ("XDG_DATA_DIRS") as d and then not d.is_whitespace then
+					l_data_dirs := d
+				else
+						-- Default value used by GLib when "XDG_DATA_DIRS" is not set.
+					l_data_dirs := {STRING_32} "/usr/local/share:/usr/share"
+				end
+					-- GLib also searches the user data directory.
+				if attached item ("XDG_DATA_HOME") as d and then not d.is_whitespace then
+					l_found := has_compiled_gsettings_schemas (create {PATH}.make_from_string (d))
+				elseif attached item ("HOME") as d and then not d.is_whitespace then
+					create l_dir.make_from_string (d)
+					l_found := has_compiled_gsettings_schemas (l_dir.extended (".local").extended ("share"))
+				end
+				across
+					l_data_dirs.split (':') as ic
+				until
+					l_found
+				loop
+					l_found := not ic.is_whitespace and then has_compiled_gsettings_schemas (create {PATH}.make_from_string (ic))
+				end
+				if not l_found then
+					create l_candidates.make (10)
+					if attached gtk_library_path as l_gtk_lib then
+							-- For instance "/usr/lib/libgtk-3.so.0" or "/usr/lib/x86_64-linux-gnu/libgtk-3.so.0".
+						l_dir := l_gtk_lib.parent.parent
+						l_candidates.extend (l_dir.extended ("share"))
+						l_candidates.extend (l_dir.parent.extended ("share"))
+					end
+					across
+						<<
+							"/usr/share",
+							"/usr/local/share",					-- BSD ports, Homebrew (x86_64), custom installations
+							"/usr/pkg/share",					-- pkgsrc (NetBSD, ...)
+							"/opt/local/share",					-- MacPorts
+							"/opt/homebrew/share",				-- Homebrew (arm64)
+							"/home/linuxbrew/.linuxbrew/share",	-- Homebrew on Linux
+							"/run/current-system/sw/share"		-- NixOS
+						>> as ic
+					loop
+						l_candidates.extend (create {PATH}.make_from_string (ic))
+					end
+					across
+						l_candidates as ic
+					until
+						l_found
+					loop
+						if has_compiled_gsettings_schemas (ic) then
+							l_found := True
+							put (ic.name + {STRING_32} ":" + l_data_dirs, "XDG_DATA_DIRS")
+						end
+					end
+				end
+			end
+		end
+
+	has_compiled_gsettings_schemas (a_data_dir: PATH): BOOLEAN
+			-- Does `a_data_dir` contain compiled GSettings schemas?
+		do
+			Result := (create {RAW_FILE}.make_with_path (a_data_dir.extended ("glib-2.0").extended ("schemas").extended ("gschemas.compiled"))).exists
+		end
+
+	gtk_library_path: detachable PATH
+			-- Location of the loaded GTK library, if it can be determined.
+			--| `dladdr' is retrieved at run-time, to avoid a link dependency on libdl.
+			--| The GTK symbol is also retrieved at run-time, and is not referenced by Vision2,
+			--| so that its address belongs to the GTK library and not to a PLT entry of the executable.
+		local
+			l_dladdr, l_symbol, l_name: POINTER
+		do
+			l_dladdr := symbol_from_symbol_name ("dladdr")
+			l_symbol := symbol_from_symbol_name ("gtk_get_binary_age")
+			if not l_dladdr.is_default_pointer and not l_symbol.is_default_pointer then
+				l_name := c_library_file_name (l_dladdr, l_symbol)
+				if not l_name.is_default_pointer then
+					create Result.make_from_pointer (l_name)
+					if not Result.is_absolute then
+						Result := Void
+					end
+				end
+			end
+		end
+
+	c_library_file_name (a_dladdr, a_symbol: POINTER): POINTER
+			-- File name of the library containing `a_symbol` using `a_dladdr` function, if any.
+		external
+			"C inline"
+		alias
+			"[
+				/* Same layout as `Dl_info' on Linux, BSD and macOS. */
+				struct {
+					const char *dli_fname;
+					void *dli_fbase;
+					const char *dli_sname;
+					void *dli_saddr;
+				} l_info;
+				if ((FUNCTION_CAST(int, (const void *, void *)) $a_dladdr)((const void *) $a_symbol, &l_info) && l_info.dli_fname) {
+					return (EIF_POINTER) l_info.dli_fname;
+				} else {
+					return NULL;
+				}
+			]"
 		end
 
 feature {EV_ANY_I} -- Status report

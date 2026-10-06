@@ -42,13 +42,18 @@ feature {NONE}  -- Initlization
 
 			default_create
 
+				-- `tab_box' is expandable, and its minimum width is not the width of the shown tabs,
+				-- otherwise the notebook could not be resized smaller than its shown tabs (hiding the extra tabs),
+				-- and the split area position could not be restored (or set) correctly.
+				-- The empty space on the right of the tabs is then part of `tab_box' which forwards
+				-- the related double click and drop actions to Current.
 			extend_horizontal_box (tab_box)
-			disable_item_expand (tab_box)
 			pointer_double_press_actions.extend
 				(agent (a_x, a_y, a_button: INTEGER_32; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER_32)
 					do on_tab_box_right_side_double_click end)
 
 			extend_horizontal_box (internal_tool_bar)
+			disable_item_expand (internal_tool_bar)
 			internal_tool_bar.hide
 			internal_tool_bar.extend (internal_auto_hide_indicator)
 			internal_tool_bar.compute_minimum_size
@@ -57,7 +62,7 @@ feature {NONE}  -- Initlization
 			set_minimum_width (0)
 			update_size
 
-			if attached internal_docking_manager.tab_drop_actions as l_tab_drop_actions and then l_tab_drop_actions.count > 0 then
+			if is_tab_drop_enabled then
 				drop_actions.extend (agent on_drop_actions)
 				drop_actions.set_veto_pebble_function (agent on_veto_drop_action)
 			end
@@ -181,33 +186,12 @@ feature -- Command
 					l_all_tabs.forth
 				end
 
-				update_minimum_size
 				ignore_resize := False
+					-- Hidden tabs, and the empty space on the right, need to be repainted.
+				tab_box.redraw
 			end
 		ensure
 			enable_resize: a_width >= 0 implies not ignore_resize
-		end
-
-	update_minimum_size
-			-- Update minimum size of Current
-		local
-			l_all_tabs: like all_tabs
-			l_tabs_not_shown: like internal_tabs_not_shown
-		do
-			l_all_tabs := all_tabs
-			l_tabs_not_shown := internal_tabs_not_shown.twin
-			from
-				l_tabs_not_shown.start
-			until
-				l_tabs_not_shown.after
-			loop
-				l_all_tabs.start
-				l_all_tabs.prune (l_tabs_not_shown.item)
-				l_tabs_not_shown.forth
-			end
-			if l_all_tabs.count > 0 and then attached l_all_tabs.last as l_last_tab then
-				tab_box.set_minimum_width (l_last_tab.x + l_last_tab.width)
-			end
 		end
 
 	on_resize (a_x: INTEGER; a_y: INTEGER; a_width: INTEGER; a_height: INTEGER)
@@ -345,6 +329,14 @@ feature {NONE}  -- Implementation functions
 			end
 		end
 
+feature {SD_NOTEBOOK_TAB_BOX} -- Actions forwarded from `tab_box'
+
+	is_tab_drop_enabled: BOOLEAN
+			-- Are `on_drop_actions' and `on_veto_drop_action' used?
+		do
+			Result := attached internal_docking_manager.tab_drop_actions as l_tab_drop_actions and then l_tab_drop_actions.count > 0
+		end
+
 	on_drop_actions (a_any: ANY)
 			-- Handle drop actions.
 		do
@@ -380,6 +372,8 @@ feature {NONE}  -- Implementation functions
 				right_side_double_click_actions.call (void)
 			end
 		end
+
+feature {NONE}  -- Implementation functions
 
 	updates_tabs_not_shown (a_width: INTEGER)
 			-- Calculate `internal_tabs_not_shown' base on a_width
@@ -454,8 +448,12 @@ feature {NONE}  -- Implementation functions
 					internal_auto_hide_indicator.update
 				end
 
-				internal_tool_bar.compute_minimum_size
 				internal_tool_bar.show
+					-- Its minimum size may have been computed while hidden, and then not used
+					-- by the GTK layout (GTK3 size request cache).
+					-- So reset it, while shown, to be sure the computed minimum size is used.
+				internal_tool_bar.set_minimum_width (0)
+				internal_tool_bar.compute_minimum_size
 				if l_tabs.count - 1 = internal_tabs_not_shown.count then
 					-- Only show one tab now.
 					l_only_tab := find_only_tab_shown

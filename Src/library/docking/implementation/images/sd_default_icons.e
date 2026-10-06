@@ -148,17 +148,19 @@ feature -- Implementation
 			l_font: EV_FONT
 		do
 			l_orignal := icons_10_10 .tool_bar_hidden_dropdown_small_icon
-			Result := l_orignal.sub_pixmap (create {EV_RECTANGLE}.make (0, 0, l_orignal.width, l_orignal.height))
 
-			Result.set_background_color ((create {EV_STOCK_COLORS}).default_background_color)
-
+				-- Create the pixmap with its final size, and then draw the indicator icon,
+				-- since resizing a pixmap does not keep its content (at least with GTK3).
 			if a_hide_number < 10 then
-				Result.set_size (18, 16)
+				create Result.make_with_size (18, 16)
 			elseif a_hide_number < 100 then
-				Result.set_size (21, 16)
+				create Result.make_with_size (21, 16)
 			else
-				Result.set_size (24, 16)
+				create Result.make_with_size (24, 16)
 			end
+			Result.set_background_color ((create {EV_STOCK_COLORS}).default_background_color)
+			Result.clear
+			Result.draw_pixmap (0, 0, l_orignal)
 
 			create l_font
 			l_font.set_height_in_points (7)

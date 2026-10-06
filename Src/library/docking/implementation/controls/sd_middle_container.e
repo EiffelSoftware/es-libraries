@@ -109,18 +109,16 @@ feature -- Split area resizing
 	set_proportion_recursive
 			-- Set proportion recursive in idle actions
 		require
-			not_void: top_resize_split_area.item /= Void
+			not_empty: not top_resize_split_areas.is_empty
 		do
-			if attached top_resize_split_area.item as l_item then
-				set_proportion_recursive_imp (l_item)
-			else
-				check
-					from_preconditon_not_void: False
-				end
+			across
+				top_resize_split_areas.twin as ic
+			loop
+				set_proportion_recursive_imp (ic)
 			end
-			top_resize_split_area.put (Void)
+			top_resize_split_areas.wipe_out
 		ensure
-			cleared: top_resize_split_area.item = Void
+			cleared: top_resize_split_areas.is_empty
 		end
 
 	set_proportion_recursive_imp (a_container: SD_MIDDLE_CONTAINER)
@@ -146,37 +144,48 @@ feature -- Split area resizing
 		end
 
 	remember_top_resize_split_area (a_split_area: SD_MIDDLE_CONTAINER)
-			-- Record `a_split_area' to `top_resize_split_area' if `a_split_area' is outmost split area
-			-- If `top_resize_split_area' is void, one idle action will be generated
+			-- Record `a_split_area' in `top_resize_split_areas' if `a_split_area' is an outmost split area,
+			-- i.e. not contained in an already recorded one. Recorded split areas contained in `a_split_area' are removed.
+			-- Several unrelated split areas can be recorded (for instance, when a layout is restored, both the
+			-- old discarded widgets and the new ones are resized), otherwise the new ones may never get their proportion restored.
+			-- If `top_resize_split_areas' is empty, one idle action will be generated.
 		local
-			l_item: detachable SD_MIDDLE_CONTAINER
+			l_areas: like top_resize_split_areas
 			l_env: EV_ENVIRONMENT
 		do
-			l_item := top_resize_split_area.item
-			if l_item /= Void then
-				if l_item /= a_split_area and then a_split_area.full and then a_split_area.has_recursive (l_item) then
-					top_resize_split_area.put (a_split_area)
-				end
-			else
-				if a_split_area.full then
-					top_resize_split_area.put (a_split_area)
-
+			if a_split_area.full then
+				l_areas := top_resize_split_areas
+				if l_areas.is_empty then
 					create l_env
 					if attached l_env.application as l_app then
 						l_app.do_once_on_idle (agent set_proportion_recursive)
 					end
 				end
+				if not across l_areas as ic some ic = a_split_area or else ic.has_recursive (a_split_area) end then
+					from
+						l_areas.start
+					until
+						l_areas.after
+					loop
+						if a_split_area.has_recursive (l_areas.item) then
+							l_areas.remove
+						else
+							l_areas.forth
+						end
+					end
+					l_areas.extend (a_split_area)
+				end
 			end
 		ensure
-			set: a_split_area.full implies top_resize_split_area.item /= Void
+			set: a_split_area.full implies not top_resize_split_areas.is_empty
 		end
 
-	top_resize_split_area: CELL [detachable SD_MIDDLE_CONTAINER]
-			-- Top resize split area recorded
+	top_resize_split_areas: ARRAYED_LIST [SD_MIDDLE_CONTAINER]
+			-- Top resize split areas recorded
 			-- Set by `remember_top_resize_split_area'
 			-- Cleaned by `set_proportion_recursive'
 		once
-			create Result.put (Void)
+			create Result.make (1)
 		ensure
 			not_void: Result /= Void
 		end
