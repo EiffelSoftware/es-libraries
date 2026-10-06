@@ -44,7 +44,16 @@ feature {NONE} -- Initialization
 			pointer_leave_actions.extend (agent on_pointer_leave)
 			pointer_double_press_actions.extend
 				(agent (a_x, a_y, a_button: INTEGER_32; a_x_tilt, a_y_tilt, a_pressure: REAL_64; a_screen_x, a_screen_y: INTEGER_32)
-					do clear_pressed_flag end)
+					do
+						clear_pressed_flag
+						if
+							not has_displayed_tab_at (a_x, a_y) and then
+							attached {SD_NOTEBOOK_TAB_AREA} parent as l_tab_area
+						then
+								-- Empty space on the right of the tabs.
+							l_tab_area.on_tab_box_right_side_double_click
+						end
+					end)
 
 			update_size
 
@@ -253,7 +262,27 @@ feature {NONE} -- Agents
 				end
 				l_snapshot.forth
 			end
+			clear_empty_area (a_x, a_y, a_width, a_height)
 			end_drawing_session
+		end
+
+	clear_empty_area (a_x: INTEGER_32; a_y: INTEGER_32; a_width: INTEGER_32; a_height: INTEGER_32)
+			-- Clear the part of (`a_x', `a_y', `a_width', `a_height') on the right of the displayed tabs,
+			-- since Current can be larger than its tabs.
+		local
+			l_right: INTEGER
+		do
+			across
+				internal_tabs as ic
+			loop
+				if ic.is_displayed then
+					l_right := l_right.max (ic.x + ic.width)
+				end
+			end
+			if a_x + a_width > l_right then
+				set_background_color (internal_shared.default_background_color)
+				clear_rectangle (l_right.max (a_x), a_y, a_x + a_width - l_right.max (a_x), a_height)
+			end
 		end
 
 	on_pointer_motion (a_x: INTEGER_32; a_y: INTEGER_32; a_x_tilt: REAL_64; a_y_tilt: REAL_64; a_pressure: REAL_64; a_screen_x: INTEGER_32; a_screen_y: INTEGER_32)
@@ -405,17 +434,27 @@ feature {NONE} -- Agents
 	on_drop_action (a_pebble: ANY)
 			-- Handle drop actions
 		do
-			if attached tab_under_pointer as l_tab and then attached l_tab.drop_actions as l_drop_actions then
-				check accept: l_drop_actions.accepts_pebble (a_pebble) end
-				l_drop_actions.call ([a_pebble])
+			if attached tab_under_pointer as l_tab then
+				if attached l_tab.drop_actions as l_drop_actions then
+					check accept: l_drop_actions.accepts_pebble (a_pebble) end
+					l_drop_actions.call ([a_pebble])
+				end
+			elseif attached {SD_NOTEBOOK_TAB_AREA} parent as l_tab_area and then l_tab_area.is_tab_drop_enabled then
+					-- Empty space on the right of the tabs.
+				l_tab_area.on_drop_actions (a_pebble)
 			end
 		end
 
 	on_drop_actions_veto_pebble (a_pebble: ANY): BOOLEAN
 			-- Handle veto pebble drop actions
 		do
-			if attached tab_under_pointer as l_tab and then attached l_tab.drop_actions as l_drop_actions then
-				Result := l_drop_actions.accepts_pebble (a_pebble)
+			if attached tab_under_pointer as l_tab then
+				if attached l_tab.drop_actions as l_drop_actions then
+					Result := l_drop_actions.accepts_pebble (a_pebble)
+				end
+			elseif attached {SD_NOTEBOOK_TAB_AREA} parent as l_tab_area and then l_tab_area.is_tab_drop_enabled then
+					-- Empty space on the right of the tabs.
+				Result := l_tab_area.on_veto_drop_action (a_pebble)
 			end
 		end
 
@@ -494,7 +533,7 @@ feature{NONE} -- Implementation
 		end
 
 	tab_at (a_x: INTEGER): detachable SD_NOTEBOOK_TAB
-			-- Tab at `a_x' which is relative position if any.
+			-- Displayed tab at `a_x' which is relative position if any.
 		require
 			valid: a_x >= 0 and a_x <= width
 		local
@@ -508,11 +547,17 @@ feature{NONE} -- Implementation
 				l_snapshot.after or Result /= Void
 			loop
 				l_item := l_snapshot.item
-				if item_x (l_item) <= a_x and a_x <= item_x (l_item) + l_item.width then
+				if l_item.is_displayed and then item_x (l_item) <= a_x and a_x <= item_x (l_item) + l_item.width then
 					Result := l_item
 				end
 				l_snapshot.forth
 			end
+		end
+
+	has_displayed_tab_at (a_x, a_y: INTEGER): BOOLEAN
+			-- Is there a displayed tab at relative position (`a_x', `a_y')?
+		do
+			Result := across internal_tabs as ic some ic.is_displayed and then ic.rectangle.has_x_y (a_x, a_y) end
 		end
 
 	tab_under_pointer: detachable SD_NOTEBOOK_TAB
