@@ -41,35 +41,42 @@ feature -- Query
 
 	category_from_path (a_path: PATH): detachable STRING_32
 			-- Category deduced from the location `a_path' of a library (or package) inside $ISE_LIBRARY, if any.
+		do
+			if is_eiffel_layout_defined then
+				Result := category_from_path_in (a_path, eiffel_layout.eiffel_library)
+			end
+		end
+
+	category_from_path_in (a_path: PATH; a_library_root: PATH): detachable STRING_32
+			-- Category deduced from the location `a_path' of a library (or package) inside `a_library_root'
+			-- (i.e the $ISE_LIBRARY directory), if any.
 		local
 			s, l_root: STRING_32
 		do
-			if is_eiffel_layout_defined then
-				s := normalized_path_name (a_path)
-				l_root := normalized_path_name (eiffel_layout.eiffel_library)
-				if l_root.is_empty or else l_root [l_root.count] /= '/' then
-					l_root.append_character ('/')
-				end
-				if s.starts_with (l_root) then
-					s.remove_head (l_root.count)
-					if s.starts_with ({STRING_32} "library/") or s.starts_with ({STRING_32} "c_library/") then
-						Result := official
-					elseif s.starts_with ({STRING_32} "contrib/library/") then
-						Result := contrib
-					elseif s.starts_with ({STRING_32} "unstable/library/") then
-						Result := prerelease
-					elseif s.starts_with ({STRING_32} "framework/") then
-						Result := sdk
-					end
+			s := normalized_path_name (a_path, a_library_root)
+			l_root := normalized_path_name (a_library_root, a_library_root)
+			if l_root.is_empty or else l_root [l_root.count] /= '/' then
+				l_root.append_character ('/')
+			end
+			if s.starts_with (l_root) then
+				s.remove_head (l_root.count)
+				if s.starts_with ({STRING_32} "library/") or s.starts_with ({STRING_32} "c_library/") then
+					Result := official
+				elseif s.starts_with ({STRING_32} "contrib/library/") then
+					Result := contrib
+				elseif s.starts_with ({STRING_32} "unstable/library/") then
+					Result := prerelease
+				elseif s.starts_with ({STRING_32} "framework/") then
+					Result := sdk
 				end
 			end
 		end
 
 feature {NONE} -- Implementation
 
-	normalized_path_name (p: PATH): STRING_32
+	normalized_path_name (p: PATH; a_library_root: PATH): STRING_32
 			-- Lower case name of canonical path `p', using '/' as separator.
-			-- Note: a leading $ISE_LIBRARY variable is expanded.
+			-- Note: a leading $ISE_LIBRARY variable is expanded as `a_library_root'.
 		local
 			l_path: PATH
 			s: STRING_32
@@ -84,7 +91,7 @@ feature {NONE} -- Implementation
 					s.substring (1, v.count).is_case_insensitive_equal (v) and then
 					(s [v.count + 1] = '/' or s [v.count + 1] = '\')
 				then
-					l_path := eiffel_layout.eiffel_library.extended (s.substring (v.count + 2, s.count))
+					l_path := a_library_root.extended (s.substring (v.count + 2, s.count))
 				end
 			end
 			create Result.make_from_string (l_path.absolute_path.canonical_path.name)
