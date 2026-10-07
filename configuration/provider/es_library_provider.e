@@ -27,6 +27,22 @@ feature -- Access
 		deferred
 		end
 
+feature -- Status report
+
+	is_strict: BOOLEAN
+			-- Is the query matching strict?
+			-- If False, a searched text is considered as "*text*".
+
+feature -- Settings
+
+	set_is_strict (b: BOOLEAN)
+			-- Set `is_strict' to `b'.
+		do
+			is_strict := b
+		ensure
+			is_strict_set: is_strict = b
+		end
+
 feature -- Reset
 
 	reset (a_target: CONF_TARGET)
@@ -39,6 +55,12 @@ feature -- Reset
 		end
 
 feature {NONE} -- Implementation
+
+	categories: ES_LIBRARY_CATEGORIES
+			-- Library categories helper.
+		once
+			create Result
+		end
 
 	is_dotnet (a_target: CONF_TARGET): BOOLEAN
 			-- Is dotnet?
@@ -65,6 +87,12 @@ feature {NONE} -- Implementation
 				-- Exclude redirection!
 				if a_search_iron then
 					apply_iron_package_information_to (fn, Result)
+				end
+				if
+					Result.info ("category") = Void and then
+					attached categories.category_from_path (fn) as l_category
+				then
+					Result.set_info (l_category, "category")
 				end
 			else
 				Result := Void

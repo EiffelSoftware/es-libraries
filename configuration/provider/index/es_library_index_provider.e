@@ -45,6 +45,7 @@ feature -- Access
 				loop
 					l_info := @ ic.key
 					create elt.make (1.0, l_info, l_info.name + " (" + l_info.uuid.out + ")")
+					elt.set_category (categories.category_from_path (l_info.location))
 					elt.set_info (ic, "classes")
 					Result.force (elt)
 				end
@@ -58,14 +59,21 @@ feature -- Access
 			if attached q then
 				create Result.make_from_string (q)
 				Result.adjust
+				if Result.starts_with ("class:") or Result.starts_with ("class=") then
+						-- FIXME: check it is a simple query (not an expression).
+					Result.remove_head (6)
+					Result.adjust
+				end
 				if Result.is_empty then
 					Result := Void
-				elseif Result.starts_with ("class:") then
-						-- FIXME: check it is a simple query (not an expression).
-					Result.remove_head (6)
-				elseif Result.starts_with ("class=") then
-						-- FIXME: check it is a simple query (not an expression).
-					Result.remove_head (6)
+				elseif not is_strict then
+						-- Search for "*text*"
+					if Result [1] /= '*' then
+						Result.prepend_character ('*')
+					end
+					if Result [Result.count] /= '*' then
+						Result.append_character ('*')
+					end
 				end
 			end
 		end

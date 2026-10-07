@@ -19,7 +19,7 @@ feature -- Access
 			libs: like no_cached_libraries
 			i: ES_LIBRARY_PROVIDER_ITEM
 		do
-			l_cache_id := cache_name (a_target)
+			l_cache_id := versioned_cache_name (a_target)
 			if
 				is_eiffel_layout_defined and then
 				attached {like no_cached_libraries} cached_data (l_cache_id) as cfg_libs
@@ -37,6 +37,7 @@ feature -- Access
 					scorer.scored_list (a_query, libs, False) as ic
 				loop
 					create i.make (ic.score, ic.value, ic.value.library_target_name)
+					i.set_category (ic.value.info ("category"))
 					Result.extend (i)
 				end
 			else
@@ -45,6 +46,7 @@ feature -- Access
 					libs as ic
 				loop
 					create i.make (1.0, ic, ic.library_target_name)
+					i.set_category (ic.info ("category"))
 					Result.extend (i)
 				end
 			end
@@ -60,7 +62,7 @@ feature -- Access
 	updated_date (a_target: CONF_TARGET): detachable DATE_TIME
 			-- Date of last update.
 		do
-			Result := cache_date (cache_name (a_target))
+			Result := cache_date (versioned_cache_name (a_target))
 		end
 
 feature -- Factory
@@ -68,6 +70,7 @@ feature -- Factory
 	scorer: ES_CONF_SYSTEM_VIEW_SCORER
 		do
 			create Result
+			Result.set_is_strict (is_strict)
 		end
 
 feature -- Reset
@@ -75,11 +78,19 @@ feature -- Reset
 	reset (a_target: CONF_TARGET)
 		do
 			if is_eiffel_layout_defined then
-				cache_data (Void, cache_name (a_target))
+				cache_data (Void, versioned_cache_name (a_target))
 			end
 		end
 
 feature {NONE} -- Cache: implementation
+
+	versioned_cache_name (a_target: CONF_TARGET): STRING
+			-- `cache_name' including the version of the cached data,
+			-- to ignore cache built with previous versions.
+		do
+			Result := cache_name (a_target) + ".2"
+				--| 2: includes "category" information.
+		end
 
 	cache_name (a_target: CONF_TARGET): STRING
 			-- Cache name depending on `a_target' setting.
