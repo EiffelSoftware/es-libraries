@@ -16,6 +16,7 @@ Text encoders used in web technologies:
 
 	collection: EWF
 	tags: html,xml,percent encoding,web,json,utf
+	category: contrib
 	copyright: 2011-2016, Jocelyn Fiat, Eiffel Software and others
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	link[license]: http://www.eiffel.com/licensing/forum.txt

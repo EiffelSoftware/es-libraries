@@ -7,6 +7,7 @@ note
 	title: Decimal library
 	description: DECIMAL numbers. Following the 'General Decimal Arithmetic Specification'
 	tags: math,decimal
+	category: contrib
 	license: MIT license
 	copyright: "[
 Copyright (c) 2017 Eiffel Software.

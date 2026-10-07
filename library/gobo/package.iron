@@ -7,6 +7,7 @@ note
 			See  package 'ise_gobo' to include easily the library via .ecf files.
 		]"
 	tags: gobo,kernel,structure,io,buffer,xml
+	category: contrib
 	license: MIT License
 	copyright: Copyright (c) 1997-2022, Eric Bezault and others
 	link[doc]: "Documentation" http://www.gobosoft.com/

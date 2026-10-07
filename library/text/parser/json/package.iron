@@ -11,6 +11,7 @@ Eiffel JSON parser and visitors.
 				]"
 
 	tags: json,parser,text
+	category: contrib
 	license: MIT
 	copyright: Copyright (c)  2010-2014 Javier Velilla, Jocelyn Fiat and others,
 	link[license]: "license" "https://github.com/eiffelhub/json/blob/master/License.txt"

@@ -11,6 +11,7 @@ ESpec: Eiffel Specification Library
 
 	title: ESpec, an Eiffel Specification Library
 	tags: specification,test
+	category: contrib
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	link[license]: http://www.eiffel.com/licensing/forum.txt
 	copyright: Software Engineering Lab (York University)
