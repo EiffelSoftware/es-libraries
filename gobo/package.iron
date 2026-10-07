@@ -44,6 +44,7 @@ note
 		The EiffelSoftware Team
 				]"
 	tags:ise,gobo,argument,lex,yacc,lexical,math,parse,pattern,regexp,string,structure,test,time,utility,tools,xml
+	category: official
 	link[doc]: "Documentation" http://www.gobosoft.com/ 
 	link[source]: "Subversion" https://svn.eiffel.com/eiffelstudio/trunk/Src/library/gobo
 

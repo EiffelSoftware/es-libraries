@@ -13,6 +13,7 @@ WEL: Windows Eiffel Library, reusable Eiffel components for Windows programming.
 				]"
 
 	tags: windows,win32,graphic,registry,file
+	category: official
 	platforms: windows
 	copyright: 1984-2016 Eiffel Software and others
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)

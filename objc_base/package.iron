@@ -10,6 +10,7 @@ note
 	title: Objective-C Base Library
 	description: Wrapper classes for Objective C
 	tags: objective-c,objc
+	category: official
 	copyright: Copyright (c) 2009, Daniel Furrer and others.
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	link[license]: http://www.eiffel.com/licensing/forum.txt
