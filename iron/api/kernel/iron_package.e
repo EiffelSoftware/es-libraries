@@ -279,6 +279,13 @@ feature -- Access: items
 			end
 		end
 
+	category: detachable READABLE_STRING_32
+			-- Optional category.
+			--| such as "official", "contrib", "prerelease" or "sdk".
+		do
+			Result := item ("category")
+		end
+
 feature -- Helpers
 
 	json_item: detachable READABLE_STRING_32

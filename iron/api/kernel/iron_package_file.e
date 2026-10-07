@@ -61,6 +61,13 @@ feature -- Access
 			end
 		end
 
+	category: detachable READABLE_STRING_32 assign set_category
+			-- Optional category.
+			--| such as "official", "contrib", "prerelease" or "sdk".
+		do
+			Result := item ("category")
+		end
+
 feature -- Status report
 
 	has_error: BOOLEAN
@@ -114,6 +121,16 @@ feature -- Change
 					s.append (ic)
 				end
 				put (s, "tags")
+			end
+		end
+
+	set_category (a_category: like category)
+			-- Set `a_category' to `category'.
+		do
+			if a_category = Void or else a_category.is_empty then
+				remove ("category")
+			else
+				put (a_category, "category")
 			end
 		end
 
