@@ -46,6 +46,9 @@ feature {NONE} -- Initialization
 			l_col := g.column (status_column)
 			l_col.set_title (conf_interface_names.dialog_create_library_status)
 			l_col.set_width (100)
+			l_col := g.column (category_column)
+			l_col.set_title (conf_interface_names.dialog_search_library_category)
+			l_col.set_width (100)
 			l_col := g.column (info_column)
 			l_col.set_title (conf_interface_names.dialog_create_library_information)
 			l_col.set_width (100)
@@ -196,6 +199,10 @@ feature -- Event
 					lst.forth
 				end
 
+				l_col := g.column (category_column)
+				l_col.resize_to_content
+				l_col.set_width (l_col.width + 3)
+
 				l_col := g.column (info_column)
 				l_col.resize_to_content
 				l_col.set_width (l_col.width + 3)
@@ -227,6 +234,13 @@ feature -- Event
 					a_row.set_item (name_column, l_item)
 				end
 --DEBUG				a_row.item (1).set_tooltip (l_data.score.out)
+				if attached l_data.category as l_category then
+					create l_item.make_with_text (category_title (l_category))
+				else
+					create l_item
+				end
+				l_item.align_text_top
+				a_row.set_item (category_column, l_item)
 				if attached a_row.item (name_column) as i then
 					a_max_widths[name_column] := (a_max_widths[name_column]).max (i.required_width + 10)
 				end
@@ -517,6 +531,24 @@ feature -- Event
 			l_item.align_text_top
 		end
 
+feature -- Query
+
+	category_title (a_category: READABLE_STRING_GENERAL): STRING_32
+			-- Text to display for category `a_category'.
+		do
+			if a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.official) then
+				Result := conf_interface_names.dialog_search_library_category_official
+			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.contrib) then
+				Result := conf_interface_names.dialog_search_library_category_contrib
+			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.prerelease) then
+				Result := conf_interface_names.dialog_search_library_category_prerelease
+			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.sdk) then
+				Result := conf_interface_names.dialog_search_library_category_sdk
+			else
+				Result := a_category.as_string_32
+			end
+		end
+
 feature -- Widgets		
 
 	box: EV_VERTICAL_BOX
@@ -531,10 +563,13 @@ feature {NONE} -- Constants
 	status_column: INTEGER = 2
 			-- Index of a column with void-safety status.
 
-	info_column: INTEGER = 3
+	category_column: INTEGER = 3
+			-- Index of a column with the category.
+
+	info_column: INTEGER = 4
 			-- Index of a column with a information.
 
-	last_column: INTEGER = 3
+	last_column: INTEGER = 4
 
 ;note
 	copyright: "Copyright (c) 1984-2021, Eiffel Software"
