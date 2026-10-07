@@ -323,12 +323,20 @@ feature {NONE} -- Action handlers
 						l_sys.set_application_target (target)
 						g.set_library_target (factory.new_target ("dummy", l_sys))
 						target.add_library (g)
-						destroy
+						on_library_added (g)
 					end
 				end
 			end
 		ensure
 			is_ok_last_library: is_ok implies last_group /= Void
+		end
+
+	on_library_added (g: CONF_LIBRARY)
+			-- Library `g' was added to `target'.
+		require
+			g_added: target.libraries.has (g.name)
+		do
+			destroy
 		end
 
 	on_cancel
