@@ -665,8 +665,13 @@ feature -- Create library dialog
 	dialog_search_library_category_official: STRING_32 do Result := locale.translation ("Official library")	end
 	dialog_search_library_category_contrib: STRING_32 do Result := locale.translation ("User contribution")	end
 	dialog_search_library_category_prerelease: STRING_32 do Result := locale.translation ("Pre-release")	end
-	dialog_search_library_category_sdk: STRING_32 do Result := locale.translation ("SDK")	end
 	dialog_search_library_category_precompiled: STRING_32 do Result := locale.translation ("Precompiled")	end
+	dialog_search_library_category_other_tooltip: STRING_32 do Result := locale.translation ("Show libraries without category, or from categories not displayed here.")	end
+	dialog_search_library_category_settings_tooltip: STRING_32 do Result := locale.translation ("Select the categories displayed here.")	end
+	dialog_search_library_category_settings_title: STRING_32 do Result := locale.translation ("Categories")	end
+	dialog_search_library_category_settings_description: STRING_32 do Result := locale.translation ("Select the categories to display as filters.%NLibraries from the other categories are listed under %"Other%".")	end
+	dialog_search_library_category_settings_reset: STRING_32 do Result := locale.translation ("Default")	end
+	dialog_search_library_category_settings_reset_tooltip: STRING_32 do Result := locale.translation ("Select only the predefined categories.")	end
 
 feature -- Find library dialog
 

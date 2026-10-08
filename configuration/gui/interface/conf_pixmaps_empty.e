@@ -61,6 +61,7 @@ feature -- Pixmaps
 	general_edit_icon,
 	general_open_icon,
 	general_refresh_icon,
+	tool_preferences_icon,
 	general_remove_icon,
 	general_tick_icon,
 	general_warning_icon,

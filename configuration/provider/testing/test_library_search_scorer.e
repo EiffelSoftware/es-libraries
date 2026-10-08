@@ -103,7 +103,7 @@ feature -- Tests
 			assert ("C_library", same_string (cats.category_from_path_in (r.extended ("C_library").extended ("zlib").extended ("zlib.ecf"), r), cats.official))
 			assert ("contrib", same_string (cats.category_from_path_in (create {PATH}.make_from_string ("$ISE_LIBRARY/contrib/library/text/parser/json/library/json.ecf"), r), cats.contrib))
 			assert ("prerelease", same_string (cats.category_from_path_in (create {PATH}.make_from_string ("${ISE_LIBRARY}\unstable\library\base2\base2.ecf"), r), cats.prerelease))
-			assert ("sdk", same_string (cats.category_from_path_in (r.extended ("framework").extended ("environment").extended ("environment.ecf"), r), cats.sdk))
+			assert ("framework", cats.category_from_path_in (r.extended ("framework").extended ("environment").extended ("environment.ecf"), r) = Void)
 			assert ("experimental", cats.category_from_path_in (create {PATH}.make_from_string ("$ISE_LIBRARY\experimental\library\base\base.ecf"), r) = Void)
 			assert ("outside root", cats.category_from_path_in (create {PATH}.make_from_string ("elsewhere/library/foo/foo.ecf"), r) = Void)
 		end
@@ -118,7 +118,7 @@ feature -- Tests
 			assert ("prefix only", not cats.is_precompile_system_name ("precomp_"))
 			assert ("library", not cats.is_precompile_system_name ("base"))
 			assert ("not prefix", not cats.is_precompile_system_name ("my_precomp_lib"))
-			assert ("known category", across cats.categories as ic some ic.same_string (cats.precompiled) end)
+			assert ("known category", across cats.predefined_categories as ic some ic.same_string (cats.precompiled) end)
 		end
 
 feature {NONE} -- Implementation

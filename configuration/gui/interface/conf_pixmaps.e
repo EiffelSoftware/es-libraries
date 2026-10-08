@@ -246,6 +246,13 @@ feature -- Access
 			general_refresh_icon_attached: Result /= Void
 		end
 
+	tool_preferences_icon: EV_PIXMAP
+			-- Access to 'preferences' (settings) pixmap.
+		deferred
+		ensure
+			tool_preferences_icon_attached: Result /= Void
+		end
+
 	general_tick_icon_buffer: EV_PIXEL_BUFFER
 			-- Access to 'tick' pixmap pixel buffer.
 		deferred

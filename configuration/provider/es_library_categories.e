@@ -1,8 +1,10 @@
 note
 	description: "[
-			Categories of libraries and packages (official, contrib, prerelease, sdk, precompiled).
-			The category is usually provided by the `category` note of the package.iron file,
+			Categories of libraries and packages.
+			The category is usually provided by the `category` note of the package.iron file (or of the iron package),
 			otherwise it is deduced from the location of the library inside $ISE_LIBRARY.
+			Only a few categories are predefined (official, contrib, precompiled),
+			the others are discovered from the libraries and packages.
 		]"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -28,16 +30,13 @@ feature -- Categories
 	prerelease: STRING_32 = "prerelease"
 			-- Pre-release (unstable) libraries.
 
-	sdk: STRING_32 = "sdk"
-			-- EiffelStudio framework.
-
 	precompiled: STRING_32 = "precompiled"
 			-- Precompiled libraries (system name starting with "precomp_").
 
-	categories: ARRAY [READABLE_STRING_32]
-			-- All known categories.
+	predefined_categories: ARRAY [READABLE_STRING_32]
+			-- Predefined categories.
 		once
-			Result := <<official, contrib, prerelease, sdk, precompiled>>
+			Result := <<official, contrib, precompiled>>
 		end
 
 feature -- Query
@@ -79,8 +78,6 @@ feature -- Query
 					Result := contrib
 				elseif s.starts_with ({STRING_32} "unstable/library/") then
 					Result := prerelease
-				elseif s.starts_with ({STRING_32} "framework/") then
-					Result := sdk
 				end
 			end
 		end

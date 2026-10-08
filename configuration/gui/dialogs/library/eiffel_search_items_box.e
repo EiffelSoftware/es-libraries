@@ -494,12 +494,14 @@ feature -- Query on items
 				Result := conf_interface_names.dialog_search_library_category_contrib
 			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.prerelease) then
 				Result := conf_interface_names.dialog_search_library_category_prerelease
-			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.sdk) then
-				Result := conf_interface_names.dialog_search_library_category_sdk
 			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.precompiled) then
 				Result := conf_interface_names.dialog_search_library_category_precompiled
 			else
-				Result := a_category.as_string_32
+					-- Discovered category: capitalized.
+				create Result.make_from_string_general (a_category)
+				if not Result.is_empty then
+					Result.put (Result [1].as_upper, 1)
+				end
 			end
 		end
 

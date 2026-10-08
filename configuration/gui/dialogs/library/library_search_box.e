@@ -43,6 +43,14 @@ feature {NONE} -- Initialization
 			create strict_checkbox.make_with_text (conf_interface_names.dialog_search_library_strict)
 			create show_incompatible_checkbox.make_with_text (conf_interface_names.dialog_search_library_show_incompatible)
 			create category_checkboxes.make (6)
+			create known_categories.make (10)
+			create displayed_categories.make (5)
+			across
+				categories.predefined_categories as ic
+			loop
+				known_categories [ic] := True
+				displayed_categories.extend (ic.to_string_32)
+			end
 			create category_checkboxes_box
 			create category_menu_button
 			create provider_checkboxes.make (4)
@@ -78,6 +86,7 @@ feature {NONE} -- Initialization
 			hb: EV_HORIZONTAL_BOX
 			lab: EV_LABEL
 			l_clear_filter_button: EV_BUTTON
+			l_btn: EV_BUTTON
 			cb: EV_CHECK_BUTTON
 			l_radio: EV_RADIO_BUTTON
 		do
@@ -182,12 +191,7 @@ feature {NONE} -- Initialization
 			hb.extend (lab)
 			hb.disable_item_expand (lab)
 			category_checkboxes_box.set_padding (layout_constants.small_padding_size)
-			across
-				categories.categories as ic
-			loop
-				extend_category_checkbox (category_checkboxes_box, ic, search_results_box.category_title (ic))
-			end
-			extend_category_checkbox (category_checkboxes_box, other_category, conf_interface_names.dialog_search_library_category_other)
+			build_category_checkboxes
 			hb.extend (category_checkboxes_box)
 			hb.disable_item_expand (category_checkboxes_box)
 
@@ -198,6 +202,14 @@ feature {NONE} -- Initialization
 			category_menu_button.hide
 			hb.extend (category_menu_button)
 			hb.disable_item_expand (category_menu_button)
+
+				-- Selection of the displayed categories.
+			create l_btn
+			l_btn.set_pixmap (conf_pixmaps.tool_preferences_icon)
+			l_btn.set_tooltip (conf_interface_names.dialog_search_library_category_settings_tooltip)
+			l_btn.select_actions.extend (agent show_category_settings_dialog)
+			hb.extend (l_btn)
+			hb.disable_item_expand (l_btn)
 
 			hb.extend (create {EV_CELL})
 			category_row := hb
@@ -377,20 +389,235 @@ feature {NONE} -- Categories (compact mode)
 			show_check_menu (category_checkboxes, category_menu_button)
 		end
 
-	extend_category_checkbox (hb: EV_HORIZONTAL_BOX; a_category: READABLE_STRING_32; a_title: READABLE_STRING_GENERAL)
-			-- Add to `hb' a checkbox for category `a_category' with text `a_title'.
+	build_category_checkboxes
+			-- (Re)build the category checkboxes: one per `displayed_categories', and "Other",
+			-- keeping the selection state of the existing checkboxes.
+		local
+			l_states: STRING_TABLE [BOOLEAN]
+		do
+			create l_states.make (category_checkboxes.count)
+			across
+				category_checkboxes as ic
+			loop
+				l_states [@ ic.key] := ic.is_selected
+			end
+			category_checkboxes_box.wipe_out
+			category_checkboxes.wipe_out
+			across
+				displayed_categories as ic
+			loop
+				extend_category_checkbox (category_checkboxes_box, ic, search_results_box.category_title (ic), not l_states.has (ic) or else l_states [ic])
+			end
+			extend_category_checkbox (category_checkboxes_box, other_category, conf_interface_names.dialog_search_library_category_other,
+					not l_states.has (other_category) or else l_states [other_category])
+		end
+
+	extend_category_checkbox (hb: EV_HORIZONTAL_BOX; a_category: READABLE_STRING_32; a_title: READABLE_STRING_GENERAL; a_selected: BOOLEAN)
+			-- Add to `hb' a checkbox for category `a_category' with text `a_title', selected if `a_selected'.
 		local
 			cb: EV_CHECK_BUTTON
 		do
 			create cb.make_with_text (a_title)
-			cb.enable_select
-			cb.set_tooltip (conf_interface_names.dialog_search_library_category_tooltip)
+			if a_selected then
+				cb.enable_select
+			end
+			if a_category = other_category then
+				cb.set_tooltip (conf_interface_names.dialog_search_library_category_other_tooltip)
+			else
+				cb.set_tooltip (conf_interface_names.dialog_search_library_category_tooltip)
+			end
 			cb.select_actions.extend (agent update_results_grid)
 			cb.select_actions.extend (agent update_category_menu_button)
 			hb.extend (cb)
 			hb.disable_item_expand (cb)
 			category_checkboxes.put (cb, a_category)
 		end
+
+feature {NONE} -- Categories (selection)
+
+	displayed_categories: ARRAYED_LIST [STRING_32]
+			-- Categories displayed as checkboxes (lower case), the others are covered by "Other".
+
+	known_categories: STRING_TABLE [BOOLEAN]
+			-- Known categories (lower case): predefined ones, and the ones discovered from the libraries and packages.
+
+	register_categories (a_items: ITERABLE [ES_LIBRARY_PROVIDER_ITEM])
+			-- Register the categories of `a_items' as known categories.
+		do
+			across
+				a_items as ic
+			loop
+				if attached ic.category as c and then not c.is_whitespace then
+					known_categories [normalized_category (c)] := True
+				end
+			end
+		end
+
+	normalized_category (c: READABLE_STRING_GENERAL): STRING_32
+			-- Category key for `c'.
+		do
+			create Result.make_from_string_general (c)
+			Result.adjust
+			Result.to_lower
+		end
+
+	sorted_known_categories: ARRAYED_LIST [STRING_32]
+			-- Known and displayed categories: the predefined ones first, then the others sorted alphabetically.
+		local
+			l_others: SORTED_TWO_WAY_LIST [STRING_32]
+		do
+			create Result.make (known_categories.count)
+			across
+				categories.predefined_categories as ic
+			loop
+				Result.extend (ic.to_string_32)
+			end
+			create l_others.make
+			l_others.compare_objects
+			across
+				known_categories as ic
+			loop
+				if not across Result as r some r.same_string_general (@ ic.key) end then
+					l_others.extend (@ ic.key.to_string_32)
+				end
+			end
+			across
+				displayed_categories as ic
+			loop
+				if not across Result as r some r.same_string (ic) end and not l_others.has (ic) then
+					l_others.extend (ic)
+				end
+			end
+			Result.append (l_others)
+		end
+
+	set_displayed_categories (a_categories: ITERABLE [READABLE_STRING_GENERAL])
+			-- Display the checkboxes of `a_categories' (in the order of `sorted_known_categories').
+		local
+			l_keys: ARRAYED_LIST [STRING_32]
+		do
+			create l_keys.make (5)
+			l_keys.compare_objects
+			across
+				a_categories as ic
+			loop
+				if not ic.is_whitespace then
+					l_keys.extend (normalized_category (ic))
+					known_categories [l_keys.last] := True
+				end
+			end
+			displayed_categories.wipe_out
+			across
+				sorted_known_categories as ic
+			loop
+				if l_keys.has (ic) then
+					displayed_categories.extend (ic)
+				end
+			end
+			build_category_checkboxes
+			update_category_menu_button
+				-- The full width of the checkboxes changed: recompute the layout.
+			set_categories_compact (False)
+			update_options_layout
+		end
+
+	show_category_settings_dialog
+			-- Show a dialog to select the categories displayed as checkboxes.
+		local
+			dlg: EV_DIALOG
+			vb: EV_VERTICAL_BOX
+			hb: EV_HORIZONTAL_BOX
+			lab: EV_LABEL
+			lst: EV_CHECKABLE_LIST
+			li: EV_LIST_ITEM
+			b_ok, b_cancel, b_reset: EV_BUTTON
+		do
+			create dlg.make_with_title (conf_interface_names.dialog_search_library_category_settings_title)
+			dlg.set_icon_pixmap (conf_pixmaps.tool_preferences_icon)
+			create vb
+			vb.set_padding (layout_constants.default_padding_size)
+			vb.set_border_width (layout_constants.default_border_size)
+
+			create lab.make_with_text (conf_interface_names.dialog_search_library_category_settings_description)
+			lab.align_text_left
+			vb.extend (lab)
+			vb.disable_item_expand (lab)
+
+			create lst
+			lst.set_minimum_size (300, 200)
+			across
+				sorted_known_categories as ic
+			loop
+				create li.make_with_text (search_results_box.category_title (ic))
+				li.set_data (ic)
+				if search_results_box.category_title (ic).as_lower /~ ic then
+					li.set_tooltip (ic)
+				end
+				lst.extend (li)
+				if across displayed_categories as d some d.same_string (ic) end then
+					lst.check_item (li)
+				end
+			end
+			vb.extend (lst)
+
+			create hb
+			hb.set_padding (layout_constants.default_padding_size)
+			create b_reset.make_with_text (conf_interface_names.dialog_search_library_category_settings_reset)
+			b_reset.set_tooltip (conf_interface_names.dialog_search_library_category_settings_reset_tooltip)
+			b_reset.select_actions.extend (agent (ia_lst: EV_CHECKABLE_LIST)
+					do
+						across
+							ia_lst as ic
+						loop
+							if attached {READABLE_STRING_32} ic.data as c and then across categories.predefined_categories as p some p.same_string (c) end then
+								ia_lst.check_item (ic)
+							else
+								ia_lst.uncheck_item (ic)
+							end
+						end
+					end (lst))
+			layout_constants.set_default_width_for_button (b_reset)
+			hb.extend (b_reset)
+			hb.disable_item_expand (b_reset)
+			hb.extend (create {EV_CELL})
+			create b_ok.make_with_text (names.b_ok)
+			b_ok.select_actions.extend (agent (ia_dlg: EV_DIALOG; ia_lst: EV_CHECKABLE_LIST)
+					local
+						l_selection: ARRAYED_LIST [READABLE_STRING_32]
+					do
+						create l_selection.make (ia_lst.count)
+						across
+							ia_lst.checked_items as ic
+						loop
+							if attached {READABLE_STRING_32} ic.data as c then
+								l_selection.extend (c)
+							end
+						end
+						ia_dlg.destroy
+						set_displayed_categories (l_selection)
+						update_results_grid
+					end (dlg, lst))
+			layout_constants.set_default_width_for_button (b_ok)
+			hb.extend (b_ok)
+			hb.disable_item_expand (b_ok)
+			create b_cancel.make_with_text_and_action (names.b_cancel, agent dlg.destroy)
+			layout_constants.set_default_width_for_button (b_cancel)
+			hb.extend (b_cancel)
+			hb.disable_item_expand (b_cancel)
+			vb.extend (hb)
+			vb.disable_item_expand (hb)
+
+			dlg.extend (vb)
+			dlg.set_default_push_button (b_ok)
+			dlg.set_default_cancel_button (b_cancel)
+			if attached parent_window as w then
+				dlg.show_modal_to_window (w)
+			else
+				dlg.show
+			end
+		end
+
+feature {NONE} -- Results
 
 	build_results (b: EV_VERTICAL_BOX)
 			-- Build the results grid into `b'.
@@ -630,6 +857,22 @@ feature -- Settings
 			loop
 				Result [{STRING_32} "category." + @ ic.key.to_string_32] := boolean_setting (ic.is_selected)
 			end
+			Result ["categories.displayed"] := joined_categories (displayed_categories)
+			Result ["categories.known"] := joined_categories (sorted_known_categories)
+		end
+
+	joined_categories (a_categories: ITERABLE [READABLE_STRING_32]): STRING_32
+			-- `a_categories' separated by a comma.
+		do
+			create Result.make_empty
+			across
+				a_categories as ic
+			loop
+				if not Result.is_empty then
+					Result.append_character (',')
+				end
+				Result.append (ic)
+			end
 		end
 
 	apply_settings (a_settings: STRING_TABLE [READABLE_STRING_GENERAL])
@@ -637,6 +880,18 @@ feature -- Settings
 		do
 			apply_check_setting (strict_checkbox, a_settings ["strict"])
 			apply_check_setting (show_incompatible_checkbox, a_settings ["show_incompatible"])
+			if attached a_settings ["categories.known"] as l_known then
+				across
+					l_known.split (',') as ic
+				loop
+					if not ic.is_whitespace then
+						known_categories [normalized_category (ic)] := True
+					end
+				end
+			end
+			if attached a_settings ["categories.displayed"] as l_displayed then
+				set_displayed_categories (l_displayed.split (','))
+			end
 			if attached precompile_checkbox as cb then
 				apply_check_setting (cb, a_settings ["source.precompiled"])
 			end
@@ -777,6 +1032,9 @@ feature -- Basic operation
 					)
 
 				last_results := all_search_results (filter_text, provider_ids)
+				if attached last_results as l_results then
+					register_categories (l_results)
+				end
 				update_results_grid
 
 				l_lib_manager.on_provider_execution_begin_actions.wipe_out
