@@ -4,8 +4,7 @@
 	<target name="base64">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 			<exclude>/tests$</exclude>
 		</file_rule>

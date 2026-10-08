@@ -3,7 +3,7 @@
 	<target name="string_expander">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<file_rule>
 			<exclude>/gtk$</exclude>

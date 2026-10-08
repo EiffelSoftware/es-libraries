@@ -16,7 +16,7 @@ Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt).</descri
 		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf"/>
 		<cluster name="implementation" location="implementation\" recursive="true">
 			<file_rule>
-				<exclude>/\.svn$</exclude>
+				<exclude>/\..*$</exclude>
 				<condition>
 					<dotnet value="false"/>
 				</condition>
@@ -24,7 +24,7 @@ Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt).</descri
 		</cluster>
 		<cluster name="interface" location="interface\" recursive="true">
 			<file_rule>
-				<exclude>/\.svn$</exclude>
+				<exclude>/\..*$</exclude>
 				<condition>
 					<dotnet value="false"/>
 				</condition>
@@ -32,7 +32,7 @@ Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt).</descri
 		</cluster>
 		<cluster name="shared" location="shared\" recursive="true">
 			<file_rule>
-				<exclude>/\.svn$</exclude>
+				<exclude>/\..*$</exclude>
 				<condition>
 					<dotnet value="false"/>
 				</condition>
@@ -40,7 +40,7 @@ Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt).</descri
 		</cluster>
 		<cluster name="support" location="support\" recursive="true">
 			<file_rule>
-				<exclude>/\.svn$</exclude>
+				<exclude>/\..*$</exclude>
 				<condition>
 					<dotnet value="false"/>
 				</condition>

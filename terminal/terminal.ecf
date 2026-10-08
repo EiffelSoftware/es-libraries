@@ -4,9 +4,8 @@
 	<target name="terminal">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
-			<exclude>/\.svn$</exclude>
 			<exclude>/tests$</exclude>
 		</file_rule>
 		<option warning="error" namespace="EiffelSoftware.Library">

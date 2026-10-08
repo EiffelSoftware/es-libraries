@@ -21,8 +21,7 @@
 		<library name="xml-rpc" location="$EIFFEL_SRC\framework\xml-rpc\xml-rpc.ecf" readonly="false"/>
 		<cluster name="xebrawebapp" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

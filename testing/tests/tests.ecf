@@ -5,7 +5,7 @@
 		<root class="ANY" feature="default_create"/>
 		<file_rule>
 			<exclude>/EIFGENs</exclude>
-			<exclude>/\.svn</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/tests</exclude>
 		</file_rule>
 		<option warning="true" full_class_checking="false" syntax="transitional" namespace="EiffelSoftware.Framework">

@@ -3,8 +3,7 @@
 	<target name="test_com_light">
 		<root class="TEST" feature="make"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<setting name="executable_name" value="test_com_light"/>
