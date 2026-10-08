@@ -5,6 +5,7 @@ project
 	abel_connector_mysql = "connector_mysql/connector_mysql.ecf"
 	abel_connector_sqlite = "connector_sqlite/connector_sqlite.ecf"
 	abel_core = "core/core.ecf"
+	plugin_escher = "plugin_escher/plugin_escher.ecf"
 
 note
 	title: Eiffel ABEL
