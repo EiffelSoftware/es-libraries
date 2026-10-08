@@ -139,18 +139,26 @@ feature {NONE} -- Initialization
 		end
 
 	build_search_box
-			-- Complete the search box (with "Custom" button).
+			-- Complete the search box (with "Custom" button if `has_custom_location_button').
 		local
 			l_btn: EV_BUTTON
 		do
 			search_box.on_item_selected_actions.extend (agent on_search_item_selected)
 
-			create l_btn
-			l_btn.select_actions.extend (agent on_search_item_selected (Void))
-			l_btn.set_text (conf_interface_names.dialog_create_library_custom_location)
-			l_btn.enable_sensitive
-			search_box.custom_buttons_box.extend (l_btn)
-			layout_constants.set_default_width_for_button (l_btn)
+			if has_custom_location_button then
+				create l_btn
+				l_btn.select_actions.extend (agent on_search_item_selected (Void))
+				l_btn.set_text (conf_interface_names.dialog_create_library_custom_location)
+				l_btn.enable_sensitive
+				search_box.custom_buttons_box.extend (l_btn)
+				layout_constants.set_default_width_for_button (l_btn)
+			end
+		end
+
+	has_custom_location_button: BOOLEAN
+			-- Show the "Custom" button, to enter any library location?
+		do
+			Result := True
 		end
 
 	build_iron_package_box

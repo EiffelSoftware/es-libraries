@@ -472,7 +472,7 @@ feature -- Basic operations
 					-- Information
 				create s.make_empty
 				if attached l_package.tags as l_tags and then not l_tags.is_empty then
-					s.append ("tags:")
+					s.append ("tags: ")
 					create t.make_empty
 					across
 						l_tags as tags_ic

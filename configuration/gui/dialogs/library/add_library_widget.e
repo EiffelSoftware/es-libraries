@@ -268,7 +268,7 @@ feature -- Element change
 							j := txt.text_length + 1
 							txt.format_region (i + 1, j, keyword_text_format)
 
-							txt.append_text (":")
+							txt.append_text (": ")
 							i := txt.text_length
 							txt.append_text (ic)
 							txt.append_text ("%N")
