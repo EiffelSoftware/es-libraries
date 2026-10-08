@@ -3,8 +3,7 @@
 	<target name="test-vision2">
 		<root class="VISION2_APPLICATION" feature="make_and_launch"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<setting name="executable_name" value="test-vision2"/>
