@@ -28,6 +28,7 @@ feature -- Access
 			l_libs: like library_locations
 		do
 			if is_eiffel_layout_defined then
+				package_files.reset
 				l_libs := library_locations (a_target)
 				create {ARRAYED_LIST [CONF_SYSTEM_VIEW]} Result.make (l_libs.count)
 				across
@@ -70,27 +71,37 @@ feature {NONE} -- Access
 		end
 
 	scan_library_location_to (a_target: CONF_TARGET; a_path: IMMUTABLE_STRING_32; a_depth: INTEGER; a_table: like library_locations)
-			-- Add library from `a_path' to `a_table'.
+			-- Add library from `a_path' to `a_table'
+			-- (see {LIBRARY_ECF_SCANNER} for the handling of package.iron files).
 		local
 			l_real_path: PATH
-			l_real_path_count: INTEGER
+			l_real_path_name: STRING_32
 			l_dir: DIRECTORY
-			l_libraries: STRING_TABLE [BOOLEAN]
+			l_scanner: LIBRARY_ECF_SCANNER
 			l_lib_path: STRING_32
 		do
 			l_real_path := real_directory_path (a_target, a_path)
 			create l_dir.make_with_path (l_real_path)
 			if l_dir.is_readable then
-				create l_libraries.make (10)
-				add_configs_in_directory (l_dir, a_depth, l_libraries)
+				if a_depth < 0 then
+					create l_scanner.make
+				else
+						-- The scanner depth includes the directory itself.
+					create l_scanner.make_with_depth (a_depth + 1)
+				end
+				l_scanner.process_directory (l_real_path)
 
-				l_real_path_count := l_real_path.name.count
-				across l_libraries as ic_libs loop
-						-- If the config file was using some environment variable, we just
-						-- replace the computed path with what was specified in the config file
-						-- for the current entry of `ic'.
-					l_lib_path := @ ic_libs.key.as_string_32.twin
-					l_lib_path.replace_substring (a_path, 1, l_real_path_count)
+				l_real_path_name := l_real_path.name
+				across
+					l_scanner.items as ic
+				loop
+					l_lib_path := ic.name.twin
+					if l_lib_path.as_lower.starts_with (l_real_path_name.as_lower) then
+							-- If the config file was using some environment variable, we just
+							-- replace the computed path with what was specified in the config file
+							-- for the current entry of `ic'.
+						l_lib_path.replace_substring (a_path, 1, l_real_path_name.count)
+					end
 					a_table.put (l_lib_path)
 				end
 			end
@@ -127,41 +138,6 @@ feature {NONE} -- Access
 			end
 		ensure
 			not_result_is_empty: not Result.is_empty
-		end
-
-	add_configs_in_directory (a_dir: DIRECTORY; a_depth: INTEGER; a_libraries: STRING_TABLE [BOOLEAN])
-			-- Add config files in `a_path' to `a_libraries'.
-			-- if `a_depth' is -1, scan all subdirectories without any depth limits.
-		require
-			a_dir_attached: attached a_dir
-			a_dir_is_readable: a_dir.is_readable
-			a_depth_big_enough: a_depth >= -1
-			a_libraries_attached: attached a_libraries
-		local
-			l_file_name: PATH
-			l_file: RAW_FILE
-			l_entry: PATH
-		do
-			across a_dir.entries as l_entries loop
-				l_entry := l_entries
-				if l_entry.is_current_symbol or l_entry.is_parent_symbol then
-					 -- Nothing to do
-				else
-					l_file_name := a_dir.path.extended_path (l_entry)
-					create l_file.make_with_path (l_file_name)
-					if l_file.exists then
-						if l_file.is_directory then
-							if a_depth = -1 or a_depth > 0 then
-									-- Recurse
-								add_configs_in_directory (create {DIRECTORY}.make_with_path (l_file_name), (a_depth - 1).max (-1), a_libraries)
-							end
-						elseif l_file.is_plain and then valid_config_extension (l_entry.name) then
-								-- File is an ECF, we add it to `a_libraries'.
-							a_libraries.put (True, l_file_name.name)
-						end
-					end
-				end
-			end
 		end
 
 	add_lookup_directories (a_path: STRING_32; a_list: ARRAYED_LIST [TUPLE [path: READABLE_STRING_GENERAL; depth: INTEGER]])

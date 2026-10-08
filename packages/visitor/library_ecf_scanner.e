@@ -1,6 +1,11 @@
 note
-	description: "Summary description for {LIBRARY_ECF_SCANNER}."
-	author: ""
+	description: "[
+			Scanner of library configuration files (ecf files).
+			When a directory contains a package.iron file:
+			  - only the ecf files declared in its "project" section are considered,
+			    or, without "project" section, only the ecf files located in that directory,
+			  - the sub directories are only scanned for nested package.iron files.
+		]"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -26,6 +31,7 @@ feature {NONE} -- Initialization
 		do
 			max_depth := 0
 			create items.make (0)
+			create package_files.make
 		end
 
 	make_with_depth (a_max_depth: INTEGER)
@@ -35,6 +41,7 @@ feature {NONE} -- Initialization
 		do
 			max_depth := a_max_depth
 			create items.make (0)
+			create package_files.make
 		end
 
 feature -- Access
@@ -46,9 +53,16 @@ feature -- Access
 
 	items: ARRAYED_LIST [PATH]
 
+	package_files: LIBRARY_PACKAGE_FILES
+			-- Access to package.iron files.
+
 feature {NONE} -- Implementation	
 
 	depth: INTEGER
+
+	is_in_package: BOOLEAN
+			-- Is the current directory located inside a package directory?
+			-- (then only nested package files are considered).
 
 feature -- Reset
 
@@ -60,17 +74,85 @@ feature -- Reset
 feature -- Visitor
 
 	process_directory (dn: PATH)
+		local
+			l_was_in_package: BOOLEAN
 		do
 			depth := depth + 1
 			if max_depth <= 0 or else (depth <= max_depth) then
-				Precursor (dn)
+				if attached package_files.package_file_in (dn) as pf then
+					if package_files.has_projects (pf) then
+						across
+							package_files.project_paths (dn, pf) as ic
+						loop
+							process_file (ic.path)
+						end
+					else
+						process_files_of (dn)
+					end
+					l_was_in_package := is_in_package
+					is_in_package := True
+					process_sub_directories_of (dn)
+					is_in_package := l_was_in_package
+				elseif is_in_package then
+						-- Only look for nested packages.
+					process_sub_directories_of (dn)
+				else
+					Precursor (dn)
+				end
+			end
+			depth := depth - 1
+		end
+
+	process_files_of (dn: PATH)
+			-- Process the (non excluded) files of directory `dn', but not its sub directories.
+		local
+			d: DIRECTORY
+			fp: PATH
+			ut: FILE_UTILITIES
+		do
+			create d.make_with_path (dn)
+			if d.is_readable then
+				across
+					d.entries as ic
+				loop
+					if not path_excluded (ic) and then not file_excluded (ic) then
+						fp := dn.extended_path (ic)
+						if ut.file_path_exists (fp) then
+							process_file (fp)
+						end
+					end
+				end
+			end
+		end
+
+	process_sub_directories_of (dn: PATH)
+			-- Process the (non excluded) sub directories of directory `dn', but not its files.
+		local
+			d: DIRECTORY
+			fp: PATH
+			ut: FILE_UTILITIES
+		do
+			create d.make_with_path (dn)
+			if d.is_readable then
+				across
+					d.entries as ic
+				loop
+					if not path_excluded (ic) and then not directory_excluded (ic) then
+						fp := dn.extended_path (ic)
+						if ut.directory_path_exists (fp) then
+							process_directory (fp)
+						end
+					end
+				end
 			end
 		end
 
 	process_file (fn: PATH)
 			-- Visit file `fn'
 		do
-			items.force (fn)
+			if not items.there_exists (agent {PATH}.same_as (fn)) then
+				items.force (fn)
+			end
 		end
 
 feature -- Status

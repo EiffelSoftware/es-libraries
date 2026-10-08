@@ -121,7 +121,86 @@ feature -- Tests
 			assert ("known category", across cats.predefined_categories as ic some ic.same_string (cats.precompiled) end)
 		end
 
+	test_package_default_library_name
+		local
+			pf: LIBRARY_PACKAGE_FILES
+		do
+			create pf.make
+			assert ("prefixed", pf.default_library_name ("cypress", "consumer").same_string ("cypress_consumer"))
+			assert ("same as package", pf.default_library_name ("json", "json").same_string ("json"))
+			assert ("already prefixed", pf.default_library_name ("gobo", "gobo_kernel").same_string ("gobo_kernel"))
+			assert ("case insensitive", pf.default_library_name ("Gobo", "gobo_kernel").same_string ("gobo_kernel"))
+			assert ("last package segment", pf.default_library_name ("ise_gobo", "gobo_kernel").same_string ("gobo_kernel"))
+			assert ("other segment", pf.default_library_name ("ise_gobo", "ise_tools").same_string ("ise_gobo_ise_tools"))
+			assert ("invalid characters", pf.default_library_name ("collection+json", "collection-json").same_string ("collection_json_collection_json"))
+		end
+
+	test_package_scanner
+			-- Scan:
+			--	root/plain/a.ecf, root/plain/sub/b.ecf                          -> found (no package)
+			--	root/pkg/package.iron (project x = "lib/x.ecf"), root/pkg/lib/x.ecf -> found (declared)
+			--	root/pkg/test/t.ecf                                             -> ignored (not declared)
+			--	root/pkg/nested/package.iron (no project section), nested/n.ecf -> found (same directory)
+			--	root/pkg/nested/deep/d.ecf                                      -> ignored (sub directory)
+		local
+			root: PATH
+			scanner: LIBRARY_ECF_SCANNER
+			names: ARRAYED_LIST [STRING_32]
+		do
+			root := (create {EXECUTION_ENVIRONMENT}).current_working_path.extended ("package_scanner_test")
+			new_file (root.extended ("plain").extended ("a.ecf"), "")
+			new_file (root.extended ("plain").extended ("sub").extended ("b.ecf"), "")
+			new_file (root.extended ("pkg").extended ("package.iron"), "package pkg%N%Nproject%N%Tx = %"lib/x.ecf%"%N%Nend%N")
+			new_file (root.extended ("pkg").extended ("lib").extended ("x.ecf"), "")
+			new_file (root.extended ("pkg").extended ("test").extended ("t.ecf"), "")
+			new_file (root.extended ("pkg").extended ("nested").extended ("package.iron"), "package nested%N%Nnote%N%Ttitle: Nested%N%Nend%N")
+			new_file (root.extended ("pkg").extended ("nested").extended ("n.ecf"), "")
+			new_file (root.extended ("pkg").extended ("nested").extended ("deep").extended ("d.ecf"), "")
+
+			create scanner.make
+			scanner.process_directory (root)
+			create names.make (scanner.items.count)
+			across
+				scanner.items as ic
+			loop
+				if attached ic.entry as e then
+					names.force (e.name)
+				end
+			end
+			names.compare_objects
+			assert ("a.ecf", names.has ({STRING_32} "a.ecf"))
+			assert ("b.ecf", names.has ({STRING_32} "b.ecf"))
+			assert ("x.ecf declared", names.has ({STRING_32} "x.ecf"))
+			assert ("t.ecf not declared", not names.has ({STRING_32} "t.ecf"))
+			assert ("n.ecf same directory", names.has ({STRING_32} "n.ecf"))
+			assert ("d.ecf sub directory", not names.has ({STRING_32} "d.ecf"))
+			assert ("count", names.count = 4)
+
+			if
+				attached scanner.package_files.owner_package (root.extended ("pkg").extended ("lib").extended ("x.ecf")) as o and then
+				attached o.project_name as l_project_name
+			then
+				assert ("project name", l_project_name.same_string ("x"))
+			else
+				assert ("x.ecf has a package", False)
+			end
+		end
+
 feature {NONE} -- Implementation
+
+	new_file (a_path: PATH; a_content: READABLE_STRING_8)
+			-- Create file `a_path' (and its parent directories) with `a_content'.
+		local
+			f: PLAIN_TEXT_FILE
+		do
+			if attached a_path.parent as p then
+				(create {DIRECTORY}.make_with_path (p)).recursive_create_dir
+			end
+			create f.make_with_path (a_path)
+			f.create_read_write
+			f.put_string (a_content)
+			f.close
+		end
 
 	views: ARRAYED_LIST [CONF_SYSTEM_VIEW]
 			-- Fake library views.

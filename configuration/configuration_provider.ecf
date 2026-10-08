@@ -17,6 +17,7 @@
 		<library name="iron_installation_api" location="..\iron\api\iron_installation_api.ecf"/>
 		<library name="kmp_matcher" location="$ISE_LIBRARY\library\text\regexp\kmp_matcher\kmp_matcher.ecf"/>
 		<library name="package_database" location="..\packages\database\package_database.ecf"/>
+		<library name="package_visitor" location="..\packages\visitor\package_visitor.ecf"/>
 		<library name="process" location="$ISE_LIBRARY\library\process\process.ecf"/>
 		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<cluster name="src" location=".\provider\" recursive="true">

@@ -83,8 +83,11 @@ feature {NONE} -- Implementation
 		do
 			fn := real_directory_path (a_target, a_path)
 			create Result.make (fn, a_path)
-			if Result.has_library_target and then not Result.is_redirection then
-				-- Exclude redirection!
+			if
+				Result.has_library_target and then
+				(not Result.is_redirection or else is_declared_in_package (fn))
+			then
+					-- Exclude redirection, unless it is declared in the "project" section of a package.iron file.
 				if a_search_iron then
 					apply_iron_package_information_to (fn, Result)
 				end
@@ -104,34 +107,43 @@ feature {NONE} -- Implementation
 		end
 
 	apply_iron_package_information_to (a_ecf_path: PATH; cfg: CONF_SYSTEM_VIEW)
-		local
-			dn, ipn: PATH
-			f: RAW_FILE
-			pf: IRON_PACKAGE_FILE
-			pfac: IRON_PACKAGE_FILE_FACTORY
+			-- Apply to `cfg' the information of the package that `a_ecf_path' belongs to, if any:
+			-- notes, title, description, as well as the package name ("package")
+			-- and the associated project name ("project").
 		do
-			dn := a_ecf_path.parent
-			ipn := dn.extended ("package.iron")
-			create f.make_with_path (ipn)
-			if f.exists and then f.is_access_readable then
-				create pfac
-				pf := pfac.new_package_file (ipn)
-				if not pf.has_error then
-					if attached {IRON_PACKAGE_INFO_FILE} pf as pfinfo then
-						across
-							pfinfo.notes as ic
-						loop
-							cfg.set_info (ic, @ ic.key)
-						end
-					end
-					if attached pf.title as pf_title then
-						cfg.set_info (pf_title, "title")
-					end
-					if attached pf.description as pf_desc then
-						cfg.set_info (pf_desc, "description")
+			if attached package_files.owner_package (a_ecf_path) as o then
+				if attached {IRON_PACKAGE_INFO_FILE} o.package as pfinfo then
+					across
+						pfinfo.notes as ic
+					loop
+						cfg.set_info (ic, @ ic.key)
 					end
 				end
+				if attached o.package.title as pf_title then
+					cfg.set_info (pf_title, "title")
+				end
+				if attached o.package.description as pf_desc then
+					cfg.set_info (pf_desc, "description")
+				end
+				if attached o.package.package_name as l_package_name then
+					cfg.set_info (l_package_name, "package")
+				end
+				if attached o.project_name as l_project_name then
+					cfg.set_info (l_project_name.to_string_32, "project")
+				end
 			end
+		end
+
+	is_declared_in_package (a_ecf_path: PATH): BOOLEAN
+			-- Is `a_ecf_path' declared in the "project" section of its package.iron file?
+		do
+			Result := attached package_files.owner_package (a_ecf_path) as o and then o.project_name /= Void
+		end
+
+	package_files: LIBRARY_PACKAGE_FILES
+			-- Access to package.iron files.
+		once ("OBJECT")
+			create Result.make
 		end
 
 note

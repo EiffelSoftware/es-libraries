@@ -573,6 +573,13 @@ feature {NONE} -- Implementation
 		do
 			if items_box.is_precompile_item (a_item) then
 				Result := {STRING_32} "precompile"
+			elseif
+				attached {CONF_SYSTEM_VIEW} a_item.value as cfg and then
+				attached cfg.info ("package") as l_package_name and then
+				attached cfg.info ("project") as l_project_name
+			then
+					-- Project declared in a package.iron file.
+				Result := (create {LIBRARY_PACKAGE_FILES}.make).default_library_name (l_package_name, l_project_name)
 			elseif attached {CONF_SYSTEM_VIEW} a_item.value as cfg and then not cfg.library_target_name.is_empty then
 				create Result.make_from_string (cfg.library_target_name)
 			elseif attached {IRON_PACKAGE} a_item.value as p and then attached p.name as n then
