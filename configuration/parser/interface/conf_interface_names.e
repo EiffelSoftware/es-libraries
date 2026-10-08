@@ -791,6 +791,30 @@ feature -- Iron packages box
 			Result := locale.translation ("Updating IRON")
 		end
 
+	iron_box_repository_registration_title (a_uri: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Registration of repository: $1"), [a_uri])
+		end
+
+	iron_box_repository_unregistration_title (a_uri: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Removal of repository: $1"), [a_uri])
+		end
+
+	iron_box_add_repository_label: STRING_32 do Result := locale.translation ("Add...") end
+	iron_box_add_repository_tooltip: STRING_32 do Result := locale.translation ("Register a new IRON repository") end
+	iron_box_remove_repository_label: STRING_32 do Result := locale.translation ("Remove") end
+	iron_box_remove_repository_tooltip: STRING_32 do Result := locale.translation ("Unregister the selected IRON repository") end
+	iron_box_add_repository_dialog_title: STRING_32 do Result := locale.translation ("Register IRON repository") end
+	iron_box_add_repository_uri_label: STRING_32 do Result := locale.translation ("Repository URL (including version, for instance https://iron.eiffel.com/26.09):") end
+	iron_box_repository_already_registered_message (a_uri: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Repository $1 is already registered."), [a_uri])
+		end
+	iron_box_confirm_remove_repository_question (a_uri: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Unregister repository $1?%NPackages installed from this repository will be removed."), [a_uri])
+		end
 feature -- Create precompile dialog
 
 	dialog_create_precompile_title: STRING_32 do Result := locale.translation ("Add Precompile")	end
