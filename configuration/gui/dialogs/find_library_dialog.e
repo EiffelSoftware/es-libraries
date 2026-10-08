@@ -77,6 +77,12 @@ feature {NONE} -- Initialization
 			create close_button.make_with_text (conf_interface_names.dialog_find_library_close)
 			create details_toggle.make_with_text (conf_interface_names.dialog_find_library_details)
 			create custom_button.make_with_text (conf_interface_names.dialog_find_library_add_custom)
+			create add_menu_button.make_with_text (conf_interface_names.dialog_find_library_add_menu + menu_indicator)
+			create settings_menu_button.make_with_text (conf_interface_names.dialog_find_library_settings_menu + menu_indicator)
+			create footer_box
+			create footer_viewport
+			create status_line_cell
+			is_footer_status_inline := True
 			create layout_cell
 			create horizontal_split
 			create vertical_split
@@ -110,13 +116,18 @@ feature {NONE} -- Initialization
 			details_frame.extend (details_box.widget)
 			main.extend (layout_cell)
 
-				-- Tools bar + buttons
-			custom_button.set_tooltip (conf_interface_names.dialog_find_library_add_custom_tooltip)
-			custom_button.set_pixmap (conf_pixmaps.new_library_icon)
-			search_box.custom_buttons_box.extend (custom_button)
+				-- Status line (only used when the footer is too narrow, see `update_footer_layout')
+			main.extend (status_line_cell)
+			main.disable_item_expand (status_line_cell)
+			status_line_cell.hide
 
-			create hb
+				-- Footer: | (Settings v) tools bar | [Details] [Add to project] [Add custom...] (Add v) [Close] |
+			hb := footer_box
 			hb.set_padding (layout_constants.default_padding_size)
+			settings_menu_button.set_tooltip (conf_interface_names.dialog_find_library_settings_menu_tooltip)
+			settings_menu_button.hide
+			hb.extend (settings_menu_button)
+			hb.disable_item_expand (settings_menu_button)
 			hb.extend (search_box.tools_bar_widget)
 			details_toggle.set_tooltip (conf_interface_names.dialog_find_library_details_tooltip)
 			details_toggle.enable_select
@@ -124,12 +135,22 @@ feature {NONE} -- Initialization
 			hb.disable_item_expand (details_toggle)
 			hb.extend (add_button)
 			hb.disable_item_expand (add_button)
+			custom_button.set_tooltip (conf_interface_names.dialog_find_library_add_custom_tooltip)
+			custom_button.set_pixmap (conf_pixmaps.new_library_icon)
+			hb.extend (custom_button)
+			hb.disable_item_expand (custom_button)
+			add_menu_button.set_tooltip (conf_interface_names.dialog_find_library_add_menu_tooltip)
+			add_menu_button.hide
+			hb.extend (add_menu_button)
+			hb.disable_item_expand (add_menu_button)
 			close_button.set_tooltip (conf_interface_names.dialog_find_library_close_tooltip)
 			layout_constants.set_default_width_for_button (close_button)
 			hb.extend (close_button)
 			hb.disable_item_expand (close_button)
-			main.extend (hb)
-			main.disable_item_expand (hb)
+			footer_viewport.extend (hb)
+			footer_viewport.set_minimum_height (hb.minimum_height)
+			main.extend (footer_viewport)
+			main.disable_item_expand (footer_viewport)
 
 			set_default_cancel_button (close_button)
 
@@ -138,6 +159,10 @@ feature {NONE} -- Initialization
 			close_button.select_actions.extend (agent on_close)
 			close_request_actions.extend (agent on_close)
 			custom_button.select_actions.extend (agent on_add_custom_library)
+			add_menu_button.select_actions.extend (agent show_add_menu)
+			settings_menu_button.select_actions.extend (agent show_settings_menu)
+			footer_viewport.resize_actions.extend (agent (ia_x, ia_y, ia_w, ia_h: INTEGER) do update_footer_layout end)
+			search_box.status_change_actions.extend (agent update_footer_layout)
 			details_toggle.select_actions.extend (agent on_details_toggled)
 			search_box.on_item_selected_actions.extend (agent on_item_selected)
 			search_box.on_item_activated_actions.extend (agent on_item_activated)
@@ -216,6 +241,94 @@ feature {NONE} -- Layout
 				update_layout
 				apply_split_proportion
 			end
+		end
+
+	is_footer_compact: BOOLEAN
+			-- Are the footer buttons merged into drop down menus ("Settings" and "Add")?
+
+	is_footer_status_inline: BOOLEAN
+			-- Is the status line displayed in the footer (otherwise on its own line, above the footer)?
+
+	update_footer_layout
+			-- Update the footer according to the available width:
+			--  - wide enough: tools buttons, status, and all buttons,
+			--  - otherwise: status on its own line, between the results and the footer,
+			--  - even smaller: tools buttons and "Add" buttons merged into drop down menus.
+		local
+			w, l_buttons_width, l_status_width: INTEGER
+			l_compact, l_inline: BOOLEAN
+		do
+			w := footer_viewport.width
+			if w > 0 then
+				l_buttons_width := search_box.tools_buttons_widget.minimum_width
+					+ details_toggle.minimum_width + add_button.minimum_width
+					+ custom_button.minimum_width + close_button.minimum_width
+					+ 6 * layout_constants.default_padding_size
+				if not search_box.status_text.is_empty then
+					l_status_width := search_box.status_widget.font.string_width (search_box.status_text) + layout_constants.default_padding_size
+				end
+				l_inline := w >= l_buttons_width + l_status_width
+				l_compact := w < l_buttons_width
+				if l_inline /= is_footer_status_inline then
+					is_footer_status_inline := l_inline
+					if l_inline then
+						status_line_cell.wipe_out
+						status_line_cell.hide
+						search_box.restore_status_widget
+					else
+						if attached search_box.status_widget.parent as p then
+							p.prune (search_box.status_widget)
+						end
+						status_line_cell.extend (search_box.status_widget)
+						status_line_cell.show
+					end
+				end
+				if l_compact /= is_footer_compact then
+					is_footer_compact := l_compact
+					if l_compact then
+						search_box.tools_buttons_widget.hide
+						add_button.hide
+						custom_button.hide
+						settings_menu_button.show
+						add_menu_button.show
+					else
+						settings_menu_button.hide
+						add_menu_button.hide
+						search_box.tools_buttons_widget.show
+						add_button.show
+						custom_button.show
+					end
+				end
+					-- Footer fills the viewport (or is clipped, while the layout is updated).
+				footer_viewport.set_item_size (w.max (footer_box.minimum_width), footer_box.minimum_height)
+			end
+		end
+
+	menu_indicator: STRING_32 = " %/9662/"
+			-- Suffix of buttons opening a drop down menu.
+
+	show_add_menu
+			-- Show the "Add" drop down menu.
+		local
+			m: EV_MENU
+			mi: EV_MENU_ITEM
+		do
+			create m
+			create mi.make_with_text_and_action (add_button.text, agent on_add)
+			mi.set_pixmap (conf_pixmaps.new_library_icon)
+			if not add_button.is_sensitive then
+				mi.disable_sensitive
+			end
+			m.extend (mi)
+			create mi.make_with_text_and_action (custom_button.text, agent on_add_custom_library)
+			m.extend (mi)
+			m.show_at (add_menu_button, 0, add_menu_button.height)
+		end
+
+	show_settings_menu
+			-- Show the "Settings" drop down menu.
+		do
+			search_box.new_tools_menu.show_at (settings_menu_button, 0, settings_menu_button.height)
 		end
 
 	on_details_toggled
@@ -365,6 +478,7 @@ feature {NONE} -- Events
 					(add_button.font.string_width (add_button.text) + 4 * layout_constants.default_padding_size)
 					.max (layout_constants.default_button_width)
 				)
+			update_footer_layout
 		end
 
 feature {NONE} -- Add to project
@@ -838,6 +952,21 @@ feature {NONE} -- Implementation
 
 	close_button: EV_BUTTON
 			-- "Close" button.
+
+	add_menu_button: EV_BUTTON
+			-- "Add" drop down menu (compact version of `add_button' and `custom_button').
+
+	settings_menu_button: EV_BUTTON
+			-- "Settings" drop down menu (compact version of the tools buttons).
+
+	footer_box: EV_HORIZONTAL_BOX
+			-- Tools bar and buttons.
+
+	footer_viewport: EV_VIEWPORT
+			-- Viewport containing `footer_box', so that the footer does not constrain the dialog width.
+
+	status_line_cell: EV_CELL
+			-- Status line between the results and the footer, when the footer is too narrow for it.
 
 invariant
 	search_box_target: search_box.target = target

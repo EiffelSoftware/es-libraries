@@ -47,15 +47,26 @@ feature {NONE} -- Initialization
 			create category_menu_button
 			create provider_checkboxes.make (4)
 			create custom_buttons_box
+			create tools_buttons_box
 			create status_label
+			create status_cell
+			create status_change_actions
 			create sources_box
+			create sources_menu_button
 			create search_results_box.make (a_target)
 			create options_box
+			create options_viewport
 			create results_box
 			create tools_bar
 			build_options (options_box)
 			build_results (results_box)
 			build_tools_bar (tools_bar)
+
+				-- The options are in a viewport, so that they do not constrain the width of the parent window:
+				-- the sources and the categories selections become drop down menus when there is not enough space.
+			options_viewport.extend (options_box)
+			options_viewport.set_minimum_height (options_box.minimum_height)
+			options_viewport.resize_actions.extend (agent (ia_x, ia_y, ia_w, ia_h: INTEGER) do update_options_layout end)
 		end
 
 	build_options (b: EV_VERTICAL_BOX)
@@ -131,7 +142,15 @@ feature {NONE} -- Initialization
 			end
 			hb.extend (sources_box)
 			hb.disable_item_expand (sources_box)
+
+				-- Compact version: a button with a drop down menu (used when there is not enough space).
+			sources_menu_button.set_tooltip (conf_interface_names.dialog_search_library_sources_tooltip)
+			sources_menu_button.select_actions.extend (agent show_sources_menu)
+			sources_menu_button.hide
+			hb.extend (sources_menu_button)
+			hb.disable_item_expand (sources_menu_button)
 			hb.extend (create {EV_CELL})
+			sources_row := hb
 
 			sources_box.set_padding (layout_constants.small_padding_size)
 			create lab.make_with_text (conf_interface_names.dialog_search_library_sources)
@@ -149,7 +168,9 @@ feature {NONE} -- Initialization
 				sources_box.disable_item_expand (cb)
 				provider_checkboxes.put (cb, @ ic.key)
 				cb.select_actions.extend (agent request_update_filter)
+				cb.select_actions.extend (agent update_sources_menu_button)
 			end
+			update_sources_menu_button
 
 				-- Categories
 			create hb
@@ -185,40 +206,155 @@ feature {NONE} -- Initialization
 			show_incompatible_checkbox.select_actions.extend (agent update_results_grid)
 			hb.extend (show_incompatible_checkbox)
 			hb.disable_item_expand (show_incompatible_checkbox)
-
-			b.resize_actions.extend (agent (ia_x, ia_y, ia_w, ia_h: INTEGER) do update_category_compactness (ia_w) end)
 		end
 
-feature {NONE} -- Categories (compact mode)
+feature {NONE} -- Options layout (compact mode)
 
-	update_category_compactness (a_width: INTEGER)
-			-- Use the compact category selection (drop down menu), if `a_width' is too small for the category checkboxes.
+	update_options_layout
+			-- Use the compact sources and categories selections (drop down menus)
+			-- if the width of `options_viewport' is too small for the checkboxes.
 		local
-			l_required: INTEGER
+			w: INTEGER
 		do
-			if category_checkboxes_box.is_show_requested then
-				full_category_row_width := category_checkboxes_box.minimum_width
-			end
-			if full_category_row_width > 0 and attached category_row as l_row then
-				l_required := full_category_row_width + show_incompatible_checkbox.minimum_width
-					+ category_menu_button.minimum_width + 6 * layout_constants.small_padding_size
-				if attached l_row.first as l_label then
-					l_required := l_required + l_label.minimum_width
-				end
-				if a_width < l_required then
-					if category_checkboxes_box.is_show_requested then
-						category_checkboxes_box.hide
-						category_menu_button.show
+			w := options_viewport.width
+			if w > 0 then
+				if attached sources_row as l_row and not is_search_by_class_mode then
+					if not is_sources_compact then
+						full_sources_width := sources_box.minimum_width
 					end
-				elseif not category_checkboxes_box.is_show_requested then
+					is_sources_compact := w < l_row.minimum_width - visible_width (sources_box, sources_menu_button) + full_sources_width
+					update_sources_visibility
+				end
+				if attached category_row as l_row then
+					if not is_categories_compact then
+						full_categories_width := category_checkboxes_box.minimum_width
+					end
+					set_categories_compact (w < l_row.minimum_width - visible_width (category_checkboxes_box, category_menu_button) + full_categories_width)
+				end
+				if options_viewport.minimum_height /= options_box.minimum_height then
+					options_viewport.set_minimum_height (options_box.minimum_height)
+				end
+				options_viewport.set_item_size (w.max (options_box.minimum_width), options_box.minimum_height)
+			end
+		end
+
+	visible_width (a_full, a_compact: EV_WIDGET): INTEGER
+			-- Width taken by `a_full' if displayed, otherwise by `a_compact'.
+		do
+			if a_full.is_show_requested then
+				Result := a_full.minimum_width
+			else
+				Result := a_compact.minimum_width
+			end
+		end
+
+	is_sources_compact: BOOLEAN
+			-- Is the sources selection displayed as a drop down menu?
+
+	is_categories_compact: BOOLEAN
+			-- Is the categories selection displayed as a drop down menu?
+
+	full_sources_width: INTEGER
+			-- Width required by the sources checkboxes.
+
+	full_categories_width: INTEGER
+			-- Width required by the category checkboxes.
+
+	set_categories_compact (b: BOOLEAN)
+			-- Display the categories selection as a drop down menu if `b', otherwise as checkboxes.
+		do
+			if b /= is_categories_compact then
+				is_categories_compact := b
+				if b then
+					category_checkboxes_box.hide
+					category_menu_button.show
+				else
 					category_menu_button.hide
 					category_checkboxes_box.show
 				end
 			end
 		end
 
-	full_category_row_width: INTEGER
-			-- Width required by the category checkboxes.
+	update_sources_visibility
+			-- Show the sources selection according to the search mode and `is_sources_compact'.
+		do
+			if is_search_by_class_mode then
+				sources_box.hide
+				sources_menu_button.hide
+			elseif is_sources_compact then
+				sources_box.hide
+				sources_menu_button.show
+			else
+				sources_menu_button.hide
+				sources_box.show
+			end
+		end
+
+	source_checkboxes: ARRAYED_LIST [EV_CHECK_BUTTON]
+			-- Sources checkboxes (providers, and precompiled if enabled).
+		do
+			create Result.make (provider_checkboxes.count + 1)
+			across
+				provider_checkboxes as ic
+			loop
+				Result.extend (ic)
+			end
+			if attached precompile_checkbox as cb then
+				Result.extend (cb)
+			end
+		end
+
+	update_sources_menu_button
+			-- Update text of `sources_menu_button'.
+		local
+			nb: INTEGER
+			l_checkboxes: like source_checkboxes
+		do
+			l_checkboxes := source_checkboxes
+			across
+				l_checkboxes as ic
+			loop
+				if ic.is_selected then
+					nb := nb + 1
+				end
+			end
+			sources_menu_button.set_text (conf_interface_names.dialog_search_library_sources_button (nb, l_checkboxes.count))
+		end
+
+	show_sources_menu
+			-- Show the sources selection as a drop down menu.
+		do
+			show_check_menu (source_checkboxes, sources_menu_button)
+		end
+
+	show_check_menu (a_checkboxes: ITERABLE [EV_CHECK_BUTTON]; a_button: EV_BUTTON)
+			-- Show `a_checkboxes' as a drop down menu below `a_button'.
+		local
+			m: EV_MENU
+			mi: EV_CHECK_MENU_ITEM
+		do
+			create m
+			across
+				a_checkboxes as ic
+			loop
+				create mi.make_with_text (ic.text)
+				if ic.is_selected then
+					mi.enable_select
+				end
+				mi.select_actions.extend (agent (ia_cb: EV_CHECK_BUTTON)
+						do
+							if ia_cb.is_selected then
+								ia_cb.disable_select
+							else
+								ia_cb.enable_select
+							end
+						end (ic))
+				m.extend (mi)
+			end
+			m.show_at (a_button, 0, a_button.height)
+		end
+
+feature {NONE} -- Categories (compact mode)
 
 	update_category_menu_button
 			-- Update text of `category_menu_button'.
@@ -237,29 +373,8 @@ feature {NONE} -- Categories (compact mode)
 
 	show_category_menu
 			-- Show the category selection as a drop down menu.
-		local
-			m: EV_MENU
-			mi: EV_CHECK_MENU_ITEM
 		do
-			create m
-			across
-				category_checkboxes as ic
-			loop
-				create mi.make_with_text (ic.text)
-				if ic.is_selected then
-					mi.enable_select
-				end
-				mi.select_actions.extend (agent (ia_cb: EV_CHECK_BUTTON)
-						do
-							if ia_cb.is_selected then
-								ia_cb.disable_select
-							else
-								ia_cb.enable_select
-							end
-						end (ic))
-				m.extend (mi)
-			end
-			m.show_at (category_menu_button, 0, category_menu_button.height)
+			show_check_menu (category_checkboxes, category_menu_button)
 		end
 
 	extend_category_checkbox (hb: EV_HORIZONTAL_BOX; a_category: READABLE_STRING_32; a_title: READABLE_STRING_GENERAL)
@@ -298,6 +413,7 @@ feature {NONE} -- Categories (compact mode)
 			-- Build the tools bar into `hb': | custom | (refresh) (config) [Packages...] status |
 		local
 			l_btn: EV_BUTTON
+			b: EV_HORIZONTAL_BOX
 		do
 			hb.set_padding (layout_constants.small_padding_size)
 
@@ -305,28 +421,34 @@ feature {NONE} -- Categories (compact mode)
 			hb.extend (custom_buttons_box)
 			hb.disable_item_expand (custom_buttons_box)
 
+			b := tools_buttons_box
+			b.set_padding (layout_constants.small_padding_size)
+			hb.extend (b)
+			hb.disable_item_expand (b)
+
 			create l_btn
 			l_btn.set_pixmap (conf_pixmaps.general_refresh_icon)
 			l_btn.select_actions.extend (agent update_index)
 			l_btn.set_tooltip (conf_interface_names.dialog_create_refresh_tooltip)
-			hb.extend (l_btn)
-			hb.disable_item_expand (l_btn)
+			b.extend (l_btn)
+			b.disable_item_expand (l_btn)
 
 			create l_btn
 			l_btn.set_pixmap (conf_pixmaps.project_settings_advanced_icon)
 			l_btn.select_actions.extend (agent popup_configuration_information)
 			l_btn.set_tooltip (conf_interface_names.dialog_display_configuration_tooltip)
-			hb.extend (l_btn)
-			hb.disable_item_expand (l_btn)
+			b.extend (l_btn)
+			b.disable_item_expand (l_btn)
 
 			create l_btn.make_with_text_and_action (conf_interface_names.dialog_search_library_iron_package_manage_button_label, agent launch_iron_tool)
 			l_btn.set_pixmap (conf_pixmaps.library_iron_package_icon)
 			l_btn.set_tooltip (conf_interface_names.dialog_search_library_iron_package_manage_button_tooltip)
-			hb.extend (l_btn)
-			hb.disable_item_expand (l_btn)
+			b.extend (l_btn)
+			b.disable_item_expand (l_btn)
 
 			status_label.align_text_left
-			hb.extend (status_label)
+			status_cell.extend (status_label)
+			hb.extend (status_cell)
 		end
 
 feature -- Access
@@ -343,8 +465,8 @@ feature -- Access
 				create b
 				b.set_padding (layout_constants.small_padding_size)
 				b.set_border_width (layout_constants.small_border_size)
-				b.extend (options_box)
-				b.disable_item_expand (options_box)
+				b.extend (options_viewport)
+				b.disable_item_expand (options_viewport)
 				b.extend (results_box)
 				b.extend (tools_bar)
 				b.disable_item_expand (tools_bar)
@@ -356,7 +478,7 @@ feature -- Access
 	options_widget: EV_WIDGET
 			-- Search options: search text, mode, sources, categories.
 		do
-			Result := options_box
+			Result := options_viewport
 		end
 
 	results_widget: EV_WIDGET
@@ -376,6 +498,43 @@ feature -- Access
 
 	custom_buttons_box: EV_HORIZONTAL_BOX
 			-- Box, on the left of the tools bar, available for additional buttons.
+
+	tools_buttons_widget: EV_WIDGET
+			-- Tools buttons (refresh, configuration, packages), part of `tools_bar_widget'.
+			-- See `new_tools_menu' for a compact version.
+		do
+			Result := tools_buttons_box
+		end
+
+	status_widget: EV_LABEL
+			-- Status line (number of results, messages), by default part of `tools_bar_widget'.
+			-- It can be moved elsewhere, see `restore_status_widget'.
+		do
+			Result := status_label
+		end
+
+	status_text: STRING_32
+			-- Text of the status line.
+		do
+			Result := status_label.text
+		end
+
+	new_tools_menu: EV_MENU
+			-- New menu with the tools actions (compact version of `tools_buttons_widget').
+		local
+			mi: EV_MENU_ITEM
+		do
+			create Result
+			create mi.make_with_text_and_action (conf_interface_names.dialog_search_library_reload, agent update_index)
+			mi.set_pixmap (conf_pixmaps.general_refresh_icon)
+			Result.extend (mi)
+			create mi.make_with_text_and_action (conf_interface_names.dialog_search_library_display_configuration, agent popup_configuration_information)
+			mi.set_pixmap (conf_pixmaps.project_settings_advanced_icon)
+			Result.extend (mi)
+			create mi.make_with_text_and_action (conf_interface_names.dialog_search_library_manage_iron_packages, agent launch_iron_tool)
+			mi.set_pixmap (conf_pixmaps.library_iron_package_icon)
+			Result.extend (mi)
+		end
 
 	filter_text: STRING_32
 			-- Filter text.
@@ -410,6 +569,20 @@ feature -- Element change
 			-- Display `a_message' in the status area.
 		do
 			status_label.set_text (a_message)
+			status_change_actions.call (Void)
+		end
+
+	restore_status_widget
+			-- Put back `status_widget' into `tools_bar_widget'.
+		do
+			if status_label.parent /= status_cell then
+				if attached status_label.parent as p then
+					p.prune (status_label)
+				end
+				status_cell.extend (status_label)
+			end
+		ensure
+			in_tools_bar: status_widget.parent = status_cell
 		end
 
 feature -- Settings
@@ -424,9 +597,12 @@ feature -- Settings
 				create cb.make_with_text (conf_interface_names.dialog_search_library_precompiled)
 				cb.set_tooltip (conf_interface_names.dialog_search_library_precompiled_tooltip)
 				cb.select_actions.extend (agent request_update_filter)
+				cb.select_actions.extend (agent update_sources_menu_button)
 				sources_box.extend (cb)
 				sources_box.disable_item_expand (cb)
 				precompile_checkbox := cb
+				update_sources_menu_button
+				update_options_layout
 			end
 		end
 
@@ -523,6 +699,9 @@ feature -- Actions
 
 	on_item_activated_actions: ACTION_SEQUENCE [TUPLE [search_item: ES_LIBRARY_PROVIDER_ITEM]]
 			-- Actions triggered when a search item is activated (double click, or Enter key).
+
+	status_change_actions: ACTION_SEQUENCE
+			-- Actions triggered when the status text changed.
 
 feature -- Basic operation
 
@@ -679,12 +858,12 @@ feature {NONE} -- Search mode
 			if search_mode /= m then
 				search_mode := m
 				if is_search_by_class_mode then
-					sources_box.hide
 					filter.set_tooltip (conf_interface_names.dialog_search_library_search_classes_tooltip)
 				else
-					sources_box.show
 					filter.set_tooltip (conf_interface_names.dialog_search_library_search_libraries_tooltip)
 				end
+				update_sources_visibility
+				update_options_layout
 				request_update_filter
 			end
 		end
@@ -1037,6 +1216,9 @@ feature {NONE} -- Widgets
 	options_box: EV_VERTICAL_BOX
 			-- Search options.
 
+	options_viewport: EV_VIEWPORT
+			-- Viewport containing `options_box' (see `update_options_layout').
+
 	results_box: EV_VERTICAL_BOX
 			-- Results (with border).
 
@@ -1061,6 +1243,12 @@ feature {NONE} -- Widgets
 	sources_box: EV_HORIZONTAL_BOX
 			-- Box containing the sources checkboxes.
 
+	sources_menu_button: EV_BUTTON
+			-- Compact sources selection (drop down menu).
+
+	sources_row: detachable EV_HORIZONTAL_BOX
+			-- Row containing the sources selection.
+
 	precompile_checkbox: detachable EV_CHECK_BUTTON
 			-- Optional checkbox to search also precompiled libraries (see `enable_precompile_option').
 
@@ -1079,8 +1267,14 @@ feature {NONE} -- Widgets
 	category_row: detachable EV_HORIZONTAL_BOX
 			-- Row containing the category selection.
 
+	tools_buttons_box: EV_HORIZONTAL_BOX
+			-- Tools buttons (refresh, configuration, packages).
+
 	status_label: EV_LABEL
 			-- Status (number of results, messages).
+
+	status_cell: EV_CELL
+			-- Place of `status_label' in the tools bar.
 
 	search_results_box: EIFFEL_SEARCH_ITEMS_BOX
 			-- Search results box.

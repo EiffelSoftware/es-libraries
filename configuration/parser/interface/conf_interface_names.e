@@ -688,11 +688,23 @@ feature -- Find library dialog
 	dialog_find_library_add_custom_title: STRING_32 do Result := locale.translation ("Add custom library to project")	end
 	dialog_find_library_details: STRING_32 do Result := locale.translation ("Details")	end
 	dialog_find_library_details_tooltip: STRING_32 do Result := locale.translation ("Show or hide the details of the selected library.")	end
+	dialog_find_library_add_menu: STRING_32 do Result := locale.translation ("Add")	end
+	dialog_find_library_add_menu_tooltip: STRING_32 do Result := locale.translation ("Add the selected library, or a custom library, to the project.")	end
+	dialog_find_library_settings_menu: STRING_32 do Result := locale.translation ("Settings")	end
+	dialog_find_library_settings_menu_tooltip: STRING_32 do Result := locale.translation ("Reload the libraries, display the configuration files used for libraries lookup, or manage IRON packages.")	end
+	dialog_search_library_reload: STRING_32 do Result := locale.translation ("Reload libraries")	end
+	dialog_search_library_display_configuration: STRING_32 do Result := locale.translation ("Display locations of configuration files...")	end
+	dialog_search_library_manage_iron_packages: STRING_32 do Result := locale.translation ("Manage IRON packages...")	end
 	dialog_find_library_location_required: STRING_32 do Result := locale.translation ("The location of the library is required.")	end
 	dialog_search_library_categories_button (nb, a_count: INTEGER): STRING_32
 		do
 			Result := locale.formatted_string (locale.translation ("Category ($1/$2)"), [nb, a_count])
 		end
+	dialog_search_library_sources_button (nb, a_count: INTEGER): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Sources ($1/$2)"), [nb, a_count])
+		end
+	dialog_search_library_sources_tooltip: STRING_32 do Result := locale.translation ("Select where to search the libraries.")	end
 	dialog_find_library_no_selection: STRING_32 do Result := locale.translation ("Select a library to see its details.")	end
 	dialog_find_library_name_in_project: STRING_32 do Result := locale.translation ("Name in project")	end
 	dialog_find_library_location: STRING_32 do Result := locale.translation ("Location")	end
