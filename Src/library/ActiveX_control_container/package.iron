@@ -8,6 +8,7 @@ note
 	title: ActiveX Control Container
 	platforms: windows
 	tags: activex,windows
+	category: official
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	copyright: 1984-2013 Eiffel Software and others
 

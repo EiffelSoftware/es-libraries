@@ -1105,12 +1105,10 @@ feature -- Element change
 			-- Write `s' at current position.
 		local
 			n: like {READABLE_STRING_8}.count
-			ext_s: ANY
 		do
 			n := s.count
 			if n > 0 then
-				ext_s := s.area
-				file_ps (file_pointer, $ext_s, n)
+				file_ps (file_pointer, s.area.item_address (s.area_lower), n)
 			end
 		end
 
@@ -2219,7 +2217,7 @@ invariant
 	name_not_empty: not internal_name.is_empty
 
 note
-	copyright: "Copyright (c) 1984-2020, Eiffel Software and others"
+	copyright: "Copyright (c) 1984-2026, Eiffel Software and others"
 	license:   "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
