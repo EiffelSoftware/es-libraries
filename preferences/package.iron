@@ -3,6 +3,7 @@ package preferences
 project
 	preferences_reg = "preferences_reg.ecf"
 	preferences_xml = "preferences_xml.ecf"
+	preferences = "preferences.ecf"
 
 note
 	description: "[

@@ -12,9 +12,9 @@ project
 	mariadb = "dbms/rdbms/mariadb/mariadb.ecf"
 	mysql = "dbms/rdbms/mysql/mysql.ecf"
 	postgresql = "dbms/rdbms/postgresql/postgresql.ecf"
-	odbc = "dbms/rdbms/odbc/odbc.ecf"
 	oracle = "dbms/rdbms/oracle/oracle.ecf"
 	sybase = "dbms/rdbms/sybase/sybase.ecf"
+	odbc = "dbms/rdbms/odbc/odbc.ecf"
 
 note
 	title: Eiffel Store
