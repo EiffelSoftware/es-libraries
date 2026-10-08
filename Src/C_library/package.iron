@@ -14,6 +14,7 @@ note
 	title: C_library dependencies
 	description: Clibs dependencies used by other Eiffe libraries. Please do not use directly.
 	tags: clib,libpng,zlib,libcurl,openssl
+	category: official
 	copyright: 1984-2017 Eiffel Software and others
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	link[license]: http://www.eiffel.com/licensing/forum.txt
