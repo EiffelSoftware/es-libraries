@@ -4,8 +4,7 @@
 		<description>Eiffel SVN (Subversion library)</description>
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option debug="true" warning="warning" is_obsolete_iteration="true"/>

@@ -3,10 +3,9 @@
 	<target name="imap_client_lib">
 		<root class="IMAP_CLIENT_LIB" feature="make"/>
 		<file_rule>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 			<exclude>/\.git$</exclude>
-			<exclude>/\.svn$</exclude>
 		</file_rule>
 		<option warning="true">
 		</option>

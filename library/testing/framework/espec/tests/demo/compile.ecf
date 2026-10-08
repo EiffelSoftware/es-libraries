@@ -11,7 +11,7 @@
 		<library name="espec" location="..\..\library\espec.ecf" readonly="false"/>
 		<cluster name="testing-espec" location=".\" recursive="true">
 			<file_rule>
-				<exclude>.svn</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>EIFGENs</exclude>
 				<exclude>auth</exclude>
 			</file_rule>

@@ -3,8 +3,7 @@
 	<target name="json_test_suite">
 		<root cluster="test_suite" class="APPLICATION" feature="make"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option warning="true">

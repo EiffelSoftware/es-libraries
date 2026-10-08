@@ -3,9 +3,8 @@
 	<target name="hal">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
-			<exclude>/\.svn$</exclude>
 		</file_rule>
 		<option warning="true">
 		</option>

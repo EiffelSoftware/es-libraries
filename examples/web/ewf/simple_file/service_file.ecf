@@ -11,9 +11,8 @@
 		<library name="wsf" location="..\..\..\..\library\web\framework\ewf\wsf\wsf.ecf"/>
 		<cluster name="service_file" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
-				<exclude>/\.svn$</exclude>
 			</file_rule>
 		</cluster>
 	</target>

@@ -3,10 +3,9 @@
 	<target name="command_options">
 		<root class="APPLICATION" feature="make"/>
 		<file_rule>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 			<exclude>/\.git$</exclude>
-			<exclude>/\.svn$</exclude>
 		</file_rule>
 		
 		<option warning="warning">
