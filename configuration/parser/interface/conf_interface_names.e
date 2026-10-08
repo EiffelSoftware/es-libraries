@@ -634,7 +634,31 @@ feature -- Create library dialog
 			If unchecked, the searched text can match anywhere (i.e "net" is considered as "*net*").
 			If checked, no wildchar is added automatically.
 		]") end
-	dialog_search_library_precompiled: STRING_32 do Result := locale.translation ("precompiled")	end
+	dialog_search_library_search: STRING_32 do Result := locale.translation ("Search")	end
+	dialog_search_library_search_libraries_tooltip: STRING_32 do Result := locale.translation ("Search libraries by name, title, tags or description (for instance: json, or category:contrib json).%NPress Enter to search immediately, Down to go to the results.")	end
+	dialog_search_library_search_classes_tooltip: STRING_32 do Result := locale.translation ("Search libraries containing a class (for instance: HASH_TABLE). Wildcards * and ? are supported.%NPress Enter to search immediately, Down to go to the results.")	end
+	dialog_search_library_find: STRING_32 do Result := locale.translation ("Find")	end
+	dialog_search_library_find_libraries: STRING_32 do Result := locale.translation ("Libraries")	end
+	dialog_search_library_find_classes: STRING_32 do Result := locale.translation ("Classes")	end
+	dialog_search_library_sources: STRING_32 do Result := locale.translation ("Sources")	end
+	dialog_search_library_source_local: STRING_32 do Result := locale.translation ("Local")	end
+	dialog_search_library_source_iron_installed: STRING_32 do Result := locale.translation ("IRON installed")	end
+	dialog_search_library_source_iron_available: STRING_32 do Result := locale.translation ("IRON available")	end
+	dialog_search_library_source_class_index: STRING_32 do Result := locale.translation ("Class index")	end
+	dialog_search_library_void_safety: STRING_32 do Result := locale.translation ("Void-safety")	end
+	dialog_search_library_source: STRING_32 do Result := locale.translation ("Source")	end
+	dialog_search_library_in_project_tooltip: STRING_32 do Result := locale.translation ("Already in the project")	end
+	dialog_search_library_show_incompatible: STRING_32 do Result := locale.translation ("Show incompatible")	end
+	dialog_search_library_show_incompatible_tooltip: STRING_32 do Result := locale.translation ("Also show the libraries whose void-safety level is too weak for the project.")	end
+	dialog_search_library_incompatible: STRING_32 do Result := locale.translation ("too weak for the project")	end
+	dialog_search_library_results_status (nb, nb_hidden: INTEGER): STRING_32
+		do
+			Result := locale.formatted_string (locale.plural_translation ("$1 result", "$1 results", nb), [nb])
+			if nb_hidden > 0 then
+				Result.append (locale.formatted_string (locale.translation (" ($1 hidden: incompatible)"), [nb_hidden]))
+			end
+		end
+	dialog_search_library_precompiled: STRING_32 do Result := locale.translation ("Precompiled")	end
 	dialog_search_library_precompiled_tooltip: STRING_32 do Result := locale.translation ("Search also precompiled libraries (added to the project as precompiled library).")	end
 	dialog_search_library_category: STRING_32 do Result := locale.translation ("Category")	end
 	dialog_search_library_category_tooltip: STRING_32 do Result := locale.translation ("Show only libraries from the selected categories.")	end
@@ -643,6 +667,76 @@ feature -- Create library dialog
 	dialog_search_library_category_prerelease: STRING_32 do Result := locale.translation ("Pre-release")	end
 	dialog_search_library_category_sdk: STRING_32 do Result := locale.translation ("SDK")	end
 	dialog_search_library_category_precompiled: STRING_32 do Result := locale.translation ("Precompiled")	end
+
+feature -- Find library dialog
+
+	dialog_find_library_title: STRING_32 do Result := locale.translation ("Find Library")	end
+	dialog_find_library_add_to_project: STRING_32 do Result := locale.translation ("Add to project")	end
+	dialog_find_library_install_and_add: STRING_32 do Result := locale.translation ("Install and add")	end
+	dialog_find_library_replace_precompile: STRING_32 do Result := locale.translation ("Replace precompiled library")	end
+	dialog_find_library_close: STRING_32 do Result := locale.translation ("Close")	end
+	dialog_find_library_close_tooltip: STRING_32 do Result := locale.translation ("Close this dialog.")	end
+	dialog_find_library_add_to_project_tooltip: STRING_32 do Result := locale.translation ("Add the selected library to the project.")	end
+	dialog_find_library_install_and_add_tooltip: STRING_32 do Result := locale.translation ("Install the selected IRON package, then add its library to the project.")	end
+	dialog_find_library_replace_precompile_tooltip: STRING_32 do Result := locale.translation ("Use the selected precompiled library instead of the current one (the project will have to be recompiled from scratch).")	end
+	dialog_find_library_install: STRING_32 do Result := locale.translation ("Install")	end
+	dialog_find_library_install_tooltip: STRING_32 do Result := locale.translation ("Install the selected IRON package (without adding it to the project).")	end
+	dialog_find_library_uninstall: STRING_32 do Result := locale.translation ("Uninstall")	end
+	dialog_find_library_uninstall_tooltip: STRING_32 do Result := locale.translation ("Uninstall the selected IRON package.")	end
+	dialog_find_library_add_custom: STRING_32 do Result := locale.translation ("Add custom library to project...")	end
+	dialog_find_library_add_custom_tooltip: STRING_32 do Result := locale.translation ("Add a library from any location (Eiffel configuration file) to the project.")	end
+	dialog_find_library_add_custom_title: STRING_32 do Result := locale.translation ("Add custom library to project")	end
+	dialog_find_library_details: STRING_32 do Result := locale.translation ("Details")	end
+	dialog_find_library_details_tooltip: STRING_32 do Result := locale.translation ("Show or hide the details of the selected library.")	end
+	dialog_find_library_location_required: STRING_32 do Result := locale.translation ("The location of the library is required.")	end
+	dialog_search_library_categories_button (nb, a_count: INTEGER): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Category ($1/$2)"), [nb, a_count])
+		end
+	dialog_find_library_no_selection: STRING_32 do Result := locale.translation ("Select a library to see its details.")	end
+	dialog_find_library_name_in_project: STRING_32 do Result := locale.translation ("Name in project")	end
+	dialog_find_library_location: STRING_32 do Result := locale.translation ("Location")	end
+	dialog_find_library_tags: STRING_32 do Result := locale.translation ("Tags")	end
+	dialog_find_library_license: STRING_32 do Result := locale.translation ("License")	end
+	dialog_find_library_copyright: STRING_32 do Result := locale.translation ("Copyright")	end
+	dialog_find_library_links: STRING_32 do Result := locale.translation ("Links")	end
+	dialog_find_library_classes: STRING_32 do Result := locale.translation ("Classes")	end
+	dialog_find_library_in_project: STRING_32 do Result := locale.translation ("Already in the project")	end
+	dialog_find_library_not_installed: STRING_32 do Result := locale.translation ("Not installed: it will be installed first.")	end
+	dialog_find_library_void_safety_matches: STRING_32 do Result := locale.translation ("matches the project")	end
+	dialog_find_library_void_safety_warning: STRING_32 do Result := locale.translation ("usable by the project, with warnings")	end
+	dialog_find_library_void_safety_too_weak: STRING_32 do Result := locale.translation ("too weak for the project: it cannot be added")	end
+	dialog_find_library_name_already_used (a_name: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Name %"$1%" is already used in the project."), [a_name])
+		end
+	dialog_find_library_invalid_name (a_name: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("%"$1%" is not a valid name."), [a_name])
+		end
+	dialog_find_library_added (a_name: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("%"$1%" added to the project."), [a_name])
+		end
+	dialog_find_library_precompile_set (a_name: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Precompiled library %"$1%" is now used by the project (recompilation from scratch needed)."), [a_name])
+		end
+	dialog_find_library_replace_precompile_question (a_name, a_location, a_new_location: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("The project already uses the precompiled library %"$1%" ($2).%NReplace it with $3?"), [a_name, a_location, a_new_location])
+		end
+	dialog_find_library_choose_project_title (a_package: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Select the library to add from package %"$1%""), [a_package])
+		end
+	dialog_find_library_no_project_in_package (a_package: READABLE_STRING_GENERAL): STRING_32
+		do
+			Result := locale.formatted_string (locale.translation ("Package %"$1%" does not provide any library."), [a_package])
+		end
+
+feature -- Create library dialog (continued)
+
 	dialog_search_library_category_other: STRING_32 do Result := locale.translation ("Other")	end
 
 	dialog_search_classes: STRING_32 do Result := locale.translation ("Classes")	end

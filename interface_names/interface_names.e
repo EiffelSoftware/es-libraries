@@ -1199,12 +1199,6 @@ feature -- Context menu
 
 feature -- Label texts
 
-	l_library_included (a_name: READABLE_STRING_GENERAL): STRING_32
-			do Result := locale.formatted_string (locale.translation ("Library %"$1%" was included in the current target."), [a_name]) end
-	l_precompile_included (a_name: READABLE_STRING_GENERAL): STRING_32
-			do Result := locale.formatted_string (locale.translation ("Precompiled library %"$1%" is now used by the current target.%NThe project has to be recompiled from scratch."), [a_name]) end
-	l_replace_precompile (a_name, a_location, a_new_location: READABLE_STRING_GENERAL): STRING_32
-			do Result := locale.formatted_string (locale.translation ("The current target already uses the precompiled library %"$1%" ($2).%NReplace it with $3?"), [a_name, a_location, a_new_location]) end
 	l_compile_after_including_libraries: STRING_32
 			do Result := locale.translation ("Libraries were included in the current target.%NCompile the project now?") end
 	l_Ace_file_for_frame: STRING_32		do Result := locale.translation("Configuration file")	end

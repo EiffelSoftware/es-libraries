@@ -239,6 +239,13 @@ feature -- Access
 			general_tick_icon_attached: Result /= Void
 		end
 
+	general_refresh_icon: EV_PIXMAP
+			-- Access to 'refresh' (reload) pixmap.
+		deferred
+		ensure
+			general_refresh_icon_attached: Result /= Void
+		end
+
 	general_tick_icon_buffer: EV_PIXEL_BUFFER
 			-- Access to 'tick' pixmap pixel buffer.
 		deferred
