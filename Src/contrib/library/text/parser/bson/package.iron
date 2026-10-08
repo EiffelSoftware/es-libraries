@@ -10,6 +10,7 @@ note
 		Parse and generate BSON content according to the BSON 1.1 specification.
 	]"
 	tags: bson, binary, json, parser, serialization, mongodb
+	category: contrib
 	license: MIT
 	copyright: 2026 Jocelyn Fiat and Eiffel Software
 	link[doc]: "https://bsonspec.org/"

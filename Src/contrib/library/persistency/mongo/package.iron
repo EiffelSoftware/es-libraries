@@ -18,6 +18,7 @@ BSON wrapper
 
 	collection: Mongo
 	tags: mongo,mongodb,bson,json,nosql,database,document,vector
+	category: contrib
 	copyright: 2015-2025, Javier Velilla, Jocelyn Fiat, Eiffel Software and others
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	link[license]: http://www.eiffel.com/licensing/forum.txt

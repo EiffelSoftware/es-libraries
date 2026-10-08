@@ -12,6 +12,7 @@ This is convenient to propagate error from a layer to another without adding unw
 
 	collection: EWF
 	tags: error,framework
+	category: contrib
 	license: Eiffel Forum License v2
 	copyright: Jocelyn Fiat, Eiffel Software and others.
 	link[license]: http://www.eiffel.com/licensing/forum.txt

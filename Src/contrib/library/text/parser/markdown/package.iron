@@ -12,6 +12,7 @@ Subset aimed at common CommonMark constructs (headings, paragraphs, lists, block
 				]"
 
 	tags: markdown,commonmark,parser,ast,rendering,html
+	category: contrib
 	copyright: 2026, Eiffel Software and contributors
 	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
 	link[license]: http://www.eiffel.com/licensing/forum.txt
