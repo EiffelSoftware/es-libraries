@@ -56,6 +56,7 @@ The goal of the library is to provide the following features.
 				]"
 
 	tags: cms,user, web, rest, api,node,module,theme,authentication
+	category: official
 	copyright: 2011-2016, Jocelyn Fiat, Javier Velilla, Eiffel Software and others
 	license: Eiffel Forum License v2 (see https://www.eiffel.com/licensing/forum.txt)
 	link[license]: https://www.eiffel.com/licensing/forum.txt
