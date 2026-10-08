@@ -3,7 +3,7 @@
 	<target name="patterns-tests">
 		<root class="BRIDGE_TEST"/>
 		<file_rule>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<file_rule>
 			<exclude>unix</exclude>

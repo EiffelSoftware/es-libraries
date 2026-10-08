@@ -6,7 +6,7 @@
 		<root all_classes="true"/>
 		<file_rule>
 			<exclude>/EIFGEN.{0,1}$</exclude>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/temp$</exclude>
 		</file_rule>
 		<option warning="error">
@@ -22,7 +22,7 @@
 		<library name="objective_c" location="$ISE_LIBRARY\library\objc_base\objc_base.ecf"/>
 		<cluster name="cocoa" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/\.svn$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/\Clib$</exclude>
 				<exclude>/tests</exclude>
 				<exclude>spec</exclude>
