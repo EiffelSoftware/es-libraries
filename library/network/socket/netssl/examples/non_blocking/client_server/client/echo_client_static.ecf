@@ -18,7 +18,7 @@
 		</library>
 		<cluster name="echo_client" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

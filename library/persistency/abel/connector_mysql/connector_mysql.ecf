@@ -9,8 +9,7 @@
 		<library name="mysql" location="$ISE_LIBRARY\unstable\library\persistency\database\mysqli\mysqli.ecf"/>
 		<cluster name="abel_connector_mysql" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

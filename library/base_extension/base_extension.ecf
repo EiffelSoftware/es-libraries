@@ -4,7 +4,7 @@
 		<description>Base extension (unstable) library.</description>
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/\.svn</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<option warning="error" namespace="EiffelSoftware.Library.Base">
 			<warning name="obsolete_feature" value="all"/>

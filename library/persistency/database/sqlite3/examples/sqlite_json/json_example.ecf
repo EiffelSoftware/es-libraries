@@ -4,7 +4,7 @@
 		<root class="JSON_EXAMPLE" feature="make"/>
 		<file_rule>
 			<exclude>EIFGENs</exclude>
-			<exclude>\.svn</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<option warning="warning" is_obsolete_iteration="true">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
@@ -24,8 +24,7 @@
 		<cluster name="json_example" location=".\">
 			<option warning="none" is_obsolete_iteration="true"/>
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>
