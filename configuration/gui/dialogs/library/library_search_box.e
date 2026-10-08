@@ -192,6 +192,7 @@ feature {NONE} -- Initialization
 					cb.select_actions.extend (agent request_update_filter)
 				end
 				hb1.extend (hb1cb)
+				search_in_checkboxes_box := hb1cb
 			end
 
 				-- hb2: Search by class
@@ -318,7 +319,32 @@ feature -- Element change
 			parent_window := w
 		end
 
+feature -- Settings
+
+	enable_precompile_option
+			-- Add a "precompiled" checkbox (unchecked by default) to also search precompiled libraries.
+			-- Associated items have the {ES_LIBRARY_CATEGORIES}.precompiled category.
+		local
+			cb: EV_CHECK_BUTTON
+		do
+			if precompile_checkbox = Void and attached search_in_checkboxes_box as hb then
+				create cb.make_with_text (conf_interface_names.dialog_search_library_precompiled)
+				cb.set_tooltip (conf_interface_names.dialog_search_library_precompiled_tooltip)
+				cb.select_actions.extend (agent request_update_filter)
+				hb.extend (cb)
+				hb.disable_item_expand (cb)
+				precompile_checkbox := cb
+			end
+		end
+
 feature -- Status report
+
+	is_precompile_search_selected: BOOLEAN
+			-- Search also precompiled libraries?
+		do
+			Result := is_search_in_mode and then
+				attached precompile_checkbox as cb and then cb.is_sensitive and then cb.is_selected
+		end
 
 	has_filter_focus: BOOLEAN
 			-- Has filter text field the focus?
@@ -492,6 +518,7 @@ feature {NONE} -- Update filter
 		do
 			search_in_manager.set_is_strict (is_strict)
 			search_by_class_manager.set_is_strict (is_strict)
+			precompile_manager.set_is_strict (is_strict)
 			if not filter_text.is_whitespace then
 				request_update_filter
 			end
@@ -552,6 +579,9 @@ feature {NONE} -- Libraries cache.
 				if nb = 0 then
 					m.reset_all (target)
 				end
+			end
+			if is_precompile_search_selected then
+				precompile_manager.reset_all (target)
 			end
 			populate
 		end
@@ -667,6 +697,14 @@ feature {NONE} -- Access
 			Result.register (create {ES_LIBRARY_INDEX_PROVIDER})
 		end
 
+	precompile_manager: ES_LIBRARY_PROVIDER_SERVICE
+			-- Providers of precompiled libraries.
+		once
+			create Result.make (2)
+			Result.register (create {ES_PRECOMPILE_LIBRARY_LOCAL_PROVIDER})
+			Result.register (create {ES_PRECOMPILE_LIBRARY_IRON_PROVIDER})
+		end
+
 	reset_iron_configuration_libraries (a_target: CONF_TARGET)
 		do
 			search_in_manager.reset_provider ({ES_LIBRARY_IRON_PROVIDER}.identifier, a_target)
@@ -706,11 +744,42 @@ feature {NONE} -- Access
 				loop
 					Result.force (ic)
 				end
-				if attached lib_manager as m then
-					m.sort_list (Result)
-				end
 			else
 				create {ARRAYED_LIST [ES_LIBRARY_PROVIDER_ITEM]} Result.make (0)
+			end
+			if is_precompile_search_selected then
+				Result.append (precompile_libraries (precompile_manager, a_filter, Void))
+			end
+			search_in_manager.sort_list (Result)
+		end
+
+	precompile_libraries (a_manager: ES_LIBRARY_PROVIDER_SERVICE; a_filter: detachable READABLE_STRING_32; a_provider_ids: detachable LIST [READABLE_STRING_GENERAL]): LIST [ES_LIBRARY_PROVIDER_ITEM]
+			-- Precompiled libraries provided by `a_manager' (i.e "precomp_*" systems),
+			-- associated items have the {ES_LIBRARY_CATEGORIES}.precompiled category.
+		local
+			l_precompilation: detachable STRING_32
+		do
+				-- We store the ISE_PRECOMP environment variable because when editing an ECF, it can
+				-- be either .NET or classic so we need to compute the right path.
+			l_precompilation := eiffel_layout.get_environment_32 ({EIFFEL_CONSTANTS}.ise_precomp_env)
+			eiffel_layout.set_precompile (target.setting_msil_generation, target.setting_msil_clr_version)
+
+				-- Lookup all the ECFs that matches.
+			create {ARRAYED_LIST [ES_LIBRARY_PROVIDER_ITEM]} Result.make (0)
+			across
+				a_manager.libraries (a_filter, target, a_provider_ids) as ic
+			loop
+				if attached {CONF_SYSTEM_VIEW} ic.value as cfg and then categories.is_precompile_system_name (cfg.system_name) then
+					ic.set_category (categories.precompiled)
+					Result.force (ic)
+				end
+			end
+
+				-- Restore ISE_PRECOMP to its previous value.
+			if l_precompilation /= Void then
+				eiffel_layout.set_environment (l_precompilation, {EIFFEL_CONSTANTS}.ise_precomp_env)
+			else
+				eiffel_layout.set_environment ("", {EIFFEL_CONSTANTS}.ise_precomp_env)
 			end
 		end
 
@@ -718,6 +787,12 @@ feature {NONE} -- Access
 			-- Results of last search, not filtered by category.
 
 	other_category: STRING_32 = "-"
+
+	categories: ES_LIBRARY_CATEGORIES
+			-- Library categories helper.
+		once
+			create Result
+		end
 			-- Key used for items without any (known) category.
 
 feature {NONE} -- Widgets
@@ -730,6 +805,12 @@ feature {NONE} -- Widgets
 
 	strict_checkbox: EV_CHECK_BUTTON
 			-- Strict matching checkbox.
+
+	precompile_checkbox: detachable EV_CHECK_BUTTON
+			-- Optional checkbox to search also precompiled libraries (see `enable_precompile_option').
+
+	search_in_checkboxes_box: detachable EV_HORIZONTAL_BOX
+			-- Box containing the "search in" provider checkboxes.
 
 	provider_checkboxes: detachable STRING_TABLE [EV_CHECK_BUTTON]
 			-- Checkboxes, indexed by provider identifier.

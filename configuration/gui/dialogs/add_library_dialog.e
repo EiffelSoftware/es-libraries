@@ -301,6 +301,20 @@ feature {NONE} -- Action handlers
 					selection_cell.extend (w)
 				end
 			end
+			is_precompile_item_selected := a_search_item /= Void and then
+				attached a_search_item.category as l_category and then
+				l_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.precompiled)
+			if is_precompile_item_selected then
+				on_precompile_item_selected
+			end
+		end
+
+	is_precompile_item_selected: BOOLEAN
+			-- Is the selected search item a precompiled library?
+
+	on_precompile_item_selected
+			-- Selected search item is a precompiled library.
+		do
 		end
 
 	on_ok (w: ADD_LIBRARY_WIDGET)

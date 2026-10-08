@@ -634,12 +634,15 @@ feature -- Create library dialog
 			If unchecked, the searched text can match anywhere (i.e "net" is considered as "*net*").
 			If checked, no wildchar is added automatically.
 		]") end
+	dialog_search_library_precompiled: STRING_32 do Result := locale.translation ("precompiled")	end
+	dialog_search_library_precompiled_tooltip: STRING_32 do Result := locale.translation ("Search also precompiled libraries (added to the project as precompiled library).")	end
 	dialog_search_library_category: STRING_32 do Result := locale.translation ("Category")	end
 	dialog_search_library_category_tooltip: STRING_32 do Result := locale.translation ("Show only libraries from the selected categories.")	end
 	dialog_search_library_category_official: STRING_32 do Result := locale.translation ("Official library")	end
 	dialog_search_library_category_contrib: STRING_32 do Result := locale.translation ("User contribution")	end
 	dialog_search_library_category_prerelease: STRING_32 do Result := locale.translation ("Pre-release")	end
 	dialog_search_library_category_sdk: STRING_32 do Result := locale.translation ("SDK")	end
+	dialog_search_library_category_precompiled: STRING_32 do Result := locale.translation ("Precompiled")	end
 	dialog_search_library_category_other: STRING_32 do Result := locale.translation ("Other")	end
 
 	dialog_search_classes: STRING_32 do Result := locale.translation ("Classes")	end

@@ -45,7 +45,11 @@ feature -- Access
 				loop
 					l_info := @ ic.key
 					create elt.make (1.0, l_info, l_info.name + " (" + l_info.uuid.out + ")")
-					elt.set_category (categories.category_from_path (l_info.location))
+					if categories.is_precompile_system_name (l_info.name) then
+						elt.set_category (categories.precompiled)
+					else
+						elt.set_category (categories.category_from_path (l_info.location))
+					end
 					elt.set_info (ic, "classes")
 					Result.force (elt)
 				end

@@ -88,9 +88,10 @@ feature {NONE} -- Cache: implementation
 			-- `cache_name' including the version of the cached data,
 			-- to ignore cache built with previous versions.
 		do
-			Result := cache_name (a_target) + ".3"
+			Result := cache_name (a_target) + ".4"
 				--| 2: includes "category" information.
 				--| 3: excludes systems whose library target is extended by an application target.
+				--| 4: "precompiled" category.
 		end
 
 	cache_name (a_target: CONF_TARGET): STRING

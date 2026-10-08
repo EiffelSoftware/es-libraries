@@ -1,6 +1,6 @@
 note
 	description: "[
-			Categories of libraries and packages (official, contrib, prerelease, sdk).
+			Categories of libraries and packages (official, contrib, prerelease, sdk, precompiled).
 			The category is usually provided by the `category` note of the package.iron file,
 			otherwise it is deduced from the location of the library inside $ISE_LIBRARY.
 		]"
@@ -31,13 +31,26 @@ feature -- Categories
 	sdk: STRING_32 = "sdk"
 			-- EiffelStudio framework.
 
+	precompiled: STRING_32 = "precompiled"
+			-- Precompiled libraries (system name starting with "precomp_").
+
 	categories: ARRAY [READABLE_STRING_32]
 			-- All known categories.
 		once
-			Result := <<official, contrib, prerelease, sdk>>
+			Result := <<official, contrib, prerelease, sdk, precompiled>>
 		end
 
 feature -- Query
+
+	is_precompile_system_name (a_system_name: READABLE_STRING_GENERAL): BOOLEAN
+			-- Is `a_system_name' the name of a precompiled library (i.e starting with "precomp_")?
+		do
+			Result := a_system_name.count > precomp_prefix.count and then
+				a_system_name.substring (1, precomp_prefix.count).is_case_insensitive_equal (precomp_prefix)
+		end
+
+	precomp_prefix: STRING_32 = "precomp_"
+			-- Prefix of system name of precompiled libraries.
 
 	category_from_path (a_path: PATH): detachable STRING_32
 			-- Category deduced from the location `a_path' of a library (or package) inside $ISE_LIBRARY, if any.

@@ -21,9 +21,7 @@ feature {NONE} -- Access
 
 	search_in_manager: ES_LIBRARY_PROVIDER_SERVICE
 		once
-			create Result.make (2)
-			Result.register (create {ES_PRECOMPILE_LIBRARY_LOCAL_PROVIDER})
-			Result.register (create {ES_PRECOMPILE_LIBRARY_IRON_PROVIDER})
+			Result := precompile_manager
 		end
 
 	search_by_class_manager: ES_LIBRARY_PROVIDER_SERVICE
@@ -32,32 +30,9 @@ feature {NONE} -- Access
 		end
 
 	all_search_results (a_filter: detachable READABLE_STRING_32; a_provider_ids: detachable LIST [READABLE_STRING_GENERAL]): LIST [ES_LIBRARY_PROVIDER_ITEM]
-		local
-			libs: like all_search_results
-			l_precompilation: detachable STRING_32
 		do
-				-- We store the ISE_PRECOMP environment variable because when editing an ECF, it can
-				-- be either .NET or classic so we need to compute the right path.
-			l_precompilation := eiffel_layout.get_environment_32 ({EIFFEL_CONSTANTS}.ise_precomp_env)
-			eiffel_layout.set_precompile (target.setting_msil_generation, target.setting_msil_clr_version)
-
-				-- Lookup all the ECFs that matches.
-			libs := Precursor (a_filter, a_provider_ids)
-			create {ARRAYED_LIST [ES_LIBRARY_PROVIDER_ITEM]} Result.make (libs.count)
-			across
-				libs as ic
-			loop
-				if attached {CONF_SYSTEM_VIEW} ic.value as cfg and then cfg.system_name.starts_with ("precomp_") then
-					Result.force (ic)
-				end
-			end
-
-				-- Restore ISE_PRECOMP to its previous value.
-			if l_precompilation /= Void then
-				eiffel_layout.set_environment (l_precompilation, {EIFFEL_CONSTANTS}.ise_precomp_env)
-			else
-				eiffel_layout.set_environment ("", {EIFFEL_CONSTANTS}.ise_precomp_env)
-			end
+			Result := precompile_libraries (search_in_manager, a_filter, a_provider_ids)
+			search_in_manager.sort_list (Result)
 		end
 
 note

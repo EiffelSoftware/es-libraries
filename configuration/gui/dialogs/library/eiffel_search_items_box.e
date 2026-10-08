@@ -544,6 +544,8 @@ feature -- Query
 				Result := conf_interface_names.dialog_search_library_category_prerelease
 			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.sdk) then
 				Result := conf_interface_names.dialog_search_library_category_sdk
+			elseif a_category.is_case_insensitive_equal ({ES_LIBRARY_CATEGORIES}.precompiled) then
+				Result := conf_interface_names.dialog_search_library_category_precompiled
 			else
 				Result := a_category.as_string_32
 			end

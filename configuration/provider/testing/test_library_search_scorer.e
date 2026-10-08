@@ -108,6 +108,19 @@ feature -- Tests
 			assert ("outside root", cats.category_from_path_in (create {PATH}.make_from_string ("elsewhere/library/foo/foo.ecf"), r) = Void)
 		end
 
+	test_precompile_system_name
+		local
+			cats: ES_LIBRARY_CATEGORIES
+		do
+			create cats
+			assert ("precomp_base-safe", cats.is_precompile_system_name ("precomp_base-safe"))
+			assert ("case insensitive", cats.is_precompile_system_name ("Precomp_vision2"))
+			assert ("prefix only", not cats.is_precompile_system_name ("precomp_"))
+			assert ("library", not cats.is_precompile_system_name ("base"))
+			assert ("not prefix", not cats.is_precompile_system_name ("my_precomp_lib"))
+			assert ("known category", across cats.categories as ic some ic.same_string (cats.precompiled) end)
+		end
+
 feature {NONE} -- Implementation
 
 	views: ARRAYED_LIST [CONF_SYSTEM_VIEW]

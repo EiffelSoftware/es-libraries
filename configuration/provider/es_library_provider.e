@@ -88,7 +88,9 @@ feature {NONE} -- Implementation
 				if a_search_iron then
 					apply_iron_package_information_to (fn, Result)
 				end
-				if
+				if categories.is_precompile_system_name (Result.system_name) then
+					Result.set_info (categories.precompiled, "category")
+				elseif
 					Result.info ("category") = Void and then
 					attached categories.category_from_path (fn) as l_category
 				then
