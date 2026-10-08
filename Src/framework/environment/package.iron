@@ -4,5 +4,6 @@ package
 note
 	title: Eiffel Framework::Environment
 	tags:framework,environment
+	category: sdk
 
 end

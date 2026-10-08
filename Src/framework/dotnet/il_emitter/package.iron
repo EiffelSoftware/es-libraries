@@ -13,6 +13,7 @@ Eiffel `il_emitter` is a library which abstracts managed information such as nam
 The information can then be used to generate intermediate language source files, or PE executables or DLLs.	
 	]"
 	tags: dotnet,il,emitter,PEfile
+	category: sdk
 	copyright: 1984-2025 Eiffel Software and others
 	license: "GPL version 2 (see http://www.eiffel.com/licensing/gpl.txt)"
 end
