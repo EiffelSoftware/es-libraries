@@ -85,7 +85,8 @@ feature -- Access
 			else
 				create Result.make_current
 			end
-			Result := Result.extended ("libraries_index.db")
+			Result := Result.extended ("libraries_index-2.db")
+				--| 2: excludes systems whose library target is extended by an application target.
 		end
 
 	library_index: detachable LIBRARY_DATABASE
