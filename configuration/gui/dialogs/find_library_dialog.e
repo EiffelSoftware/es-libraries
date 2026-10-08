@@ -2,8 +2,8 @@ note
 	description: "[
 			Dialog to find libraries (local, iron packages, precompiled libraries), by metadata or by class name,
 			and add them to the target (as library, or precompiled library).
-			Each change is directly stored in the configuration file (see `store_target'),
-			and the dialog stays open to add other libraries.
+			Each change is stored (see `store_target'), and the dialog stays open to add other libraries.
+			The added libraries are listed in `added_libraries'.
 
 			Layout:
 				| search options (search text, mode, sources, categories)                |
@@ -80,6 +80,7 @@ feature {NONE} -- Initialization
 			create layout_cell
 			create horizontal_split
 			create vertical_split
+			create added_libraries.make (1)
 			is_details_shown := True
 		end
 
@@ -92,7 +93,9 @@ feature {NONE} -- Initialization
 			set_title (conf_interface_names.dialog_find_library_title)
 			set_icon_pixmap (conf_pixmaps.new_library_icon)
 
-			search_box.enable_precompile_option
+			if is_precompile_supported then
+				search_box.enable_precompile_option
+			end
 
 			create main
 			main.set_padding (layout_constants.default_padding_size)
@@ -167,7 +170,16 @@ feature -- Access
 	factory: CONF_PARSE_FACTORY
 			-- Factory to create the libraries.
 
+	added_libraries: ARRAYED_LIST [CONF_LIBRARY]
+			-- Libraries added to `target', in order.
+
 feature -- Status report
+
+	is_precompile_supported: BOOLEAN
+			-- Can precompiled libraries be searched and set as precompile of `target'?
+		do
+			Result := True
+		end
 
 	has_included_libraries: BOOLEAN
 			-- Was any library added to `target'?
@@ -336,6 +348,7 @@ feature {NONE} -- Events
 				if
 					b.is_in_target (l_item) or else
 					not b.is_compatible (l_item) or else
+					(b.is_precompile_item (l_item) and not is_precompile_supported) or else
 					not details_box.is_name_valid
 				then
 					add_button.disable_sensitive
@@ -403,6 +416,7 @@ feature {NONE} -- Add to project
 			target.add_library (g)
 			if store_target then
 				has_included_libraries := True
+				added_libraries.extend (g)
 				on_target_changed (conf_interface_names.dialog_find_library_added (a_name))
 			else
 					-- Revert

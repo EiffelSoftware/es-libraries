@@ -9,9 +9,48 @@ class
 
 inherit
 	TARGET_GROUPS_BASE_SECTION
+		redefine
+			add_group
+		end
 
 create
 	make
+
+feature -- Element update
+
+	add_group
+			-- Add new libraries, using the "Find Library" dialog (if `uses_find_library_dialog').
+		local
+			l_dial: TARGET_FIND_LIBRARY_DIALOG
+			l_group_sec: detachable like section_item_type
+		do
+			if uses_find_library_dialog then
+				create l_dial.make (target, configuration_window.conf_factory)
+				l_dial.show_modal_to_window (configuration_window)
+				across
+					l_dial.added_libraries as g
+				loop
+					if attached {like conf_item_type} g as l_group then
+						l_group_sec := create_group_section (l_group)
+						extend (l_group_sec)
+					end
+				end
+				if attached l_group_sec then
+					expand
+					l_group_sec.enable_select
+				end
+			else
+				Precursor
+			end
+		end
+
+feature -- Status report
+
+	uses_find_library_dialog: BOOLEAN
+			-- Are new groups added using the "Find Library" dialog?
+		do
+			Result := True
+		end
 
 feature -- Access
 

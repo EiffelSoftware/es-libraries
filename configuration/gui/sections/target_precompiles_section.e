@@ -16,11 +16,17 @@ inherit
 			section_item_type,
 			add_dialog_type,
 			update_toolbar_sensitivity,
-			context_menu
+			context_menu,
+			uses_find_library_dialog
 		end
 
 create
 	make
+
+feature -- Status report
+
+	uses_find_library_dialog: BOOLEAN = False
+			-- <Precursor>
 
 feature -- Access
 
