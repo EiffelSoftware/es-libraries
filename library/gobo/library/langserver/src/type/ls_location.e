@@ -5,14 +5,28 @@
 		"LSP locations inside a resource, such as a line inside a text file"
 
 	library: "Gobo Eiffel Language Server Protocol Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class LS_LOCATION
 
 inherit
 
-	LS_OPTIONAL_DEFINITION_RESULT
+	LS_OPTIONAL_RANGE_LOCATION
+		rename
+			make as male_optional_range_location
+		redefine
+			range,
+			process
+		end
+
+	LS_DEFINITION_RESULT
+
+	LS_TYPE_DEFINITION_RESULT
+
+	LS_DECLARATION_RESULT
+
+	LS_IMPLEMENTATION_RESULT
 
 create
 
@@ -35,17 +49,8 @@ feature {NONE} -- Initialization
 
 feature -- Access
 
-	uri: LS_DOCUMENT_URI
-			-- The text document's URI
-
 	range: LS_RANGE
 			-- Position range
-
-feature -- Field names
-
-	uri_name: STRING_8 = "uri"
-	range_name: STRING_8 = "range"
-			-- Field names
 
 feature -- Processing
 
@@ -57,7 +62,6 @@ feature -- Processing
 
 invariant
 
-	uri_not_void: uri /= Void
 	range_not_void: range /= Void
 
 end

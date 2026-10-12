@@ -5,7 +5,7 @@
 		"Eiffel class feature flatteners"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2001-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2001-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_FEATURE_FLATTENER
@@ -130,13 +130,21 @@ feature {NONE} -- Processing
 			i1, nb1: INTEGER
 			i2, nb2: INTEGER
 			l_parent_clause: ET_PARENT_LIST
+			l_has_ancestor_error: BOOLEAN
+			l_has_flattening_error: BOOLEAN
+			l_old_error_handler: detachable ET_ERROR_HANDLER
 		do
 			old_class := current_class
 			current_class := a_class
 			if not current_class.features_flattened then
 					-- Build ancestors of `current_class' if not already done.
 				current_class.process (system_processor.ancestor_builder)
-				if current_class.ancestors_built_successfully then
+				l_has_ancestor_error := not current_class.ancestors_built_successfully
+				if not l_has_ancestor_error or system_processor.is_fault_tolerant then
+					if l_has_ancestor_error then
+						l_old_error_handler := system_processor.error_handler
+						system_processor.set_error_handler_only (tokens.null_error_handler)
+					end
 					current_class.set_features_flattened
 						-- Process parents first.
 					nb1 := current_class.parents_count
@@ -161,7 +169,12 @@ feature {NONE} -- Processing
 						end
 						i1 := i1 + 1
 					end
-					if not current_class.has_flattening_error then
+					l_has_flattening_error := current_class.has_flattening_error
+					if not l_has_flattening_error or system_processor.is_fault_tolerant then
+						if l_has_flattening_error and l_old_error_handler = Void then
+							l_old_error_handler := system_processor.error_handler
+							system_processor.set_error_handler_only (tokens.null_error_handler)
+						end
 						error_handler.report_compilation_status (Current, current_class, system_processor)
 							-- Check validity rules of the parents and of formal
 							-- generic parameters of `current_class'.
@@ -170,9 +183,18 @@ feature {NONE} -- Processing
 							check_formal_parameters_validity
 							check_parents_validity
 						end
-						if not current_class.has_flattening_error then
+						l_has_flattening_error := current_class.has_flattening_error
+						if not l_has_flattening_error or system_processor.is_fault_tolerant then
+							if l_has_flattening_error and l_old_error_handler = Void then
+								l_old_error_handler := system_processor.error_handler
+								system_processor.set_error_handler_only (tokens.null_error_handler)
+							end
 							flatten_features
 						end
+					end
+					if l_old_error_handler /= Void then
+						system_processor.set_error_handler_only (l_old_error_handler)
+						set_fatal_error (current_class)
 					end
 				else
 					set_fatal_error (current_class)
@@ -251,10 +273,17 @@ feature {NONE} -- Feature flattening
 			j, l_alias_names_count: INTEGER
 			l_attribute_count: INTEGER
 			l_declared_attribute_count: INTEGER
+			l_has_flattening_error: BOOLEAN
+			l_old_error_handler: detachable ET_ERROR_HANDLER
 		do
 			has_signature_error := False
 			resolve_feature_adaptations
-			if not current_class.has_flattening_error then
+			l_has_flattening_error := current_class.has_flattening_error
+			if not l_has_flattening_error or system_processor.is_fault_tolerant then
+				if l_has_flattening_error then
+					l_old_error_handler := system_processor.error_handler
+					system_processor.set_error_handler_only (tokens.null_error_handler)
+				end
 				nb := named_features.count
 				from named_features.finish until named_features.before loop
 					a_named_feature := named_features.item_for_iteration
@@ -695,10 +724,12 @@ feature {NONE} -- Feature flattening
 						error_handler.report_vcch2a_error (current_class)
 					end
 				end
-				check_assigners_validity
-				check_creators_validity
-				check_convert_validity
 				check_kernel_features_validity
+				check_creators_validity
+				if l_old_error_handler /= Void then
+					system_processor.set_error_handler_only (l_old_error_handler)
+					set_fatal_error (current_class)
+				end
 			end
 			named_features.wipe_out
 		ensure
@@ -2072,10 +2103,39 @@ feature {NONE} -- Creators validity
 			a_name, other_name: ET_FEATURE_NAME
 			i, j, nb: INTEGER
 			k, h, nb2, nb3: INTEGER
+			l_count: NATURAL_32
 			a_feature: ET_FEATURE
 		do
 			a_creators := current_class.creators
-			if a_creators /= Void and then not a_creators.is_empty then
+			if a_creators = Void or else a_creators.is_empty then
+				if not current_class.is_deferred then
+						-- `default_create`.
+					if attached current_class.seeded_procedure (current_system.default_create_seed) as l_default_create then
+						if current_class.is_once then
+							if not attached {ET_ONCE_PROCEDURE} l_default_create as l_once_procedure then
+								set_fatal_error (current_class)
+								error_handler.report_vkcc4d_error (current_class, l_default_create)
+							elseif l_once_procedure.is_once_per_object then
+								set_fatal_error (current_class)
+								error_handler.report_vkcc4f_error (current_class, l_once_procedure)
+							elseif l_once_procedure.implementation_class = current_class then
+								l_once_procedure.set_once_creation_index (1)
+							end
+							if l_default_create.has_static_mark then
+								set_fatal_error (current_class)
+								error_handler.report_vkcc6gb_error (current_class, l_default_create)
+							end
+							if l_default_create.implementation_class /= current_class then
+								set_fatal_error (current_class)
+								error_handler.report_vkcc7gb_error (current_class, l_default_create)
+							end
+						elseif l_default_create.is_once then
+							set_fatal_error (current_class)
+							error_handler.report_vkcc4b_error (current_class, l_default_create)
+						end
+					end
+				end
+			else
 				if current_class.is_deferred then
 					set_fatal_error (current_class)
 					error_handler.report_vgcp1a_error (current_class, a_creators.first)
@@ -2085,6 +2145,7 @@ feature {NONE} -- Creators validity
 					a_creator := a_creators.item (i)
 					nb2 := a_creator.count
 					from k := 1 until k > nb2 loop
+						l_count := l_count + 1
 						a_name := a_creator.feature_name (k)
 						from h := 1 until h >= k loop
 							other_name := a_creator.feature_name (h)
@@ -2115,19 +2176,32 @@ feature {NONE} -- Creators validity
 						named_features.search (a_name)
 						if named_features.found then
 							a_feature := named_features.found_item.flattened_feature
-							if a_feature.is_procedure then
-								if a_feature.is_once then
-									set_fatal_error (current_class)
-									error_handler.report_vgcc6a_error (current_class, a_name, a_feature)
-								else
-										-- We finally got a valid creation
-										-- procedure. Record its seed.
-									a_name.set_seed (a_feature.first_seed)
-								end
-							else
+							a_name.set_seed (a_feature.first_seed)
+							if not a_feature.is_procedure then
 									-- This feature is not a procedure.
 								set_fatal_error (current_class)
 								error_handler.report_vgcp2b_error (current_class, a_name, a_feature)
+							elseif current_class.is_once then
+								if not attached {ET_ONCE_PROCEDURE} a_feature as l_once_procedure then
+									set_fatal_error (current_class)
+									error_handler.report_vkcc4c_error (current_class, a_name, a_feature)
+								elseif l_once_procedure.is_once_per_object then
+									set_fatal_error (current_class)
+									error_handler.report_vkcc4e_error (current_class, a_name, l_once_procedure)
+								elseif l_once_procedure.implementation_class = current_class then
+									l_once_procedure.set_once_creation_index (l_count)
+								end
+								if a_feature.has_static_mark then
+									set_fatal_error (current_class)
+									error_handler.report_vkcc6ga_error (current_class, a_name, a_feature)
+								end
+								if a_feature.implementation_class /= current_class then
+									set_fatal_error (current_class)
+									error_handler.report_vkcc7ga_error (current_class, a_name, a_feature)
+								end
+							elseif a_feature.is_once then
+								set_fatal_error (current_class)
+								error_handler.report_vkcc4a_error (current_class, a_name, a_feature)
 							end
 						else
 								-- This name is not the final name of
@@ -2139,217 +2213,6 @@ feature {NONE} -- Creators validity
 					end
 					i := i + 1
 				end
-			end
-		end
-
-feature {NONE} -- Convert validity
-
-	check_convert_validity
-			-- Check validity of convert clause of `current_class'.
-		local
-			a_convert_feature: ET_CONVERT_FEATURE
-			i, nb: INTEGER
-			a_name: ET_FEATURE_NAME
-			a_feature: ET_FEATURE
-		do
--- TODO: check the conversion type.
-			if attached current_class.convert_features as a_convert_features then
-				nb := a_convert_features.count
-				from i := 1 until i > nb loop
-					a_convert_feature := a_convert_features.convert_feature (i)
-					a_name := a_convert_feature.name
-					named_features.search (a_name)
-					if named_features.found then
-						a_feature := named_features.found_item.flattened_feature
--- TODO: check whether this feature is valid as a convert feature.
-						a_name.set_seed (a_feature.first_seed)
-					else
-							-- This name is not the final name of
-							-- a feature on `current_class'.
-						set_fatal_error (current_class)
--- TODO: report error message
-					end
-					i := i + 1
-				end
-			end
-		end
-
-feature -- Assigner validity
-
-	check_assigners_validity
-			-- Check validity of assigner clauses of queries of `current_class'.
-		local
-			l_queries: ET_QUERY_LIST
-			l_query: ET_QUERY
-			l_feature_name: ET_FEATURE_NAME
-			l_query_arguments: detachable ET_FORMAL_ARGUMENT_LIST
-			l_procedure_arguments: detachable ET_FORMAL_ARGUMENT_LIST
-			i, nb: INTEGER
-			j, nb_args: INTEGER
-			l_arg_offset: INTEGER
-			l_type, l_other_type: ET_TYPE
-			l_seed: INTEGER
-		do
-			l_queries := current_class.queries
-				-- Process queries declared or redeclared in `current_class'.
-			nb := l_queries.declared_count
-			from i := 1 until i > nb loop
-				l_query := l_queries.item (i)
-				if attached l_query.assigner as l_assigner then
-					l_feature_name := l_assigner.feature_name
-					named_features.search (l_feature_name)
-					if not named_features.found then
-						set_fatal_error (current_class)
-						error_handler.report_vfac1a_error (current_class, l_feature_name, l_query)
-					else
-						if not attached {ET_PROCEDURE} named_features.found_item.flattened_feature as l_procedure then
-							set_fatal_error (current_class)
-							error_handler.report_vfac1b_error (current_class, l_feature_name, l_query)
-						else
-							l_feature_name.set_seed (l_procedure.first_seed)
-							l_procedure_arguments := l_procedure.arguments
-							if l_procedure_arguments = Void then
-								set_fatal_error (current_class)
-								error_handler.report_vfac2a_error (current_class, l_feature_name, l_query, l_procedure)
-							elseif l_procedure_arguments.count /= l_query.arguments_count + 1 then
-								set_fatal_error (current_class)
-								error_handler.report_vfac2a_error (current_class, l_feature_name, l_query, l_procedure)
-							else
-								l_type := l_query.type
-								if current_class.is_dotnet then
-										-- Under .NET the value is passed as the last argument of the assigner.
-									l_other_type := l_procedure_arguments.formal_argument (l_procedure_arguments.count).type
-									l_arg_offset := 0
-								else
-									l_other_type := l_procedure_arguments.formal_argument (1).type
-									l_arg_offset := 1
-								end
-								if system_processor.is_ise then
-										-- ECMA 367-2 says that the type of the query and of the first formal argument
-										-- of the assigner procedure should have the same deanchored form.
-										-- But EiffelStudio 6.8.8.6542 actually only checks that the type of the
-										-- formal argument of the assigner procedure conforms to the type of the query.
-										-- The conformance in the other direction is checked in the client code,
-										-- which is not what ECMA 367-2 suggests (see rules VFAC-3 and VBAC-1).
-									if not l_other_type.conforms_to_type (l_type, current_class, current_class, system_processor) then
-										set_fatal_error (current_class)
-										error_handler.report_vfac3a_error (current_class, l_query.implementation_class, l_feature_name, l_query, l_procedure)
-									end
-								else
-									if not l_type.same_named_type (l_other_type, current_class, current_class) then
-										set_fatal_error (current_class)
-										error_handler.report_vfac3a_error (current_class, l_query.implementation_class, l_feature_name, l_query, l_procedure)
-									end
-								end
-								l_query_arguments := l_query.arguments
-								if l_query_arguments /= Void then
-									nb_args := l_query_arguments.count
-									from j := 1 until j > nb_args loop
-										l_type := l_query_arguments.formal_argument (j).type
-										l_other_type := l_procedure_arguments.formal_argument (j + l_arg_offset).type
-										if not l_type.same_named_type (l_other_type, current_class, current_class) then
-											set_fatal_error (current_class)
-											error_handler.report_vfac4a_error (current_class, l_query.implementation_class, l_feature_name, l_query, l_procedure, j)
-										end
-										j := j + 1
-									end
-								end
-							end
-						end
-					end
-				end
-				i := i + 1
-			end
-				-- Process queries inherited without redeclaration.
-			nb := l_queries.count
-			from until i > nb loop
-				l_query := l_queries.item (i)
-				if attached l_query.assigner as l_assigner then
-					l_feature_name := l_assigner.feature_name
-					l_seed := l_feature_name.seed
-					if l_seed = 0 then
-							-- Internal error: the seed should have been resolved
-							-- in the ancestor class where this assigner has been
-							-- declared.
-						set_fatal_error (current_class)
-						error_handler.report_giaaa_error
-					else
-						if not attached current_class.seeded_procedure (l_seed) as l_procedure then
-							if not current_class.has_flattening_error then
-									-- Internal error: if the assigner was valid
-									-- in the ancestor class and there was no error
-									-- when flattening the features of current class
-									-- then we should get a procedure here.
-								set_fatal_error (current_class)
-								error_handler.report_giaaa_error
-							end
-						else
-							l_procedure_arguments := l_procedure.arguments
-							if l_procedure_arguments = Void then
-								if not current_class.has_flattening_error then
-										-- Internal error: if the assigner was valid
-										-- in the ancestor class and there was no error
-										-- when flattening the features of current class
-										-- then we should have the expected number of
-										-- arguments here.
-									set_fatal_error (current_class)
-									error_handler.report_giaaa_error
-								end
-							elseif l_procedure_arguments.count /= l_query.arguments_count + 1 then
-								if not current_class.has_flattening_error then
-										-- Internal error: if the assigner was valid
-										-- in the ancestor class and there was no error
-										-- when flattening the features of current class
-										-- then we should have the expected number of
-										-- arguments here.
-									set_fatal_error (current_class)
-									error_handler.report_giaaa_error
-								end
-							else
-								l_type := l_query.type
-								if l_query.implementation_class.is_dotnet then
-										-- Under .NET the value is passed as the last argument of the assigner.
-									l_other_type := l_procedure_arguments.formal_argument (l_procedure_arguments.count).type
-									l_arg_offset := 0
-								else
-									l_other_type := l_procedure_arguments.formal_argument (1).type
-									l_arg_offset := 1
-								end
-								if system_processor.is_ise then
-										-- ECMA 367-2 says that the type of the query and of the first formal argument
-										-- of the assigner procedure should have the same deanchored form.
-										-- But EiffelStudio 6.8.8.6542 actually only checks that the type of the
-										-- formal argument of the assigner procedure conforms to the type of the query.
-										-- The conformance in the other direction is checked in the client code,
-										-- which is not what ECMA 367-2 suggests (see rules VFAC-3 and VBAC-1).
-									if not l_other_type.conforms_to_type (l_type, current_class, current_class, system_processor) then
-										set_fatal_error (current_class)
-										error_handler.report_vfac3a_error (current_class, l_query.implementation_class, l_feature_name, l_query, l_procedure)
-									end
-								else
-									if not l_type.same_named_type (l_other_type, current_class, current_class) then
-										set_fatal_error (current_class)
-										error_handler.report_vfac3a_error (current_class, l_query.implementation_class, l_feature_name, l_query, l_procedure)
-									end
-								end
-								l_query_arguments := l_query.arguments
-								if l_query_arguments /= Void then
-									nb_args := l_query_arguments.count
-									from j := 1 until j > nb_args loop
-										l_type := l_query_arguments.formal_argument (j).type
-										l_other_type := l_procedure_arguments.formal_argument (j + l_arg_offset).type
-										if not l_type.same_named_type (l_other_type, current_class, current_class) then
-											set_fatal_error (current_class)
-											error_handler.report_vfac4a_error (current_class, l_query.implementation_class, l_feature_name, l_query, l_procedure, j)
-										end
-										j := j + 1
-									end
-								end
-							end
-						end
-					end
-				end
-				i := i + 1
 			end
 		end
 

@@ -5,7 +5,7 @@
 		"Eiffel features equipped with dynamic type sets"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2004-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2004-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_DYNAMIC_FEATURE
@@ -99,6 +99,12 @@ feature {NONE} -- Initialization
 				elseif builtin_class_code = tokens.builtin_ise_runtime_class and then builtin_feature_code = tokens.builtin_ise_runtime_new_tuple_instance_of then
 					l_dynamic_type := a_system.dynamic_type (l_type, a_target_type.base_type)
 					result_type_set := l_dynamic_type_set_builder.alive_conforming_descendants (l_dynamic_type)
+				elseif
+					builtin_class_code = tokens.builtin_any_class and then
+					builtin_feature_code = tokens.builtin_any_generating_type and then
+					target_type.base_class.is_type_class
+				then
+					result_type_set := a_system.type_none_type
 				else
 					l_dynamic_type := a_system.dynamic_type (l_type, a_target_type.base_type)
 					l_dynamic_type_set := l_dynamic_type_set_builder.new_dynamic_type_set (l_dynamic_type)
@@ -169,6 +175,8 @@ feature {NONE} -- Initialization
 				is_copy_routine := True
 			elseif a_feature.has_seed (a_system.current_system.is_equal_seed) then
 				is_is_equal_routine := True
+			elseif a_feature.has_seed (a_system.current_system.default_create_seed) then
+				is_default_create_routine := True
 			end
 			if
 				a_feature.implementation_class.name.same_class_name (tokens.file_class_name) and then
@@ -537,6 +545,9 @@ feature -- Status report
 	is_is_equal_routine: BOOLEAN
 			-- Is current feature the version of 'ANY.is_equal' in `target_type'?
 
+	is_default_create_routine: BOOLEAN
+			-- Is current feature the version of 'ANY.default_create' in `target_type'?
+
 	is_semistrict (a_system: ET_DYNAMIC_SYSTEM): BOOLEAN
 			-- Is current feature semistrict?
 		require
@@ -667,6 +678,15 @@ feature -- Status report
 		ensure
 			builtin: Result implies is_builtin
 			definition: Result = (builtin_class_code = {ET_TOKEN_CODES}.builtin_function_class)
+		end
+
+	is_builtin_identified_controller_class: BOOLEAN
+			-- Is current feature a built-in feature of class "IDENTIFIED_CONTROLLER"?
+		do
+			Result := builtin_class_code = {ET_TOKEN_CODES}.builtin_identified_controller_class
+		ensure
+			builtin: Result implies is_builtin
+			definition: Result = (builtin_class_code = {ET_TOKEN_CODES}.builtin_identified_controller_class)
 		end
 
 	is_builtin_identified_routines_class: BOOLEAN

@@ -4,7 +4,7 @@
 		"C declarations for the Gobo Eiffel runtime."
 
 	system: "Gobo Eiffel Compiler"
-	copyright: "Copyright (c) 2005-2024, Eric Bezault and others"
+	copyright: "Copyright (c) 2005-2026, Eric Bezault and others"
 	license: "MIT License"
 */
 
@@ -396,7 +396,11 @@ extern void* GE_memset(void* str, int c, size_t n);
 */
 #define RTI64C(x) GE_int64(x)
 #define RTU64C(x) GE_nat64(x)
-#define EIF_OBJECT EIF_REFERENCE
+#ifdef GE_USE_BOEHM_GC
+#define EIF_OBJECT EIF_REFERENCE*
+#else
+#define EIF_OBJECT void*
+#endif
 #define EIF_OBJ EIF_OBJECT
 #define OVERHEAD sizeof(EIF_ANY)
 /* Function pointer call to make sure all arguments are correctly pushed onto stack. */

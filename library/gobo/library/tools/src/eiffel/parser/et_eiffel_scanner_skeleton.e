@@ -5,7 +5,7 @@
 		"Scanner skeletons for Eiffel parsers"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 1999-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 1999-2026, Eric Bezault and others"
 	license: "MIT License"
 
 deferred class ET_EIFFEL_SCANNER_SKELETON
@@ -180,7 +180,7 @@ feature -- Error handling
 			-- A fatal error occurred.
 			-- Print error message.
 		do
-			report_syntax_error (current_position)
+			report_syntax_error (current_position, Void, a_message)
 		end
 
 	report_invalid_unicode_character_error (a_code: NATURAL_32)
@@ -188,16 +188,17 @@ feature -- Error handling
 			-- with code `a_code' has been read from the input
 			-- buffer and caused the scanner to fail.
 		do
-			report_syntax_error (current_position)
+			report_syntax_error (current_position, Void, "invalid Unicode character with code " + a_code.out)
 		end
 
-	report_syntax_error (a_position: ET_POSITION)
+	report_syntax_error (a_position: ET_POSITION; a_ast_node: detachable ET_AST_NODE; a_message: STRING)
 			-- Report a syntax error at position `a_position'.
 		require
 			a_position_not_void: a_position /= Void
+			a_message_not_void: a_message /= Void
 		do
 			set_syntax_error
-			error_handler.report_syntax_error (filename, a_position)
+			error_handler.report_syntax_error (filename, a_position, a_ast_node, a_message)
 		end
 
 	set_syntax_error
@@ -386,7 +387,7 @@ feature -- Tokens
 		ensure
 			last_utf8_literal_not_void: Result /= Void
 			last_utf8_literal_is_string_8: Result.same_type ({STRING_8} "")
-			definition: Result.is_equal ({UC_UTF8_ROUTINES}.string_to_utf8 (last_unicode_literal))
+			definition: Result.same_string ({UC_UTF8_ROUTINES}.string_to_utf8 (last_unicode_literal))
 			valid_utf8: {UC_UTF8_ROUTINES}.valid_utf8 (Result)
 		end
 
@@ -987,6 +988,7 @@ feature {NONE} -- String handler
 			Result.force_new (-1, tokens.capitalized_exception_manager_factory_name)
 			Result.force_new (-1, tokens.capitalized_file_name)
 			Result.force_new (-1, tokens.capitalized_function_name)
+			Result.force_new (-1, tokens.capitalized_identified_controller_name)
 			Result.force_new (-1, tokens.capitalized_identified_routines_name)
 			Result.force_new (-1, tokens.capitalized_immutable_string_8_name)
 			Result.force_new (-1, tokens.capitalized_immutable_string_32_name)
@@ -1108,6 +1110,7 @@ feature {NONE} -- String handler
 			Result.force_new (-1, tokens.exception_from_code_name)
 			Result.force_new (-1, tokens.exception_manager_name)
 			Result.force_new (-1, tokens.extend_name)
+			Result.force_new (-1, tokens.extend_object_id_stack_name)
 			Result.force_new (-1, tokens.fast_call_name)
 			Result.force_new (-1, tokens.fast_item_name)
 			Result.force_new (-1, tokens.field_name)
@@ -1148,6 +1151,7 @@ feature {NONE} -- String handler
 			Result.force_new (-1, tokens.ignore_name)
 			Result.force_new (-1, tokens.implication_name)
 			Result.force_new (-1, tokens.in_assertion_name)
+			Result.force_new (-1, tokens.index_pseudo_name)
 			Result.force_new (-1, tokens.init_exception_manager_name)
 			Result.force_new (-1, tokens.integer_8_field_name)
 			Result.force_new (-1, tokens.integer_8_field_at_name)
@@ -1236,6 +1240,7 @@ feature {NONE} -- String handler
 			Result.force_new (-1, tokens.new_tuple_instance_of_name)
 			Result.force_new (-1, tokens.new_type_instance_of_name)
 			Result.force_new (-1, tokens.object_comparison_name)
+			Result.force_new (-1, tokens.object_id_stack_size_name)
 			Result.force_new (-1, tokens.object_size_name)
 			Result.force_new (-1, tokens.once_objects_name)
 			Result.force_new (-1, tokens.once_raise_name)
@@ -1393,6 +1398,7 @@ feature {NONE} -- String handler
 			Result.force_new (-1, tokens.indexing_keyword_name)
 			Result.force_new (-1, tokens.inherit_keyword_name)
 			Result.force_new (-1, tokens.inspect_keyword_name)
+			Result.force_new (-1, tokens.interface_keyword_name)
 			Result.force_new (-1, tokens.invariant_keyword_name)
 			Result.force_new (-1, tokens.is_keyword_name)
 			Result.force_new (-1, tokens.like_keyword_name)
@@ -3673,8 +3679,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%A'
 			when 'b' then
@@ -3682,8 +3687,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%B'
 			when 'c' then
@@ -3691,8 +3695,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%C'
 			when 'd' then
@@ -3700,8 +3703,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%D'
 			when 'f' then
@@ -3709,8 +3711,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%F'
 			when 'h' then
@@ -3718,8 +3719,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%H'
 			when 'l' then
@@ -3727,8 +3727,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%L'
 			when 'n' then
@@ -3736,8 +3735,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%N'
 			when 'q' then
@@ -3745,8 +3743,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%Q'
 			when 'r' then
@@ -3754,8 +3751,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%R'
 			when 's' then
@@ -3763,8 +3759,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%S'
 			when 't' then
@@ -3772,8 +3767,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%T'
 			when 'u' then
@@ -3781,8 +3775,7 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%U'
 			when 'v' then
@@ -3790,16 +3783,14 @@ feature {NONE} -- Processing
 					-- %l where l is a letter code should be in
 					-- upper-case in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCCU_error (filename, current_position)
+				report_syntax_error (current_position, Void, "special character specification %%l where l is a letter code should be in upper-case in character constant")
 				column := column - 2
 				a_value := '%V'
 			else
 					-- Syntax error: invalid special character
 					-- %l in character constant.
 				column := column + 2
-				set_syntax_error
-				error_handler.report_SCSC_error (filename, current_position)
+				report_syntax_error (current_position, Void, "invalid special character %%l in character constant")
 				column := column - 2
 				a_value := c
 			end

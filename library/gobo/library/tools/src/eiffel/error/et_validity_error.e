@@ -5,7 +5,7 @@
 		"Eiffel validity errors"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2003-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2003-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_VALIDITY_ERROR
@@ -99,6 +99,7 @@ create
 	make_veen2e,
 	make_veen2f,
 	make_veen2g,
+	make_veen2h,
 	make_veen8a,
 	make_veen8b,
 	make_veen9a,
@@ -111,6 +112,13 @@ create
 	make_vevi0c,
 	make_vevi0d,
 	make_vevi0e,
+	make_vevi0f,
+	make_vevi0g,
+	make_vevi0h,
+	make_vevi0i,
+	make_vevi0j,
+	make_vevi0k,
+	make_vevi0l,
 	make_vfac1a,
 	make_vfac1b,
 	make_vfac2a,
@@ -166,7 +174,6 @@ create
 	make_vgcc1a,
 	make_vgcc3a,
 	make_vgcc5a,
-	make_vgcc6a,
 	make_vgcc6b,
 	make_vgcc6c,
 	make_vgcc6d,
@@ -177,6 +184,7 @@ create
 	make_vgcp3a,
 	make_vgcp3b,
 	make_vgcp3c,
+	make_vgfg3ga,
 	make_vggc1a,
 	make_vggc2a,
 	make_vggc2b,
@@ -207,14 +215,29 @@ create
 	make_vjaw0a,
 	make_vjaw0b,
 	make_vjaw0c,
+	make_vjaw0d,
+	make_vjaw0e,
+	make_vjaw0f,
 	make_vjrv0a,
+	make_vkcc4a,
+	make_vkcc4b,
+	make_vkcc4c,
+	make_vkcc4d,
+	make_vkcc4e,
+	make_vkcc4f,
+	make_vkcc6ga,
+	make_vkcc6gb,
+	make_vkcc7ga,
+	make_vkcc7gb,
 	make_vkcn1a,
 	make_vkcn1b,
 	make_vkcn1c,
 	make_vkcn2a,
 	make_vkcn2c,
 	make_vkex4ga,
+	make_vkex5ga,
 	make_vkin5ga,
+	make_vkin6ga,
 	make_vlel1a,
 	make_vlel2a,
 	make_vlel3a,
@@ -228,25 +251,41 @@ create
 	make_vmss1a,
 	make_vmss2a,
 	make_vmss3a,
+	make_voin0a,
+	make_voin0b,
 	make_voit1a,
 	make_voit2a,
 	make_voit2b,
 	make_voit2c,
 	make_voit2d,
 	make_voit2e,
+	make_voit2f,
 	make_voit3a,
 	make_vomb1a,
 	make_vomb2a,
 	make_vomb2b,
+	make_vomb3a,
+	make_vomb3b,
+	make_vomb4a,
+	make_vomb4b,
+	make_vomb6ga,
+	make_vomb7ga,
+	make_vomb8ga,
+	make_vomb9ga,
+	make_vomb9gb,
+	make_vomb9gc,
 	make_vpca1a,
 	make_vpca1b,
 	make_vpca2a,
 	make_vpca3a,
 	make_vpca3b,
+	make_vpca3c,
 	make_vpca4a,
 	make_vpca4b,
+	make_vpca4c,
 	make_vpca5a,
 	make_vpca5b,
+	make_vpca5c,
 	make_vpir1a,
 	make_vpir1b,
 	make_vpir1c,
@@ -292,6 +331,7 @@ create
 	make_vtcg4b,
 	make_vtct0a,
 	make_vtct0b,
+	make_vtec2a,
 	make_vtug1a,
 	make_vtug2a,
 	make_vuar1a,
@@ -352,6 +392,28 @@ create
 	make_vwst1b,
 	make_vwst2a,
 	make_vxrt0a,
+	make_vycp1a,
+	make_vycp1b,
+	make_vycp2a,
+	make_vycp3a,
+	make_vycp4a,
+	make_vycp5a,
+	make_vycp6a,
+	make_vycp7a,
+	make_vycp8a,
+	make_vycp8b,
+	make_vycp9a,
+	make_vycq1a,
+	make_vycq1b,
+	make_vycq2a,
+	make_vycq3a,
+	make_vycq4a,
+	make_vycq5a,
+	make_vycq6a,
+	make_vycq7a,
+	make_vycq8a,
+	make_vycq8b,
+	make_vycq9a,
 	make_gvagp0a,
 	make_gvhpr5a,
 	make_gvhso1a,
@@ -396,7 +458,10 @@ create
 	make_gvuis0c,
 	make_gvwmc2a,
 	make_gvwmc2b,
-	make_gvwmc2c
+	make_gvwmc2c,
+	make_gwulv0a,
+	make_gwulv0b,
+	make_gwulv0c
 
 feature {NONE} -- Initialization
 
@@ -410,6 +475,9 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_position
+			if attached {ET_AST_NODE} a_position as l_ast_node then
+				ast_node := l_ast_node
+			end
 			code := template_code (gvzzz0a_template_code)
 			etl_code := gvzzz_etl_code
 			default_template := default_message_template (gvzzz0a_default_template)
@@ -455,6 +523,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.name.position
+			ast_node := a_attribute.type
 			code := template_code (v1ea1ga_template_code)
 			etl_code := v1ea1g_etl_code
 			default_template := default_message_template (v1ea1ga_default_template)
@@ -503,6 +572,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.name.position
+			ast_node := a_attribute.type
 			code := template_code (v1ea1gb_template_code)
 			etl_code := v1ea1g_etl_code
 			default_template := default_message_template (v1ea1gb_default_template)
@@ -551,6 +621,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.name.position
+			ast_node := a_attribute.type
 			code := template_code (v1ea1gc_template_code)
 			etl_code := v1ea1g_etl_code
 			default_template := default_message_template (v1ea1gc_default_template)
@@ -599,6 +670,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.name.position
+			ast_node := a_attribute.type
 			code := template_code (v1ea1gd_template_code)
 			etl_code := v1ea1g_etl_code
 			default_template := default_message_template (v1ea1gd_default_template)
@@ -643,6 +715,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg2.name.position
+			ast_node := arg2.name
 			code := template_code (v1se1ga_template_code)
 			etl_code := v1se1g_etl_code
 			default_template := default_message_template (v1se1ga_default_template)
@@ -672,7 +745,7 @@ feature {NONE} -- Initialization
 
 	make_v1se2ga (a_class: ET_CLASS; arg: ET_INLINE_SEPARATE_ARGUMENT; a_feature: ET_FEATURE)
 			-- Create a new V1SE-2G error: argument `arg' of an inline separate instruction
-		 	-- has the same name as `a_feature' in `a_class'.
+			-- has the same name as `a_feature' in `a_class'.
 			--
 			-- Not in ECMA-367-2.
 			-- SCOOP.
@@ -685,6 +758,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (v1se2ga_template_code)
 			etl_code := v1se2g_etl_code
 			default_template := default_message_template (v1se2ga_default_template)
@@ -726,6 +800,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_inline_separate_arg.name.position
+			ast_node := a_inline_separate_arg.name
 			code := template_code (v1se2gb_template_code)
 			etl_code := v1se2g_etl_code
 			default_template := default_message_template (v1se2gb_default_template)
@@ -753,7 +828,7 @@ feature {NONE} -- Initialization
 
 	make_v1se2gc (a_class: ET_CLASS; arg: ET_INLINE_SEPARATE_ARGUMENT; a_local: ET_LOCAL_VARIABLE)
 			-- Create a new V1SE-2G error: argument `arg' of an inline separate instruction
-		 	-- has the same name as local variable `a_local' of an enclosing
+			-- has the same name as local variable `a_local' of an enclosing
 			-- feature or inline agent.
 			--
 			-- Not in ECMA-367-2.
@@ -767,6 +842,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (v1se2gc_template_code)
 			etl_code := v1se2g_etl_code
 			default_template := default_message_template (v1se2gc_default_template)
@@ -807,6 +883,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (v1se2gd_template_code)
 			etl_code := v1se2g_etl_code
 			default_template := default_message_template (v1se2gd_default_template)
@@ -848,6 +925,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (v1se2ge_template_code)
 			etl_code := v1se2g_etl_code
 			default_template := default_message_template (v1se2ge_default_template)
@@ -889,6 +967,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg1.name.position
+			ast_node := arg1.name
 			code := template_code (v1se2gf_template_code)
 			etl_code := v1se2g_etl_code
 			default_template := default_message_template (v1se2gf_default_template)
@@ -916,7 +995,7 @@ feature {NONE} -- Initialization
 
 	make_v1se3ga (a_class, a_class_impl: ET_CLASS; arg: ET_INLINE_SEPARATE_ARGUMENT; a_type: ET_NAMED_TYPE)
 			-- Report V1SE-3G error: the type of the argument `arg'
-			-- of an inline separate instruction in `a_class_impl' and view from
+			-- of an inline separate instruction in `a_class_impl' and viewed from
 			-- one of its descendants `a_class' (possibly itself)
 			-- is not separate.
 			--
@@ -933,6 +1012,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := arg.expression.position
+			ast_node := arg.expression
 			code := template_code (v1se3ga_template_code)
 			etl_code := v1se3g_etl_code
 			default_template := default_message_template (v1se3ga_default_template)
@@ -973,6 +1053,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_expression.position
+			ast_node := an_expression
 			code := template_code (vaol1a_template_code)
 			etl_code := vaol1_etl_code
 			default_template := default_message_template (vaol1a_default_template)
@@ -1017,6 +1098,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vape1a_template_code)
 			etl_code := vape1_etl_code
 			default_template := default_message_template (vape1a_default_template)
@@ -1071,6 +1153,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vape1b_template_code)
 			etl_code := vape1_etl_code
 			default_template := default_message_template (vape1b_default_template)
@@ -1127,6 +1210,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vape2a_template_code)
 			etl_code := vape2_etl_code
 			default_template := default_message_template (vape2a_default_template)
@@ -1183,6 +1267,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vape2b_template_code)
 			etl_code := vape2_etl_code
 			default_template := default_message_template (vape2b_default_template)
@@ -1236,6 +1321,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_expression.position
+			ast_node := an_expression
 			code := template_code (vave0a_template_code)
 			etl_code := vave_etl_code
 			default_template := default_message_template (vave0a_default_template)
@@ -1282,6 +1368,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_assigner.source.position
+			ast_node := an_assigner.source
 			code := template_code (vbac1a_template_code)
 			etl_code := vbac1_etl_code
 			default_template := default_message_template (vbac1a_default_template)
@@ -1327,6 +1414,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_assigner.call.name.position
+			ast_node := an_assigner.call.name
 			code := template_code (vbac2a_template_code)
 			etl_code := vbac2_etl_code
 			default_template := default_message_template (vbac2a_default_template)
@@ -1372,6 +1460,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.name.position
+			ast_node := f.name
 			code := template_code (vcch1a_template_code)
 			etl_code := vcch1_etl_code
 			default_template := default_message_template (vcch1a_default_template)
@@ -1416,8 +1505,10 @@ feature {NONE} -- Initialization
 			class_impl := a_class
 			if f.parent_feature.has_undefine then
 				position := ast_position (f.parent_feature.undefine_name)
+				ast_node := f.parent_feature.undefine_name
 			else
 				position := f.parent_feature.parent.type.name.position
+				ast_node := f.parent_feature.parent.type.name
 			end
 			code := template_code (vcch1a_template_code)
 			etl_code := vcch1_etl_code
@@ -1461,6 +1552,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := ast_position (a_class.class_mark)
+			ast_node := a_class.class_mark
 			code := template_code (vcch2a_template_code)
 			etl_code := vcch2_etl_code
 			default_template := default_message_template (vcch2a_default_template)
@@ -1503,6 +1595,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_formal.name.position
+			ast_node := a_formal.name
 			code := template_code (vcfg1a_template_code)
 			etl_code := vcfg1_etl_code
 			default_template := default_message_template (vcfg1a_default_template)
@@ -1545,6 +1638,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_formal1.name.position
+			ast_node := a_formal1.name
 			code := template_code (vcfg2a_template_code)
 			etl_code := vcfg2_etl_code
 			default_template := default_message_template (vcfg2a_default_template)
@@ -1591,6 +1685,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vdjr0a_template_code)
 			etl_code := vdjr_etl_code
 			default_template := default_message_template (vdjr0a_default_template)
@@ -1637,6 +1732,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vdjr0b_template_code)
 			etl_code := vdjr_etl_code
 			default_template := default_message_template (vdjr0b_default_template)
@@ -1685,6 +1781,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vdjr0c_template_code)
 			etl_code := vdjr_etl_code
 			default_template := default_message_template (vdjr0c_default_template)
@@ -1732,6 +1829,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vdjr2a_template_code)
 			etl_code := vdjr2_etl_code
 			default_template := default_message_template (vdjr2a_default_template)
@@ -1782,6 +1880,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vdjr2b_template_code)
 			etl_code := vdjr2_etl_code
 			default_template := default_message_template (vdjr2b_default_template)
@@ -1829,7 +1928,8 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			ast_node := a_precursor.precursor_keyword
 			code := template_code (vdpr1a_template_code)
 			etl_code := vdpr1_etl_code
 			default_template := default_message_template (vdpr1a_default_template)
@@ -1863,7 +1963,8 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			ast_node := a_precursor.precursor_keyword
 			code := template_code (vdpr1b_template_code)
 			etl_code := vdpr1_etl_code
 			default_template := default_message_template (vdpr1b_default_template)
@@ -1912,6 +2013,7 @@ feature {NONE} -- Initialization
 				a_class_name := tokens.unknown_class_name
 			end
 			position := a_class_name.position
+			ast_node := a_class_name
 			code := template_code (vdpr2a_template_code)
 			etl_code := vdpr2_etl_code
 			default_template := default_message_template (vdpr2a_default_template)
@@ -1954,7 +2056,8 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			ast_node := a_precursor.precursor_keyword
 			code := template_code (vdpr3a_template_code)
 			etl_code := vdpr3_etl_code
 			default_template := default_message_template (vdpr3a_default_template)
@@ -2002,7 +2105,8 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			ast_node := a_precursor.precursor_keyword
 			code := template_code (vdpr3b_template_code)
 			etl_code := vdpr3_etl_code
 			default_template := default_message_template (vdpr3b_default_template)
@@ -2055,6 +2159,7 @@ feature {NONE} -- Initialization
 				a_class_name := tokens.unknown_class_name
 			end
 			position := a_class_name.position
+			ast_node := a_class_name
 			code := template_code (vdpr3b_template_code)
 			etl_code := vdpr3_etl_code
 			default_template := default_message_template (vdpr3b_default_template)
@@ -2097,7 +2202,8 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			ast_node := a_precursor.precursor_keyword
 			code := template_code (vdpr3d_template_code)
 			etl_code := vdpr3_etl_code
 			default_template := default_message_template (vdpr3d_default_template)
@@ -2138,7 +2244,8 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			ast_node := a_precursor.precursor_keyword
 			code := template_code (vdpr3e_template_code)
 			etl_code := vdpr3_etl_code
 			default_template := default_message_template (vdpr3e_default_template)
@@ -2164,7 +2271,7 @@ feature {NONE} -- Initialization
 			-- dollar6: $6 = implementation class name
 		end
 
-	make_vdpr4a (a_class: ET_CLASS; a_precursor: ET_PRECURSOR_KEYWORD; a_feature: ET_FEATURE; a_parent: ET_CLASS)
+	make_vdpr4a (a_class: ET_CLASS; a_precursor: ET_PRECURSOR_CALL; a_feature: ET_FEATURE; a_parent: ET_CLASS)
 			-- Create a new VDPR-4A error: the number of actual arguments in
 			-- the precursor call `a_precursor' appearing in `a_class' is
 			-- not the same as the number of formal arguments of `a_feature'
@@ -2180,7 +2287,12 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			if attached a_precursor.arguments as l_arguments and then l_arguments.count > 0 then
+				ast_node := l_arguments
+			else
+				ast_node := a_precursor.precursor_keyword
+			end
 			code := template_code (vdpr4a_template_code)
 			etl_code := vdpr4a_etl_code
 			default_template := default_message_template (vdpr4a_default_template)
@@ -2210,7 +2322,7 @@ feature {NONE} -- Initialization
 			-- dollar8: $8 = parent base class
 		end
 
-	make_vdpr4b (a_class, a_class_impl: ET_CLASS; a_precursor: ET_PRECURSOR_KEYWORD; a_feature: ET_FEATURE; a_parent: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	make_vdpr4b (a_class, a_class_impl: ET_CLASS; a_precursor: ET_PRECURSOR_CALL; a_feature: ET_FEATURE; a_parent: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
 			-- Create a new VDPR-4B error: the `arg'-th actual argument in the precursor
 			-- call `a_precursor' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the corresponding
@@ -2231,7 +2343,12 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class_impl
-			position := a_precursor.position
+			position := a_precursor.precursor_keyword.position
+			if attached a_precursor.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_precursor.precursor_keyword
+			end
 			code := template_code (vdpr4b_template_code)
 			etl_code := vdpr4b_etl_code
 			default_template := default_message_template (vdpr4b_default_template)
@@ -2283,6 +2400,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.name.position
+			ast_node := f1.name
 			code := template_code (vdrd2a_template_code)
 			etl_code := vdrd2_etl_code
 			default_template := default_message_template (vdrd2a_default_template)
@@ -2331,6 +2449,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vdrd2b_template_code)
 			etl_code := vdrd2_etl_code
 			default_template := default_message_template (vdrd2b_default_template)
@@ -2381,6 +2500,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.name.position
+			ast_node := f1.name
 			code := template_code (vdrd2c_template_code)
 			etl_code := vdrd2_etl_code
 			default_template := default_message_template (vdrd2c_default_template)
@@ -2430,6 +2550,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vdrd2d_template_code)
 			etl_code := vdrd2_etl_code
 			default_template := default_message_template (vdrd2d_default_template)
@@ -2479,6 +2600,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := p.position
+			ast_node := p.require_keyword
 			code := template_code (vdrd3a_template_code)
 			etl_code := vdrd3_etl_code
 			default_template := default_message_template (vdrd3a_default_template)
@@ -2522,6 +2644,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := p.position
+			ast_node := p.ensure_keyword
 			code := template_code (vdrd3b_template_code)
 			etl_code := vdrd3_etl_code
 			default_template := default_message_template (vdrd3b_default_template)
@@ -2568,6 +2691,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.name
 			code := template_code (vdrd4a_template_code)
 			etl_code := vdrd4_etl_code
 			default_template := default_message_template (vdrd4a_default_template)
@@ -2616,6 +2740,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.name
 			code := template_code (vdrd4b_template_code)
 			etl_code := vdrd4_etl_code
 			default_template := default_message_template (vdrd4b_default_template)
@@ -2664,6 +2789,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.name
 			code := template_code (vdrd4c_template_code)
 			etl_code := vdrd4_etl_code
 			default_template := default_message_template (vdrd4c_default_template)
@@ -2712,6 +2838,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := ast_position (f1.redefine_name)
+			ast_node := f1.redefine_name
 			code := template_code (vdrd5a_template_code)
 			etl_code := vdrd5_etl_code
 			default_template := default_message_template (vdrd5a_default_template)
@@ -2757,6 +2884,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.name
 			code := template_code (vdrd6a_template_code)
 			etl_code := vdrd6_etl_code
 			default_template := default_message_template (vdrd6a_default_template)
@@ -2804,6 +2932,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.type
 			code := template_code (vdrd6b_template_code)
 			etl_code := vdrd6_etl_code
 			default_template := default_message_template (vdrd6b_default_template)
@@ -2851,6 +2980,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := first_alias_name (f2.alias_names).position
+			ast_node := first_alias_name (f2.alias_names)
 			code := template_code (vdrd7a_template_code)
 			etl_code := vdrd7_etl_code
 			default_template := default_message_template (vdrd7a_default_template)
@@ -2900,6 +3030,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.name
 			code := template_code (vdrd7b_template_code)
 			etl_code := vdrd7_etl_code
 			default_template := default_message_template (vdrd7b_default_template)
@@ -2950,6 +3081,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := first_alias_name (f2.alias_names).position
+			ast_node := first_alias_name (f2.alias_names)
 			code := template_code (vdrd7c_template_code)
 			etl_code := vdrd7_etl_code
 			default_template := default_message_template (vdrd7c_default_template)
@@ -3001,6 +3133,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vdrs1a_template_code)
 			etl_code := vdrs1_etl_code
 			default_template := default_message_template (vdrs1a_default_template)
@@ -3046,6 +3179,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vdrs2a_template_code)
 			etl_code := vdrs2_etl_code
 			default_template := default_message_template (vdrs2a_default_template)
@@ -3091,6 +3225,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vdrs2b_template_code)
 			etl_code := vdrs2_etl_code
 			default_template := default_message_template (vdrs2b_default_template)
@@ -3136,6 +3271,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.position
+			ast_node := f2
 			code := template_code (vdrs3a_template_code)
 			etl_code := vdrs3_etl_code
 			default_template := default_message_template (vdrs3a_default_template)
@@ -3181,6 +3317,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := ast_position (a_feature.redefine_name)
+			ast_node := a_feature.redefine_name
 			code := template_code (vdrs4a_template_code)
 			etl_code := vdrs4_etl_code
 			default_template := default_message_template (vdrs4a_default_template)
@@ -3229,6 +3366,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := ast_position (a_deferred.redefine_name)
+			ast_node := a_deferred.redefine_name
 			code := template_code (vdrs4b_template_code)
 			etl_code := vdrs4_etl_code
 			default_template := default_message_template (vdrs4b_default_template)
@@ -3275,6 +3413,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vdus1a_template_code)
 			etl_code := vdus1_etl_code
 			default_template := default_message_template (vdus1a_default_template)
@@ -3320,6 +3459,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vdus2a_template_code)
 			etl_code := vdus2_etl_code
 			default_template := default_message_template (vdus2a_default_template)
@@ -3365,6 +3505,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vdus2b_template_code)
 			etl_code := vdus2_etl_code
 			default_template := default_message_template (vdus2b_default_template)
@@ -3410,6 +3551,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vdus3a_template_code)
 			etl_code := vdus3_etl_code
 			default_template := default_message_template (vdus3a_default_template)
@@ -3456,6 +3598,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.position
+			ast_node := f2
 			code := template_code (vdus4a_template_code)
 			etl_code := vdus4_etl_code
 			default_template := default_message_template (vdus4a_default_template)
@@ -3488,7 +3631,8 @@ feature {NONE} -- Initialization
 	make_veen0a (a_class: ET_CLASS; an_identifier: ET_IDENTIFIER; a_feature: ET_FEATURE)
 			-- Create a new VEEN error: `an_identifier', appearing in `a_feature'
 			-- of `a_class', is not the final name of a feature in `a_class'
-			-- nor the name of a local variable or a formal argument of
+			-- nor the name of an object-test local, of an iteration item, of an inline
+			-- separate argument, of a local variable or of a formal argument of
 			-- `a_feature'.
 			--
 			-- ETL2: p.276
@@ -3502,6 +3646,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_identifier.position
+			ast_node := an_identifier
 			code := template_code (veen0a_template_code)
 			etl_code := veen_etl_code
 			default_template := default_message_template (veen0a_default_template)
@@ -3534,7 +3679,8 @@ feature {NONE} -- Initialization
 	make_veen0b (a_class: ET_CLASS; an_identifier: ET_IDENTIFIER; an_agent: ET_INLINE_AGENT)
 			-- Create a new VEEN error: `an_identifier', appearing in inline agent
 			-- `an_agent' in `a_class', is not the final name of a feature in `a_class'
-			-- nor the name of a local variable or a formal argument of
+			-- nor the name of an object-test local, of an iteration item, of an inline
+			-- separate argument, of a local variable or of a formal argument of
 			-- `an_agent'.
 			--
 			-- ETL2: p.276
@@ -3548,6 +3694,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_identifier.position
+			ast_node := an_identifier
 			code := template_code (veen0b_template_code)
 			etl_code := veen_etl_code
 			default_template := default_message_template (veen0b_default_template)
@@ -3591,6 +3738,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_result.position
+			ast_node := a_result
 			code := template_code (veen2a_template_code)
 			etl_code := veen2_etl_code
 			default_template := default_message_template (veen2a_default_template)
@@ -3632,6 +3780,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_result.position
+			ast_node := a_result
 			code := template_code (veen2b_template_code)
 			etl_code := veen2_etl_code
 			default_template := default_message_template (veen2b_default_template)
@@ -3674,6 +3823,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.position
+			ast_node := a_local
 			code := template_code (veen2c_template_code)
 			etl_code := veen2_etl_code
 			default_template := default_message_template (veen2c_default_template)
@@ -3716,6 +3866,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_result.position
+			ast_node := a_result
 			code := template_code (veen2d_template_code)
 			etl_code := veen2_etl_code
 			default_template := default_message_template (veen2d_default_template)
@@ -3756,6 +3907,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.position
+			ast_node := a_local
 			code := template_code (veen2e_template_code)
 			etl_code := veen2_etl_code
 			default_template := default_message_template (veen2e_default_template)
@@ -3797,6 +3949,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_result.position
+			ast_node := a_result
 			code := template_code (veen2b_template_code)
 			etl_code := veen2_etl_code
 			default_template := default_message_template (veen2f_default_template)
@@ -3838,9 +3991,50 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_result.position
+			ast_node := a_result
 			code := template_code (veen2g_template_code)
 			etl_code := veen2_etl_code
 			default_template := default_message_template (veen2g_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_veen2h (a_class: ET_CLASS; a_result: ET_RESULT; an_agent: ET_INLINE_AGENT)
+			-- Create a new VEEN-2 error: `a_result' appears in the precondition
+			-- of inline agent `an_agent' in `a_class'.
+			--
+			-- ETL2: p.276
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_result_not_void: a_result /= Void
+			an_agent_not_void: an_agent /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_result.position
+			ast_node := a_result
+			code := template_code (veen2h_template_code)
+			etl_code := veen2_etl_code
+			default_template := default_message_template (veen2h_default_template)
 			create parameters.make_filled (empty_string, 1, 6)
 			parameters.put (etl_code, 1)
 			parameters.put (filename, 2)
@@ -3879,6 +4073,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_identifier.position
+			ast_node := an_identifier
 			code := template_code (veen8a_template_code)
 			etl_code := veen8_etl_code
 			default_template := default_message_template (veen8a_default_template)
@@ -3923,6 +4118,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_identifier.position
+			ast_node := an_identifier
 			code := template_code (veen8b_template_code)
 			etl_code := veen8_etl_code
 			default_template := default_message_template (veen8b_default_template)
@@ -3966,6 +4162,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_identifier.position
+			ast_node := an_identifier
 			code := template_code (veen9a_template_code)
 			etl_code := veen9_etl_code
 			default_template := default_message_template (veen9a_default_template)
@@ -4010,6 +4207,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_identifier.position
+			ast_node := an_identifier
 			code := template_code (veen9b_template_code)
 			etl_code := veen9_etl_code
 			default_template := default_message_template (veen9b_default_template)
@@ -4053,6 +4251,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_identifier.position
+			ast_node := a_identifier
 			code := template_code (veen10a_template_code)
 			etl_code := veen10_etl_code
 			default_template := default_message_template (veen10a_default_template)
@@ -4097,6 +4296,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_identifier.position
+			ast_node := a_identifier
 			code := template_code (veen10b_template_code)
 			etl_code := veen10_etl_code
 			default_template := default_message_template (veen10b_default_template)
@@ -4138,6 +4338,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (veen11a_template_code)
 			etl_code := veen11_etl_code
 			default_template := default_message_template (veen11a_default_template)
@@ -4181,6 +4382,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vevi0a_template_code)
 			etl_code := vevi_etl_code
 			default_template := default_message_template (vevi0a_default_template)
@@ -4223,6 +4425,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_result.position
+			ast_node := a_result
 			code := template_code (vevi0b_template_code)
 			etl_code := vevi_etl_code
 			default_template := default_message_template (vevi0b_default_template)
@@ -4264,8 +4467,10 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_function.end_keyword.position
+			ast_node := a_function.end_keyword
 			if position.is_null then
 				position := a_function.name.position
+				ast_node := a_function.name
 			end
 			code := template_code (vevi0c_template_code)
 			etl_code := vevi_etl_code
@@ -4310,8 +4515,10 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_agent.end_keyword.position
+			ast_node := a_agent.end_keyword
 			if position.is_null then
 				position := a_agent.position
+				ast_node := a_agent.agent_keyword
 			end
 			code := template_code (vevi0d_template_code)
 			etl_code := vevi_etl_code
@@ -4354,8 +4561,10 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.end_keyword.position
+			ast_node := a_attribute.end_keyword
 			if position.is_null then
 				position := a_attribute.name.position
+				ast_node := a_attribute.name
 			end
 			code := template_code (vevi0e_template_code)
 			etl_code := vevi_etl_code
@@ -4384,9 +4593,410 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = attribute name
 		end
 
+	make_vevi0f (a_class, a_class_impl: ET_CLASS; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Create a new VEVI error: the attribute 'a_attribute' of class `a_class`,
+			-- declared of attached type, is not initialized at the end of the creation
+			-- procedure `a_creation_procedure' declared in class `a_class_impl'
+			-- (possibly `a_class` itself).
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_creation_procedure.end_keyword.position
+			ast_node := a_creation_procedure.end_keyword
+			if position.is_null then
+				position := a_creation_procedure.name.position
+				ast_node := a_creation_procedure.name
+			end
+			code := template_code (vevi0f_template_code)
+			etl_code := vevi_etl_code
+			default_template := default_message_template (vevi0f_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_creation_procedure.lower_name, 7)
+			parameters.put (a_attribute.lower_name, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+			-- dollar8: $8 = attribute name
+		end
+
+	make_vevi0g (a_class, a_class_impl: ET_CLASS; a_creation_procedure: ET_PROCEDURE; a_attributes: DS_ARRAYED_LIST [ET_ATTRIBUTE])
+			-- Create a new VEVI error: the attributes 'a_attributes' of class `a_class`,
+			-- declared of attached types, are not initialized at the end of the creation
+			-- procedure `a_creation_procedure' declared in class `a_class_impl'
+			-- (possibly `a_class` itself).
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attributes_not_void: a_attributes /= Void
+			no_void_attribute: not a_attributes.has_void
+			two_or_more_attributes: a_attributes.count >= 2
+		local
+			l_attributes_to_text: STRING
+			i, nb: INTEGER
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_creation_procedure.end_keyword.position
+			ast_node := a_creation_procedure.end_keyword
+			if position.is_null then
+				position := a_creation_procedure.name.position
+				ast_node := a_creation_procedure.name
+			end
+			code := template_code (vevi0g_template_code)
+			etl_code := vevi_etl_code
+			default_template := default_message_template (vevi0g_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_creation_procedure.lower_name, 7)
+			create l_attributes_to_text.make (15)
+			nb := a_attributes.count
+			from i := 1 until i > nb loop
+				if i = nb then
+					l_attributes_to_text.append_string (" and ")
+				elseif i > 1 then
+					l_attributes_to_text.append_character (',')
+					l_attributes_to_text.append_character (' ')
+				end
+				l_attributes_to_text.append_character ('`')
+				l_attributes_to_text.append_string (a_attributes.item (i).lower_name)
+				l_attributes_to_text.append_character ('%'')
+				i := i + 1
+			end
+			parameters.put (l_attributes_to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+			-- dollar8: $8 = attribute names
+		end
+
+	make_vevi0h (a_class, a_class_impl: ET_CLASS; a_current: ET_CURRENT; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Create a new VEVI error: 'Current', written in `a_class_impl`, is used
+			-- before the attribute 'a_attribute' of one of its descendants `a_class'
+			-- (possibly itself), declared of attached type, is initialized by
+			-- `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_current_not_void: a_current /= Void
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_current.position
+			ast_node := a_current
+			code := template_code (vevi0h_template_code)
+			etl_code := vevi_etl_code
+			default_template := default_message_template (vevi0h_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_creation_procedure.lower_name, 7)
+			parameters.put (a_attribute.lower_name, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+			-- dollar8: $8 = attribute name
+		end
+
+	make_vevi0i (a_class, a_class_impl: ET_CLASS; a_current: ET_CURRENT; a_creation_procedure: ET_PROCEDURE; a_attributes: DS_ARRAYED_LIST [ET_ATTRIBUTE])
+			-- Create a new VEVI error: 'Current', written in `a_class_impl`, is used
+			-- before the attributes 'a_attributes' of one of its descendants `a_class'
+			-- (possibly itself), declared of attached type, are initialized by
+			-- `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_current_not_void: a_current /= Void
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attributes_not_void: a_attributes /= Void
+			no_void_attribute: not a_attributes.has_void
+			two_or_more_attributes: a_attributes.count >= 2
+		local
+			l_attributes_to_text: STRING
+			i, nb: INTEGER
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_current.position
+			ast_node := a_current
+			code := template_code (vevi0i_template_code)
+			etl_code := vevi_etl_code
+			default_template := default_message_template (vevi0i_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_creation_procedure.lower_name, 7)
+			create l_attributes_to_text.make (15)
+			nb := a_attributes.count
+			from i := 1 until i > nb loop
+				if i = nb then
+					l_attributes_to_text.append_string (" and ")
+				elseif i > 1 then
+					l_attributes_to_text.append_character (',')
+					l_attributes_to_text.append_character (' ')
+				end
+				l_attributes_to_text.append_character ('`')
+				l_attributes_to_text.append_string (a_attributes.item (i).lower_name)
+				l_attributes_to_text.append_character ('%'')
+				i := i + 1
+			end
+			parameters.put (l_attributes_to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+			-- dollar8: $8 = attribute names
+		end
+
+	make_vevi0j (a_class, a_class_impl: ET_CLASS; a_agent: ET_AGENT; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Create a new VEVI error: the implicit target 'Current' of `a_agent`,
+			-- written in `a_class_impl`, is used before the attribute 'a_attribute'
+			-- of one of its descendants `a_class' (possibly itself), declared of
+			-- attached type, is initialized by `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_agent_not_void: a_agent /= Void
+			a_agent_not_qualified: not a_agent.is_qualified_call
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_agent.position
+			ast_node := a_agent
+			code := template_code (vevi0j_template_code)
+			etl_code := vevi_etl_code
+			default_template := default_message_template (vevi0j_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_creation_procedure.lower_name, 7)
+			parameters.put (a_attribute.lower_name, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+			-- dollar8: $8 = attribute name
+		end
+
+	make_vevi0k (a_class, a_class_impl: ET_CLASS; a_agent: ET_AGENT; a_creation_procedure: ET_PROCEDURE; a_attributes: DS_ARRAYED_LIST [ET_ATTRIBUTE])
+			-- Create a new VEVI error: the implicit target 'Current' of `a_agent`,
+			-- written in `a_class_impl`, is used before the attributes 'a_attributes'
+			-- of one of its descendants `a_class' (possibly itself), declared of
+			-- attached type, are initialized by `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_agent_not_void: a_agent /= Void
+			a_agent_not_qualified: not a_agent.is_qualified_call
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attributes_not_void: a_attributes /= Void
+			no_void_attribute: not a_attributes.has_void
+			two_or_more_attributes: a_attributes.count >= 2
+		local
+			l_attributes_to_text: STRING
+			i, nb: INTEGER
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_agent.position
+			ast_node := a_agent
+			code := template_code (vevi0k_template_code)
+			etl_code := vevi_etl_code
+			default_template := default_message_template (vevi0k_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_creation_procedure.lower_name, 7)
+			create l_attributes_to_text.make (15)
+			nb := a_attributes.count
+			from i := 1 until i > nb loop
+				if i = nb then
+					l_attributes_to_text.append_string (" and ")
+				elseif i > 1 then
+					l_attributes_to_text.append_character (',')
+					l_attributes_to_text.append_character (' ')
+				end
+				l_attributes_to_text.append_character ('`')
+				l_attributes_to_text.append_string (a_attributes.item (i).lower_name)
+				l_attributes_to_text.append_character ('%'')
+				i := i + 1
+			end
+			parameters.put (l_attributes_to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+			-- dollar8: $8 = attribute names
+		end
+
+	make_vevi0l (a_class, a_class_impl: ET_CLASS; a_call_name: ET_CALL_NAME; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Create a new VEVI error: 'a_call_name', written in `a_class_impl`, is the
+			-- name of an attribute 'a_attribute' of one of its descendants `a_class'
+			-- (possibly itself), declared of attached type, used before being initialized
+			-- by `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_call_name_not_void: a_call_name /= Void
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_call_name.position
+			ast_node := a_call_name
+			code := template_code (vevi0l_template_code)
+			etl_code := vevi_etl_code
+			default_template := default_message_template (vevi0l_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_creation_procedure.lower_name, 7)
+			parameters.put (a_attribute.lower_name, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+			-- dollar8: $8 = attribute name
+		end
+
 	make_vfac1a (a_class: ET_CLASS; an_assigner: ET_FEATURE_NAME; a_query: ET_QUERY)
 			-- Create a new VFAC-1 error: `a_query' has an assigner `an_assigner'
-			-- but there is not feature with that name in `a_class'.
+			-- but there is no feature with that name in `a_class'.
 			--
 			-- ECMA 367-2: p.41
 		require
@@ -4399,6 +5009,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_assigner.position
+			ast_node := an_assigner
 			code := template_code (vfac1a_template_code)
 			etl_code := vfac1_etl_code
 			default_template := default_message_template (vfac1a_default_template)
@@ -4443,6 +5054,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_assigner.position
+			ast_node := an_assigner
 			code := template_code (vfac1b_template_code)
 			etl_code := vfac1_etl_code
 			default_template := default_message_template (vfac1b_default_template)
@@ -4489,6 +5101,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_assigner.position
+			ast_node := an_assigner
 			code := template_code (vfac2a_template_code)
 			etl_code := vfac2_etl_code
 			default_template := default_message_template (vfac2a_default_template)
@@ -4540,6 +5153,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_assigner.position
+			ast_node := an_assigner
 			code := template_code (vfac3a_template_code)
 			etl_code := vfac3_etl_code
 			default_template := default_message_template (vfac3a_default_template)
@@ -4594,6 +5208,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_assigner.position
+			ast_node := an_assigner
 			code := template_code (vfac4a_template_code)
 			etl_code := vfac4_etl_code
 			default_template := default_message_template (vfac4a_default_template)
@@ -4652,6 +5267,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav1a_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1a_default_template)
@@ -4698,6 +5314,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav1b_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1b_default_template)
@@ -4747,6 +5364,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav1c_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1c_default_template)
@@ -4800,6 +5418,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav1d_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1d_default_template)
@@ -4855,6 +5474,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature1.parent.type.name.position
+			ast_node := a_feature1.parent.type.name
 			code := template_code (vfav1e_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1e_default_template)
@@ -4912,6 +5532,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav1f_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1f_default_template)
@@ -4965,6 +5586,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav1g_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1g_default_template)
@@ -5020,6 +5642,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature1.parent.type.name.position
+			ast_node := a_feature1.parent.type.name
 			code := template_code (vfav1h_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1h_default_template)
@@ -5075,6 +5698,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav1k_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1k_default_template)
@@ -5127,6 +5751,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_new_alias_name.position
+			ast_node := a_new_alias_name
 			code := template_code (vfav1m_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1m_default_template)
@@ -5183,6 +5808,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_new_alias_name.position
+			ast_node := a_new_alias_name
 			code := template_code (vfav1n_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1n_default_template)
@@ -5239,6 +5865,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_new_alias_name.position
+			ast_node := a_new_alias_name
 			code := template_code (vfav1p_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1p_default_template)
@@ -5293,6 +5920,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav1q_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1q_default_template)
@@ -5343,6 +5971,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav1r_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1r_default_template)
@@ -5393,6 +6022,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav1s_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1s_default_template)
@@ -5445,6 +6075,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav1t_template_code)
 			etl_code := vfav1_etl_code
 			default_template := default_message_template (vfav1t_default_template)
@@ -5493,6 +6124,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav2a_template_code)
 			etl_code := vfav2_etl_code
 			default_template := default_message_template (vfav2a_default_template)
@@ -5542,6 +6174,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav2b_template_code)
 			etl_code := vfav2_etl_code
 			default_template := default_message_template (vfav2b_default_template)
@@ -5595,6 +6228,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav2c_template_code)
 			etl_code := vfav2_etl_code
 			default_template := default_message_template (vfav2c_default_template)
@@ -5650,6 +6284,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature1.parent.type.name.position
+			ast_node := a_feature1.parent.type.name
 			code := template_code (vfav2d_template_code)
 			etl_code := vfav2_etl_code
 			default_template := default_message_template (vfav2d_default_template)
@@ -5710,6 +6345,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_new_alias_name.position
+			ast_node := a_new_alias_name
 			code := template_code (vfav2e_template_code)
 			etl_code := vfav2_etl_code
 			default_template := default_message_template (vfav2e_default_template)
@@ -5764,6 +6400,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav2f_template_code)
 			etl_code := vfav2_etl_code
 			default_template := default_message_template (vfav2f_default_template)
@@ -5814,6 +6451,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav2g_template_code)
 			etl_code := vfav2_etl_code
 			default_template := default_message_template (vfav2g_default_template)
@@ -5862,6 +6500,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav3a_template_code)
 			etl_code := vfav3_etl_code
 			default_template := default_message_template (vfav3a_default_template)
@@ -5911,6 +6550,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav3b_template_code)
 			etl_code := vfav3_etl_code
 			default_template := default_message_template (vfav3b_default_template)
@@ -5964,6 +6604,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name1.position
+			ast_node := a_alias_name1
 			code := template_code (vfav3c_template_code)
 			etl_code := vfav3_etl_code
 			default_template := default_message_template (vfav3c_default_template)
@@ -6019,6 +6660,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature1.parent.type.name.position
+			ast_node := a_feature1.parent.type.name
 			code := template_code (vfav3d_template_code)
 			etl_code := vfav3_etl_code
 			default_template := default_message_template (vfav3d_default_template)
@@ -6079,6 +6721,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_new_alias_name.position
+			ast_node := a_new_alias_name
 			code := template_code (vfav3e_template_code)
 			etl_code := vfav3_etl_code
 			default_template := default_message_template (vfav3e_default_template)
@@ -6133,6 +6776,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav3f_template_code)
 			etl_code := vfav3_etl_code
 			default_template := default_message_template (vfav3f_default_template)
@@ -6183,6 +6827,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav3g_template_code)
 			etl_code := vfav3_etl_code
 			default_template := default_message_template (vfav3g_default_template)
@@ -6229,6 +6874,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4a_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4a_default_template)
@@ -6273,6 +6919,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4b_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4b_default_template)
@@ -6317,6 +6964,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4c_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4c_default_template)
@@ -6361,6 +7009,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4d_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4d_default_template)
@@ -6408,6 +7057,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4e_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4e_default_template)
@@ -6457,6 +7107,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4f_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4f_default_template)
@@ -6506,6 +7157,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4g_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4g_default_template)
@@ -6555,6 +7207,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4h_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4h_default_template)
@@ -6606,6 +7259,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4i_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4i_default_template)
@@ -6654,6 +7308,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4j_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4j_default_template)
@@ -6702,6 +7357,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4k_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4k_default_template)
@@ -6750,6 +7406,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav4l_template_code)
 			etl_code := vfav4_etl_code
 			default_template := default_message_template (vfav4l_default_template)
@@ -6794,6 +7451,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_alias_name.position
+			ast_node := a_alias_name
 			code := template_code (vfav5a_template_code)
 			etl_code := vfav5_etl_code
 			default_template := default_message_template (vfav5a_default_template)
@@ -6835,6 +7493,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.frozen_keyword
 			code := template_code (vffd4a_template_code)
 			etl_code := vffd4_etl_code
 			default_template := default_message_template (vffd4a_default_template)
@@ -6877,6 +7536,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.type
 			code := template_code (vffd7a_template_code)
 			etl_code := vffd7_etl_code
 			default_template := default_message_template (vffd7a_default_template)
@@ -6919,6 +7579,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.type
 			code := template_code (vffd7b_template_code)
 			etl_code := vffd7_etl_code
 			default_template := default_message_template (vffd7b_default_template)
@@ -6965,6 +7626,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_once_function.name.position
+			ast_node := a_once_function.type
 			code := template_code (vffd11ga_template_code)
 			etl_code := vffd11g_etl_code
 			default_template := default_message_template (vffd11ga_default_template)
@@ -7012,6 +7674,10 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_creation.position
+			ast_node := a_creation.type
+			if ast_node = Void and then attached {ET_CREATION_INSTRUCTION} a_creation as l_creation_instruction then
+				ast_node := l_creation_instruction.target
+			end
 			code := template_code (vgcc1a_template_code)
 			etl_code := vgcc1_etl_code
 			default_template := default_message_template (vgcc1a_default_template)
@@ -7060,6 +7726,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := ast_position (a_creation.type)
+			ast_node := a_creation.type
 			code := template_code (vgcc3a_template_code)
 			etl_code := vgcc3_etl_code
 			default_template := default_message_template (vgcc3a_default_template)
@@ -7107,6 +7774,10 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_creation.position
+			ast_node := a_creation.type
+			if ast_node = Void and then attached {ET_CREATION_INSTRUCTION} a_creation as l_creation_instruction then
+				ast_node := l_creation_instruction.target
+			end
 			code := template_code (vgcc5a_template_code)
 			etl_code := vgcc5_etl_code
 			default_template := default_message_template (vgcc5a_default_template)
@@ -7134,51 +7805,6 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = creation type base class name
 		end
 
-	make_vgcc6a (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
-			-- Create a new VGCC-6 error: creation procedure name
-			-- `cp' is the final name of a once-procedure in `a_class'.
-			--
-			-- ETL2: p.286
-			-- ETL3 (4.82-00-00): p.432 (VGCC-4)
-		require
-			a_class_not_void: a_class /= Void
-			a_class_preparsed: a_class.is_preparsed
-			cp_not_void: cp /= Void
-			f_not_void: f /= Void
-			f_name: f.name.same_feature_name (cp)
-			f_procedure: f.is_procedure
-			f_once: f.is_once
-		do
-			current_class := a_class
-			class_impl := a_class
-			position := cp.position
-			code := template_code (vgcc6a_template_code)
-			etl_code := vgcc6_etl_code
-			default_template := default_message_template (vgcc6a_default_template)
-			create parameters.make_filled (empty_string, 1, 7)
-			parameters.put (etl_code, 1)
-			parameters.put (filename, 2)
-			parameters.put (position.line.out, 3)
-			parameters.put (position.column.out, 4)
-			parameters.put (current_class.upper_name, 5)
-			parameters.put (class_impl.upper_name, 6)
-			parameters.put (cp.lower_name, 7)
-			set_compilers (True)
-		ensure
-			current_class_set: current_class = a_class
-			class_impl_set: class_impl = a_class
-			all_reported: all_reported
-			all_fatal: all_fatal
-			-- dollar0: $0 = program name
-			-- dollar1: $1 = ETL code
-			-- dollar2: $2 = filename
-			-- dollar3: $3 = line
-			-- dollar4: $4 = column
-			-- dollar5: $5 = class name
-			-- dollar6: $6 = implementation class name
-			-- dollar7: $7 = creation procedure name
-		end
-
 	make_vgcc6b (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS)
 			-- Create a new VGCC-6 error: the feature name `a_name', appearing
 			-- in a creation expression in `a_class', is not a procedure.
@@ -7194,6 +7820,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgcc6b_template_code)
 			etl_code := vgcc6_etl_code
 			default_template := default_message_template (vgcc6b_default_template)
@@ -7243,6 +7870,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgcc6c_template_code)
 			etl_code := vgcc6_etl_code
 			default_template := default_message_template (vgcc6c_default_template)
@@ -7289,6 +7917,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgcc6d_template_code)
 			etl_code := vgcc6_etl_code
 			default_template := default_message_template (vgcc6d_default_template)
@@ -7340,6 +7969,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgcc8a_template_code)
 			etl_code := vgcc8_etl_code
 			default_template := default_message_template (vgcc8a_default_template)
@@ -7386,6 +8016,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_creator.position
+			ast_node := a_creator.create_keyword
 			code := template_code (vgcp1a_template_code)
 			etl_code := vgcp1_etl_code
 			default_template := default_message_template (vgcp1a_default_template)
@@ -7424,6 +8055,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := cp.position
+			ast_node := cp
 			code := template_code (vgcp2a_template_code)
 			etl_code := vgcp2_etl_code
 			default_template := default_message_template (vgcp2a_default_template)
@@ -7467,6 +8099,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := cp.position
+			ast_node := cp
 			code := template_code (vgcp2b_template_code)
 			etl_code := vgcp2_etl_code
 			default_template := default_message_template (vgcp2b_default_template)
@@ -7508,6 +8141,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.position
+			ast_node := f2
 			code := template_code (vgcp3a_template_code)
 			etl_code := vgcp3_etl_code
 			default_template := default_message_template (vgcp3a_default_template)
@@ -7549,6 +8183,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.position
+			ast_node := f2
 			code := template_code (vgcp3b_template_code)
 			etl_code := vgcp3_etl_code
 			default_template := default_message_template (vgcp3b_default_template)
@@ -7591,6 +8226,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.position
+			ast_node := f2
 			code := template_code (vgcp3c_template_code)
 			etl_code := vgcp3_etl_code
 			default_template := default_message_template (vgcp3c_default_template)
@@ -7618,6 +8254,45 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = procedure name
 		end
 
+	make_vgfg3ga (a_class: ET_CLASS; a_formal_parameters: ET_FORMAL_PARAMETER_LIST)
+			-- Create a new VGFG-3G error: `a_class` is a once class, but it is generic.
+			--
+			-- Not in ECMA-367-2.
+			-- Once classes.
+		require
+			a_class_not_void: a_class /= Void
+			a_formal_parameters_not_void: a_formal_parameters /= Void
+			a_formal_parameters_definition: a_class.formal_parameters = a_formal_parameters
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_formal_parameters.position
+			ast_node := a_formal_parameters
+			code := template_code (vgfg3ga_template_code)
+			etl_code := vgfg3g_etl_code
+			default_template := default_message_template (vgfg3ga_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
 	make_vggc1a (a_class: ET_CLASS; a_type: ET_LIKE_TYPE)
 			-- Create a new VGGC-1 error: invalid type `a_type' in
 			-- constraint of formal generic parameter of `a_class'.
@@ -7631,6 +8306,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.position
+			ast_node := a_type
 			code := template_code (vggc1a_template_code)
 			etl_code := vggc1_etl_code
 			default_template := default_message_template (vggc1a_default_template)
@@ -7675,6 +8351,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_rename.old_name.position
+			ast_node := a_rename.old_name
 			code := template_code (vggc2a_template_code)
 			etl_code := vggc2_etl_code
 			default_template := default_message_template (vggc2a_default_template)
@@ -7720,6 +8397,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_constraint.name.position
+			ast_node := a_constraint.name
 			code := template_code (vggc2b_template_code)
 			etl_code := vggc2_etl_code
 			default_template := default_message_template (vggc2b_default_template)
@@ -7764,6 +8442,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_constraint.name.position
+			ast_node := a_constraint.name
 			code := template_code (vggc2c_template_code)
 			etl_code := vggc2_etl_code
 			default_template := default_message_template (vggc2c_default_template)
@@ -7809,6 +8488,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_rename2.old_name.position
+			ast_node := a_rename2.old_name
 			code := template_code (vggc2d_template_code)
 			etl_code := vggc2_etl_code
 			default_template := default_message_template (vggc2d_default_template)
@@ -7856,6 +8536,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_rename2.new_name.feature_name.position
+			ast_node := a_rename2.new_name
 			code := template_code (vggc2e_template_code)
 			etl_code := vggc2_etl_code
 			default_template := default_message_template (vggc2e_default_template)
@@ -7902,6 +8583,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_rename.new_name.feature_name.position
+			ast_node := a_rename.new_name.feature_name
 			code := template_code (vggc2f_template_code)
 			etl_code := vggc2_etl_code
 			default_template := default_message_template (vggc2f_default_template)
@@ -7946,6 +8628,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := cp.position
+			ast_node := cp
 			code := template_code (vggc3a_template_code)
 			etl_code := vggc3_etl_code
 			default_template := default_message_template (vggc3a_default_template)
@@ -7990,6 +8673,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := cp.position
+			ast_node := cp
 			code := template_code (vggc3b_template_code)
 			etl_code := vggc3_etl_code
 			default_template := default_message_template (vggc3b_default_template)
@@ -8039,6 +8723,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := cp.position
+			ast_node := cp
 			code := template_code (vggc3c_template_code)
 			etl_code := vggc3_etl_code
 			default_template := default_message_template (vggc3c_default_template)
@@ -8091,6 +8776,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := cp.position
+			ast_node := cp
 			code := template_code (vggc3d_template_code)
 			etl_code := vggc3_etl_code
 			default_template := default_message_template (vggc3d_default_template)
@@ -8149,6 +8835,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgmc0a_template_code)
 			etl_code := vgmc_etl_code
 			default_template := default_message_template (vgmc0a_default_template)
@@ -8215,6 +8902,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgmc0b_template_code)
 			etl_code := vgmc_etl_code
 			default_template := default_message_template (vgmc0b_default_template)
@@ -8273,6 +8961,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgmc0c_template_code)
 			etl_code := vgmc_etl_code
 			default_template := default_message_template (vgmc0c_default_template)
@@ -8326,6 +9015,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgmc0d_template_code)
 			etl_code := vgmc_etl_code
 			default_template := default_message_template (vgmc0d_default_template)
@@ -8385,6 +9075,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgmc0e_template_code)
 			etl_code := vgmc_etl_code
 			default_template := default_message_template (vgmc0e_default_template)
@@ -8439,6 +9130,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgmc0f_template_code)
 			etl_code := vgmc_etl_code
 			default_template := default_message_template (vgmc0f_default_template)
@@ -8496,6 +9188,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vgmc0g_template_code)
 			etl_code := vgmc_etl_code
 			default_template := default_message_template (vgmc0g_default_template)
@@ -8543,6 +9236,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := null_position
+			ast_node := a_class.name
 			code := template_code (vhay0a_template_code)
 			etl_code := vhay_etl_code
 			default_template := default_message_template (vhay0a_default_template)
@@ -8586,6 +9280,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := null_position
+			ast_node := a_class.name
 			code := template_code (vhpr1a_template_code)
 			etl_code := vhpr1_etl_code
 			default_template := default_message_template (vhpr1a_default_template)
@@ -8639,6 +9334,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_none.position
+			ast_node := a_none
 			code := template_code (vhpr1b_template_code)
 			etl_code := vhpr1_etl_code
 			default_template := default_message_template (vhpr1b_default_template)
@@ -8679,6 +9375,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_parent.position
+			ast_node := a_parent.name
 			code := template_code (vhpr2a_template_code)
 			etl_code := vhpr2_etl_code
 			default_template := default_message_template (vhpr2a_default_template)
@@ -8719,6 +9416,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.position
+			ast_node := a_type
 			code := template_code (vhpr3a_template_code)
 			etl_code := vhpr3_etl_code
 			default_template := default_message_template (vhpr3a_default_template)
@@ -8763,6 +9461,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_rename.old_name.position
+			ast_node := a_rename.old_name
 			code := template_code (vhrc1a_template_code)
 			etl_code := vhrc1_etl_code
 			default_template := default_message_template (vhrc1a_default_template)
@@ -8810,6 +9509,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_rename2.old_name.position
+			ast_node := a_rename2.old_name
 			code := template_code (vhrc2a_template_code)
 			etl_code := vhrc2_etl_code
 			default_template := default_message_template (vhrc2a_default_template)
@@ -8858,6 +9558,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_assignment.source.position
+			ast_node := an_assignment.source
 			code := template_code (vjar0a_template_code)
 			etl_code := vjar_etl_code
 			default_template := default_message_template (vjar0a_default_template)
@@ -8906,6 +9607,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_assignment.source.position
+			ast_node := a_assignment.source
 			code := template_code (vjar0b_template_code)
 			etl_code := vjar_etl_code
 			default_template := default_message_template (vjar0b_default_template)
@@ -8949,6 +9651,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vjaw0a_template_code)
 			etl_code := vjaw_etl_code
 			default_template := default_message_template (vjaw0a_default_template)
@@ -8987,11 +9690,13 @@ feature {NONE} -- Initialization
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
 			a_name_not_void: a_name /= Void
+			a_name_is_argument: a_name.is_argument
 			a_feature_not_void: a_feature /= Void
 		do
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vjaw0b_template_code)
 			etl_code := vjaw_etl_code
 			default_template := default_message_template (vjaw0b_default_template)
@@ -9030,11 +9735,13 @@ feature {NONE} -- Initialization
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
 			a_name_not_void: a_name /= Void
+			a_name_is_argument: a_name.is_argument
 			an_agent_not_void: an_agent /= Void
 		do
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vjaw0c_template_code)
 			etl_code := vjaw_etl_code
 			default_template := default_message_template (vjaw0c_default_template)
@@ -9062,10 +9769,136 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = formal argument name
 		end
 
+	make_vjaw0d (a_class: ET_CLASS; a_name: ET_IDENTIFIER)
+			-- Create a new VJAW error: `a_name' is supposed to be a Writable but
+			-- it is an object-test local.
+			--
+			-- Only in ISE Eiffel.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_name_is_object_test_local: a_name.is_object_test_local
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vjaw0d_template_code)
+			etl_code := vjaw_etl_code
+			default_template := default_message_template (vjaw0d_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = object-test local name
+		end
+
+	make_vjaw0e (a_class: ET_CLASS; a_name: ET_IDENTIFIER)
+			-- Create a new VJAW error: `a_name' is supposed to be a Writable but
+			-- it is an iteration item.
+			--
+			-- Only in ISE Eiffel.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_name_is_iteration_item: a_name.is_iteration_item
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vjaw0e_template_code)
+			etl_code := vjaw_etl_code
+			default_template := default_message_template (vjaw0e_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = iteration item name
+		end
+
+	make_vjaw0f (a_class: ET_CLASS; a_name: ET_IDENTIFIER)
+			-- Create a new VJAW error: `a_name' is supposed to be a Writable but
+			-- it is an inline separate argument.
+			--
+			-- Only in ISE Eiffel.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_name_is_inline_separate_argument: a_name.is_inline_separate_argument
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vjaw0f_template_code)
+			etl_code := vjaw_etl_code
+			default_template := default_message_template (vjaw0f_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = inline separate argument name
+		end
+
 	make_vjrv0a (a_class, a_class_impl: ET_CLASS; a_target: ET_WRITABLE; a_target_type: ET_NAMED_TYPE)
 			-- Create a new VJRV error: the type `a_target_type' of the target
 			-- `a_target' of an assignment attempt appearing in `a_class_impl'
-			-- and viewed from one of its descedants `a_class' (possibly itselft)
+			-- and viewed from one of its descendants `a_class' (possibly itselft)
 			-- is not a reference type.
 			--
 			-- ETL2: p. 332
@@ -9080,6 +9913,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_target.position
+			ast_node := a_target
 			code := template_code (vjrv0a_template_code)
 			etl_code := vjrv_etl_code
 			default_template := default_message_template (vjrv0a_default_template)
@@ -9107,6 +9941,450 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = target type
 		end
 
+	make_vkcc4a (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Create a new VKCC-4 error: creation procedure name
+			-- `cp' is the final name of a once-procedure in `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_once: f.is_once
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := cp.position
+			ast_node := cp
+			code := template_code (vkcc4a_template_code)
+			etl_code := vkcc4_etl_code
+			default_template := default_message_template (vkcc4a_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (cp.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+		end
+
+	make_vkcc4b (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Create a new VKCC-4 error: creation procedure `a_default_create`
+			-- is a once-procedure in `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_once: a_default_create.is_once
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_class.name.position
+			ast_node := a_class.name
+			code := template_code (vkcc4b_template_code)
+			etl_code := vkcc4_etl_code
+			default_template := default_message_template (vkcc4b_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vkcc4c (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Create a new VKCC-4 error: creation procedure name
+			-- `cp' is not the final name of a once-procedure in
+			-- once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_not_once: not f.is_once
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := cp.position
+			ast_node := cp
+			code := template_code (vkcc4c_template_code)
+			etl_code := vkcc4_etl_code
+			default_template := default_message_template (vkcc4c_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (cp.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+		end
+
+	make_vkcc4d (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Create a new VKCC-4 error: creation procedure `a_default_create`
+			-- is not a once-procedure in once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_not_once: not a_default_create.is_once
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_class.name.position
+			ast_node := a_class.name
+			code := template_code (vkcc4d_template_code)
+			etl_code := vkcc4_etl_code
+			default_template := default_message_template (vkcc4d_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vkcc4e (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Create a new VKCC-4 error: creation procedure name
+			-- `cp' is the final name of a once-per-object procedure
+			-- in once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_once_per_object: f.is_once_per_object
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := cp.position
+			ast_node := cp
+			code := template_code (vkcc4e_template_code)
+			etl_code := vkcc4_etl_code
+			default_template := default_message_template (vkcc4e_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (cp.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+		end
+
+	make_vkcc4f (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Create a new VKCC-4 error: creation procedure `a_default_create`
+			-- is a once-per_object procedure in once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_once_per_object: a_default_create.is_once_per_object
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_class.name.position
+			ast_node := a_class.name
+			code := template_code (vkcc4f_template_code)
+			etl_code := vkcc4_etl_code
+			default_template := default_message_template (vkcc4f_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vkcc6ga (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Create a new VKCC-6G error: creation procedure name
+			-- `cp' is the final name of a class procedure
+			-- in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_class_procedure: f.has_static_mark
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := cp.position
+			ast_node := cp
+			code := template_code (vkcc6ga_template_code)
+			etl_code := vkcc6g_etl_code
+			default_template := default_message_template (vkcc6ga_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (cp.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+		end
+
+	make_vkcc6gb (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Create a new VKCC-6G error: creation procedure `a_default_create`
+			-- is a class procedure in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_class_procedure: a_default_create.has_static_mark
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_class.name.position
+			ast_node := a_class.name
+			code := template_code (vkcc6gb_template_code)
+			etl_code := vkcc6g_etl_code
+			default_template := default_message_template (vkcc6gb_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vkcc7ga (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Create a new VKCC-7G error: creation procedure name
+			-- `cp' is not the final name of a procedure
+			-- declared or redeclared in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := cp.position
+			ast_node := cp
+			code := template_code (vkcc7ga_template_code)
+			etl_code := vkcc7g_etl_code
+			default_template := default_message_template (vkcc7ga_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (cp.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = creation procedure name
+		end
+
+	make_vkcc7gb (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Create a new VKCC-7G error: creation procedure `a_default_create`
+			-- is a procedure declared or redeclared in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_class.name.position
+			ast_node := a_class.name
+			code := template_code (vkcc7gb_template_code)
+			etl_code := vkcc7g_etl_code
+			default_template := default_message_template (vkcc7gb_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
 	make_vkcn1a (a_class: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS)
 			-- Create a new VKCN-1 error: `a_feature' of class `a_target', appearing
 			-- in the qualified instruction call `a_name' in `a_class', is not
@@ -9123,6 +10401,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vkcn1a_template_code)
 			etl_code := vkcn1_etl_code
 			default_template := default_message_template (vkcn1a_default_template)
@@ -9169,6 +10448,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vkcn1b_template_code)
 			etl_code := vkcn1_etl_code
 			default_template := default_message_template (vkcn1b_default_template)
@@ -9213,6 +10493,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vkcn1c_template_code)
 			etl_code := vkcn1_etl_code
 			default_template := default_message_template (vkcn1c_default_template)
@@ -9258,6 +10539,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vkcn2a_template_code)
 			etl_code := vkcn2_etl_code
 			default_template := default_message_template (vkcn2a_default_template)
@@ -9304,6 +10586,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vkcn2c_template_code)
 			etl_code := vkcn2_etl_code
 			default_template := default_message_template (vkcn2c_default_template)
@@ -9345,6 +10628,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_region.class_name.position
+			ast_node := a_region.class_name
 			code := template_code (vkex4ga_template_code)
 			etl_code := vkex4g_etl_code
 			default_template := default_message_template (vkex4ga_default_template)
@@ -9372,6 +10656,58 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = creation region name
 		end
 
+	make_vkex5ga (a_class, a_class_impl: ET_CLASS; a_creation_expression: ET_CREATION_EXPRESSION;
+		a_once_procedure: ET_PROCEDURE; a_creation_type: ET_TYPE)
+			-- Create a new VKEX-5G error: the creation type `a_creation_type` of the
+			-- creation expression `a_creation_expression` declared in `a_class_impl'
+			-- and viewed from one of its descendants `a_class' (possibly itself),
+			-- with the once-per-process creation procedure `a_once_procedure`,
+			-- is a reference type but is not separate.
+			--
+			-- Not in ECMA-367-2.
+			-- SCOOP and once classes.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_expression_not_void: a_creation_expression /= Void
+			a_once_procedure_not_void: a_once_procedure /= Void
+			once_per_process: a_once_procedure.is_once_per_process
+			a_creation_type_not_void: a_creation_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_creation_expression.type.position
+			ast_node := a_creation_expression.type
+			code := template_code (vkex5ga_template_code)
+			etl_code := vkex5g_etl_code
+			default_template := default_message_template (vkex5ga_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_once_procedure.lower_name, 7)
+			parameters.put (a_creation_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = name of once creation procedure
+			-- dollar8: $8 = creation type
+		end
+
 	make_vkin5ga (a_class, a_class_imp: ET_CLASS; a_region: ET_CREATION_REGION)
 			-- Create a new VKIN-5G error: creation region `a_region' appearing in
 			-- a creation instruction in `a_class' is not '<NONE>'.
@@ -9384,6 +10720,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_region.class_name.position
+			ast_node := a_region.class_name
 			code := template_code (vkin5ga_template_code)
 			etl_code := vkin5g_etl_code
 			default_template := default_message_template (vkin5ga_default_template)
@@ -9411,6 +10748,63 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = creation region name
 		end
 
+	make_vkin6ga (a_class, a_class_impl: ET_CLASS; a_creation_instruction: ET_CREATION_INSTRUCTION;
+		a_once_procedure: ET_PROCEDURE; a_creation_type: ET_TYPE)
+			-- Create a new VKIN-6G error: the creation type `a_creation_type` of the
+			-- creation instruction `a_creation_instruction` declared in `a_class_impl'
+			-- and viewed from one of its descendants `a_class' (possibly itself),
+			-- with the once-per-process creation procedure `a_once_procedure`,
+			-- is a reference type but is not separate.
+			--
+			-- Not in ECMA-367-2.
+			-- SCOOP and once classes.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_instruction_not_void: a_creation_instruction /= Void
+			a_once_procedure_not_void: a_once_procedure /= Void
+			once_per_process: a_once_procedure.is_once_per_process
+			a_creation_type_not_void: a_creation_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			if attached a_creation_instruction.type as l_type then
+				position := l_type.position
+				ast_node := l_type
+			else
+				position := a_creation_instruction.target.position
+				ast_node := a_creation_instruction.target
+			end
+			code := template_code (vkin6ga_template_code)
+			etl_code := vkin6g_etl_code
+			default_template := default_message_template (vkin6ga_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_once_procedure.lower_name, 7)
+			parameters.put (a_creation_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = name of once creation procedure
+			-- dollar8: $8 = creation type
+		end
+
 	make_vlel1a (a_class: ET_CLASS; a_parent: ET_PARENT; all1, all2: ET_ALL_EXPORT)
 			-- Create a new VLEL-1 error: the 'all' keyword appears twice in the
 			-- Export subclause of parent `a_parent' in `a_class'.
@@ -9426,8 +10820,10 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := all2.all_keyword.position
+			ast_node := all2.all_keyword
 			if position.is_null then
 				position := all2.position
+				ast_node := all2
 			end
 			code := template_code (vlel1a_template_code)
 			etl_code := vlel1_etl_code
@@ -9471,6 +10867,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vlel2a_template_code)
 			etl_code := vlel2_etl_code
 			default_template := default_message_template (vlel2a_default_template)
@@ -9515,6 +10912,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.position
+			ast_node := f2
 			code := template_code (vlel3a_template_code)
 			etl_code := vlel3_etl_code
 			default_template := default_message_template (vlel3a_default_template)
@@ -9559,6 +10957,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.name
 			code := template_code (vmfn0a_template_code)
 			etl_code := vmfn_etl_code
 			default_template := default_message_template (vmfn0a_default_template)
@@ -9603,6 +11002,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.name.position
+			ast_node := f2.name
 			code := template_code (vmfn0b_template_code)
 			etl_code := vmfn_etl_code
 			default_template := default_message_template (vmfn0b_default_template)
@@ -9653,6 +11053,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vmfn0c_template_code)
 			etl_code := vmfn_etl_code
 			default_template := default_message_template (vmfn0c_default_template)
@@ -9702,6 +11103,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vmfn2a_template_code)
 			etl_code := vmfn2_etl_code
 			default_template := default_message_template (vmfn2a_default_template)
@@ -9752,6 +11154,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f1.parent.type.name.position
+			ast_node := f1.parent.type.name
 			code := template_code (vmfn2b_template_code)
 			etl_code := vmfn2_etl_code
 			default_template := default_message_template (vmfn2b_default_template)
@@ -9809,6 +11212,7 @@ feature {NONE} -- Initialization
 			class_impl := a_class
 			a_feature := replicated_features.first
 			position := a_feature.parent.type.name.position
+			ast_node := a_feature.parent.type.name
 			code := template_code (vmrc2a_template_code)
 			etl_code := vmrc2_etl_code
 			default_template := default_message_template (vmrc2a_default_template)
@@ -9878,6 +11282,7 @@ feature {NONE} -- Initialization
 			class_impl := a_class
 			a_feature := replicated_features.first
 			position := ast_position (a_feature.select_name)
+			ast_node := a_feature.select_name
 			code := template_code (vmrc2b_template_code)
 			etl_code := vmrc2_etl_code
 			default_template := default_message_template (vmrc2b_default_template)
@@ -9940,6 +11345,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f.position
+			ast_node := f
 			code := template_code (vmss1a_template_code)
 			etl_code := vmss1_etl_code
 			default_template := default_message_template (vmss1a_default_template)
@@ -9985,6 +11391,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := f2.position
+			ast_node := f2
 			code := template_code (vmss2a_template_code)
 			etl_code := vmss2_etl_code
 			default_template := default_message_template (vmss2a_default_template)
@@ -10030,6 +11437,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := ast_position (a_feature.select_name)
+			ast_node := a_feature.select_name
 			code := template_code (vmss3a_template_code)
 			etl_code := vmss3_etl_code
 			default_template := default_message_template (vmss3a_default_template)
@@ -10059,6 +11467,89 @@ feature {NONE} -- Initialization
 			-- dollar8: $8 = parent base class
 		end
 
+	make_voin0a (a_class, a_class_impl: ET_CLASS; a_range: ET_CHOICE)
+			-- Create a new VOIN error: the inspect range `a_range' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is empty.
+			--
+			-- ECMA 367-2: p.98
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_range_not_void: a_range /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_range.position
+			ast_node := a_range
+			code := template_code (voin0a_template_code)
+			etl_code := voin_etl_code
+			default_template := default_message_template (voin0a_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_voin0b (a_class, a_class_impl: ET_CLASS; a_range: ET_CHOICE)
+			-- Create a new VOIN error: one of the bounds of the inspect
+			-- range `a_range' in `a_class_impl' and viewed from one of
+			-- its descendants `a_class' (possibly itself) is a Unique
+			-- attribute but not the other.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_range_not_void: a_range /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_range.position
+			ast_node := a_range
+			code := template_code (voin0b_template_code)
+			etl_code := voin_etl_code
+			default_template := default_message_template (voin0b_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
 	make_voit1a (a_class, a_class_impl: ET_CLASS; an_expression: ET_EXPRESSION; a_type: ET_NAMED_TYPE)
 			-- Create a new VOIT-1 error: the type `a_type' of the iterable expression
 			-- `an_expression' appearing in `a_class_impl' and viewed from one of its
@@ -10075,6 +11566,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_expression.position
+			ast_node := an_expression
 			code := template_code (voit1a_template_code)
 			etl_code := voit1_etl_code
 			default_template := default_message_template (voit1a_default_template)
@@ -10116,6 +11608,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_iteration_component.item_name.position
+			ast_node := a_iteration_component.item_name
 			code := template_code (voit2a_template_code)
 			etl_code := voit2_etl_code
 			default_template := default_message_template (voit2a_default_template)
@@ -10156,6 +11649,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_iteration_component.item_name.position
+			ast_node := a_iteration_component.item_name
 			code := template_code (voit2b_template_code)
 			etl_code := voit2_etl_code
 			default_template := default_message_template (voit2b_default_template)
@@ -10196,6 +11690,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_iteration_component.item_name.position
+			ast_node := a_iteration_component.item_name
 			code := template_code (voit2c_template_code)
 			etl_code := voit2_etl_code
 			default_template := default_message_template (voit2c_default_template)
@@ -10235,6 +11730,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_iteration_component.item_name.position
+			ast_node := a_iteration_component.item_name
 			code := template_code (voit2d_template_code)
 			etl_code := voit2_etl_code
 			default_template := default_message_template (voit2d_default_template)
@@ -10275,6 +11771,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_iteration_component1.item_name.position
+			ast_node := a_iteration_component1.item_name
 			code := template_code (voit2e_template_code)
 			etl_code := voit2_etl_code
 			default_template := default_message_template (voit2e_default_template)
@@ -10285,6 +11782,47 @@ feature {NONE} -- Initialization
 			parameters.put (position.column.out, 4)
 			parameters.put (current_class.upper_name, 5)
 			parameters.put (a_iteration_component1.item_name.lower_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = iteration item name
+		end
+
+	make_voit2f (a_class: ET_CLASS; a_iteration_component: ET_ITERATION_COMPONENT;  a_inline_separate_argument: ET_INLINE_SEPARATE_ARGUMENT)
+			-- Create a new VOIT-2 error: `a_iteration_component' appears in the scope
+			-- of the inline separate argument of `a_inline_separate_argument'
+			-- with the same name.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_iteration_component_not_void: a_iteration_component /= Void
+			a_inline_separate_argument_not_void: a_inline_separate_argument /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_iteration_component.item_name.position
+			ast_node := a_iteration_component.item_name
+			code := template_code (voit2f_template_code)
+			etl_code := voit2_etl_code
+			default_template := default_message_template (voit2f_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (a_iteration_component.item_name.lower_name, 6)
 			set_compilers (True)
 		ensure
 			current_class_set: current_class = a_class
@@ -10313,6 +11851,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_iteration_cursor.item_name.position
+			ast_node := a_iteration_cursor.item_name
 			code := template_code (voit3a_template_code)
 			etl_code := voit3_etl_code
 			default_template := default_message_template (voit3a_default_template)
@@ -10355,6 +11894,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_expression.position
+			ast_node := an_expression
 			code := template_code (vomb1a_template_code)
 			etl_code := vomb1_etl_code
 			default_template := default_message_template (vomb1a_default_template)
@@ -10400,6 +11940,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_constant.position
+			ast_node := a_constant
 			code := template_code (vomb2a_template_code)
 			etl_code := vomb2_etl_code
 			default_template := default_message_template (vomb2a_default_template)
@@ -10444,6 +11985,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_constant.position
+			ast_node := a_constant
 			code := template_code (vomb2b_template_code)
 			etl_code := vomb2_etl_code
 			default_template := default_message_template (vomb2b_default_template)
@@ -10478,6 +12020,453 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = choice name
 		end
 
+	make_vomb3a (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Create a new VOMB-3 error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) appears twice in inspect choices.
+			--
+			-- ECMA 367-2: p.98
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_constant.position
+			ast_node := a_constant
+			code := template_code (vomb3a_template_code)
+			etl_code := vomb3_etl_code
+			default_template := default_message_template (vomb3a_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vomb3b (a_class, a_class_impl: ET_CLASS; a_range: ET_CHOICE_RANGE)
+			-- Create a new VOMB-3 error: the inspect range `a_range' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) contains a value which appears twice in
+			-- inspect choices.
+			--
+			-- ECMA 367-2: p.98
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_range_not_void: a_range /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_range.position
+			ast_node := a_range
+			code := template_code (vomb3b_template_code)
+			etl_code := vomb3_etl_code
+			default_template := default_message_template (vomb3b_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vomb4a (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT; a_constant_type, a_value_type: ET_NAMED_TYPE)
+			-- Create a new VOMB-4 error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_constant_type' which is not a
+			-- 'TYPE' type.
+			--
+			-- ECMA-367-3-115, 8.22.13 page 214.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+			a_constant_type_not_void: a_constant_type /= Void
+			a_value_type_not_void: a_value_type /= Void
+			a_value_type_once_base_class: a_value_type.base_class (a_class).is_type_class
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_constant.position
+			ast_node := a_constant
+			code := template_code (vomb4a_template_code)
+			etl_code := vomb4_etl_code
+			default_template := default_message_template (vomb4a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_constant_type.to_text, 7)
+			parameters.put (a_value_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = base type of choice constant
+			-- dollar8: $8 = base type of inspect expression
+		end
+
+	make_vomb4b (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT; a_constant_type: ET_TYPE; a_value_type: ET_NAMED_TYPE)
+			-- Create a new VOMB-4 error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type 'TYPE [`a_constant_type']' which
+			-- where `a_constant_type' is not a standalone type.
+			--
+			-- ECMA-367-3-115, 8.22.13 page 214.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+			a_constant_type_not_void: a_constant_type /= Void
+			a_value_type_not_void: a_value_type /= Void
+			a_value_type_once_base_class: a_value_type.base_class (a_class).is_type_class
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_constant.position
+			ast_node := a_constant
+			code := template_code (vomb4b_template_code)
+			etl_code := vomb4_etl_code
+			default_template := default_message_template (vomb4b_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_constant_type.to_text, 7)
+			parameters.put (a_value_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = manifest type
+			-- dollar8: $8 = base type of inspect expression
+		end
+
+	make_vomb6ga (a_class, a_class_impl: ET_CLASS; a_expression: ET_EXPRESSION; a_type: ET_NAMED_TYPE)
+			-- Create a new VOMB-6G error: the inspect expression `a_expression'
+			-- in `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_type' which is not attached.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_expression_not_void: a_expression /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_expression.position
+			ast_node := a_expression
+			code := template_code (vomb6ga_template_code)
+			etl_code := vomb6g_etl_code
+			default_template := default_message_template (vomb6ga_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_type.to_text, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = base type of inspect expression
+		end
+
+	make_vomb7ga (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT; a_constant_type, a_value_type: ET_NAMED_TYPE)
+			-- Create a new VOMB-7G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_constant_type' whose base class
+			-- is not the same as the base class (a once class) of the type
+			-- `a_value_type' of the inspect expression.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+			a_constant_type_not_void: a_constant_type /= Void
+			a_value_type_not_void: a_value_type /= Void
+			a_value_type_once_base_class: a_value_type.base_class (a_class).is_once
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_constant.position
+			ast_node := a_constant
+			code := template_code (vomb7ga_template_code)
+			etl_code := vomb7g_etl_code
+			default_template := default_message_template (vomb7ga_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_constant_type.to_text, 7)
+			parameters.put (a_value_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = base type of choice constant
+			-- dollar8: $8 = base type of inspect expression
+		end
+
+	make_vomb8ga (a_class, a_class_impl: ET_CLASS; a_expression: ET_EXPRESSION; a_type: ET_NAMED_TYPE)
+			-- Create a new VOMB-8G error: the inspect expression `a_expression'
+			-- in `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_type' which is separate but
+			-- not controlled.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_expression_not_void: a_expression /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_expression.position
+			ast_node := a_expression
+			code := template_code (vomb8ga_template_code)
+			etl_code := vomb8g_etl_code
+			default_template := default_message_template (vomb8ga_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_type.to_text, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = base type of inspect expression
+		end
+
+	make_vomb9ga (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Create a new VOMB-9G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is a positive integer constant, but other inspect
+			-- constants are Unique attributes.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_constant.position
+			ast_node := a_constant
+			code := template_code (vomb9ga_template_code)
+			etl_code := vomb9g_etl_code
+			default_template := default_message_template (vomb9ga_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vomb9gb (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Create a new VOMB-9G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is a Unique attribute, but other inspect constants
+			-- are positive integer constants.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_constant.position
+			ast_node := a_constant
+			code := template_code (vomb9gb_template_code)
+			etl_code := vomb9g_etl_code
+			default_template := default_message_template (vomb9gb_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vomb9gc (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Create a new VOMB-9G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is a Unique attribute which is not declared
+			-- (or redeclared) in the same class as the other Unique attributes
+			-- appearing in the same inspect choices.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_constant.position
+			ast_node := a_constant
+			code := template_code (vomb9gc_template_code)
+			etl_code := vomb9g_etl_code
+			default_template := default_message_template (vomb9gc_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
 	make_vpca1a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
 			-- Create a new VPCA-1 error: `a_name', appearing in an unqualified
 			-- call agent in `a_class', is not the final name of a feature
@@ -10494,6 +12483,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vpca1a_template_code)
 			etl_code := vpca1_etl_code
 			default_template := default_message_template (vpca1a_default_template)
@@ -10538,6 +12528,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vpca1b_template_code)
 			etl_code := vpca1_etl_code
 			default_template := default_message_template (vpca1b_default_template)
@@ -10585,6 +12576,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vpca2a_template_code)
 			etl_code := vpca2_etl_code
 			default_template := default_message_template (vpca2a_default_template)
@@ -10616,7 +12608,7 @@ feature {NONE} -- Initialization
 			-- dollar9: $9 = base class of target of the call agent
 		end
 
-	make_vpca3a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS)
+	make_vpca3a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; a_agent: ET_CALL_AGENT)
 			-- Create a new VPCA-3 error: the number of actual arguments in
 			-- the qualified call agent `a_name' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in
@@ -10629,10 +12621,16 @@ feature {NONE} -- Initialization
 			a_name_not_void: a_name /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_not_void: a_target /= Void
+			a_agent_not_void: a_agent /= Void
 		do
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			if attached {ET_AGENT_ARGUMENT_OPERAND_LIST} a_agent.arguments as l_arguments and then l_arguments.count > 0 then
+				ast_node := l_arguments
+			else
+				ast_node := a_name
+			end
 			code := template_code (vpca3a_template_code)
 			etl_code := vpca3_etl_code
 			default_template := default_message_template (vpca3a_default_template)
@@ -10664,7 +12662,7 @@ feature {NONE} -- Initialization
 			-- dollar9: $9 = base class of target of the call agent
 		end
 
-	make_vpca3b (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE)
+	make_vpca3b (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_agent: ET_CALL_AGENT)
 			-- Create a new VPCA-3 error: the number of actual arguments in
 			-- the unqualified call agent `a_name' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in `a_class'.
@@ -10675,10 +12673,16 @@ feature {NONE} -- Initialization
 			a_class_preparsed: a_class.is_preparsed
 			a_name_not_void: a_name /= Void
 			a_feature_not_void: a_feature /= Void
+			a_agent_not_void: a_agent /= Void
 		do
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			if attached {ET_AGENT_ARGUMENT_OPERAND_LIST} a_agent.arguments as l_arguments and then l_arguments.count > 0 then
+				ast_node := l_arguments
+			else
+				ast_node := a_name
+			end
 			code := template_code (vpca3b_template_code)
 			etl_code := vpca3_etl_code
 			default_template := default_message_template (vpca3b_default_template)
@@ -10708,7 +12712,53 @@ feature {NONE} -- Initialization
 			-- dollar8: $8 = name of corresponding feature in class $5
 		end
 
-	make_vpca4a (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	make_vpca3c (a_class: ET_CLASS; a_agent: ET_INLINE_AGENT)
+			-- Create a new VPCA-3 error: the number of actual arguments in
+			-- the inline agent `a_agent' appearing in `a_class' is not the
+			-- same as the number of formal arguments.
+			--
+			-- ETL3 (4.82-00-00): p.581
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_agent_not_void: a_agent /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_agent.agent_keyword.position
+			if attached {ET_AGENT_ARGUMENT_OPERAND_LIST} a_agent.actual_arguments as l_arguments and then l_arguments.count > 0 then
+				ast_node := l_arguments
+			elseif attached a_agent.formal_arguments as l_arguments and then l_arguments.count > 0 then
+				ast_node := l_arguments
+			else
+				ast_node := a_agent.agent_keyword
+			end
+			code := template_code (vpca3c_template_code)
+			etl_code := vpca3_etl_code
+			default_template := default_message_template (vpca3c_default_template)
+			create parameters.make_filled (empty_string, 1, 6)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+		end
+
+	make_vpca4a (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
 			-- Create a new VPCA-4 error: the `arg'-th actual argument in the qualified
 			-- call agent `a_name' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the corresponding
@@ -10726,10 +12776,16 @@ feature {NONE} -- Initialization
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		do
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			if attached a_agent.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_name
+			end
 			code := template_code (vpca4a_template_code)
 			etl_code := vpca4_etl_code
 			default_template := default_message_template (vpca4a_default_template)
@@ -10767,7 +12823,7 @@ feature {NONE} -- Initialization
 			-- dollar12: $12 = formal type
 		end
 
-	make_vpca4b (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	make_vpca4b (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
 			-- Create a new VPCA-4 error: the `arg'-th actual argument in the unqualified
 			-- call agent `a_name' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the corresponding
@@ -10784,10 +12840,16 @@ feature {NONE} -- Initialization
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		do
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			if attached a_agent.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_name
+			end
 			code := template_code (vpca4b_template_code)
 			etl_code := vpca4_etl_code
 			default_template := default_message_template (vpca4b_default_template)
@@ -10823,7 +12885,63 @@ feature {NONE} -- Initialization
 			-- dollar11: $11 = formal type
 		end
 
-	make_vpca5a (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	make_vpca4c (a_class, a_class_impl: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_INLINE_AGENT)
+			-- Create a new VPCA-4 error: the `arg'-th actual argument in the inline agent
+			-- `a_agent' appearing in `a_class_impl' and viewed from one of its
+			-- descendants `a_class' (possibly itself) does not conform to the corresponding
+			-- formal argument.
+			--
+			-- ETL3 (4.82-00-00): p.581
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			an_actual_not_void: an_actual /= Void
+			an_actual_named_type: an_actual.is_named_type
+			a_formal_not_void: a_formal /= Void
+			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_agent.agent_keyword.position
+			if attached a_agent.actual_arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_agent.agent_keyword
+			end
+			code := template_code (vpca4c_template_code)
+			etl_code := vpca4_etl_code
+			default_template := default_message_template (vpca4c_default_template)
+			create parameters.make_filled (empty_string, 1, 9)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (arg.out, 7)
+			parameters.put (an_actual.to_text, 8)
+			parameters.put (a_formal.to_text, 9)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = argument index
+			-- dollar8: $8 = actual type
+			-- dollar9: $9 = formal type
+		end
+
+	make_vpca5a (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
 			-- Create a new VPCA-5 error: the type specified for the `arg'-th actual
 			-- argument in the qualified call agent `a_name' appearing in `a_class_impl'
 			-- and viewed from one of its descendants `a_class' (possibly itself) does
@@ -10842,10 +12960,16 @@ feature {NONE} -- Initialization
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		do
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			if attached a_agent.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_name
+			end
 			code := template_code (vpca5a_template_code)
 			etl_code := vpca5_etl_code
 			default_template := default_message_template (vpca5a_default_template)
@@ -10883,7 +13007,7 @@ feature {NONE} -- Initialization
 			-- dollar12: $12 = formal type
 		end
 
-	make_vpca5b (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	make_vpca5b (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
 			-- Create a new VPCA-5 error: the type specified for the `arg'-th actual
 			-- argument in the unqualified call agent `a_name' appearing in `a_class_impl'
 			-- and viewed from one of its descendants `a_class' (possiby itself) does not
@@ -10900,10 +13024,16 @@ feature {NONE} -- Initialization
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		do
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			if attached a_agent.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_name
+			end
 			code := template_code (vpca5b_template_code)
 			etl_code := vpca5_etl_code
 			default_template := default_message_template (vpca5b_default_template)
@@ -10939,6 +13069,63 @@ feature {NONE} -- Initialization
 			-- dollar11: $11 = formal type
 		end
 
+	make_vpca5c (a_class, a_class_impl: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_INLINE_AGENT)
+			-- Create a new VPCA-5 error: the type specified for the `arg'-th actual
+			-- argument in the inline agent `a_agent' appearing in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) does not conform to the corresponding formal
+			-- argument.
+			--
+			-- ETL3 (4.82-00-00): p.581
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			an_actual_not_void: an_actual /= Void
+			an_actual_named_type: an_actual.is_named_type
+			a_formal_not_void: a_formal /= Void
+			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
+		do
+			current_class := a_class
+			class_impl := a_class_impl
+			position := a_agent.agent_keyword.position
+			if attached a_agent.actual_arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_agent.agent_keyword
+			end
+			code := template_code (vpca5c_template_code)
+			etl_code := vpca5_etl_code
+			default_template := default_message_template (vpca5c_default_template)
+			create parameters.make_filled (empty_string, 1, 9)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (arg.out, 7)
+			parameters.put (an_actual.to_text, 8)
+			parameters.put (a_formal.to_text, 9)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class_impl
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dolla7: $7 = argument index
+			-- dollar8: $8 = actual type
+			-- dollar9: $9 = formal type
+		end
+
 	make_vpir1a (a_class: ET_CLASS; arg1: ET_FORMAL_ARGUMENT; an_agent: ET_INLINE_AGENT; arg2: ET_FORMAL_ARGUMENT)
 			-- Create a new VPIR-1 error: `arg1' in inline agent `an_agent' has
 			-- the same name as argument `arg2' of an enclosing feature or
@@ -10955,6 +13142,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg1.name.position
+			ast_node := arg1.name
 			code := template_code (vpir1a_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1a_default_template)
@@ -10998,6 +13186,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg1.name.position
+			ast_node := arg1.name
 			code := template_code (vpir1b_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1b_default_template)
@@ -11041,6 +13230,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local1.name.position
+			ast_node := a_local1.name
 			code := template_code (vpir1c_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1c_default_template)
@@ -11084,6 +13274,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local1.name.position
+			ast_node := a_local1.name
 			code := template_code (vpir1d_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1d_default_template)
@@ -11130,6 +13321,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (vpir1e_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1e_default_template)
@@ -11176,6 +13368,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vpir1f_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1f_default_template)
@@ -11219,6 +13412,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (vpir1g_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1g_default_template)
@@ -11262,6 +13456,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vpir1h_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1h_default_template)
@@ -11307,6 +13502,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (vpir1i_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1i_default_template)
@@ -11352,6 +13548,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vpir1j_template_code)
 			etl_code := vpir1_etl_code
 			default_template := default_message_template (vpir1j_default_template)
@@ -11392,6 +13589,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_agent.position
+			if attached an_agent.compound as l_compound and then not l_compound.keyword.position.is_null then
+				ast_node := l_compound.keyword
+			else
+				ast_node := an_agent.agent_keyword
+			end
 			code := template_code (vpir3a_template_code)
 			etl_code := vpir3_etl_code
 			default_template := default_message_template (vpir3a_default_template)
@@ -11430,6 +13632,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := an_agent.position
+			if attached {ET_KEYWORD_MANIFEST_STRING} an_agent.language as l_language and then not l_language.keyword.position.is_null then
+				ast_node := l_language.keyword
+			else
+				ast_node := an_agent.agent_keyword
+			end
 			code := template_code (vpir3b_template_code)
 			etl_code := vpir3_etl_code
 			default_template := default_message_template (vpir3b_default_template)
@@ -11456,7 +13663,7 @@ feature {NONE} -- Initialization
 		end
 
 	make_vqmc1a (a_class, a_class_impl: ET_CLASS; an_attribute: ET_CONSTANT_ATTRIBUTE)
-			-- Create a new VQMC-1 error: `an_attribute', declared in `a_class_impl, introduces
+			-- Create a new VQMC-1 error: `an_attribute', declared in `a_class_impl', introduces
 			-- a boolean constant but its type is not "BOOLEAN" when viewed from one of its
 			-- descendants `a_class' (possibly itself).
 			--
@@ -11471,6 +13678,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_attribute.type.position
+			ast_node := an_attribute.type
 			code := template_code (vqmc1a_template_code)
 			etl_code := vqmc1_etl_code
 			default_template := default_message_template (vqmc1a_default_template)
@@ -11516,6 +13724,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_attribute.type.position
+			ast_node := an_attribute.type
 			code := template_code (vqmc2a_template_code)
 			etl_code := vqmc2_etl_code
 			default_template := default_message_template (vqmc2a_default_template)
@@ -11563,6 +13772,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.type.position
+			ast_node := a_attribute.type
 			code := template_code (vqmc2b_template_code)
 			etl_code := vqmc2_etl_code
 			default_template := default_message_template (vqmc2b_default_template)
@@ -11625,6 +13835,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_attribute.type.position
+			ast_node := an_attribute.type
 			code := template_code (vqmc3a_template_code)
 			etl_code := vqmc3_etl_code
 			default_template := default_message_template (vqmc3a_default_template)
@@ -11673,6 +13884,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.type.position
+			ast_node := a_attribute.type
 			code := template_code (vqmc3b_template_code)
 			etl_code := vqmc3_etl_code
 			default_template := default_message_template (vqmc3b_default_template)
@@ -11727,6 +13939,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_attribute.type.position
+			ast_node := an_attribute.type
 			code := template_code (vqmc4a_template_code)
 			etl_code := vqmc4_etl_code
 			default_template := default_message_template (vqmc4a_default_template)
@@ -11772,6 +13985,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_attribute.type.position
+			ast_node := an_attribute.type
 			code := template_code (vqmc5a_template_code)
 			etl_code := vqmc5_etl_code
 			default_template := default_message_template (vqmc5a_default_template)
@@ -11817,6 +14031,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.type.position
+			ast_node := a_attribute.type
 			code := template_code (vqmc5b_template_code)
 			etl_code := vqmc5_etl_code
 			default_template := default_message_template (vqmc5b_default_template)
@@ -11860,6 +14075,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_unique.type.position
+			ast_node := a_unique.type
 			code := template_code (vqui0a_template_code)
 			etl_code := vqui_etl_code
 			default_template := default_message_template (vqui0a_default_template)
@@ -11904,6 +14120,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg2.name.position
+			ast_node := arg2.name
 			code := template_code (vred0a_template_code)
 			etl_code := vred_etl_code
 			default_template := default_message_template (vred0a_default_template)
@@ -11948,6 +14165,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := local2.name.position
+			ast_node := local2.name
 			code := template_code (vred0b_template_code)
 			etl_code := vred_etl_code
 			default_template := default_message_template (vred0b_default_template)
@@ -11993,6 +14211,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg2.name.position
+			ast_node := arg2.name
 			code := template_code (vred0c_template_code)
 			etl_code := vred_etl_code
 			default_template := default_message_template (vred0c_default_template)
@@ -12036,6 +14255,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := local2.name.position
+			ast_node := local2.name
 			code := template_code (vred0d_template_code)
 			etl_code := vred_etl_code
 			default_template := default_message_template (vred0d_default_template)
@@ -12078,6 +14298,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg2.name.position
+			ast_node := arg2.name
 			code := template_code (vreg0a_template_code)
 			etl_code := vreg_etl_code
 			default_template := default_message_template (vreg0a_default_template)
@@ -12122,6 +14343,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := local2.name.position
+			ast_node := local2.name
 			code := template_code (vreg0b_template_code)
 			etl_code := vreg_etl_code
 			default_template := default_message_template (vreg0b_default_template)
@@ -12167,6 +14389,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (vrfa0a_template_code)
 			etl_code := vrfa_etl_code
 			default_template := default_message_template (vrfa0a_default_template)
@@ -12212,6 +14435,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := arg.name.position
+			ast_node := arg.name
 			code := template_code (vrfa0b_template_code)
 			etl_code := vrfa_etl_code
 			default_template := default_message_template (vrfa0b_default_template)
@@ -12254,6 +14478,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vrle1a_template_code)
 			etl_code := vrle1_etl_code
 			default_template := default_message_template (vrle1a_default_template)
@@ -12299,6 +14524,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vrle2a_template_code)
 			etl_code := vrle2_etl_code
 			default_template := default_message_template (vrle2a_default_template)
@@ -12343,6 +14569,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vrlv1a_template_code)
 			etl_code := vrlv1_etl_code
 			default_template := default_message_template (vrlv1a_default_template)
@@ -12388,6 +14615,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vrlv1b_template_code)
 			etl_code := vrlv1_etl_code
 			default_template := default_message_template (vrlv1b_default_template)
@@ -12431,6 +14659,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vrlv2a_template_code)
 			etl_code := vrlv2_etl_code
 			default_template := default_message_template (vrlv2a_default_template)
@@ -12477,6 +14706,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_local.name.position
+			ast_node := a_local.name
 			code := template_code (vrlv2b_template_code)
 			etl_code := vrlv2_etl_code
 			default_template := default_message_template (vrlv2b_default_template)
@@ -12518,6 +14748,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.name.position
+			ast_node := a_type.name
 			code := template_code (vtat1a_template_code)
 			etl_code := vtat1_etl_code
 			default_template := default_message_template (vtat1a_default_template)
@@ -12563,6 +14794,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.name.position
+			ast_node := a_type.name
 			code := template_code (vtat1b_template_code)
 			etl_code := vtat1_etl_code
 			default_template := default_message_template (vtat1b_default_template)
@@ -12608,6 +14840,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.name.position
+			ast_node := a_type.name
 			code := template_code (vtat1c_template_code)
 			etl_code := vtat1_etl_code
 			default_template := default_message_template (vtat1c_default_template)
@@ -12690,17 +14923,20 @@ feature {NONE} -- Initialization
 				--
 				-- `position' is set to null in that case.
 			position := null_position
+			ast_node := Void
 			a_cursor := a_cycle.new_cursor
 			from a_cursor.start until a_cursor.after loop
 				a_like := a_cursor.item
 				if attached a_class.seeded_feature (a_like.seed) as a_feature and then a_feature.implementation_class = current_class then
 					if a_like.is_like_argument then
 						position := a_like.name.position
+						ast_node := a_like.name
 						a_cursor.go_after
 					else
 						a_cursor.forth
 						if not a_cursor.after then
 							position := a_cursor.item.name.position
+							ast_node := a_cursor.item.name
 							a_cursor.go_after
 						end
 					end
@@ -12783,6 +15019,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_type.name.position
+			ast_node := a_type.name
 			code := template_code (vtat2b_template_code)
 			etl_code := vtat2_etl_code
 			default_template := default_message_template (vtat2b_default_template)
@@ -12813,12 +15050,12 @@ feature {NONE} -- Initialization
 		end
 
 	make_vtcg3a (a_class, a_class_impl: ET_CLASS; a_type: ET_CLASS_TYPE; an_actual: ET_TYPE; a_constraint: ET_CONSTRAINT)
-			-- Create a new VTCG-3 error: actual generic paramater `an_actual'
+			-- Create a new VTCG-3 error: actual generic parameter `an_actual'
 			-- of `a_type' appearing in `a_class_impl' and viewed from one of
-			-- its decendants `a_class' (possibly itself) does not conform to
+			-- its descendants `a_class' (possibly itself) does not conform to
 			-- constraint `a_constraint'.
 			--
-			-- Note that it is possible that the actual paramater conforms
+			-- Note that it is possible that the actual parameter conforms
 			-- to the constraint in `a_class_impl' but not in `a_class'.
 			-- Here is an example:
 			--
@@ -12854,6 +15091,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_actual.position
+			ast_node := an_actual
 			code := template_code (vtcg3a_template_code)
 			etl_code := vtcg3_etl_code
 			default_template := default_message_template (vtcg3a_default_template)
@@ -12902,6 +15140,9 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_position
+			if attached {ET_AST_NODE} a_position as l_ast_node then
+				ast_node := l_ast_node
+			end
 			code := template_code (vtcg4a_template_code)
 			etl_code := vtcg4_etl_code
 			default_template := default_message_template (vtcg4a_default_template)
@@ -12952,6 +15193,9 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_position
+			if attached {ET_AST_NODE} a_position as l_ast_node then
+				ast_node := l_ast_node
+			end
 			code := template_code (vtcg4b_template_code)
 			etl_code := vtcg4_etl_code
 			default_template := default_message_template (vtcg4b_default_template)
@@ -12999,6 +15243,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.name.position
+			ast_node := a_type.name
 			code := template_code (vtct0a_template_code)
 			etl_code := vtct_etl_code
 			default_template := default_message_template (vtct0a_default_template)
@@ -13040,6 +15285,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.name.position
+			ast_node := a_type.name
 			code := template_code (vtct0b_template_code)
 			etl_code := vtct_etl_code
 			default_template := default_message_template (vtct0b_default_template)
@@ -13067,6 +15313,48 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = type base class
 		end
 
+	make_vtec2a (a_class: ET_CLASS; a_type: ET_CLASS_TYPE)
+			-- Create a new VTEC error: `a_type', which appears in source code of
+			-- `a_class', is an expanded, but its base class does not export
+			-- 'default_create' as creation procedure to `a_class`.
+			--
+			-- ETL2: p.209
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vtec2a_template_code)
+			etl_code := vtec2_etl_code
+			default_template := default_message_template (vtec2a_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_type.to_text, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = type name
+		end
+
 	make_vtug1a (a_class: ET_CLASS; a_type: ET_CLASS_TYPE)
 			-- Create a new VTUG-1 error: `a_type', which appears in
 			-- source code of `a_class', has actual generic parameters
@@ -13082,6 +15370,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.name.position
+			if attached a_type.actual_parameters as l_actual_parameters and then l_actual_parameters.count > 0 then
+				ast_node := l_actual_parameters
+			else
+				ast_node := a_type.name
+			end
 			code := template_code (vtug1a_template_code)
 			etl_code := vtug1_etl_code
 			default_template := default_message_template (vtug1a_default_template)
@@ -13126,6 +15419,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_type.name.position
+			if attached a_type.actual_parameters as l_actual_parameters and then l_actual_parameters.count > 0 then
+				ast_node := l_actual_parameters
+			else
+				ast_node := a_type.name
+			end
 			code := template_code (vtug2a_template_code)
 			etl_code := vtug2_etl_code
 			default_template := default_message_template (vtug2a_default_template)
@@ -13153,9 +15451,9 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = invalid type
 		end
 
-	make_vuar1a (a_class: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS)
+	make_vuar1a (a_class: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; a_target: ET_CLASS)
 			-- Create a new VUAR-1 error: the number of actual arguments in
-			-- the qualified call `a_name' appearing in `a_class' is not the
+			-- the qualified call `a_call' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in
 			-- class `a_target'.
 			--
@@ -13163,13 +15461,18 @@ feature {NONE} -- Initialization
 		require
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_not_void: a_target /= Void
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_name.position
+			position := a_call.name.position
+			if attached a_call.arguments as l_arguments and then l_arguments.count > 0 then
+				ast_node := l_arguments
+			else
+				ast_node := a_call.name
+			end
 			code := template_code (vuar1a_template_code)
 			etl_code := vuar1_etl_code
 			default_template := default_message_template (vuar1a_default_template)
@@ -13180,7 +15483,7 @@ feature {NONE} -- Initialization
 			parameters.put (position.column.out, 4)
 			parameters.put (current_class.upper_name, 5)
 			parameters.put (class_impl.upper_name, 6)
-			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_call.name.lower_name, 7)
 			parameters.put (a_feature.lower_name, 8)
 			parameters.put (a_target.upper_name, 9)
 			set_compilers (True)
@@ -13201,21 +15504,26 @@ feature {NONE} -- Initialization
 			-- dollar9: $9 = base class of target of the call
 		end
 
-	make_vuar1b (a_class: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE)
+	make_vuar1b (a_class: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE)
 			-- Create a new VUAR-1 error: the number of actual arguments in
-			-- the unqualified call `a_name' appearing in `a_class' is not the
+			-- the unqualified call `a_call' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in `a_class'.
 			--
 			-- ETL2: p.369
 		require
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 		do
 			current_class := a_class
 			class_impl := a_class
-			position := a_name.position
+			position := a_call.name.position
+			if attached a_call.arguments as l_arguments and then l_arguments.count > 0 then
+				ast_node := l_arguments
+			else
+				ast_node := a_call.name
+			end
 			code := template_code (vuar1b_template_code)
 			etl_code := vuar1_etl_code
 			default_template := default_message_template (vuar1b_default_template)
@@ -13226,7 +15534,7 @@ feature {NONE} -- Initialization
 			parameters.put (position.column.out, 4)
 			parameters.put (current_class.upper_name, 5)
 			parameters.put (class_impl.upper_name, 6)
-			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_call.name.lower_name, 7)
 			parameters.put (a_feature.lower_name, 8)
 			set_compilers (True)
 		ensure
@@ -13256,6 +15564,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_label.position
+			ast_node := a_label
 			code := template_code (vuar1c_template_code)
 			etl_code := vuar1_etl_code
 			default_template := default_message_template (vuar1c_default_template)
@@ -13283,9 +15592,9 @@ feature {NONE} -- Initialization
 			-- dollar7: $7 = label name of the call
 		end
 
-	make_vuar2a (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	make_vuar2a (a_class, a_class_impl: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
 			-- Create a new VUAR-2 error: the `arg'-th actual argument in the qualified
-			-- call `a_name' appearing in `a_class_impl' and viewed from one of its descendants
+			-- call `a_call' appearing in `a_class_impl' and viewed from one of its descendants
 			-- `a_class' (possibly itself) does not conform to the corresponding formal argument
 			-- of `a_feature' in class `a_target'.
 			--
@@ -13294,7 +15603,7 @@ feature {NONE} -- Initialization
 			a_class_not_void: a_class /= Void
 			a_class_impl_not_void: a_class_impl /= Void
 			a_class_impl_preparsed: a_class_impl.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_not_void: a_target /= Void
 			an_actual_not_void: an_actual /= Void
@@ -13304,7 +15613,12 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class_impl
-			position := a_name.position
+			position := a_call.name.position
+			if attached a_call.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_call.name
+			end
 			code := template_code (vuar2a_template_code)
 			etl_code := vuar2_etl_code
 			default_template := default_message_template (vuar2a_default_template)
@@ -13315,7 +15629,7 @@ feature {NONE} -- Initialization
 			parameters.put (position.column.out, 4)
 			parameters.put (current_class.upper_name, 5)
 			parameters.put (class_impl.upper_name, 6)
-			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_call.name.lower_name, 7)
 			parameters.put (a_feature.lower_name, 8)
 			parameters.put (a_target.upper_name, 9)
 			parameters.put (arg.out, 10)
@@ -13342,9 +15656,9 @@ feature {NONE} -- Initialization
 			-- dollar12: $12 = formal type
 		end
 
-	make_vuar2b (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	make_vuar2b (a_class, a_class_impl: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
 			-- Create a new VUAR-2 error: the `arg'-th actual argument in the unqualified
-			-- call `a_name' appearing in `a_class_impl' and viewed from one of its descendants
+			-- call `a_call' appearing in `a_class_impl' and viewed from one of its descendants
 			-- `a_class' (possibly itself) does not conform to the corresponding formal argument
 			-- of `a_feature' in `a_class'.
 			--
@@ -13353,7 +15667,7 @@ feature {NONE} -- Initialization
 			a_class_not_void: a_class /= Void
 			a_class_impl_not_void: a_class_impl /= Void
 			a_class_impl_preparsed: a_class_impl.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			an_actual_not_void: an_actual /= Void
 			an_actual_named_type: an_actual.is_named_type
@@ -13362,7 +15676,12 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class_impl
-			position := a_name.position
+			position := a_call.name.position
+			if attached a_call.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_call.name
+			end
 			code := template_code (vuar2b_template_code)
 			etl_code := vuar2_etl_code
 			default_template := default_message_template (vuar2b_default_template)
@@ -13373,7 +15692,7 @@ feature {NONE} -- Initialization
 			parameters.put (position.column.out, 4)
 			parameters.put (current_class.upper_name, 5)
 			parameters.put (class_impl.upper_name, 6)
-			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_call.name.lower_name, 7)
 			parameters.put (a_feature.lower_name, 8)
 			parameters.put (arg.out, 9)
 			parameters.put (an_actual.to_text, 10)
@@ -13398,8 +15717,8 @@ feature {NONE} -- Initialization
 			-- dollar11: $11 = formal type
 		end
 
-	make_vuar3ga (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; a_target_class: ET_CLASS; arg: INTEGER; an_actual_type, a_formal_type: ET_NAMED_TYPE)
-			-- Create a new VUAR-3G error: the `arg'-th actual argument of the separate call `a_name', appearing
+	make_vuar3ga (a_class, a_class_impl: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; a_target_class: ET_CLASS; arg: INTEGER; an_actual_type, a_formal_type: ET_NAMED_TYPE)
+			-- Create a new VUAR-3G error: the `arg'-th actual argument of the separate call `a_call', appearing
 			-- in `a_class_impl' and viewed from one of its descendants `a_class' (possibly itself), has a
 			-- reference type, but the type of the formal argument of feature `a_feature' in class `a_target'
 			-- is not separate.
@@ -13410,7 +15729,7 @@ feature {NONE} -- Initialization
 			a_class_not_void: a_class /= Void
 			a_class_impl_not_void: a_class_impl /= Void
 			a_class_impl_preparsed: a_class_impl.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_class_not_void: a_target_class /= Void
 			an_actual_type_not_void: an_actual_type /= Void
@@ -13420,8 +15739,13 @@ feature {NONE} -- Initialization
 		do
 			current_class := a_class
 			class_impl := a_class_impl
-			position := a_name.position
+			position := a_call.name.position
 			code := template_code (vuar3ga_template_code)
+			if attached a_call.arguments as l_arguments and then arg >= 1 and then arg <= l_arguments.count then
+				ast_node := l_arguments.actual_argument (arg)
+			else
+				ast_node := a_call.name
+			end
 			etl_code := vuar3g_etl_code
 			default_template := default_message_template (vuar3ga_default_template)
 			create parameters.make_filled (empty_string, 1, 12)
@@ -13431,7 +15755,7 @@ feature {NONE} -- Initialization
 			parameters.put (position.column.out, 4)
 			parameters.put (current_class.upper_name, 5)
 			parameters.put (class_impl.upper_name, 6)
-			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_call.name.lower_name, 7)
 			parameters.put (a_feature.lower_name, 8)
 			parameters.put (a_target_class.upper_name, 9)
 			parameters.put (arg.out, 10)
@@ -13482,6 +15806,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuar3gb_template_code)
 			etl_code := vuar3g_etl_code
 			default_template := default_message_template (vuar3gb_default_template)
@@ -13529,6 +15854,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.name
 			code := template_code (vucr0a_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0a_default_template)
@@ -13570,6 +15896,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.name
 			code := template_code (vucr0b_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0b_default_template)
@@ -13614,6 +15941,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vucr0c_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0c_default_template)
@@ -13658,6 +15986,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vucr0d_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0d_default_template)
@@ -13687,7 +16016,7 @@ feature {NONE} -- Initialization
 
 	make_vucr0e (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_attribute: ET_FEATURE)
 			-- Create a new VUCR error: the access to the address of `a_name' written in `a_class_impl'
-			-- if the access to the address of attribute `a_attribute' from a static feature
+			-- is the access to the address of attribute `a_attribute' from a static feature
 			-- when viewed from `a_class'.
 			--
 			-- Only in ISE Eiffel
@@ -13702,6 +16031,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vUCR0e_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0e_default_template)
@@ -13743,6 +16073,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_current.position
+			ast_node := a_current
 			code := template_code (vucr0f_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0f_default_template)
@@ -13782,6 +16113,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_current_address.position
+			ast_node := a_current_address.current_keyword
 			code := template_code (vucr0g_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0g_default_template)
@@ -13824,6 +16156,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_precursor.position
+			ast_node := a_precursor
 			code := template_code (vucr0h_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0h_default_template)
@@ -13865,6 +16198,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_agent.position
+			ast_node := a_agent.agent_keyword
 			code := template_code (vucr0i_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0i_default_template)
@@ -13905,6 +16239,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_agent.position
+			ast_node := a_agent.agent_keyword
 			code := template_code (vucr0j_template_code)
 			etl_code := vucr_etl_code
 			default_template := default_message_template (vucr0j_default_template)
@@ -13946,6 +16281,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuex1a_template_code)
 			etl_code := vuex1_etl_code
 			default_template := default_message_template (vuex1a_default_template)
@@ -13988,6 +16324,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuex2a_template_code)
 			etl_code := vuex2_etl_code
 			default_template := default_message_template (vuex2a_default_template)
@@ -14035,6 +16372,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuex2b_template_code)
 			etl_code := vuex2_etl_code
 			default_template := default_message_template (vuex2b_default_template)
@@ -14084,6 +16422,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuno3a_template_code)
 			etl_code := vuno3_etl_code
 			default_template := default_message_template (vuno3a_default_template)
@@ -14132,6 +16471,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_target_type.position
+			ast_node := a_target_type
 			code := template_code (vuno5a_template_code)
 			etl_code := vuno5_etl_code
 			default_template := default_message_template (vuno5a_default_template)
@@ -14177,6 +16517,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_target_type.position
+			ast_node := a_target_type
 			code := template_code (vuno5b_template_code)
 			etl_code := vuno5_etl_code
 			default_template := default_message_template (vuno5b_default_template)
@@ -14218,6 +16559,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test.name.position
+			ast_node := a_object_test.name
 			code := template_code (vuot1a_template_code)
 			etl_code := vuot1_etl_code
 			default_template := default_message_template (vuot1a_default_template)
@@ -14258,6 +16600,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test.name.position
+			ast_node := a_object_test.name
 			code := template_code (vuot1b_template_code)
 			etl_code := vuot1_etl_code
 			default_template := default_message_template (vuot1b_default_template)
@@ -14298,6 +16641,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test.name.position
+			ast_node := a_object_test.name
 			code := template_code (vuot1c_template_code)
 			etl_code := vuot1_etl_code
 			default_template := default_message_template (vuot1c_default_template)
@@ -14337,6 +16681,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test1.name.position
+			ast_node := a_object_test1.name
 			code := template_code (vuot1d_template_code)
 			etl_code := vuot1_etl_code
 			default_template := default_message_template (vuot1d_default_template)
@@ -14376,6 +16721,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test.name.position
+			ast_node := a_object_test.name
 			code := template_code (vuot1e_template_code)
 			etl_code := vuot1_etl_code
 			default_template := default_message_template (vuot1e_default_template)
@@ -14415,6 +16761,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test.name.position
+			ast_node := a_object_test.name
 			code := template_code (vuot1f_template_code)
 			etl_code := vuot1_etl_code
 			default_template := default_message_template (vuot1f_default_template)
@@ -14454,6 +16801,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test1.name.position
+			ast_node := a_object_test1.name
 			code := template_code (vuot1g_template_code)
 			etl_code := vuot1_etl_code
 			default_template := default_message_template (vuot1g_default_template)
@@ -14496,6 +16844,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test1.name.position
+			ast_node := a_object_test1.name
 			code := template_code (vuot3a_template_code)
 			etl_code := vuot3_etl_code
 			default_template := default_message_template (vuot3a_default_template)
@@ -14539,6 +16888,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test1.name.position
+			ast_node := a_object_test1.name
 			code := template_code (vuot3b_template_code)
 			etl_code := vuot3_etl_code
 			default_template := default_message_template (vuot3b_default_template)
@@ -14577,6 +16927,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test.name.position
+			ast_node := a_object_test.name
 			code := template_code (vuot4a_template_code)
 			etl_code := vuot4_etl_code
 			default_template := default_message_template (vuot4a_default_template)
@@ -14615,6 +16966,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_object_test.name.position
+			ast_node := a_object_test.name
 			code := template_code (vuot4b_template_code)
 			etl_code := vuot4_etl_code
 			default_template := default_message_template (vuot4b_default_template)
@@ -14657,6 +17009,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuta2a_template_code)
 			etl_code := vuta2_etl_code
 			default_template := default_message_template (vuta2a_default_template)
@@ -14705,6 +17058,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuta2b_template_code)
 			etl_code := vuta2_etl_code
 			default_template := default_message_template (vuta2b_default_template)
@@ -14752,6 +17106,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuta4ga_template_code)
 			etl_code := vuta4g_etl_code
 			default_template := default_message_template (vuta4ga_default_template)
@@ -14801,6 +17156,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vuta4gb_template_code)
 			etl_code := vuta4g_etl_code
 			default_template := default_message_template (vuta4gb_default_template)
@@ -14845,6 +17201,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_once_key2.position
+			ast_node := a_once_key2
 			code := template_code (vvok1a_template_code)
 			etl_code := vvok1_etl_code
 			default_template := default_message_template (vvok1a_default_template)
@@ -14887,6 +17244,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_once_key2.position
+			ast_node := a_once_key2
 			code := template_code (vvok1b_template_code)
 			etl_code := vvok1_etl_code
 			default_template := default_message_template (vvok1b_default_template)
@@ -14929,6 +17287,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_note_term2.position
+			ast_node := a_note_term2
 			code := template_code (vvok1c_template_code)
 			etl_code := vvok1_etl_code
 			default_template := default_message_template (vvok1c_default_template)
@@ -14969,6 +17328,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_once_key.position
+			ast_node := a_once_key
 			code := template_code (vvok2a_template_code)
 			etl_code := vvok2_etl_code
 			default_template := default_message_template (vvok2a_default_template)
@@ -15007,6 +17367,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_note_term.position
+			ast_node := a_note_term
 			code := template_code (vvok2b_template_code)
 			etl_code := vvok2_etl_code
 			default_template := default_message_template (vvok2b_default_template)
@@ -15049,6 +17410,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_attribute.position
+			ast_node := a_attribute.type
 			code := template_code (vwab0a_template_code)
 			etl_code := vwab_etl_code
 			default_template := default_message_template (vwab0a_default_template)
@@ -15093,6 +17455,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_expression.position
+			ast_node := an_expression
 			code := template_code (vwbe0a_template_code)
 			etl_code := vwbe_etl_code
 			default_template := default_message_template (vwbe0a_default_template)
@@ -15137,6 +17500,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_expression.position
+			ast_node := a_expression
 			code := template_code (vwce0a_template_code)
 			etl_code := vwce_etl_code
 			default_template := default_message_template (vwce0a_default_template)
@@ -15184,6 +17548,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_expression.operator.position
+			ast_node := an_expression
 			code := template_code (vweq0a_template_code)
 			etl_code := vweq_etl_code
 			default_template := default_message_template (vweq0a_default_template)
@@ -15233,6 +17598,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_expression.operator.position
+			ast_node := an_expression
 			code := template_code (vweq0b_template_code)
 			etl_code := vweq_etl_code
 			default_template := default_message_template (vweq0b_default_template)
@@ -15280,6 +17646,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := ast_position (a_manifest_array.cast_type)
+			if attached a_manifest_array.cast_type as l_cast_type then
+				ast_node := l_cast_type.type
+			else
+				ast_node := a_manifest_array
+			end
 			code := template_code (vwma1a_template_code)
 			etl_code := vwma1_etl_code
 			default_template := default_message_template (vwma1a_default_template)
@@ -15329,6 +17700,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_manifest_array_item.position
+			ast_node := a_manifest_array_item
 			code := template_code (vwma2a_template_code)
 			etl_code := vwma2_etl_code
 			default_template := default_message_template (vwma2a_default_template)
@@ -15375,6 +17747,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := ast_position (a_constant.cast_type)
+			if attached a_constant.cast_type as l_cast_type then
+				ast_node := l_cast_type.type
+			else
+				ast_node := a_constant
+			end
 			code := template_code (vwmq0a_template_code)
 			etl_code := vwmq_etl_code
 			default_template := default_message_template (vwmq0a_default_template)
@@ -15418,6 +17795,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := ast_position (a_constant.cast_type)
+			if attached a_constant.cast_type as l_cast_type then
+				ast_node := l_cast_type.type
+			else
+				ast_node := a_constant
+			end
 			code := template_code (vwmq0b_template_code)
 			etl_code := vwmq_etl_code
 			default_template := default_message_template (vwmq0b_default_template)
@@ -15461,6 +17843,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := ast_position (a_constant.cast_type)
+			if attached a_constant.cast_type as l_cast_type then
+				ast_node := l_cast_type.type
+			else
+				ast_node := a_constant
+			end
 			code := template_code (vwmq0c_template_code)
 			etl_code := vwmq_etl_code
 			default_template := default_message_template (vwmq0c_default_template)
@@ -15504,6 +17891,11 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := ast_position (a_constant.cast_type)
+			if attached a_constant.cast_type as l_cast_type then
+				ast_node := l_cast_type.type
+			else
+				ast_node := a_constant
+			end
 			code := template_code (vwmq0d_template_code)
 			etl_code := vwmq_etl_code
 			default_template := default_message_template (vwmq0d_default_template)
@@ -15545,6 +17937,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vwst1a_template_code)
 			etl_code := vwst1_etl_code
 			default_template := default_message_template (vwst1a_default_template)
@@ -15587,6 +17980,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (vwst1a_template_code)
 			etl_code := vwst1_etl_code
 			default_template := default_message_template (vwst1a_default_template)
@@ -15630,6 +18024,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name2.position
+			ast_node := a_name2
 			code := template_code (vwst2a_template_code)
 			etl_code := vwst2_etl_code
 			default_template := default_message_template (vwst2a_default_template)
@@ -15670,6 +18065,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_retry.position
+			ast_node := a_retry
 			code := template_code (vxrt0a_template_code)
 			etl_code := vxrt_etl_code
 			default_template := default_message_template (vxrt0a_default_template)
@@ -15695,6 +18091,993 @@ feature {NONE} -- Initialization
 			-- dollar6: $6 = implementation class name
 		end
 
+	make_vycp1a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Create a new VYCP-1 error: `a_name', appearing in a conversion
+			-- procedure of `a_class', is not the final name of a feature
+			-- in `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vycp1a_template_code)
+			etl_code := vycp1_etl_code
+			default_template := default_message_template (vycp1a_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+		end
+
+	make_vycp1b (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Create a new VYCP-1 error: `a_name', appearing in a conversion
+			-- procedure of `a_class', is not the final name of a creation
+			-- procedurein `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vycp1b_template_code)
+			etl_code := vycp1_etl_code
+			default_template := default_message_template (vycp1b_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+		end
+
+	make_vycp2a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCP-2 error: `a_type`, which is a type appearing
+			-- in a conversion query of `a_class' named `a_name`, conforms to 
+			-- `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycp2a_template_code)
+			etl_code := vycp2_etl_code
+			default_template := default_message_template (vycp2a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycp3a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCP-3 error: `a_class` is a conforming ancestor
+			-- of the base class of `a_type`, which is a type appearing in a
+			-- conversion procedure of `a_class' named `a_name`.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycp3a_template_code)
+			etl_code := vycp3_etl_code
+			default_template := default_message_template (vycp3a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycp4a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type1, a_type2: ET_TYPE)
+			-- Create a new VYCP-4 error: `a_type1`, which is a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, has the same
+			-- base class as `a_type2` also appearing a conversion procedure of
+			-- `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type1_not_void: a_type1 /= Void
+			a_type2_not_void: a_type2 /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type1.position
+			ast_node := a_type1
+			code := template_code (vycp4a_template_code)
+			etl_code := vycp4_etl_code
+			default_template := default_message_template (vycp4a_default_template)
+			create parameters.make_filled (empty_string, 1, 9)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type1.to_text, 8)
+			parameters.put (a_type2.to_text, 9)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+			-- dollar9: $9 = other conversion type
+		end
+
+	make_vycp5a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCP-5 error: the base class of `a_type`, which is
+			-- a type appearing in a conversion procedure of `a_class' named `a_name`,
+			-- has a conversion query with a convert type whose base class is `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycp5a_template_code)
+			etl_code := vycp5_etl_code
+			default_template := default_message_template (vycp5a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycp6a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_procedure: ET_PROCEDURE)
+			-- Create a new VYCP-6 error: `a_procedure`, whose name appears in
+			-- a conversion procedure of `a_class' named `a_name`, has not
+			-- exactly one argument.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_procedure_not_void: a_procedure /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vycp6a_template_code)
+			etl_code := vycp6_etl_code
+			default_template := default_message_template (vycp6a_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+		end
+
+	make_vycp7a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE; a_argument_type: ET_NAMED_TYPE)
+			-- Create a new VYCP-7 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, does not conform
+			-- to its argument.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+			a_argument_type_not_void: a_argument_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycp7a_template_code)
+			etl_code := vycp7_etl_code
+			default_template := default_message_template (vycp7a_default_template)
+			create parameters.make_filled (empty_string, 1, 9)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			parameters.put (a_argument_type.to_text, 9)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+			-- dollar9: $9 = creation procedure argument type
+		end
+
+	make_vycp8a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCP-8 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, contains
+			-- anchored types.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycp8a_template_code)
+			etl_code := vycp8_etl_code
+			default_template := default_message_template (vycp8a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycp8b (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCP-8 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, is a formal generic
+			-- parameter of `a_class`.
+			--
+			-- ECMA-367-3-115,8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycp8b_template_code)
+			etl_code := vycp8_etl_code
+			default_template := default_message_template (vycp8b_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycp9a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCP-9 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, is not attached.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycp9a_template_code)
+			etl_code := vycp9_etl_code
+			default_template := default_message_template (vycp9a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion procedure name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycq1a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Create a new VYCQ-1 error: `a_name', appearing in a conversion
+			-- query of `a_class', is not the final name of a feature
+			-- in `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vycq1a_template_code)
+			etl_code := vycq1_etl_code
+			default_template := default_message_template (vycq1a_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+		end
+
+	make_vycq1b (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Create a new VYCQ-1 error: `a_name', appearing in a conversion
+			-- query of `a_class', is not the final name of a query
+			-- in `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vycq1b_template_code)
+			etl_code := vycq1_etl_code
+			default_template := default_message_template (vycq1b_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+		end
+
+	make_vycq2a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCQ-2 error: `a_class` conforms to `a_type`, which is
+			-- a type appearing in a conversion query of `a_class' named `a_name`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycq2a_template_code)
+			etl_code := vycq2_etl_code
+			default_template := default_message_template (vycq2a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycq3a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCQ-3 error: the base class of `a_type`, which is
+			-- a type appearing in a conversion procedure of `a_class' named
+			-- `a_name`, is a conforming ancestor of `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycq3a_template_code)
+			etl_code := vycq3_etl_code
+			default_template := default_message_template (vycq3a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycq4a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type1, a_type2: ET_TYPE)
+			-- Create a new VYCQ-4 error: `a_type1`, which is a type appearing in
+			-- a conversion query of `a_class' named `a_name`, has the same
+			-- base class as `a_type2` also appearing a conversion query of
+			-- `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type1_not_void: a_type1 /= Void
+			a_type2_not_void: a_type2 /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type1.position
+			ast_node := a_type1
+			code := template_code (vycq4a_template_code)
+			etl_code := vycq4_etl_code
+			default_template := default_message_template (vycq4a_default_template)
+			create parameters.make_filled (empty_string, 1, 9)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type1.to_text, 8)
+			parameters.put (a_type2.to_text, 9)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+			-- dollar9: $9 = other conversion type
+		end
+
+	make_vycq5a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCQ-5 error: the base class of `a_type`, which is
+			-- a type appearing in a conversion query of `a_class' named `a_name`,
+			-- has a conversion procedure with a convert type whose base class
+			-- is `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycq5a_template_code)
+			etl_code := vycq5_etl_code
+			default_template := default_message_template (vycq5a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycq6a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_query: ET_QUERY)
+			-- Create a new VYCQ-6 error: `a_query`, whose name appears in
+			-- a conversion query of `a_class' named `a_name`, has one
+			-- or more arguments.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_query_not_void: a_query /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_name.position
+			ast_node := a_name
+			code := template_code (vycq6a_template_code)
+			etl_code := vycq6_etl_code
+			default_template := default_message_template (vycq6a_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+		end
+
+	make_vycq7a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE; a_query_type: ET_NAMED_TYPE)
+			-- Create a new VYCQ-7 error: the type `a_query_type` of the query
+			-- whose name appears in a conversion query of `a_class' named
+			-- `a_name`, does not conform to `a_type` listed in this
+			-- conversion query.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+			a_query_type_not_void: a_query_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycq7a_template_code)
+			etl_code := vycq7_etl_code
+			default_template := default_message_template (vycq7a_default_template)
+			create parameters.make_filled (empty_string, 1, 9)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			parameters.put (a_query_type.to_text, 9)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+			-- dollar9: $9 = query type
+		end
+
+	make_vycq8a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCQ-8 error: `a_type`, which is  a type appearing in
+			-- a conversion query of `a_class' named `a_name`, contains
+			-- anchored types.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycq8a_template_code)
+			etl_code := vycq8_etl_code
+			default_template := default_message_template (vycq8a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycq8b (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCQ-8 error: `a_type`, which is  a type appearing in
+			-- a conversion query of `a_class' named `a_name`, is a formal generic
+			-- parameter of `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycq8b_template_code)
+			etl_code := vycq8_etl_code
+			default_template := default_message_template (vycq8b_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+		end
+
+	make_vycq9a (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Create a new VYCQ-9 error: `a_type`, which is  a type appearing in
+			-- a conversion query of `a_class' named `a_name`, is not attached.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_type.position
+			ast_node := a_type
+			code := template_code (vycq9a_template_code)
+			etl_code := vycq9_etl_code
+			default_template := default_message_template (vycq9a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_name.lower_name, 7)
+			parameters.put (a_type.to_text, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = conversion query name
+			-- dollar8: $8 = conversion type
+		end
+
 	make_gvagp0a (a_class: ET_CLASS; anc1, anc2: ET_BASE_TYPE)
 			-- Create a new GVAGP error: `anc1' and `anc2' are two ancestors
 			-- of `a_class' with the same base class but different generic
@@ -15711,6 +19094,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := null_position
+			ast_node := Void
 			code := template_code (gvagp0a_template_code)
 			etl_code := gvagp_etl_code
 			default_template := default_message_template (gvagp0a_default_template)
@@ -15753,6 +19137,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_parent.position
+			ast_node := a_parent.tuple_keyword
 			code := template_code (gvhpr5a_template_code)
 			etl_code := gvhpr5_etl_code
 			default_template := default_message_template (gvhpr5a_default_template)
@@ -15793,6 +19178,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := null_position
+			ast_node := Void
 			code := template_code (gvhso1a_template_code)
 			etl_code := gvhso1_etl_code
 			default_template := default_message_template (gvhso1a_default_template)
@@ -15831,6 +19217,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := null_position
+			ast_node := Void
 			code := template_code (gvhso2a_template_code)
 			etl_code := gvhso2_etl_code
 			default_template := default_message_template (gvhso2a_default_template)
@@ -15875,6 +19262,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.name
 			code := template_code (gvkbs0a_template_code)
 			etl_code := gvkbs_etl_code
 			default_template := default_message_template (gvkbs0a_default_template)
@@ -15940,6 +19328,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.name
 			code := template_code (gvkbu1a_template_code)
 			etl_code := gvkbu1_etl_code
 			default_template := default_message_template (gvkbu1a_default_template)
@@ -15981,6 +19370,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := null_position
+			ast_node := Void
 			code := template_code (gvkfe1a_template_code)
 			etl_code := gvkfe1_etl_code
 			default_template := default_message_template (gvkfe1a_default_template)
@@ -16024,8 +19414,10 @@ feature {NONE} -- Initialization
 			class_impl := a_class
 			if a_feature.implementation_class = a_class then
 				position := a_feature.name.position
+				ast_node := a_feature.name
 			else
 				position := null_position
+				ast_node := Void
 			end
 			code := template_code (gvkfe2a_template_code)
 			etl_code := gvkfe2_etl_code
@@ -16072,8 +19464,10 @@ feature {NONE} -- Initialization
 			class_impl := a_class
 			if a_feature.implementation_class = a_class then
 				position := a_feature.name.position
+				ast_node := a_feature.name
 			else
 				position := null_position
+				ast_node := Void
 			end
 			code := template_code (gvkfe3a_template_code)
 			etl_code := gvkfe3_etl_code
@@ -16120,8 +19514,10 @@ feature {NONE} -- Initialization
 			class_impl := a_class
 			if a_feature.implementation_class = a_class then
 				position := a_feature.name.position
+				ast_node := a_feature.name
 			else
 				position := null_position
+				ast_node := Void
 			end
 			code := template_code (gvkfe4a_template_code)
 			etl_code := gvkfe4_etl_code
@@ -16166,8 +19562,10 @@ feature {NONE} -- Initialization
 			class_impl := a_class
 			if a_feature.implementation_class = a_class then
 				position := a_feature.name.position
+				ast_node := a_feature.name
 			else
 				position := null_position
+				ast_node := Void
 			end
 			code := template_code (gvkfe5a_template_code)
 			etl_code := gvkfe5_etl_code
@@ -16214,6 +19612,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_feature.name.position
+			ast_node := a_feature.name
 			code := template_code (gvkfe6a_template_code)
 			etl_code := gvkfe6_etl_code
 			default_template := default_message_template (gvkfe6a_default_template)
@@ -16278,6 +19677,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvscn1a_template_code)
 			etl_code := gvscn1_etl_code
 			default_template := default_message_template (gvscn1a_default_template)
@@ -16322,6 +19722,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := null_position
+			ast_node := Void
 			code := template_code (gvscn1b_template_code)
 			etl_code := gvscn1_etl_code
 			default_template := default_message_template (gvscn1b_default_template)
@@ -16352,7 +19753,7 @@ feature {NONE} -- Initialization
 		end
 
 	make_gvtcg5a (a_class, a_class_impl: ET_CLASS; a_type: ET_CLASS_TYPE; an_actual: ET_TYPE; a_formal: ET_FORMAL_PARAMETER)
-			-- Create a new GVTCG-5 error: actual generic paramater `an_actual' of `a_type' in
+			-- Create a new GVTCG-5 error: actual generic parameter `an_actual' of `a_type' in
 			-- `a_class_impl' and viewed from one of its descendants `a_class' is not a
 			-- reference type but the corresponding formal parameter `a_formal' is marked
 			-- as reference.
@@ -16369,6 +19770,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_actual.position
+			ast_node := an_actual
 			code := template_code (gvtcg5a_template_code)
 			etl_code := gvtcg5_etl_code
 			default_template := default_message_template (gvtcg5a_default_template)
@@ -16399,7 +19801,7 @@ feature {NONE} -- Initialization
 		end
 
 	make_gvtcg5b (a_class, a_class_impl: ET_CLASS; a_type: ET_CLASS_TYPE; an_actual: ET_TYPE; a_formal: ET_FORMAL_PARAMETER)
-			-- Create a new GVTCG-5 error: actual generic paramater `an_actual' of `a_type' in
+			-- Create a new GVTCG-5 error: actual generic parameter `an_actual' of `a_type' in
 			-- `a_class_impl' and viewed from one of its descendants `a_class' is not a
 			-- expanded type but the corresponding formal parameter `a_formal' is marked
 			-- as expanded.
@@ -16416,6 +19818,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := an_actual.position
+			ast_node := an_actual
 			code := template_code (gvtcg5b_template_code)
 			etl_code := gvtcg5_etl_code
 			default_template := default_message_template (gvtcg5b_default_template)
@@ -16461,6 +19864,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuaa0a_template_code)
 			etl_code := gvuaa_etl_code
 			default_template := default_message_template (gvuaa0a_default_template)
@@ -16506,6 +19910,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuaa0b_template_code)
 			etl_code := gvuaa_etl_code
 			default_template := default_message_template (gvuaa0b_default_template)
@@ -16549,6 +19954,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuac0a_template_code)
 			etl_code := gvuac_etl_code
 			default_template := default_message_template (gvuac0a_default_template)
@@ -16594,6 +20000,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuac0b_template_code)
 			etl_code := gvuac_etl_code
 			default_template := default_message_template (gvuac0b_default_template)
@@ -16637,6 +20044,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuac0c_template_code)
 			etl_code := gvuac_etl_code
 			default_template := default_message_template (gvuac0c_default_template)
@@ -16680,6 +20088,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvual0a_template_code)
 			etl_code := gvual_etl_code
 			default_template := default_message_template (gvual0a_default_template)
@@ -16725,6 +20134,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvual0b_template_code)
 			etl_code := gvual_etl_code
 			default_template := default_message_template (gvual0b_default_template)
@@ -16768,6 +20178,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuao0a_template_code)
 			etl_code := gvuao_etl_code
 			default_template := default_message_template (gvuao0a_default_template)
@@ -16813,6 +20224,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuao0b_template_code)
 			etl_code := gvuao_etl_code
 			default_template := default_message_template (gvuao0b_default_template)
@@ -16856,6 +20268,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuao0c_template_code)
 			etl_code := gvuao_etl_code
 			default_template := default_message_template (gvuao0c_default_template)
@@ -16899,6 +20312,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuas0a_template_code)
 			etl_code := gvuas_etl_code
 			default_template := default_message_template (gvuas0a_default_template)
@@ -16944,6 +20358,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuas0b_template_code)
 			etl_code := gvuas_etl_code
 			default_template := default_message_template (gvuas0b_default_template)
@@ -16987,6 +20402,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuas0c_template_code)
 			etl_code := gvuas_etl_code
 			default_template := default_message_template (gvuas0c_default_template)
@@ -17029,6 +20445,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuia0a_template_code)
 			etl_code := gvuia_etl_code
 			default_template := default_message_template (gvuia0a_default_template)
@@ -17073,6 +20490,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuia0b_template_code)
 			etl_code := gvuia_etl_code
 			default_template := default_message_template (gvuia0b_default_template)
@@ -17115,6 +20533,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuic0a_template_code)
 			etl_code := gvuic_etl_code
 			default_template := default_message_template (gvuic0a_default_template)
@@ -17159,6 +20578,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuic0b_template_code)
 			etl_code := gvuic_etl_code
 			default_template := default_message_template (gvuic0b_default_template)
@@ -17201,6 +20621,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuic0c_template_code)
 			etl_code := gvuic_etl_code
 			default_template := default_message_template (gvuic0c_default_template)
@@ -17243,6 +20664,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuil0a_template_code)
 			etl_code := gvuil_etl_code
 			default_template := default_message_template (gvuil0a_default_template)
@@ -17287,6 +20709,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuil0b_template_code)
 			etl_code := gvuil_etl_code
 			default_template := default_message_template (gvuil0b_default_template)
@@ -17329,6 +20752,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuio0a_template_code)
 			etl_code := gvuio_etl_code
 			default_template := default_message_template (gvuio0a_default_template)
@@ -17373,6 +20797,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuio0b_template_code)
 			etl_code := gvuio_etl_code
 			default_template := default_message_template (gvuio0b_default_template)
@@ -17415,6 +20840,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuio0c_template_code)
 			etl_code := gvuio_etl_code
 			default_template := default_message_template (gvuio0c_default_template)
@@ -17457,6 +20883,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuis0a_template_code)
 			etl_code := gvuis_etl_code
 			default_template := default_message_template (gvuis0a_default_template)
@@ -17501,6 +20928,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuis0b_template_code)
 			etl_code := gvuis_etl_code
 			default_template := default_message_template (gvuis0b_default_template)
@@ -17543,6 +20971,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class
 			position := a_name.position
+			ast_node := a_name
 			code := template_code (gvuis0c_template_code)
 			etl_code := gvuis_etl_code
 			default_template := default_message_template (gvuis0c_default_template)
@@ -17588,6 +21017,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_constant.value_position
+			ast_node := a_constant
 			code := template_code (gvwmc2a_template_code)
 			etl_code := gvwmc2_etl_code
 			default_template := default_message_template (gvwmc2a_default_template)
@@ -17642,6 +21072,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_constant.value_position
+			ast_node := a_constant
 			code := template_code (gvwmc2b_template_code)
 			etl_code := gvwmc2_etl_code
 			default_template := default_message_template (gvwmc2b_default_template)
@@ -17701,6 +21132,7 @@ feature {NONE} -- Initialization
 			current_class := a_class
 			class_impl := a_class_impl
 			position := a_constant.value_position
+			ast_node := a_constant
 			code := template_code (gvwmc2c_template_code)
 			etl_code := gvwmc2_etl_code
 			default_template := default_message_template (gvwmc2c_default_template)
@@ -17726,6 +21158,140 @@ feature {NONE} -- Initialization
 			-- dollar5: $5 = class name
 			-- dollar6: $6 = implementation class name
 			-- dollar7: $7 = string type
+		end
+
+	make_gwulv0a (a_class: ET_CLASS; a_local_variable: ET_LOCAL_VARIABLE; a_feature: ET_FEATURE)
+			-- Create a new GWULV warning: local variable `a_local_variable' is not used
+			-- in feature `a_feature` of class `a_class'.
+			--
+			-- Not in ECMA-367-2
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_local_variable_not_void: a_local_variable /= Void
+			a_feature_not_void: a_feature /= Void
+		local
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_local_variable.position
+			ast_node := a_local_variable
+			code := template_code (gwulv0a_template_code)
+			etl_code := gwulv_etl_code
+			default_template := default_message_template (gwulv0a_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_local_variable.name.lower_name, 7)
+			parameters.put (a_feature.lower_name, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = local variable name
+			-- dollar8: $8 = feature name
+		end
+
+	make_gwulv0b (a_class: ET_CLASS; a_local_variable: ET_LOCAL_VARIABLE; a_feature: ET_FEATURE; a_inline_agent: ET_INLINE_AGENT)
+			-- Create a new GWULV warning: local variable `a_local_variable' is not used
+			-- in inline agent `a_inline_agent` of feature `a_feature` in class `a_class'.
+			--
+			-- Not in ECMA-367-2
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_local_variable_not_void: a_local_variable /= Void
+			a_feature_not_void: a_feature /= Void
+			a_inline_agent_not_void: a_inline_agent /= Void
+		local
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_local_variable.position
+			ast_node := a_local_variable
+			code := template_code (gwulv0b_template_code)
+			etl_code := gwulv_etl_code
+			default_template := default_message_template (gwulv0b_default_template)
+			create parameters.make_filled (empty_string, 1, 8)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_local_variable.name.lower_name, 7)
+			parameters.put (a_feature.lower_name, 8)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = local variable name
+			-- dollar8: $8 = feature name
+		end
+
+	make_gwulv0c (a_class: ET_CLASS; a_local_variable: ET_LOCAL_VARIABLE; a_inline_agent: ET_INLINE_AGENT)
+			-- Create a new GWULV warning: local variable `a_local_variable' is not used
+			-- in inline agent `a_inline_agent` in the invariant of class `a_class'.
+			--
+			-- Not in ECMA-367-2
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_local_variable_not_void: a_local_variable /= Void
+			a_inline_agent_not_void: a_inline_agent /= Void
+		local
+		do
+			current_class := a_class
+			class_impl := a_class
+			position := a_local_variable.position
+			ast_node := a_local_variable
+			code := template_code (gwulv0c_template_code)
+			etl_code := gwulv_etl_code
+			default_template := default_message_template (gwulv0c_default_template)
+			create parameters.make_filled (empty_string, 1, 7)
+			parameters.put (etl_code, 1)
+			parameters.put (filename, 2)
+			parameters.put (position.line.out, 3)
+			parameters.put (position.column.out, 4)
+			parameters.put (current_class.upper_name, 5)
+			parameters.put (class_impl.upper_name, 6)
+			parameters.put (a_local_variable.name.lower_name, 7)
+			set_compilers (True)
+		ensure
+			current_class_set: current_class = a_class
+			class_impl_set: class_impl = a_class
+			all_reported: all_reported
+			all_fatal: all_fatal
+			-- dollar0: $0 = program name
+			-- dollar1: $1 = ETL code
+			-- dollar2: $2 = filename
+			-- dollar3: $3 = line
+			-- dollar4: $4 = column
+			-- dollar5: $5 = class name
+			-- dollar6: $6 = implementation class name
+			-- dollar7: $7 = local variable name
 		end
 
 feature -- Access
@@ -17884,8 +21450,8 @@ feature {NONE} -- Implementation
 	vdus2b_default_template: STRING = "cannot undefine the attribute `$7'."
 	vdus3a_default_template: STRING = "cannot undefine the deferred feature `$7'."
 	vdus4a_default_template: STRING = "feature name `$7' appears twice in the Undefine subclause of parent $8."
-	veen0a_default_template: STRING = "`$7' appears in feature `$8', but it is not the final name of a feature in class $6 nor the name of a local variable or formal argument of feature `$8'."
-	veen0b_default_template: STRING = "`$7' appears in an inline agent, but it is not the final name of a feature in class $6 nor the name of a local variable or formal argument of this inline agent."
+	veen0a_default_template: STRING = "`$7' appears in feature `$8', but it is not the final name of a feature in class $6 nor the name of an object-test local, of an iteration item, of an inline separate argument, of a local variable, or of a formal argument of feature `$8'."
+	veen0b_default_template: STRING = "`$7' appears in an inline agent, but it is not the final name of a feature in class $6 nor the name of an object-test local, of an iteration item, of an inline separate argument, of a local variable, or of a formal argument of this inline agent."
 	veen2a_default_template: STRING = "entity 'Result' appears in the body, postcondition or rescue clause of a procedure `$7'."
 	veen2b_default_template: STRING = "entity 'Result' appears in the precondition of feature `$7'."
 	veen2c_default_template: STRING = "local entity `$7' appears in the precondition or postcondition of feature `$8'."
@@ -17893,6 +21459,7 @@ feature {NONE} -- Implementation
 	veen2e_default_template: STRING = "local entity `$7' appears in the precondition or postcondition of an inline agent."
 	veen2f_default_template: STRING = "entity 'Result' appears in the precondition of an inline agent."
 	veen2g_default_template: STRING = "entity 'Result' appears in the body, postcondition or rescue clause of an inline agent whose associated feature is a procedure."
+	veen2h_default_template: STRING = "entity 'Result' appears in the precondition of an inline agent."
 	veen8a_default_template: STRING = "`$7' appearing in feature `$8' or one of its possibly nested inline agents, is an object-test local that is used outside of its scope."
 	veen8b_default_template: STRING = "`$7' appearing in the invariant or one of its possibly nested inline agents, is an object-test local that is used outside of its scope."
 	veen9a_default_template: STRING = "`$7' appearing in feature `$8' or one of its possibly nested inline agents, is an iteration item that is used outside of its scope."
@@ -17905,6 +21472,13 @@ feature {NONE} -- Implementation
 	vevi0c_default_template: STRING = "entity 'Result' declared as attached is not initialized at the end of the body of function `$7'."
 	vevi0d_default_template: STRING = "entity 'Result' declared as attached is not initialized at the end of the body of inline agent."
 	vevi0e_default_template: STRING = "entity 'Result' declared as attached is not initialized at the end of the body of attribute `$7'."
+	vevi0f_default_template: STRING = "attribute `$8' declared as attached is not initialized at the end of the body of creation procedure `$7'."
+	vevi0g_default_template: STRING = "attributes $8 declared as attached are not initialized at the end of the body of creation procedure `$7'."
+	vevi0h_default_template: STRING = "'Current' is used before attribute `$8' declared as attached is initialized by creation procedure `$7'."
+	vevi0i_default_template: STRING = "'Current' is used before attributes $8 declared as attached are initialized by creation procedure `$7'."
+	vevi0j_default_template: STRING = "the implicit target 'Current' of an agent, is used before attribute `$8' declared as attached is initialized by creation procedure `$7'."
+	vevi0k_default_template: STRING = "the implicit target 'Current' of an agent, is used before attributes $8 declared as attached are initialized by creation procedure `$7'."
+	vevi0l_default_template: STRING = "attribute `$8' declared as attached is used before being initialized by creation procedure `$7'."
 	vfac1a_default_template: STRING = "query `$7' has an assigner mark `$8' but there is no feature with that name."
 	vfac1b_default_template: STRING = "query `$7' has an assigner mark `$8' but this feature is not a procedure."
 	vfac2a_default_template: STRING = "the number of arguments in assigner procedure `$8' is not one more than the number of arguments in query `$7'."
@@ -17960,7 +21534,6 @@ feature {NONE} -- Implementation
 	vgcc1a_default_template: STRING = "creation with no Creation_call part, but $7 is deferred."
 	vgcc3a_default_template: STRING = "explicit creation type '$7' does not conform to target entity type '$8'."
 	vgcc5a_default_template: STRING = "creation with no Creation_call part, but $7 has a Creators part."
-	vgcc6a_default_template: STRING = "`$7' is the final name of a once-procedure."
 	vgcc6b_default_template: STRING = "`$7' is not the final name of a procedure in class $9."
 	vgcc6c_default_template: STRING = "procedure `$8' of class $9 is not exported for creation to class $5."
 	vgcc6d_default_template: STRING = "`$7' is not the final name of a procedure in class $9."
@@ -17971,6 +21544,7 @@ feature {NONE} -- Implementation
 	vgcp3a_default_template: STRING = "procedure name `$7' appears twice in creation clause."
 	vgcp3b_default_template: STRING = "procedure name `$7' appears in two different creation clauses."
 	vgcp3c_default_template: STRING = "procedure name `$7' appears twice in creation clause of generic constraint."
+	vgfg3ga_default_template: STRING = "$5 is a once class but it has formal generic parameters."
 	vggc1a_default_template: STRING = "invalid type '$7' in constraint of formal generic parameter."
 	vggc2a_default_template: STRING = "`$7' is not the final name of a feature in generic constraint $8."
 	vggc2b_default_template: STRING = "generic constraint $7 is a formal generic parameter and therefore cannot have a rename clause."
@@ -18001,14 +21575,29 @@ feature {NONE} -- Implementation
 	vjaw0a_default_template: STRING = "feature `$7' is not an attribute. A Writable is either a local variable (including Result) or an attribute."
 	vjaw0b_default_template: STRING = "`$7' is the name of a formal argument of feature `$8'. A Writable is either a local variable (including Result) or an attribute."
 	vjaw0c_default_template: STRING = "`$7' is the name of a formal argument of an inline agent. A Writable is either a local variable (including Result) or an attribute."
+	vjaw0d_default_template: STRING = "`$7' is the name of an object-test local. A Writable is either a local variable (including Result) or an attribute."
+	vjaw0e_default_template: STRING = "`$7' is the name of an iteration item. A Writable is either a local variable (including Result) or an attribute."
+	vjaw0f_default_template: STRING = "`$7' is the name of an inline separate argument. A Writable is either a local variable (including Result) or an attribute."
 	vjrv0a_default_template: STRING = "the type '$7' of the target entity of the assignment attempt is not a reference type."
+	vkcc4a_default_template: STRING = "`$7' is the final name of a once-procedure."
+	vkcc4b_default_template: STRING = "default creation procedure `default_create' is a once-procedure."
+	vkcc4c_default_template: STRING = "`$7' is not the final name of a once-procedure in once class $5."
+	vkcc4d_default_template: STRING = "default creation procedure `default_create' is not a once-procedure in once class $5."
+	vkcc4e_default_template: STRING = "`$7' is the final name of a once-per-object procedure in once class $5."
+	vkcc4f_default_template: STRING = "default creation procedure `default_create' is a once-per-object procedure in once class $5."
+	vkcc6ga_default_template: STRING = "`$7' is the final name of a class procedure in once class $5."
+	vkcc6gb_default_template: STRING = "default creation procedure `default_create' is a class procedure in once class $5."
+	vkcc7ga_default_template: STRING = "`$7' is not the final name of a procedure declared or redeclared in once class $5."
+	vkcc7gb_default_template: STRING = "default creation procedure `default_create' is not declared or redeclared in once class $5."
 	vkcn1a_default_template: STRING = "query `$8' of class $9 appears in a call instruction."
 	vkcn1b_default_template: STRING = "tuple label `$7' appears in a call instruction."
 	vkcn1c_default_template: STRING = "query `$8' appears in a call instruction."
 	vkcn2a_default_template: STRING = "procedure `$8' of class $9 appears in a call expression."
 	vkcn2c_default_template: STRING = "procedure `$8' appears in a call expression."
 	vkex4ga_default_template: STRING = "the creation region '<$7>' does not have the expected name '<NONE>'."
+	vkex5ga_default_template: STRING = "the creation type '$8' of the creation expression with the once-per-process creation procedure `$7' is a reference type, but it is not separate."
 	vkin5ga_default_template: STRING = "the creation region '<$7>' does not have the expected name '<NONE>'."
+	vkin6ga_default_template: STRING = "the creation type '$8' of the creation instruction with the once-per-process creation procedure `$7' is a reference type, but it is not separate."
 	vlel1a_default_template: STRING = "'all' keyword appears twice in the Export subclause of parent $7."
 	vlel2a_default_template: STRING = "`$7' is not the final name of a feature inherited from $8."
 	vlel3a_default_template: STRING = "feature name `$7' appears twice in the Export subclause of parent $8."
@@ -18022,25 +21611,41 @@ feature {NONE} -- Implementation
 	vmss1a_default_template: STRING = "`$7' is not the final name of a feature inherited from $8."
 	vmss2a_default_template: STRING = "feature name `$7' appears twice in the Select subclause of parent $8."
 	vmss3a_default_template: STRING = "feature name `$7' appears in the Select subclause of parent $8 but is not replicated."
+	voin0a_default_template: STRING = "inspect interval is empty."
+	voin0b_default_template: STRING = "the bounds of inspect interval are not both Unique attributes."
 	voit1a_default_template: STRING = "the type '$7' of the iterable expression does not conform to any generic derivation of ITERABLE."
 	voit2a_default_template: STRING = "iteration item name '$6' is also the final name of a feature."
 	voit2b_default_template: STRING = "iteration item name '$6' is also the name of a formal argument of an enclosing feature or inline agent."
 	voit2c_default_template: STRING = "iteration item name '$6' is also the name of a local variable of an enclosing feature or inline agent."
 	voit2d_default_template: STRING = "iteration with item name '$6' appears in the scope of an object-test local with the same name."
 	voit2e_default_template: STRING = "iteration with item name '$6' appears in the scope of another iteration item with the same name."
+	voit2f_default_template: STRING = "iteration with item name '$6' appears in the scope of an inline separate argument with the same name."
 	voit3a_default_template: STRING = "'$6' appearing in '@$6' is not the name of an iteration item."
 	vomb1a_default_template: STRING = "inspect expression of type '$7' different from INTEGER or CHARACTER."
 	vomb2a_default_template: STRING = "inspect constant of type '$7' different from type '$8' of inspect expression."
 	vomb2b_default_template: STRING = "inspect choice `$7' is not a constant attribute."
+	vomb3a_default_template: STRING = "inspect value appears twice in inspect choices."
+	vomb3b_default_template: STRING = "inspect interval contains a value which appears twice in inspect choices."
+	vomb4a_default_template: STRING = "type '$7' of inspect constant is not a generic derivation of 'TYPE'."
+	vomb4b_default_template: STRING = "inspect constant '{$7}' is not a standalone type."
+	vomb6ga_default_template: STRING = "type '$7' of inspect expression is not attached."
+	vomb7ga_default_template: STRING = "inspect constant of type '$7' different from type '$8' of inspect expression."
+	vomb8ga_default_template: STRING = "inspect expression (of type '$7') is separate but not controlled."
+	vomb9ga_default_template: STRING = "inspect value is a positive integer constant but some other inspect values are Unique attributes."
+	vomb9gb_default_template: STRING = "inspect value is a Unique attribute but some other inspect values are positive integer constants."
+	vomb9gc_default_template: STRING = "all inspect values of the Unique attribute form are not declared or redeclared in the same class."
 	vpca1a_default_template: STRING = "`$7' is not the final name of a feature in class $5."
 	vpca1b_default_template: STRING = "`$7' is not the final name of a feature in class $8."
 	vpca2a_default_template: STRING = "feature `$8' of class $9 is not exported to class $5."
 	vpca3a_default_template: STRING = "the number of actual arguments is not the same as the number of formal arguments of feature `$8' in class $9."
 	vpca3b_default_template: STRING = "the number of actual arguments is not the same as the number of formal arguments of feature `$8'."
+	vpca3c_default_template: STRING = "the number of actual arguments is not the same as the number of formal arguments of inline agent."
 	vpca4a_default_template: STRING = "the $10-th actual argument (of type '$11') does not conform to the corresponding formal argument (of type '$12') of feature `$8' in class $9."
 	vpca4b_default_template: STRING = "the $9-th actual argument (of type '$10') does not conform to the corresponding formal argument (of type '$11') of feature `$8'."
+	vpca4c_default_template: STRING = "the $7-th actual argument (of type '$8') does not conform to the corresponding formal argument (of type '$9') of inline agent."
 	vpca5a_default_template: STRING = "the type '$11' specified for the $10-th actual argument of Call_agent does not conform to the corresponding formal argument (of type '$12') of feature `$8' in class $9."
 	vpca5b_default_template: STRING = "the type '$10' specified for the $9-th actual argument of Call_agent does not conform to the corresponding formal argument (of type '$11') of feature `$8'."
+	vpca5c_default_template: STRING = "the type '$8' specified for the $7-th actual argument of inline agent does not conform to the corresponding formal argument (of type '$9')."
 	vpir1a_default_template: STRING = "argument name '$7' in inline agent is also the name of a formal argument of an enclosing feature or inline agent."
 	vpir1b_default_template: STRING = "argument name '$7' in inline agent is also the name of a local variable of an enclosing feature or inline agent."
 	vpir1c_default_template: STRING = "local variable name '$7' in inline agent is also the name of a formal argument of an enclosing feature or inline agent."
@@ -18086,6 +21691,7 @@ feature {NONE} -- Implementation
 	vtcg4b_default_template: STRING = "the $7-th actual generic parameter of $10, which is the $9-th formal generic parameter of class $5, does not list feature `$8' as creation procedure in its constraint."
 	vtct0a_default_template: STRING = "type based on unknown class $7."
 	vtct0b_default_template: STRING = "type based on unknown class $7."
+	vtec2a_default_template: STRING = "the version of 'default_create' in the base class of the expanded type '$7' is not a creation procedure exported to $5."
 	vtug1a_default_template: STRING = "type '$7' has actual generic parameters but class $8 is not generic."
 	vtug2a_default_template: STRING = "type '$7' has wrong number of actual generic parameters."
 	vuar1a_default_template: STRING = "the number of actual arguments is not the same as the number of formal arguments of feature `$8' in class $9."
@@ -18146,6 +21752,28 @@ feature {NONE} -- Implementation
 	vwst1b_default_template: STRING = "feature name `$7' is not the final name of an attribute in class $5."
 	vwst2a_default_template: STRING = "feature name `$7' appears twice in strip expression."
 	vxrt0a_default_template: STRING = "Retry instruction does not appear in a Rescue clause."
+	vycp1a_default_template: STRING = "convert feature name `$7' is not the final name of a feature in class $5."
+	vycp1b_default_template: STRING = "convert feature name `$7' is not the final name of a creation procedure in class $5."
+	vycp2a_default_template: STRING = "convert type '$8' of conversion procedure `$7' conforms to current class $5."
+	vycp3a_default_template: STRING = "current class $5 is a conforming ancestor of the base class of '$8' of conversion procedure `$7'."
+	vycp4a_default_template: STRING = "convert type '$8' of conversion procedure `$7' has the same base class as another conversion procedure type."
+	vycp5a_default_template: STRING = "the base class of '$8' of conversion procedure `$7' has a conversion query whose convert type's base class is $5."
+	vycp6a_default_template: STRING = "convert feature name `$7' is the final name of a procedure with not exactly one formal argument."
+	vycp7a_default_template: STRING = "convert type '$8' of conversion procedure `$7' does not conform to the type '$9' of its argument."
+	vycp8a_default_template: STRING = "convert type '$8' of conversion procedure `$7' contains anchored types."
+	vycp8b_default_template: STRING = "convert type '$8' of conversion procedure `$7' is a formal generic parameter of $5."
+	vycp9a_default_template: STRING = "convert type '$8' of conversion procedure `$7' is not attached."
+	vycq1a_default_template: STRING = "convert feature name `$7' is not the final name of a feature in class $5."
+	vycq1b_default_template: STRING = "convert feature name `$7' is not the final name of a query in class $5."
+	vycq2a_default_template: STRING = "current class $5 conforms to the convert type '$8' of its conversion query `$7'."
+	vycq3a_default_template: STRING = "the base class of '$8' of conversion query `$7' is a conforming ancestor of $5."
+	vycq4a_default_template: STRING = "convert type '$8' of conversion query `$7' has the same base class as another conversion query type."
+	vycq5a_default_template: STRING = "the base class of '$8' of conversion query `$7' has a conversion procedure whose convert type's base class is $5."
+	vycq6a_default_template: STRING = "convert feature name `$7' is the final name of a query with one or more formal arguments."
+	vycq7a_default_template: STRING = "the result type '$9' of the query `$7' does not conforms to the convert type '$8'."
+	vycq8a_default_template: STRING = "convert type '$8' of conversion query `$7' contains anchored types."
+	vycq8b_default_template: STRING = "convert type '$8' of conversion query `$7' is a formal generic parameter of $5."
+	vycq9a_default_template: STRING = "convert type '$8' of conversion query `$7' is not attached."
 	gvagp0a_default_template: STRING = "ancestors with generic parameter mismatch: '$7' and '$8'."
 	gvhpr5a_default_template: STRING = "cannot inherit from Tuple_type '$7'."
 	gvhso1a_default_template: STRING = "implicitly inherits from unknown class SYSTEM_OBJECT."
@@ -18192,6 +21820,9 @@ feature {NONE} -- Implementation
 	gvwmc2b_default_template: STRING = "character constant $7 is not representable (too big or surrogate) as an instance of '$8'."
 	gvwmc2c_default_template: STRING = "manifest string is not representable (contains too big or surrogate characters) as an instance of '$7'."
 	gvzzz0a_default_template: STRING = "validity error"
+	gwulv0a_default_template: STRING = "unused local variable '$7' in feature '$8'."
+	gwulv0b_default_template: STRING = "unused local variable '$7' in inline agent of feature '$8'."
+	gwulv0c_default_template: STRING = "unused local variable '$7' in inline agent in invariant."
 			-- Default templates
 
 	v1ea1g_etl_code: STRING = "V1EA-1G"
@@ -18258,6 +21889,7 @@ feature {NONE} -- Implementation
 	vgcp1_etl_code: STRING = "VGCP-1"
 	vgcp2_etl_code: STRING = "VGCP-2"
 	vgcp3_etl_code: STRING = "VGCP-3"
+	vgfg3g_etl_code: STRING = "VGFG-3G"
 	vggc1_etl_code: STRING = "VGGC-1"
 	vggc2_etl_code: STRING = "VGGC-2"
 	vggc3_etl_code: STRING = "VGGC-3"
@@ -18269,10 +21901,15 @@ feature {NONE} -- Implementation
 	vjar_etl_code: STRING = "VJAR"
 	vjaw_etl_code: STRING = "VJAW"
 	vjrv_etl_code: STRING = "VJRV"
+	vkcc4_etl_code: STRING = "VKCC-4"
+	vkcc6g_etl_code: STRING = "VKCC-6G"
+	vkcc7g_etl_code: STRING = "VKCC-7G"
 	vkcn1_etl_code: STRING = "VKCN-1"
 	vkcn2_etl_code: STRING = "VKCN-2"
 	vkex4g_etl_code: STRING = "VKEX-4G"
+	vkex5g_etl_code: STRING = "VKEX-5G"
 	vkin5g_etl_code: STRING = "VKIN-5G"
+	vkin6g_etl_code: STRING = "VKIN-6G"
 	vlel1_etl_code: STRING = "VLEL-1"
 	vlel2_etl_code: STRING = "VLEL-2"
 	vlel3_etl_code: STRING = "VLEL-3"
@@ -18282,11 +21919,18 @@ feature {NONE} -- Implementation
 	vmss1_etl_code: STRING = "VMSS-1"
 	vmss2_etl_code: STRING = "VMSS-2"
 	vmss3_etl_code: STRING = "VMSS-3"
+	voin_etl_code: STRING = "VOIN"
 	voit1_etl_code: STRING = "VOIT-1"
 	voit2_etl_code: STRING = "VOIT-2"
 	voit3_etl_code: STRING = "VOIT-3"
 	vomb1_etl_code: STRING = "VOMB-1"
 	vomb2_etl_code: STRING = "VOMB-2"
+	vomb3_etl_code: STRING = "VOMB-3"
+	vomb4_etl_code: STRING = "VOMB-4"
+	vomb6g_etl_code: STRING = "VOMB-6G"
+	vomb7g_etl_code: STRING = "VOMB-7G"
+	vomb8g_etl_code: STRING = "VOMB-8G"
+	vomb9g_etl_code: STRING = "VOMB-9G"
 	vpca1_etl_code: STRING = "VPCA-1"
 	vpca2_etl_code: STRING = "VPCA-2"
 	vpca3_etl_code: STRING = "VPCA-3"
@@ -18313,6 +21957,7 @@ feature {NONE} -- Implementation
 	vtcg3_etl_code: STRING = "VTCG-3"
 	vtcg4_etl_code: STRING = "VTCG-4"
 	vtct_etl_code: STRING = "VTCT"
+	vtec2_etl_code: STRING = "VTEC-2"
 	vtug1_etl_code: STRING = "VTUG-1"
 	vtug2_etl_code: STRING = "VTUG-2"
 	vuar1_etl_code: STRING = "VUAR-1"
@@ -18340,6 +21985,24 @@ feature {NONE} -- Implementation
 	vwst1_etl_code: STRING = "VWST-1"
 	vwst2_etl_code: STRING = "VWST-2"
 	vxrt_etl_code: STRING = "VXRT"
+	vycp1_etl_code: STRING = "VYCP-1"
+	vycp2_etl_code: STRING = "VYCP-2"
+	vycp3_etl_code: STRING = "VYCP-3"
+	vycp4_etl_code: STRING = "VYCP-4"
+	vycp5_etl_code: STRING = "VYCP-5"
+	vycp6_etl_code: STRING = "VYCP-6"
+	vycp7_etl_code: STRING = "VYCP-7"
+	vycp8_etl_code: STRING = "VYCP-8"
+	vycp9_etl_code: STRING = "VYCP-9"
+	vycq1_etl_code: STRING = "VYCQ-1"
+	vycq2_etl_code: STRING = "VYCQ-2"
+	vycq3_etl_code: STRING = "VYCQ-3"
+	vycq4_etl_code: STRING = "VYCQ-4"
+	vycq5_etl_code: STRING = "VYCQ-5"
+	vycq6_etl_code: STRING = "VYCQ-6"
+	vycq7_etl_code: STRING = "VYCQ-7"
+	vycq8_etl_code: STRING = "VYCQ-8"
+	vycq9_etl_code: STRING = "VYCQ-9"
 	gvagp_etl_code: STRING = "GVAGP"
 	gvhpr4_etl_code: STRING = "GVHPR-4"
 	gvhpr5_etl_code: STRING = "GVHPR-5"
@@ -18367,6 +22030,7 @@ feature {NONE} -- Implementation
 	gvuis_etl_code: STRING = "GVUIS"
 	gvwmc2_etl_code: STRING = "GVWMC-2"
 	gvzzz_etl_code: STRING = "GVZZZ"
+	gwulv_etl_code: STRING = "GWULV"
 			-- ETL validity codes
 
 	template_code (a_code: STRING): STRING
@@ -18462,6 +22126,7 @@ feature {NONE} -- Implementation
 	veen2e_template_code: STRING = "veen2e"
 	veen2f_template_code: STRING = "veen2f"
 	veen2g_template_code: STRING = "veen2g"
+	veen2h_template_code: STRING = "veen2h"
 	veen8a_template_code: STRING = "veen8a"
 	veen8b_template_code: STRING = "veen8b"
 	veen9a_template_code: STRING = "veen9a"
@@ -18474,6 +22139,13 @@ feature {NONE} -- Implementation
 	vevi0c_template_code: STRING = "vevi0c"
 	vevi0d_template_code: STRING = "vevi0d"
 	vevi0e_template_code: STRING = "vevi0e"
+	vevi0f_template_code: STRING = "vevi0f"
+	vevi0g_template_code: STRING = "vevi0g"
+	vevi0h_template_code: STRING = "vevi0h"
+	vevi0i_template_code: STRING = "vevi0i"
+	vevi0j_template_code: STRING = "vevi0j"
+	vevi0k_template_code: STRING = "vevi0k"
+	vevi0l_template_code: STRING = "vevi0l"
 	vfac1a_template_code: STRING = "vfac1a"
 	vfac1b_template_code: STRING = "vfac1b"
 	vfac2a_template_code: STRING = "vfac2a"
@@ -18524,14 +22196,12 @@ feature {NONE} -- Implementation
 	vfav5a_template_code: STRING = "vfav5a"
 	vffd4a_template_code: STRING = "vffd4a"
 	vffd5a_template_code: STRING = "vffd5a"
-	vffd6a_template_code: STRING = "vffd6a"
 	vffd7a_template_code: STRING = "vffd7a"
 	vffd7b_template_code: STRING = "vffd7b"
 	vffd11ga_template_code: STRING = "vffd11ga"
 	vgcc1a_template_code: STRING = "vgcc1a"
 	vgcc3a_template_code: STRING = "vgcc3a"
 	vgcc5a_template_code: STRING = "vgcc5a"
-	vgcc6a_template_code: STRING = "vgcc6a"
 	vgcc6b_template_code: STRING = "vgcc6b"
 	vgcc6c_template_code: STRING = "vgcc6c"
 	vgcc6d_template_code: STRING = "vgcc6d"
@@ -18542,6 +22212,7 @@ feature {NONE} -- Implementation
 	vgcp3a_template_code: STRING = "vgcp3a"
 	vgcp3b_template_code: STRING = "vgcp3b"
 	vgcp3c_template_code: STRING = "vgcp3c"
+	vgfg3ga_template_code: STRING = "vgfg3ga"
 	vggc1a_template_code: STRING = "vggc1a"
 	vggc2a_template_code: STRING = "vggc2a"
 	vggc2b_template_code: STRING = "vggc2b"
@@ -18573,14 +22244,29 @@ feature {NONE} -- Implementation
 	vjaw0a_template_code: STRING = "vjaw0a"
 	vjaw0b_template_code: STRING = "vjaw0b"
 	vjaw0c_template_code: STRING = "vjaw0c"
+	vjaw0d_template_code: STRING = "vjaw0d"
+	vjaw0e_template_code: STRING = "vjaw0e"
+	vjaw0f_template_code: STRING = "vjaw0f"
 	vjrv0a_template_code: STRING = "vjrv0a"
+	vkcc4a_template_code: STRING = "vkcc4a"
+	vkcc4b_template_code: STRING = "vkcc4b"
+	vkcc4c_template_code: STRING = "vkcc4c"
+	vkcc4d_template_code: STRING = "vkcc4d"
+	vkcc4e_template_code: STRING = "vkcc4e"
+	vkcc4f_template_code: STRING = "vkcc4f"
+	vkcc6ga_template_code: STRING = "vkcc6ga"
+	vkcc6gb_template_code: STRING = "vkcc6gb"
+	vkcc7ga_template_code: STRING = "vkcc7ga"
+	vkcc7gb_template_code: STRING = "vkcc7gb"
 	vkcn1a_template_code: STRING = "vkcn1a"
 	vkcn1b_template_code: STRING = "vkcn1b"
 	vkcn1c_template_code: STRING = "vkcn1c"
 	vkcn2a_template_code: STRING = "vkcn2a"
 	vkcn2c_template_code: STRING = "vkcn2c"
 	vkex4ga_template_code: STRING = "vkex4ga"
+	vkex5ga_template_code: STRING = "vkex5ga"
 	vkin5ga_template_code: STRING = "vkin5ga"
+	vkin6ga_template_code: STRING = "vkin6ga"
 	vlel1a_template_code: STRING = "vlel1a"
 	vlel2a_template_code: STRING = "vlel2a"
 	vlel3a_template_code: STRING = "vlel3a"
@@ -18594,25 +22280,41 @@ feature {NONE} -- Implementation
 	vmss1a_template_code: STRING = "vmss1a"
 	vmss2a_template_code: STRING = "vmss2a"
 	vmss3a_template_code: STRING = "vmss3a"
+	voin0a_template_code: STRING = "voin0a"
+	voin0b_template_code: STRING = "voin0b"
 	voit1a_template_code: STRING = "voit1a"
 	voit2a_template_code: STRING = "voit2a"
 	voit2b_template_code: STRING = "voit2b"
 	voit2c_template_code: STRING = "voit2c"
 	voit2d_template_code: STRING = "voit2d"
 	voit2e_template_code: STRING = "voit2e"
+	voit2f_template_code: STRING = "voit2f"
 	voit3a_template_code: STRING = "voit3a"
 	vomb1a_template_code: STRING = "vomb1a"
 	vomb2a_template_code: STRING = "vomb2a"
 	vomb2b_template_code: STRING = "vomb2b"
+	vomb3a_template_code: STRING = "vomb3a"
+	vomb3b_template_code: STRING = "vomb3b"
+	vomb4a_template_code: STRING = "vomb4a"
+	vomb4b_template_code: STRING = "vomb4b"
+	vomb6ga_template_code: STRING = "vomb6ga"
+	vomb7ga_template_code: STRING = "vomb7ga"
+	vomb8ga_template_code: STRING = "vomb8ga"
+	vomb9ga_template_code: STRING = "vomb9ga"
+	vomb9gb_template_code: STRING = "vomb9gb"
+	vomb9gc_template_code: STRING = "vomb9gc"
 	vpca1a_template_code: STRING = "vpca1a"
 	vpca1b_template_code: STRING = "vpca1b"
 	vpca2a_template_code: STRING = "vpca2a"
 	vpca3a_template_code: STRING = "vpca3a"
 	vpca3b_template_code: STRING = "vpca3b"
+	vpca3c_template_code: STRING = "vpca3c"
 	vpca4a_template_code: STRING = "vpca4a"
 	vpca4b_template_code: STRING = "vpca4b"
+	vpca4c_template_code: STRING = "vpca4c"
 	vpca5a_template_code: STRING = "vpca5a"
 	vpca5b_template_code: STRING = "vpca5b"
+	vpca5c_template_code: STRING = "vpca5c"
 	vpir1a_template_code: STRING = "vpir1a"
 	vpir1b_template_code: STRING = "vpir1b"
 	vpir1c_template_code: STRING = "vpir1c"
@@ -18658,6 +22360,7 @@ feature {NONE} -- Implementation
 	vtcg4b_template_code: STRING = "vtcg4b"
 	vtct0a_template_code: STRING = "vtct0a"
 	vtct0b_template_code: STRING = "vtct0b"
+	vtec2a_template_code: STRING = "vtec2a"
 	vtgc0a_template_code: STRING = "vtgc0a"
 	vtgc0b_template_code: STRING = "vtgc0b"
 	vtug1a_template_code: STRING = "vtug1a"
@@ -18720,6 +22423,28 @@ feature {NONE} -- Implementation
 	vwst1b_template_code: STRING = "vwst1b"
 	vwst2a_template_code: STRING = "vwst2a"
 	vxrt0a_template_code: STRING = "vxrt0a"
+	vycp1a_template_code: STRING = "vycq1a"
+	vycp1b_template_code: STRING = "vycp1b"
+	vycp2a_template_code: STRING = "vycp2a"
+	vycp3a_template_code: STRING = "vycp3a"
+	vycp4a_template_code: STRING = "vycp4a"
+	vycp5a_template_code: STRING = "vycp5a"
+	vycp6a_template_code: STRING = "vycp6a"
+	vycp7a_template_code: STRING = "vycp7a"
+	vycp8a_template_code: STRING = "vycp8a"
+	vycp8b_template_code: STRING = "vycp8b"
+	vycp9a_template_code: STRING = "vycp9a"
+	vycq1a_template_code: STRING = "vycq1a"
+	vycq1b_template_code: STRING = "vycq1b"
+	vycq2a_template_code: STRING = "vycq2a"
+	vycq3a_template_code: STRING = "vycq3a"
+	vycq4a_template_code: STRING = "vycq4a"
+	vycq5a_template_code: STRING = "vycq5a"
+	vycq6a_template_code: STRING = "vycq6a"
+	vycq7a_template_code: STRING = "vycq7a"
+	vycq8a_template_code: STRING = "vycq8a"
+	vycq8b_template_code: STRING = "vycq8b"
+	vycq9a_template_code: STRING = "vycq9a"
 	gvagp0a_template_code: STRING = "gvagp0a"
 	gvhpr5a_template_code: STRING = "gvhpr5a"
 	gvhso1a_template_code: STRING = "gvhso1a"
@@ -18766,6 +22491,9 @@ feature {NONE} -- Implementation
 	gvwmc2b_template_code: STRING = "gvwmc2b"
 	gvwmc2c_template_code: STRING = "gvwmc2c"
 	gvzzz0a_template_code: STRING = "gvzzz0a"
+	gwulv0a_template_code: STRING = "gwulv0a"
+	gwulv0b_template_code: STRING = "gwulv0b"
+	gwulv0c_template_code: STRING = "gwulv0c"
 			-- Template error codes
 
 feature {NONE} -- Implementation
@@ -18796,7 +22524,7 @@ feature {NONE} -- Implementation
 			if a_feature_name /= Void then
 				Result := a_feature_name.lower_name
 			else
-				Result := "**unknown**"
+				Result := tokens.unknown_name
 			end
 		ensure
 			feature_lower_name_not_void: Result /= Void
@@ -18823,7 +22551,7 @@ feature {NONE} -- Implementation
 					i := i + 1
 				end
 			else
-				Result := "**unknown**"
+				Result := tokens.unknown_name
 			end
 		ensure
 			alias_lower_names_not_void: Result /= Void
@@ -18852,7 +22580,7 @@ feature {NONE} -- Implementation
 			if a_type /= Void then
 				Result := a_type.type.to_text
 			else
-				Result := "**UNKNOWN**"
+				Result := tokens.capitalized_unknown_name
 			end
 		ensure
 			type_name_not_void: Result /= Void

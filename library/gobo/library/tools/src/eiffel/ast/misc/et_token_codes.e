@@ -5,7 +5,7 @@
 		"Eiffel token and symbol codes"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2002-2021, Eric Bezault and others"
+	copyright: "Copyright (c) 2002-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_TOKEN_CODES
@@ -90,36 +90,37 @@ feature -- Keyword and symbol codes
 	if_keyword_code: CHARACTER = '%/30/'
 	indexing_keyword_code: CHARACTER = '%/31/'
 	inherit_keyword_code: CHARACTER = '%/33/'
-	inspect_keyword_code: CHARACTER = '%/33/'
-	invariant_keyword_code: CHARACTER = '%/34/'
-	is_keyword_code: CHARACTER = '%/35/'
-	like_keyword_code: CHARACTER = '%/36/'
-	local_keyword_code: CHARACTER = '%/37/'
-	loop_keyword_code: CHARACTER = '%/38/'
-	note_keyword_code: CHARACTER = '%/39/'
-	obsolete_keyword_code: CHARACTER = '%/40/'
-	old_keyword_code: CHARACTER = '%/41/'
-	once_keyword_code: CHARACTER = '%/42/'
-	precursor_keyword_code: CHARACTER = '%/43/'
-	redefine_keyword_code: CHARACTER = '%/44/'
-	reference_keyword_code: CHARACTER = '%/45/'
-	rename_keyword_code: CHARACTER = '%/46/'
-	require_keyword_code: CHARACTER = '%/47/'
-	rescue_keyword_code: CHARACTER = '%/48/'
-	result_keyword_code: CHARACTER = '%/49/'
-	retry_keyword_code: CHARACTER = '%/50/'
-	select_keyword_code: CHARACTER = '%/51/'
-	separate_keyword_code: CHARACTER = '%/52/'
-	some_keyword_code: CHARACTER = '%/53/'
-	strip_keyword_code: CHARACTER = '%/54/'
-	then_keyword_code: CHARACTER = '%/55/'
-	true_keyword_code: CHARACTER = '%/56/'
-	undefine_keyword_code: CHARACTER = '%/57/'
-	unique_keyword_code: CHARACTER = '%/58/'
-	until_keyword_code: CHARACTER = '%/59/'
-	variant_keyword_code: CHARACTER = '%/60/'
-	void_keyword_code: CHARACTER = '%/61/'
-	when_keyword_code: CHARACTER = '%/62/'
+	inspect_keyword_code: CHARACTER = '%/34/'
+	interface_keyword_code: CHARACTER = '%/35/'
+	invariant_keyword_code: CHARACTER = '%/36/'
+	is_keyword_code: CHARACTER = '%/37/'
+	like_keyword_code: CHARACTER = '%/38/'
+	local_keyword_code: CHARACTER = '%/39/'
+	loop_keyword_code: CHARACTER = '%/40/'
+	note_keyword_code: CHARACTER = '%/41/'
+	obsolete_keyword_code: CHARACTER = '%/42/'
+	old_keyword_code: CHARACTER = '%/43/'
+	once_keyword_code: CHARACTER = '%/44/'
+	precursor_keyword_code: CHARACTER = '%/45/'
+	redefine_keyword_code: CHARACTER = '%/46/'
+	reference_keyword_code: CHARACTER = '%/47/'
+	rename_keyword_code: CHARACTER = '%/48/'
+	require_keyword_code: CHARACTER = '%/49/'
+	rescue_keyword_code: CHARACTER = '%/50/'
+	result_keyword_code: CHARACTER = '%/51/'
+	retry_keyword_code: CHARACTER = '%/52/'
+	select_keyword_code: CHARACTER = '%/53/'
+	separate_keyword_code: CHARACTER = '%/54/'
+	some_keyword_code: CHARACTER = '%/55/'
+	strip_keyword_code: CHARACTER = '%/56/'
+	then_keyword_code: CHARACTER = '%/57/'
+	true_keyword_code: CHARACTER = '%/58/'
+	undefine_keyword_code: CHARACTER = '%/59/'
+	unique_keyword_code: CHARACTER = '%/60/'
+	until_keyword_code: CHARACTER = '%/61/'
+	variant_keyword_code: CHARACTER = '%/62/'
+	void_keyword_code: CHARACTER = '%/63/'
+	when_keyword_code: CHARACTER = '%/64/'
 			-- Eiffel keyword codes
 
 	arrow_symbol_code: CHARACTER = '%/201/'
@@ -169,37 +170,38 @@ feature -- Built-in codes
 	builtin_exception_manager_class: NATURAL_8 = 11
 	builtin_exception_manager_factory_class: NATURAL_8 = 12
 	builtin_function_class: NATURAL_8 = 13
-	builtin_identified_routines_class: NATURAL_8 = 14
-	builtin_integer_8_class: NATURAL_8 = 15
-	builtin_integer_8_ref_class: NATURAL_8 = 16
-	builtin_integer_16_class: NATURAL_8 = 17
-	builtin_integer_16_ref_class: NATURAL_8 = 18
-	builtin_integer_32_class: NATURAL_8 = 19
-	builtin_integer_32_ref_class: NATURAL_8 = 20
-	builtin_integer_64_class: NATURAL_8 = 21
-	builtin_integer_64_ref_class: NATURAL_8 = 22
-	builtin_ise_exception_manager_class: NATURAL_8 = 23
-	builtin_ise_runtime_class: NATURAL_8 = 24
-	builtin_memory_class: NATURAL_8 = 25
-	builtin_natural_8_class: NATURAL_8 = 26
-	builtin_natural_8_ref_class: NATURAL_8 = 27
-	builtin_natural_16_class: NATURAL_8 = 28
-	builtin_natural_16_ref_class: NATURAL_8 = 29
-	builtin_natural_32_class: NATURAL_8 = 30
-	builtin_natural_32_ref_class: NATURAL_8 = 31
-	builtin_natural_64_class: NATURAL_8 = 32
-	builtin_natural_64_ref_class: NATURAL_8 = 33
-	builtin_platform_class: NATURAL_8 = 34
-	builtin_pointer_class: NATURAL_8 = 35
-	builtin_pointer_ref_class: NATURAL_8 = 36
-	builtin_procedure_class: NATURAL_8 = 37
-	builtin_real_32_class: NATURAL_8 = 38
-	builtin_real_32_ref_class: NATURAL_8 = 39
-	builtin_real_64_class: NATURAL_8 = 40
-	builtin_real_64_ref_class: NATURAL_8 = 41
-	builtin_special_class: NATURAL_8 = 42
-	builtin_tuple_class: NATURAL_8 = 43
-	builtin_type_class: NATURAL_8 = 44
+	builtin_identified_controller_class: NATURAL_8 = 14
+	builtin_identified_routines_class: NATURAL_8 = 15
+	builtin_integer_8_class: NATURAL_8 = 16
+	builtin_integer_8_ref_class: NATURAL_8 = 17
+	builtin_integer_16_class: NATURAL_8 = 18
+	builtin_integer_16_ref_class: NATURAL_8 = 19
+	builtin_integer_32_class: NATURAL_8 = 20
+	builtin_integer_32_ref_class: NATURAL_8 = 21
+	builtin_integer_64_class: NATURAL_8 = 22
+	builtin_integer_64_ref_class: NATURAL_8 = 23
+	builtin_ise_exception_manager_class: NATURAL_8 = 24
+	builtin_ise_runtime_class: NATURAL_8 = 25
+	builtin_memory_class: NATURAL_8 = 26
+	builtin_natural_8_class: NATURAL_8 = 27
+	builtin_natural_8_ref_class: NATURAL_8 = 28
+	builtin_natural_16_class: NATURAL_8 = 29
+	builtin_natural_16_ref_class: NATURAL_8 = 30
+	builtin_natural_32_class: NATURAL_8 = 31
+	builtin_natural_32_ref_class: NATURAL_8 = 32
+	builtin_natural_64_class: NATURAL_8 = 33
+	builtin_natural_64_ref_class: NATURAL_8 = 34
+	builtin_platform_class: NATURAL_8 = 35
+	builtin_pointer_class: NATURAL_8 = 36
+	builtin_pointer_ref_class: NATURAL_8 = 37
+	builtin_procedure_class: NATURAL_8 = 38
+	builtin_real_32_class: NATURAL_8 = 39
+	builtin_real_32_ref_class: NATURAL_8 = 40
+	builtin_real_64_class: NATURAL_8 = 41
+	builtin_real_64_ref_class: NATURAL_8 = 42
+	builtin_special_class: NATURAL_8 = 43
+	builtin_tuple_class: NATURAL_8 = 44
+	builtin_type_class: NATURAL_8 = 45
 			-- Code for classes of built-in features	
 
 	builtin_any_conforms_to: NATURAL_8 = 1
@@ -283,6 +285,10 @@ feature -- Built-in codes
 	builtin_function_fast_item: NATURAL_8 = 1
 	builtin_function_item: NATURAL_8 = 2
 			-- Codes for built-in functions from class "FUNCTION"
+
+	builtin_identified_controller_object_id_stack_size: NATURAL_8 = 1
+	builtin_identified_controller_extend_object_id_stack: NATURAL_8 = 2
+			-- Codes for built-in procedures from class "IDENTIFIED_CONTROLLER"
 
 	builtin_identified_routines_eif_current_object_id: NATURAL_8 = 1
 	builtin_identified_routines_eif_id_object: NATURAL_8 = 2

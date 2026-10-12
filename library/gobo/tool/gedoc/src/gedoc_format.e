@@ -70,6 +70,7 @@ feature {NONE} -- Initialization
 			set_ise_version (a_format.ise_version)
 			set_ecf_version (a_format.ecf_version)
 			set_class_filters (a_format.class_filters)
+			set_library_filters (a_format.library_filters)
 			set_output_directory (a_format.output_directory)
 			set_library_prefix_flag (a_format.library_prefix_flag)
 			set_force_flag (a_format.force_flag)
@@ -157,6 +158,9 @@ feature -- Access
 	class_filters: detachable DS_ARRAYED_LIST [LX_DFA_WILDCARD]
 			-- Name of classes to be processed
 
+	library_filters: detachable DS_ARRAYED_LIST [LX_DFA_WILDCARD]
+			-- Name of libraries to be processed
+
 	output_directory: detachable STRING
 			-- Directory for the generated files.
 			-- Use directory containing the given class if Void.
@@ -167,6 +171,10 @@ feature -- Access
 
 	force_flag: BOOLEAN
 			-- Should existing files be overwritten without asking?
+
+	no_force_flag: BOOLEAN
+			-- Should existing files not be overwritten?
+			-- Just do nothing, silently.
 
 	interactive_flag: BOOLEAN
 			-- Should ask before overwriting a file, unless `force_flag' is True?
@@ -253,6 +261,16 @@ feature -- Setting
 			class_fiters_set: class_filters = a_class_filters
 		end
 
+	set_library_filters (a_library_filters: like library_filters)
+			-- Set `library_filters' to `a_library_filters'.
+		require
+			a_library_filters_compiled: a_library_filters /= Void implies a_library_filters.for_all (agent {LX_DFA_WILDCARD}.is_compiled)
+		do
+			library_filters := a_library_filters
+		ensure
+			library_fiters_set: library_filters = a_library_filters
+		end
+
 	set_output_directory (a_directory: like output_directory)
 			-- Set `output_directory' to `a_directory'.
 		do
@@ -275,6 +293,14 @@ feature -- Setting
 			force_flag := b
 		ensure
 			force_flag_set: force_flag = b
+		end
+
+	set_no_force_flag (b: BOOLEAN)
+			-- Set `no_force_flag' to `b'.
+		do
+			no_force_flag := b
+		ensure
+			no_force_flag_set: no_force_flag = b
 		end
 
 	set_interactive_flag (b: BOOLEAN)
@@ -331,6 +357,50 @@ feature -- Status report
 			-- Is `output_directory' required by the current format?
 		do
 			Result := False
+		end
+
+	is_file_overwritable (a_filename: STRING): BOOLEAN
+			-- Is it allowed to write to file `a_filename'?
+		require
+			a_filename_not_void: a_filename /= Void
+		do
+			if force_flag then
+				Result := True
+			elseif not file_system.file_exists (a_filename) then
+				Result := True
+			elseif no_force_flag then
+				Result := False
+			elseif interactive_flag then
+				interactive_mutex.lock
+				std.output.put_string ("File '")
+				std.output.put_string (a_filename)
+				std.output.put_line ("' already exists. Overwrite it (y/n)?")
+				std.input.read_line
+				Result := std.input.last_string.as_lower.starts_with ("y")
+				interactive_mutex.unlock
+			end
+		end
+
+	is_file_deletable (a_filename: STRING): BOOLEAN
+			-- Is it allowed to delete file `a_filename'?
+		require
+			a_filename_not_void: a_filename /= Void
+		do
+			if force_flag then
+				Result := True
+			elseif not file_system.file_exists (a_filename) then
+				Result := True
+			elseif no_force_flag then
+				Result := False
+			elseif interactive_flag then
+				interactive_mutex.lock
+				std.output.put_string ("Delete '")
+				std.output.put_string (a_filename)
+				std.output.put_line ("' (y/n)?")
+				std.input.read_line
+				Result := std.input.last_string.as_lower.starts_with ("y")
+				interactive_mutex.unlock
+			end
 		end
 
 feature {NONE} -- Eiffel config file parsing
@@ -418,7 +488,10 @@ feature {NONE} -- Eiffel config file parsing
 			if l_eiffel_preparser.error_handler.has_fatal_error then
 				has_error := True
 				l_system := Void
-			elseif not attached class_filters as l_class_filters or else l_class_filters.is_empty then
+			elseif
+				(not attached class_filters as l_class_filters or else l_class_filters.is_empty) and
+				(not attached library_filters as l_library_filters or else l_library_filters.is_empty)
+			then
 				create l_input_classes.make (1)
 				input_classes := l_input_classes
 				l_system.classes_do_if (agent l_input_classes.force_last, agent {ET_CLASS}.is_in_group (l_cluster))
@@ -447,8 +520,6 @@ feature {NONE} -- Processing
 			system_processor.set_ise_version (ise_version)
 			system_processor.set_unknown_builtin_reported (False)
 			a_system.set_unique_universe_names
-			a_system.set_attachment_type_conformance_mode (False)
-			a_system.set_target_type_attachment_mode (False)
 			set_ast_factory
 			if input_classes.is_empty then
 					-- If `input_classes' is not empty, it means that we got them
@@ -469,18 +540,29 @@ feature {NONE} -- Processing
 		end
 
 	build_input_classes (a_system: ET_SYSTEM)
-			-- Build `input_classes' using `class_filters' if not done yet.
+			-- Build `input_classes' using `class_filters' and `library_filters' if not done yet.
 		local
 			l_last_wildcard: detachable READABLE_STRING_GENERAL
 			l_input_classes: DS_HASH_SET [ET_CLASS]
 		do
 			if not input_classes.is_empty then
 				-- Nothing to be done.
-			elseif attached class_filters as l_class_filters and then not l_class_filters.is_empty then
+			elseif
+				(attached class_filters as l_class_filters and then not l_class_filters.is_empty) or
+				(attached library_filters as l_library_filters and then not l_library_filters.is_empty)
+			then
 				create l_input_classes.make (500)
-				across l_class_filters as i_class_wildcard loop
-					l_last_wildcard := i_class_wildcard.pattern
-					a_system.add_classes_by_wildcarded_name_recursive (i_class_wildcard, l_input_classes)
+				if attached library_filters as l_library_filters and then not l_library_filters.is_empty then
+					across l_library_filters as i_library_wildcard loop
+						l_last_wildcard := i_library_wildcard.pattern
+						a_system.add_classes_if_wildcarded_universe_name_recursive (i_library_wildcard, l_input_classes)
+					end
+				end
+				if attached class_filters as l_class_filters and then not l_class_filters.is_empty then
+					across l_class_filters as i_class_wildcard loop
+						l_last_wildcard := i_class_wildcard.pattern
+						a_system.add_classes_by_wildcarded_name_recursive (i_class_wildcard, l_input_classes)
+					end
 				end
 				l_input_classes.remove (a_system.none_type.base_class)
 				if l_input_classes.is_empty and l_last_wildcard /= Void then
@@ -540,26 +622,6 @@ feature {NONE} -- Output
 				if library_prefix_flag then
 					Result := file_system.pathname (Result, universe_lower_name (a_universe))
 				end
-			end
-		end
-
-	is_file_overwritable (a_filename: STRING): BOOLEAN
-			-- Is it allowed to write to file `a_filename'?
-		require
-			a_filename_not_void: a_filename /= Void
-		do
-			if force_flag then
-				Result := True
-			elseif not file_system.file_exists (a_filename) then
-				Result := True
-			elseif interactive_flag then
-				interactive_mutex.lock
-				std.output.put_string ("File '")
-				std.output.put_string (a_filename)
-				std.output.put_line ("' already exists. Overwrite it (y/n)?")
-				std.input.read_line
-				Result := std.input.last_string.starts_with ("y")
-				interactive_mutex.unlock
 			end
 		end
 
@@ -758,8 +820,35 @@ feature -- Error handling
 		local
 			l_error: UT_MESSAGE
 		do
-			create l_error.make ("File '" + a_filename + "' already exists. Not overwritten.")
-			report_error (l_error)
+			if no_force_flag then
+				-- Do nothing silently.
+			elseif not force_flag and not interactive_flag then
+				create l_error.make ("File '" + a_filename + "' already exists. Not overwritten. Use option `--force` or `--interactive`.")
+				report_error (l_error)
+			else
+				create l_error.make ("File '" + a_filename + "' already exists. Not overwritten.")
+				report_error (l_error)
+			end
+		ensure
+			has_error: has_error
+		end
+
+	report_file_not_deleted_error (a_filename: STRING)
+			-- Report that `a_filename' will not be deleted.
+		require
+			a_filename_not_void: a_filename /= Void
+		local
+			l_error: UT_MESSAGE
+		do
+			if no_force_flag then
+				-- Do nothing silently.
+			elseif not force_flag and not interactive_flag then
+				create l_error.make ("File '" + a_filename + "' not deleted. Use option `--force` or `--interactive`.")
+				report_error (l_error)
+			else
+				create l_error.make ("File '" + a_filename + "' not deleted.")
+				report_error (l_error)
+			end
 		ensure
 			has_error: has_error
 		end
@@ -844,6 +933,7 @@ invariant
 	input_filename_not_void: input_filename /= Void
 	ise_version_not_void: ise_version /= Void
 	class_filters_compiled: attached class_filters as l_class_filters implies l_class_filters.for_all (agent {LX_DFA_WILDCARD}.is_compiled)
+	library_filters_compiled: attached library_filters as l_library_filters implies l_library_filters.for_all (agent {LX_DFA_WILDCARD}.is_compiled)
 	input_classes_not_void: input_classes /= Void
 	no_void_imput_class: not input_classes.has_void
 	class_name_buffer_not_void: class_name_buffer /= Void

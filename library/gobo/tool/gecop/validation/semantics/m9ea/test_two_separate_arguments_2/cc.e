@@ -12,11 +12,13 @@ feature
 
 	f (i: INTEGER)
 		do
-			{EXECUTION_ENVIRONMENT}.sleep (400_000_000)
 			if i = 1 then
 				print ("DD calling CC.f%N")
+				{SCHEDULER}.set_value (1)
 			else
 				print ("EE calling CC.f%N")
+				{SCHEDULER}.wait_for_value_with_timeout (2, 100_000_000)
+				{SCHEDULER}.set_value (3)
 			end
 		end
 

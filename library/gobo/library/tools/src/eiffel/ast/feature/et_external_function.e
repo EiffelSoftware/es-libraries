@@ -5,7 +5,7 @@
 		"Eiffel external-functions"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 1999-2024, Eric Bezault and others"
+	copyright: "Copyright (c) 1999-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_EXTERNAL_FUNCTION
@@ -22,8 +22,12 @@ inherit
 
 	ET_EXTERNAL_ROUTINE
 		undefine
-			reset, type, is_prefixable, is_infixable,
-			is_bracketable, is_function
+			reset_after_features_flattened,
+			type,
+			is_prefixable,
+			is_infixable,
+			is_bracketable,
+			is_function
 		end
 
 create
@@ -42,6 +46,9 @@ feature {NONE} -- Initialization
 			a_class_not_void: a_class /= Void
 		do
 			extended_name := a_name
+			if attached {ET_IDENTIFIER} a_name.feature_name as l_identifier then
+				l_identifier.set_feature_name (True)
+			end
 			hash_code := name.hash_code
 			arguments := args
 			declared_type := a_type

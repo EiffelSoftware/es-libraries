@@ -5,7 +5,7 @@
 		"Eiffel dynamic type builders"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2004-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2004-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_DYNAMIC_TYPE_BUILDER
@@ -55,6 +55,7 @@ inherit
 			report_inline_agent_formal_argument_declaration,
 			report_inline_agent_local_variable_declaration,
 			report_inline_agent_result_declaration,
+			report_inline_separate_argument,
 			report_inline_separate_argument_declaration,
 			report_integer_8_constant,
 			report_integer_16_constant,
@@ -636,7 +637,7 @@ feature {NONE} -- Generation
 				else
 					check_feature_validity (l_static_feature, l_current_type)
 				end
-				if l_current_type.base_class.preconditions_enabled then
+				if l_current_type.base_class.preconditions_enabled or a_feature.has_separate_argument then
 					check_all_preconditions_validity (l_static_feature, l_current_type)
 				end
 				if l_current_type.base_class.postconditions_enabled then
@@ -937,8 +938,8 @@ feature -- Validity checking
 		do
 			l_precursors := precursors
 			l_precursors.wipe_out
-			a_feature.add_precursors (l_precursors)
-			l_precursors.force_last (a_feature)
+			a_feature.add_precursors_impl (l_precursors)
+			l_precursors.force_last (a_feature.implementation_feature)
 			from l_precursors.start until l_precursors.after loop
 				l_precursor := l_precursors.item_for_iteration
 				if l_precursor.first_precursor = Void and (not attached l_precursor.preconditions as l_preconditions or else l_preconditions.are_all_true) then
@@ -957,7 +958,7 @@ feature -- Validity checking
 					else
 						index_offset := dynamic_type_sets.count.max (l_current_index) - l_current_index
 						current_dynamic_feature.preconditions.force_last (l_preconditions, index_offset)
-						check_preconditions_validity (l_preconditions, l_precursor, a_feature, a_current_type)
+						check_feature_preconditions_validity (l_preconditions, l_precursor, a_feature, a_current_type)
 						index_offset := 0
 						if l_preconditions.are_all_true then
 							l_precursors.go_after
@@ -983,15 +984,15 @@ feature -- Validity checking
 		do
 			l_precursors := precursors
 			l_precursors.wipe_out
-			a_feature.add_precursors (l_precursors)
-			l_precursors.force_last (a_feature)
+			a_feature.add_precursors_impl (l_precursors)
+			l_precursors.force_last (a_feature.implementation_feature)
 			l_current_index := 2 * a_feature.arguments_count + 1 + if a_feature.type /= Void then 2 else 0 end
 			from l_precursors.start until l_precursors.after loop
 				l_precursor := l_precursors.item_for_iteration
 				if attached l_precursor.postconditions as l_postconditions and then not l_postconditions.are_all_true then
 					index_offset := dynamic_type_sets.count.max (l_current_index) - l_current_index
 					current_dynamic_feature.postconditions.force_last (l_postconditions, index_offset)
-					check_postconditions_validity (l_postconditions, l_precursor, a_feature, a_current_type)
+					check_feature_postconditions_validity (l_postconditions, l_precursor, a_feature, a_current_type)
 					index_offset := 0
 				end
 				l_precursors.forth
@@ -1591,8 +1592,9 @@ feature {NONE} -- Event handling
 			if current_type = current_dynamic_type.base_type then
 				l_dynamic_query := current_dynamic_type.dynamic_query (a_query, current_dynamic_system)
 				l_dynamic_query.set_address (True)
--- TODO: the dynamic type set of the formal arguments of `l_dynamic_query'
--- may be altered when its address is passed to an external routine.
+					-- The dynamic type set of the formal arguments of `l_dynamic_query'
+					-- may be altered when its address is passed to an external routine.
+				propagate_routine_address_arguments_dynamic_types (l_dynamic_query)
 			end
 		end
 
@@ -1881,6 +1883,40 @@ feature {NONE} -- Event handling
 			end
 		end
 
+	report_inline_separate_argument (a_name: ET_IDENTIFIER; a_is_attached: BOOLEAN; a_inline_separate_argument: ET_INLINE_SEPARATE_ARGUMENT)
+			-- Report that a call to inline separate argument `a_name' has been processed.
+			-- `a_is_attached' means that we know (with a CAP, Certified Attachment Pattern)
+			-- that this inline separate argument is attached at this position in the code.
+		local
+			l_dynamic_type: ET_DYNAMIC_TYPE
+			l_dynamic_attached_type: ET_DYNAMIC_TYPE
+			l_dynamic_attached_type_set: detachable ET_DYNAMIC_TYPE_SET
+		do
+			if current_type = current_dynamic_type.base_type then
+				if a_is_attached then
+					if not attached dynamic_type_set (a_name) as l_dynamic_type_set then
+							-- Internal error: this dynamic type set should already have been
+							-- set by `report_inline_separate_argument_declaration'.
+						set_fatal_error
+						error_handler.report_giaaa_error
+					else
+						l_dynamic_type := l_dynamic_type_set.static_type
+						l_dynamic_attached_type := current_dynamic_system.attached_type (l_dynamic_type)
+						if l_dynamic_attached_type /= l_dynamic_type then
+								-- The dynamic type set for the attached version of the
+								-- inline separate argument has not been created yet.
+								-- `attached_index' was just pointing to a placeholder
+								-- (containing the dynamic type set associated with the
+								-- primary type of the inline separate argument).
+							l_dynamic_attached_type_set := new_dynamic_type_set (l_dynamic_attached_type)
+							set_dynamic_type_set (l_dynamic_attached_type_set, a_name)
+							propagate_cap_dynamic_types (a_inline_separate_argument.name, l_dynamic_type_set, l_dynamic_attached_type_set)
+						end
+					end
+				end
+			end
+		end
+
 	report_inline_separate_argument_declaration (a_inline_separate_argument: ET_INLINE_SEPARATE_ARGUMENT; a_type: ET_TYPE_CONTEXT)
 			-- Report that the declaration of inline separate argument `a_inline_separate_argument'
 			-- of type `a_type' has been processed.
@@ -1889,10 +1925,15 @@ feature {NONE} -- Event handling
 			l_dynamic_type_set: ET_DYNAMIC_TYPE_SET
 		do
 			if current_type = current_dynamic_type.base_type then
-					-- Take care of the type of the inline separate argument name.
+					-- Take care of the type of the inline separate argument name
 				l_dynamic_type := current_dynamic_system.dynamic_type (tokens.identity_type, a_type)
 				l_dynamic_type_set := new_dynamic_type_set (l_dynamic_type)
 				set_dynamic_type_set (l_dynamic_type_set, a_inline_separate_argument.name)
+					-- Reserve a placeholder in `dynamic_type_sets' for the attached version
+					-- of the inline separate argument, if later needed with a CAP
+					-- (Certified Attachment Pattern).
+				dummy_operand.set_index (a_inline_separate_argument.attached_index)
+				set_dynamic_type_set (l_dynamic_type_set, dummy_operand)
 				propagate_inline_separate_argument_dynamic_types (a_inline_separate_argument)
 			end
 		end
@@ -2254,8 +2295,9 @@ feature {NONE} -- Event handling
 			if current_type = current_dynamic_type.base_type then
 				l_dynamic_procedure := current_dynamic_type.dynamic_procedure (a_procedure, current_dynamic_system)
 				l_dynamic_procedure.set_address (True)
--- TODO: the dynamic type set of the formal arguments of `l_dynamic_procedure'
--- may be altered when its address is passed to an external routine.
+					-- The dynamic type set of the formal arguments of `l_dynamic_procedure'
+					-- may be altered when its address is passed to an external routine.
+				propagate_routine_address_arguments_dynamic_types (l_dynamic_procedure)
 			end
 		end
 
@@ -2926,46 +2968,37 @@ feature {NONE} -- Event handling
 				l_actuals := an_expression.arguments
 				if l_actuals /= Void then
 					nb := l_actuals.count
-					if nb = 1 then
+					from i := 1 until i > nb loop
+						l_actual := l_actuals.actual_argument (i)
+						propagate_argument_operand_dynamic_types (l_actual, i, l_dynamic_query)
+						i := i + 1
+					end
+					if nb = 1 and then l_dynamic_query.is_builtin_function_item and then current_dynamic_type.is_agent_type then
+							-- This is something of the form:  'item ([...])'
+							-- Try to get the open operand type sets directly from the
+							-- argument if it is a manifest tuple.
 						l_actual := l_actuals.actual_argument (1)
-						if l_dynamic_query.is_builtin_function_item and then current_dynamic_type.is_agent_type then
-								-- This is something of the form:  'item ([...])'
-								-- Try to get the open operand type sets directly from the
-								-- argument if it is a manifest tuple.
-							if not attached {ET_DYNAMIC_ROUTINE_TYPE} current_dynamic_type as l_agent_type then
-									-- Internal error: it has to be an agent type.
+						if not attached {ET_DYNAMIC_ROUTINE_TYPE} current_dynamic_type as l_agent_type then
+								-- Internal error: it has to be an agent type.
+							set_fatal_error
+							error_handler.report_giaaa_error
+						elseif attached {ET_MANIFEST_TUPLE} l_actual as l_manifest_tuple then
+							l_open_operand_type_sets := l_agent_type.open_operand_type_sets
+							nb := l_open_operand_type_sets.count
+							if l_manifest_tuple.count < nb then
+									-- Internal error: the actual argument conforms to the
+									-- formal argument of 'item', so there cannot be less
+									-- items in the tuple.
 								set_fatal_error
 								error_handler.report_giaaa_error
 							else
-								if attached {ET_MANIFEST_TUPLE} l_actual as l_manifest_tuple then
-									l_open_operand_type_sets := l_agent_type.open_operand_type_sets
-									nb := l_open_operand_type_sets.count
-									if l_manifest_tuple.count < nb then
-											-- Internal error: the actual argument conforms to the
-											-- formal argument of 'item', so there cannot be less
-											-- items in the tuple.
-										set_fatal_error
-										error_handler.report_giaaa_error
-									else
-										from i := 1 until i > nb loop
-											l_actual := l_manifest_tuple.expression (i)
-											l_open_operand_type_set := l_open_operand_type_sets.item (i)
-											propagate_argument_dynamic_types (l_actual, l_open_operand_type_set)
-											i := i + 1
-										end
-									end
-								else
-									propagate_argument_operand_dynamic_types (l_actual, 1, l_dynamic_query)
+								from i := 1 until i > nb loop
+									l_actual := l_manifest_tuple.expression (i)
+									l_open_operand_type_set := l_open_operand_type_sets.item (i)
+									propagate_argument_dynamic_types (l_actual, l_open_operand_type_set)
+									i := i + 1
 								end
 							end
-						else
-							propagate_argument_operand_dynamic_types (l_actual, 1, l_dynamic_query)
-						end
-					else
-						from i := 1 until i > nb loop
-							l_actual := l_actuals.actual_argument (i)
-							propagate_argument_operand_dynamic_types (l_actual, i, l_dynamic_query)
-							i := i + 1
 						end
 					end
 				end
@@ -3014,46 +3047,37 @@ feature {NONE} -- Event handling
 				l_dynamic_procedure.set_regular (True)
 				if attached an_instruction.arguments as l_actuals then
 					nb := l_actuals.count
-					if nb = 1 then
+					from i := 1 until i > nb loop
+						l_actual := l_actuals.actual_argument (i)
+						propagate_argument_operand_dynamic_types (l_actual, i, l_dynamic_procedure)
+						i := i + 1
+					end
+					if nb = 1 and then l_dynamic_procedure.is_builtin_procedure_call and then current_dynamic_type.is_agent_type then
+							-- This is something of the form:  'call ([...])'
+							-- Try to get the open operand type sets directly from the
+							-- argument if it is a manifest tuple.
 						l_actual := l_actuals.actual_argument (1)
-						if l_dynamic_procedure.is_builtin_procedure_call and then current_dynamic_type.is_agent_type then
-								-- This is something of the form:  'call ([...])'
-								-- Try to get the open operand type sets directly from the
-								-- argument if it is a manifest tuple.
-							if not attached {ET_DYNAMIC_ROUTINE_TYPE} current_dynamic_type as l_agent_type then
-									-- Internal error: it has to be an agent type.
+						if not attached {ET_DYNAMIC_ROUTINE_TYPE} current_dynamic_type as l_agent_type then
+								-- Internal error: it has to be an agent type.
+							set_fatal_error
+							error_handler.report_giaaa_error
+						elseif attached {ET_MANIFEST_TUPLE} l_actual as l_manifest_tuple then
+							l_open_operand_type_sets := l_agent_type.open_operand_type_sets
+							nb := l_open_operand_type_sets.count
+							if l_manifest_tuple.count < nb then
+									-- Internal error: the actual argument conforms to the
+									-- formal argument of 'call', so there cannot be less
+									-- items in the tuple.
 								set_fatal_error
 								error_handler.report_giaaa_error
 							else
-								if attached {ET_MANIFEST_TUPLE} l_actual as l_manifest_tuple then
-									l_open_operand_type_sets := l_agent_type.open_operand_type_sets
-									nb := l_open_operand_type_sets.count
-									if l_manifest_tuple.count < nb then
-											-- Internal error: the actual argument conforms to the
-											-- formal argument of 'call', so there cannot be less
-											-- items in the tuple.
-										set_fatal_error
-										error_handler.report_giaaa_error
-									else
-										from i := 1 until i > nb loop
-											l_actual := l_manifest_tuple.expression (i)
-											l_open_operand_type_set := l_open_operand_type_sets.item (i)
-											propagate_argument_dynamic_types (l_actual, l_open_operand_type_set)
-											i := i + 1
-										end
-									end
-								else
-									propagate_argument_operand_dynamic_types (l_actual, 1, l_dynamic_procedure)
+								from i := 1 until i > nb loop
+									l_actual := l_manifest_tuple.expression (i)
+									l_open_operand_type_set := l_open_operand_type_sets.item (i)
+									propagate_argument_dynamic_types (l_actual, l_open_operand_type_set)
+									i := i + 1
 								end
 							end
-						else
-							propagate_argument_operand_dynamic_types (l_actual, 1, l_dynamic_procedure)
-						end
-					else
-						from i := 1 until i > nb loop
-							l_actual := l_actuals.actual_argument (i)
-							propagate_argument_operand_dynamic_types (l_actual, i, l_dynamic_procedure)
-							i := i + 1
 						end
 					end
 				end
@@ -3118,7 +3142,6 @@ feature {NONE} -- Event handling
 			l_actual_expression: ET_EXPRESSION
 			i, nb: INTEGER
 			j, nb2: INTEGER
-			l_not_done: BOOLEAN
 			l_target: ET_AGENT_TARGET
 			l_current_attached_type: ET_DYNAMIC_TYPE
 		do
@@ -3145,66 +3168,58 @@ feature {NONE} -- Event handling
 				l_actuals := an_expression.arguments
 				if l_actuals /= Void then
 					nb := l_actuals.count
+					l_open_operand_type_sets := l_agent_type.open_operand_type_sets
+					nb2 := l_open_operand_type_sets.count
+					from i := 1 until i > nb loop
+						l_actual := l_actuals.actual_argument (i)
+						if attached {ET_EXPRESSION} l_actual as l_actual_expression2 then
+							propagate_argument_operand_dynamic_types (l_actual_expression2, i, a_feature)
+						else
+								-- Open operand.
+							j := j + 1
+							if j > nb2 then
+									-- Internal error: missing open operands.
+								set_fatal_error
+								error_handler.report_giaaa_error
+							else
+								l_open_operand_type_set := l_open_operand_type_sets.item (j)
+								set_dynamic_type_set (l_open_operand_type_set, l_actual)
+								propagate_argument_operand_dynamic_types (l_actual, i, a_feature)
+							end
+						end
+						i := i + 1
+					end
+					if j < nb2 then
+							-- Internal error: too many open operands.
+						set_fatal_error
+						error_handler.report_giaaa_error
+					end
 					if nb = 1 and then (a_feature.is_builtin_procedure_call or a_feature.is_builtin_function_item) and then current_dynamic_type.is_agent_type then
 							-- This is something of the form:  'agent call ([...])' or 'agent item ([...])'
 							-- Try to get the open operand type sets directly from the
 							-- argument if it is a manifest tuple.
+						l_actual := l_actuals.actual_argument (1)
 						if not attached {ET_DYNAMIC_ROUTINE_TYPE} current_dynamic_type as l_routine_type then
 								-- Internal error: it has to be an agent type.
 							set_fatal_error
 							error_handler.report_giaaa_error
-						else
-							l_actual := l_actuals.actual_argument (1)
-							if attached {ET_MANIFEST_TUPLE} l_actual as l_manifest_tuple then
-								l_open_operand_type_sets := l_routine_type.open_operand_type_sets
-								nb := l_open_operand_type_sets.count
-								if l_manifest_tuple.count < nb then
-										-- Internal error: the actual argument conforms to the
-										-- formal argument of 'call' or 'item', so there cannot
-										-- be less items in the tuple.
-									set_fatal_error
-									error_handler.report_giaaa_error
-								else
-									from i := 1 until i > nb loop
-										l_actual_expression := l_manifest_tuple.expression (i)
-										l_open_operand_type_set := l_open_operand_type_sets.item (i)
-										propagate_argument_dynamic_types (l_actual_expression, l_open_operand_type_set)
-										i := i + 1
-									end
-								end
+						elseif attached {ET_MANIFEST_TUPLE} l_actual as l_manifest_tuple then
+							l_open_operand_type_sets := l_routine_type.open_operand_type_sets
+							nb := l_open_operand_type_sets.count
+							if l_manifest_tuple.count < nb then
+									-- Internal error: the actual argument conforms to the
+									-- formal argument of 'call' or 'item', so there cannot
+									-- be less items in the tuple.
+								set_fatal_error
+								error_handler.report_giaaa_error
 							else
-								l_not_done := True
-							end
-						end
-					else
-						l_not_done := True
-					end
-					if l_not_done then
-						l_open_operand_type_sets := l_agent_type.open_operand_type_sets
-						nb2 := l_open_operand_type_sets.count
-						from i := 1 until i > nb loop
-							l_actual := l_actuals.actual_argument (i)
-							if attached {ET_EXPRESSION} l_actual as l_actual_expression2 then
-								propagate_argument_operand_dynamic_types (l_actual_expression2, i, a_feature)
-							else
-									-- Open operand.
-								j := j + 1
-								if j > nb2 then
-										-- Internal error: missing open operands.
-									set_fatal_error
-									error_handler.report_giaaa_error
-								else
-									l_open_operand_type_set := l_open_operand_type_sets.item (j)
-									set_dynamic_type_set (l_open_operand_type_set, l_actual)
-									propagate_argument_operand_dynamic_types (l_actual, i, a_feature)
+								from i := 1 until i > nb loop
+									l_actual_expression := l_manifest_tuple.expression (i)
+									l_open_operand_type_set := l_open_operand_type_sets.item (i)
+									propagate_argument_dynamic_types (l_actual_expression, l_open_operand_type_set)
+									i := i + 1
 								end
 							end
-							i := i + 1
-						end
-						if j < nb2 then
-								-- Internal error: too many open operands.
-							set_fatal_error
-							error_handler.report_giaaa_error
 						end
 					end
 				end
@@ -4175,6 +4190,39 @@ feature {NONE} -- Implementation
 			a_equality_not_void: a_equality /= Void
 		do
 			-- Do nothing.
+		end
+
+	propagate_routine_address_arguments_dynamic_types (a_feature: ET_DYNAMIC_FEATURE)
+			-- For each formal argument of `a_feature', propagate all alive dynamic types
+			-- conforming to the static type of this argument.
+		require
+			a_feature_not_void: a_feature /= Void
+		local
+			i, nb: INTEGER
+			l_formal_type: ET_DYNAMIC_TYPE
+			l_dynamic_type_set: ET_DYNAMIC_TYPE_SET
+		do
+			if attached a_feature.static_feature.arguments as l_arguments then
+				nb := l_arguments.count
+				from i := 1 until i > nb loop
+					if not attached a_feature.argument_type_set (i) as l_formal_type_set then
+						set_fatal_error
+						error_handler.report_giaaa_error
+					else
+						l_formal_type := l_formal_type_set.static_type
+						if not l_formal_type.is_expanded then
+								-- It is expected that the dynamic type sets of the attributes
+								-- (recursively) of the argument objects are not changed in the
+								-- C code. In other words, the C code does not set an attribute
+								-- with a object whose dynamic type is not already part of the
+								-- dynamic type set of this attribute as inferred from the Eiffel code.
+							l_dynamic_type_set := alive_conforming_descendants (l_formal_type)
+							propagate_builtin_dynamic_types (l_dynamic_type_set, l_formal_type_set)
+						end
+					end
+					i := i + 1
+				end
+			end
 		end
 
 	propagate_tuple_label_argument_dynamic_types (a_label_type_set: ET_DYNAMIC_TYPE_SET; a_assigner: ET_ASSIGNER_INSTRUCTION; a_call: ET_DYNAMIC_QUALIFIED_PROCEDURE_CALL)

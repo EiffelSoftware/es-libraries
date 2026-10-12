@@ -5,7 +5,7 @@
 		"LSP handlers for 'textDocument/hover' requests"
 
 	library: "Gobo Eiffel Language Server Protocol Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class LS_HOVER_REQUEST_HANDLER
@@ -42,7 +42,7 @@ feature -- Status report
 			if attached client_capabilities as l_capabilities and then attached l_capabilities.content_format as l_content_format then
 				nb := l_content_format.count
 				from i := 1 until i > nb loop
-					if l_content_format.markup_kind (i) ~ {LS_MARKUP_KINDS}.markdown then
+					if l_content_format.value (i) ~ {LS_MARKUP_KINDS}.markdown then
 						Result := True
 						i := nb + 1 -- Jump out of the loop.
 					else
@@ -60,7 +60,7 @@ feature -- Status report
 			if attached client_capabilities as l_capabilities and then attached l_capabilities.content_format as l_content_format then
 				nb := l_content_format.count
 				from i := 1 until i > nb loop
-					if l_content_format.markup_kind (i) ~ {LS_MARKUP_KINDS}.plaintext then
+					if l_content_format.value (i) ~ {LS_MARKUP_KINDS}.plaintext then
 						Result := True
 						i := nb + 1 -- Jump out of the loop.
 					else
@@ -98,7 +98,7 @@ feature {NONE} -- Implementation
 			check False then end
 		end
 
-	response_result: LS_OPTIONAL_HOVER_RESULT
+	response_result: LS_HOVER_RESULT
 			-- Type of response result to be handled by current handler
 		do
 			check False then end

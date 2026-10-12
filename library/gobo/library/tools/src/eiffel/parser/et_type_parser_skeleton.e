@@ -5,7 +5,7 @@
 		"Eiffel type parser skeletons"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 deferred class ET_TYPE_PARSER_SKELETON
@@ -121,7 +121,7 @@ feature {NONE} -- AST factory
 
 	new_named_type (a_type_mark: detachable ET_TYPE_MARK; a_name: detachable ET_IDENTIFIER;
 		a_generics: detachable ET_ACTUAL_PARAMETER_LIST): detachable ET_TYPE
-			-- New Eiffel class type or formal generic paramater
+			-- New Eiffel class type or formal generic parameter
 		local
 			l_class: ET_MASTER_CLASS
 			l_type_mark: detachable ET_TYPE_MARK
@@ -171,7 +171,7 @@ feature -- Error handling
 	report_error (a_message: STRING)
 			-- Print error message.
 		do
-			report_syntax_error (current_position)
+			report_syntax_error (current_position, a_message)
 		end
 
 	set_syntax_error

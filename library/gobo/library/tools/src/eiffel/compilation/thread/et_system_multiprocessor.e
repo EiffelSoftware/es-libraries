@@ -5,7 +5,7 @@
 		"Eiffel system multiprocessors, using threads."
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2017-2021, Eric Bezault and others"
+	copyright: "Copyright (c) 2017-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_SYSTEM_MULTIPROCESSOR
@@ -18,6 +18,7 @@ inherit
 			make_null as make_null_single
 		redefine
 			processor_count,
+			set_fault_tolerant,
 			set_benchmark_shown,
 			set_nested_benchmark_shown,
 			set_metrics_shown,
@@ -27,6 +28,7 @@ inherit
 			set_use_note_keyword,
 			set_use_reference_keyword,
 			set_default_keyword_usage,
+			set_unused_local_variable_check_enabled,
 			set_providers_enabled,
 			set_cluster_dependence_enabled,
 			set_use_cluster_dependence_pathnames,
@@ -47,6 +49,7 @@ inherit
 			parse_classes,
 			parse_marked_classes,
 			check_implementation_validity,
+			check_attached_attribute_initialization_validity,
 			process_custom,
 			set_stop_request,
 			do_all,
@@ -118,6 +121,25 @@ feature -- Status report
 		end
 
 feature -- Status setting
+
+	set_fault_tolerant (b: BOOLEAN)
+			-- Set `is_fault_tolerant' to `b' in current system processor
+			-- and all other system processors in case of a multiprocessor.
+		local
+			i: INTEGER
+		do
+			set_fault_tolerant_only (b)
+			from
+				i := other_processors.count
+			until
+				i <= 0
+			loop
+				other_processors.item (i).set_fault_tolerant_only (b)
+				i := i - 1
+			end
+		ensure then
+			other_fault_tolerant_set: across other_processors as i_other_processor all i_other_processor.is_fault_tolerant = b end
+		end
 
 	set_benchmark_shown (b: BOOLEAN)
 			-- Set `benchmark_shown' to `b' in current system processor
@@ -290,6 +312,25 @@ feature -- Parser status setting
 			end
 		end
 
+	set_unused_local_variable_check_enabled (b: BOOLEAN)
+			-- Set `unused_local_variable_check_enabled' to `b' in current system processor
+			-- and all other system processors in case of a multiprocessor.
+		local
+			i: INTEGER
+		do
+			set_unused_local_variable_check_enabled_only (b)
+			from
+				i := other_processors.count
+			until
+				i <= 0
+			loop
+				other_processors.item (i).set_unused_local_variable_check_enabled_only (b)
+				i := i - 1
+			end
+		ensure then
+			other_unused_local_variable_check_enabled_set: across other_processors as i_other_processor all i_other_processor.unused_local_variable_check_enabled = b end
+		end
+		
 	set_providers_enabled (b: BOOLEAN)
 			-- Set `providers_enabled' to `b' in current system processor
 			-- and all other system processors in case of a multiprocessor.
@@ -703,6 +744,31 @@ feature -- Processing
 				i > nb
 			loop
 				create l_thread.make (agent (other_processors.item (i)).check_implementation_validity (a_classes))
+				l_thread.launch
+				i := i + 1
+			end
+			precursor (a_classes)
+			{THREAD_CONTROL}.join_all
+		end
+
+	check_attached_attribute_initialization_validity (a_classes: DS_ARRAYED_LIST [ET_CLASS])
+			-- Check that all attached attributes have been initialized 
+			-- at the end of all creation procedures of `a_classes`.
+			--
+			-- Note that this operation will be interrupted if a stop request
+			-- is received, i.e. `stop_request' starts returning True. No
+			-- interruption if `stop_request' is Void.
+		local
+			i, nb: INTEGER
+			l_thread: WORKER_THREAD
+		do
+			from
+				i := 1
+				nb := other_processors.count
+			until
+				i > nb
+			loop
+				create l_thread.make (agent (other_processors.item (i)).check_attached_attribute_initialization_validity (a_classes))
 				l_thread.launch
 				i := i + 1
 			end

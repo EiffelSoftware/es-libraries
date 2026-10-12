@@ -5,7 +5,7 @@
 		"LSP message managers"
 
 	library: "Gobo Eiffel Language Server Protocol Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 deferred class LS_MESSAGE_MANAGER
@@ -133,6 +133,46 @@ feature -- Basic operations
 
 feature -- Handlers
 
+	call_hierarchy_incoming_calls_request_handler: LS_CALL_HIERARCHY_INCOMING_CALLS_REQUEST_HANDLER
+			-- Handler for 'callHierarchy/incomingCalls' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			call_hierarchy_incoming_calls_request_handler_not_void: Result /= Void
+		end
+
+	call_hierarchy_outgoing_calls_request_handler: LS_CALL_HIERARCHY_OUTGOING_CALLS_REQUEST_HANDLER
+			-- Handler for 'callHierarchy/outgoingCalls' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			call_hierarchy_outgoing_calls_request_handler_not_void: Result /= Void
+		end
+
+	call_hierarchy_prepare_request_handler: LS_CALL_HIERARCHY_PREPARE_REQUEST_HANDLER
+			-- Handler for 'textDocument/prepareCallHierarchy' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			call_hierarchy_prepare_request_handler_not_void: Result /= Void
+		end
+
+	completion_request_handler: LS_COMPLETION_REQUEST_HANDLER
+			-- Handler for 'textDocument/completion' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			completion_request_handler_not_void: Result /= Void
+		end
+
+	completion_item_resolve_request_handler: LS_COMPLETION_ITEM_RESOLVE_REQUEST_HANDLER
+			-- Handler for 'completionItem/resolve' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			completion_item_resolve_request_handler_not_void: Result /= Void
+		end
+
 	configuration_request_handler: LS_CONFIGURATION_REQUEST_HANDLER
 			-- Handler for 'workspace/configuration' requests
 		once ("OBJECT")
@@ -141,12 +181,36 @@ feature -- Handlers
 			configuration_request_handler_not_void: Result /= Void
 		end
 
+	custom_notification_handler: LS_CUSTOM_NOTIFICATION_HANDLER
+			-- Handler for custom notifications
+		once ("OBJECT")
+			create Result.make
+		ensure
+			custom_notification_handler_not_void: Result /= Void
+		end
+
+	declaration_request_handler: LS_DECLARATION_REQUEST_HANDLER
+			-- Handler for 'textDocument/declaration' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			declaration_request_handler_not_void: Result /= Void
+		end
+
 	definition_request_handler: LS_DEFINITION_REQUEST_HANDLER
 			-- Handler for 'textDocument/definition' requests
 		once ("OBJECT")
 			create Result.make
 		ensure
 			definition_request_handler_not_void: Result /= Void
+		end
+
+	did_change_configuration_notification_handler: LS_DID_CHANGE_CONFIGURATION_NOTIFICATION_HANDLER
+			-- Handler for 'workspace/didChangeConfiguration' notifications
+		once ("OBJECT")
+			create Result.make
+		ensure
+			did_change_configuration_notification_handler_not_void: Result /= Void
 		end
 
 	did_change_text_document_notification_handler: LS_DID_CHANGE_TEXT_DOCUMENT_NOTIFICATION_HANDLER
@@ -189,6 +253,14 @@ feature -- Handlers
 			did_save_text_document_notification_handler_not_void: Result /= Void
 		end
 
+	document_highlight_request_handler: LS_DOCUMENT_HIGHLIGHT_REQUEST_HANDLER
+			-- Handler for 'textDocument/documentHighlight' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			document_highlight_request_handler_not_void: Result /= Void
+		end
+
 	document_symbol_request_handler: LS_DOCUMENT_SYMBOL_REQUEST_HANDLER
 			-- Handler for 'textDocument/documentSymbol' requests
 		once ("OBJECT")
@@ -203,6 +275,14 @@ feature -- Handlers
 			create Result.make
 		ensure
 			hover_request_handler_not_void: Result /= Void
+		end
+
+	implementation_request_handler: LS_IMPLEMENTATION_REQUEST_HANDLER
+			-- Handler for 'textDocument/implementation' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			implementation_request_handler_not_void: Result /= Void
 		end
 
 	log_trace_notification_handler: LS_LOG_TRACE_NOTIFICATION_HANDLER
@@ -229,6 +309,46 @@ feature -- Handlers
 			publish_diagnostics_notification_handler_not_void: Result /= Void
 		end
 
+	selection_range_request_handler: LS_SELECTION_RANGE_REQUEST_HANDLER
+			-- Handler for 'textDocument/selectionRange' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			selection_range_request_handler_not_void: Result /= Void
+		end
+
+	type_definition_request_handler: LS_TYPE_DEFINITION_REQUEST_HANDLER
+			-- Handler for 'textDocument/typeDefinition' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			type_definition_request_handler_not_void: Result /= Void
+		end
+
+	type_hierarchy_prepare_request_handler: LS_TYPE_HIERARCHY_PREPARE_REQUEST_HANDLER
+			-- Handler for 'textDocument/prepareTypeHierarchy' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			type_hierarchy_prepare_request_handler_not_void: Result /= Void
+		end
+
+	type_hierarchy_subtypes_request_handler: LS_TYPE_HIERARCHY_SUBTYPES_REQUEST_HANDLER
+			-- Handler for 'typeHierarchy/subtypes' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			type_hierarchy_subtypes_request_handler_not_void: Result /= Void
+		end
+
+	type_hierarchy_supertypes_request_handler: LS_TYPE_HIERARCHY_SUPERTYPES_REQUEST_HANDLER
+			-- Handler for 'typeHierarchy/supertypes' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			type_hierarchy_supertypes_request_handler_not_void: Result /= Void
+		end
+
 	will_save_text_document_notification_handler: LS_WILL_SAVE_TEXT_DOCUMENT_NOTIFICATION_HANDLER
 			-- Handler for 'textDocument/willSave' notifications
 		once ("OBJECT")
@@ -243,6 +363,22 @@ feature -- Handlers
 			create Result.make
 		ensure
 			will_save_wait_until_text_document_request_handler_not_void: Result /= Void
+		end
+
+	workspace_symbol_request_handler: LS_WORKSPACE_SYMBOL_REQUEST_HANDLER
+			-- Handler for 'workspace/symbol' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			workspace_symbol_request_handler_not_void: Result /= Void
+		end
+
+	workspace_symbol_resolve_request_handler: LS_WORKSPACE_SYMBOL_RESOLVE_REQUEST_HANDLER
+			-- Handler for 'workspaceSymbol/resolve' requests
+		once ("OBJECT")
+			create Result.make
+		ensure
+			completion_item_resolve_request_handler_not_void: Result /= Void
 		end
 
 feature {LS_MESSAGE, LS_MESSAGE_FACTORY, LS_INITIALIZE_REQUEST_HANDLER} -- Handlers (protocol)
@@ -482,6 +618,17 @@ feature {LS_MESSAGE_HANDLER} -- Basic operations
 			send_message (a_request)
 		end
 
+	send_custom_notification (a_method: LS_STRING; a_params: detachable LS_ANY)
+			-- Send custom notification.
+		require
+			a_method_not_void: a_method /= Void
+		local
+			l_notification: LS_CUSTOM_NOTIFICATION
+		do
+			create l_notification.make (a_method, a_params)
+			send_message (l_notification)
+		end
+
 feature {LS_CONNECTION} -- Actions
 
 	on_message_received
@@ -506,28 +653,44 @@ feature {LS_RESPONSE_HANDLER, LS_REQUEST_HANDLER} -- Implementation
 			-- Message factories, indexed by methods
 		once ("OBJECT")
 			create Result.make (100)
+			Result.force (create {LS_CALL_HIERARCHY_INCOMING_CALLS_REQUEST_FACTORY}.make, {LS_CALL_HIERARCHY_INCOMING_CALLS_REQUEST}.method)
+			Result.force (create {LS_CALL_HIERARCHY_OUTGOING_CALLS_REQUEST_FACTORY}.make, {LS_CALL_HIERARCHY_OUTGOING_CALLS_REQUEST}.method)
+			Result.force (create {LS_CALL_HIERARCHY_PREPARE_REQUEST_FACTORY}.make, {LS_CALL_HIERARCHY_PREPARE_REQUEST}.method)
+			Result.force (create {LS_COMPLETION_REQUEST_FACTORY}.make, {LS_COMPLETION_REQUEST}.method)
+			Result.force (create {LS_COMPLETION_ITEM_RESOLVE_REQUEST_FACTORY}.make, {LS_COMPLETION_ITEM_RESOLVE_REQUEST}.method)
 			Result.force (create {LS_CONFIGURATION_REQUEST_FACTORY}.make, {LS_CONFIGURATION_REQUEST}.method)
 			Result.force (create {LS_CANCEL_REQUEST_NOTIFICATION_FACTORY}.make, {LS_CANCEL_REQUEST_NOTIFICATION}.method)
+			Result.force (create {LS_DECLARATION_REQUEST_FACTORY}.make, {LS_DECLARATION_REQUEST}.method)
 			Result.force (create {LS_DEFINITION_REQUEST_FACTORY}.make, {LS_DEFINITION_REQUEST}.method)
+			Result.force (create {LS_DID_CHANGE_CONFIGURATION_NOTIFICATION_FACTORY}.make, {LS_DID_CHANGE_CONFIGURATION_NOTIFICATION}.method)
 			Result.force (create {LS_DID_CHANGE_TEXT_DOCUMENT_NOTIFICATION_FACTORY}.make, {LS_DID_CHANGE_TEXT_DOCUMENT_NOTIFICATION}.method)
 			Result.force (create {LS_DID_CHANGE_WATCHED_FILES_NOTIFICATION_FACTORY}.make, {LS_DID_CHANGE_WATCHED_FILES_NOTIFICATION}.method)
 			Result.force (create {LS_DID_CLOSE_TEXT_DOCUMENT_NOTIFICATION_FACTORY}.make, {LS_DID_CLOSE_TEXT_DOCUMENT_NOTIFICATION}.method)
 			Result.force (create {LS_DID_OPEN_TEXT_DOCUMENT_NOTIFICATION_FACTORY}.make, {LS_DID_OPEN_TEXT_DOCUMENT_NOTIFICATION}.method)
 			Result.force (create {LS_DID_SAVE_TEXT_DOCUMENT_NOTIFICATION_FACTORY}.make, {LS_DID_SAVE_TEXT_DOCUMENT_NOTIFICATION}.method)
+			Result.force (create {LS_DOCUMENT_HIGHLIGHT_REQUEST_FACTORY}.make, {LS_DOCUMENT_HIGHLIGHT_REQUEST}.method)
 			Result.force (create {LS_DOCUMENT_SYMBOL_REQUEST_FACTORY}.make, {LS_DOCUMENT_SYMBOL_REQUEST}.method)
 			Result.force (create {LS_EXIT_NOTIFICATION_FACTORY}.make, {LS_EXIT_NOTIFICATION}.method)
 			Result.force (create {LS_HOVER_REQUEST_FACTORY}.make, {LS_HOVER_REQUEST}.method)
+			Result.force (create {LS_IMPLEMENTATION_REQUEST_FACTORY}.make, {LS_IMPLEMENTATION_REQUEST}.method)
 			Result.force (create {LS_INITIALIZE_REQUEST_FACTORY}.make, {LS_INITIALIZE_REQUEST}.method)
 			Result.force (create {LS_INITIALIZED_NOTIFICATION_FACTORY}.make, {LS_INITIALIZED_NOTIFICATION}.method)
 			Result.force (create {LS_LOG_TRACE_NOTIFICATION_FACTORY}.make, {LS_LOG_TRACE_NOTIFICATION}.method)
 			Result.force (create {LS_PROGRESS_NOTIFICATION_FACTORY}.make, {LS_PROGRESS_NOTIFICATION}.method)
 			Result.force (create {LS_PUBLISH_DIAGNOSTICS_NOTIFICATION_FACTORY}.make, {LS_PUBLISH_DIAGNOSTICS_NOTIFICATION}.method)
 			Result.force (create {LS_REGISTER_CAPABILITY_REQUEST_FACTORY}.make, {LS_REGISTER_CAPABILITY_REQUEST}.method)
+			Result.force (create {LS_SELECTION_RANGE_REQUEST_FACTORY}.make, {LS_SELECTION_RANGE_REQUEST}.method)
 			Result.force (create {LS_SET_TRACE_NOTIFICATION_FACTORY}.make, {LS_SET_TRACE_NOTIFICATION}.method)
 			Result.force (create {LS_SHUTDOWN_REQUEST_FACTORY}.make, {LS_SHUTDOWN_REQUEST}.method)
+			Result.force (create {LS_TYPE_DEFINITION_REQUEST_FACTORY}.make, {LS_TYPE_DEFINITION_REQUEST}.method)
+			Result.force (create {LS_TYPE_HIERARCHY_PREPARE_REQUEST_FACTORY}.make, {LS_TYPE_HIERARCHY_PREPARE_REQUEST}.method)
+			Result.force (create {LS_TYPE_HIERARCHY_SUBTYPES_REQUEST_FACTORY}.make, {LS_TYPE_HIERARCHY_SUBTYPES_REQUEST}.method)
+			Result.force (create {LS_TYPE_HIERARCHY_SUPERTYPES_REQUEST_FACTORY}.make, {LS_TYPE_HIERARCHY_SUPERTYPES_REQUEST}.method)
 			Result.force (create {LS_UNREGISTER_CAPABILITY_REQUEST_FACTORY}.make, {LS_UNREGISTER_CAPABILITY_REQUEST}.method)
 			Result.force (create {LS_WILL_SAVE_TEXT_DOCUMENT_NOTIFICATION_FACTORY}.make, {LS_WILL_SAVE_TEXT_DOCUMENT_NOTIFICATION}.method)
 			Result.force (create {LS_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_REQUEST_FACTORY}.make, {LS_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_REQUEST}.method)
+			Result.force (create {LS_WORKSPACE_SYMBOL_REQUEST_FACTORY}.make, {LS_WORKSPACE_SYMBOL_REQUEST}.method)
+			Result.force (create {LS_WORKSPACE_SYMBOL_RESOLVE_REQUEST_FACTORY}.make, {LS_WORKSPACE_SYMBOL_RESOLVE_REQUEST}.method)
 		ensure
 			message_factories_not_void: Result /= Void
 			no_void_message_factory: not Result.has_void

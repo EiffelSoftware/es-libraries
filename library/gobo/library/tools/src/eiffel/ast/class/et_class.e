@@ -5,7 +5,7 @@
 		"Eiffel classes"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 1999-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 1999-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_CLASS
@@ -130,6 +130,7 @@ feature -- Initialization
 			-- Reset current class as it was when it was created
 			-- (i.e. before it was preparsed or parsed).
 		do
+			reset_attached_attribute_initialization_checked
 			reset_implementation_checked
 			reset_interface_checked
 			reset_features_flattened
@@ -146,6 +147,7 @@ feature -- Initialization
 	reset_after_preparsed
 			-- Reset current class as it was just after it was last preparsed.
 		do
+			reset_attached_attribute_initialization_checked
 			reset_implementation_checked
 			reset_interface_checked
 			reset_features_flattened
@@ -166,6 +168,7 @@ feature -- Initialization
 			-- Reset current class as it was just after it was last parsed.
 			-- Do nothing if not parsed.
 		do
+			reset_attached_attribute_initialization_checked
 			reset_implementation_checked
 			reset_interface_checked
 			reset_features_flattened
@@ -208,6 +211,7 @@ feature -- Initialization
 			j, nb2: INTEGER
 			l_parent_list: ET_PARENT_LIST
 		do
+			reset_attached_attribute_initialization_checked
 			reset_implementation_checked
 			reset_interface_checked
 			reset_features_flattened
@@ -251,9 +255,6 @@ feature -- Initialization
 			if attached creators as l_creators then
 				l_creators.reset
 			end
-			if attached convert_features as l_convert_features then
-				l_convert_features.reset
-			end
 		ensure
 			same_name: name = old name
 			same_id: id = old id
@@ -271,10 +272,14 @@ feature -- Initialization
 			-- Reset current class as it was just after its features were last flattened.
 			-- Do nothing if features not flattened.
 		do
+			reset_attached_attribute_initialization_checked
 			reset_implementation_checked
 			reset_interface_checked
 			queries.reset_after_features_flattened
 			procedures.reset_after_features_flattened
+			if attached convert_features as l_convert_features then
+				l_convert_features.reset
+			end
 			if attached formal_parameters as l_formal_parameters then
 				l_formal_parameters.reset_constraint_renames
 				l_formal_parameters.reset_constraint_creation_procedures
@@ -300,6 +305,7 @@ feature -- Initialization
 			-- Reset current class as it was just after its interface was last checked.
 			-- Do nothing if interface not checked.
 		do
+			reset_attached_attribute_initialization_checked
 			reset_implementation_checked
 			queries.reset_after_interface_checked
 			procedures.reset_after_interface_checked
@@ -321,30 +327,58 @@ feature -- Initialization
 			implementation_not_checked: not implementation_checked
 		end
 
+	reset_after_implementation_checked
+			-- Reset current class as it was just after its implementation was last checked.
+			-- Do nothing if implementation not checked.
+		do
+			reset_attached_attribute_initialization_checked
+		ensure
+			same_name: name = old name
+			same_id: id = old id
+			same_preparsed: is_preparsed = old is_preparsed
+			same_parsed: is_parsed = old is_parsed
+			same_syntax_error: has_syntax_error = old has_syntax_error
+			same_ancestors_built: ancestors_built = old ancestors_built
+			same_ancestors_error: has_ancestors_error = old has_ancestors_error
+			same_features_flattened: features_flattened = old features_flattened
+			same_flattening_error: has_flattening_error = old has_flattening_error
+			same_interface_checked: interface_checked = old interface_checked
+			same_interface_erorr: has_interface_error = old has_interface_error
+			same_implementation_erorr: has_implementation_error = old has_implementation_error
+			attached_attribute_initialization_not_checked: not attached_attribute_initialization_checked
+		end
+
 	reset_errors
 			-- Reset current class as it was before the first error was reported.
 			-- Errors will be reported again if current class is processed again.
 		do
 			if has_syntax_error then
+				reset_attached_attribute_initialization_checked
 				reset_implementation_checked
 				reset_interface_checked
 				reset_features_flattened
 				reset_ancestors_built
 				reset_parsed
 			elseif has_ancestors_error then
+				reset_attached_attribute_initialization_checked
 				reset_implementation_checked
 				reset_interface_checked
 				reset_features_flattened
 				reset_ancestors_built
 			elseif has_flattening_error then
+				reset_attached_attribute_initialization_checked
 				reset_implementation_checked
 				reset_interface_checked
 				reset_features_flattened
 			elseif has_interface_error then
+				reset_attached_attribute_initialization_checked
 				reset_implementation_checked
 				reset_interface_checked
 			elseif has_implementation_error then
+				reset_attached_attribute_initialization_checked
 				reset_implementation_checked
+			elseif has_attached_attribute_initialization_error then
+				reset_attached_attribute_initialization_checked
 			end
 		end
 
@@ -1352,9 +1386,17 @@ feature -- Class header
 	is_frozen: BOOLEAN
 			-- Is current class frozen?
 		do
-			Result := has_frozen_mark
+			Result := has_frozen_mark or has_once_mark
 		ensure
-			definition: Result = has_frozen_mark
+			definition: Result = (has_frozen_mark or has_once_mark)
+		end
+
+	is_once: BOOLEAN
+			-- Is current class once?
+		do
+			Result := has_once_mark
+		ensure
+			definition: Result = has_once_mark
 		end
 
 	is_external: BOOLEAN
@@ -1434,6 +1476,14 @@ feature -- Class header
 			definition: Result = (frozen_keyword /= Void)
 		end
 
+	has_once_mark: BOOLEAN
+			-- Has class been declared as once?
+		do
+			Result := once_keyword /= Void
+		ensure
+			definition: Result = (once_keyword /= Void)
+		end
+
 	has_external_mark: BOOLEAN
 			-- Has class been declared as external?
 		do
@@ -1463,6 +1513,17 @@ feature -- Class header
 			frozen_keyword := a_frozen
 		ensure
 			frozen_keyword_set: frozen_keyword = a_frozen
+		end
+
+	once_keyword: detachable ET_KEYWORD
+			-- 'once' keyword
+
+	set_once_keyword (a_once: like once_keyword)
+			-- Set `once_keyword' to `a_once'.
+		do
+			once_keyword := a_once
+		ensure
+			once_keyword_set: once_keyword = a_once
 		end
 
 	external_keyword: detachable ET_KEYWORD
@@ -1720,11 +1781,77 @@ feature -- Ancestors
 
 	ancestors: ET_BASE_TYPE_LIST
 			-- Proper ancestors in reverse topological order
-			-- (parents, then grand-parents, etc.)
+			-- (parents, then grand-parents, etc. Note some grand-parents
+			-- may appear before some parents while still preserving
+			-- the reverse topological order.)
+
+	ancestor_classes: DS_ARRAYED_LIST [ET_CLASS]
+			-- Proper ancestor classes in reverse topological order
+			-- (parents, then grand-parents, etc. Note some grand-parents
+			-- may appear before some parents while still preserving
+			-- the reverse topological order.)
+			-- Do not repeat the class in case of repeated inheritance.
+		local
+			i, nb: INTEGER
+			l_set: DS_HASH_SET [ET_CLASS]
+			l_ancestors: like ancestors
+			l_class: ET_CLASS
+		do
+			l_ancestors := ancestors
+			nb := l_ancestors.count
+			create l_set.make (nb)
+			from i := 1 until i > nb loop
+				l_class := l_ancestors.item (i).base_class
+				if not l_set.has (l_class) then
+					l_set.put_last (l_class)
+				end
+				i := i + 1
+			end
+			nb := l_set.count
+			create Result.make (nb)
+			l_set.do_all (agent Result.put_last)
+		ensure
+			ancestor_classes_not_void: Result /= Void
+			no_void_ancestor_class: not Result.has_void
+			classes_not_repeated: across Result as l_ancestor all Result.occurrences (l_ancestor) = 1 end
+		end
 
 	conforming_ancestors: ET_BASE_TYPE_LIST
 			-- Proper conforming ancestors in reverse topological order
-			-- (parents, then grand-parents, etc.)
+			-- (parents, then grand-parents, etc. Note some grand-parents
+			-- may appear before some parents while still preserving
+			-- the reverse topological order.)
+
+	conforming_ancestor_classes: DS_ARRAYED_LIST [ET_CLASS]
+			-- Proper conforming ancestor classes in reverse topological order
+			-- (parents, then grand-parents, etc. Note some grand-parents
+			-- may appear before some parents while still preserving
+			-- the reverse topological order.)
+			-- Do not repeat the class in case of repeated inheritance.
+		local
+			i, nb: INTEGER
+			l_set: DS_HASH_SET [ET_CLASS]
+			l_ancestors: like conforming_ancestors
+			l_class: ET_CLASS
+		do
+			l_ancestors := conforming_ancestors
+			nb := l_ancestors.count
+			create l_set.make (nb)
+			from i := 1 until i > nb loop
+				l_class := l_ancestors.item (i).base_class
+				if not l_set.has (l_class) then
+					l_set.put_last (l_class)
+				end
+				i := i + 1
+			end
+			nb := l_set.count
+			create Result.make (nb)
+			l_set.do_all (agent Result.put_last)
+		ensure
+			conforming_ancestor_classes_not_void: Result /= Void
+			no_void_conforming_ancestor_class: not Result.has_void
+			classes_not_repeated: across Result as l_ancestor all Result.occurrences (l_ancestor) = 1 end
+		end
 
 	set_ancestors (some_ancestors: like ancestors)
 			-- Set `ancestors' to `some_ancestors'.
@@ -1747,7 +1874,8 @@ feature -- Ancestors
 		end
 
 	descendants: DS_ARRAYED_LIST [ET_CLASS]
-			-- Proper descendant classes of current class in the surrounding Eiffel system
+			-- Proper descendant classes of current class in the surrounding Eiffel system,
+			-- in no specific order.
 			-- (Note: you have to make sure that the ancestors of the classes in the
 			-- surrounding Eiffel system have correctly been built first in order to
 			-- get the correct answer.)
@@ -1770,6 +1898,72 @@ feature -- Ancestors
 		ensure
 			descendants_not_void: Result /= Void
 			no_void_descendant: not Result.has_void
+			classes_not_repeated: across Result as l_descendant all Result.occurrences (l_descendant) = 1 end
+		end
+
+	descendant_classes: DS_ARRAYED_LIST [ET_CLASS]
+			-- Proper descendant classes of current class in the surrounding Eiffel system,
+			-- in topological order.
+			-- (Note: you have to make sure that the ancestors of the classes in the
+			-- surrounding Eiffel system have correctly been built first in order to
+			-- get the correct answer.)
+		local
+			l_descendants: like descendants
+			l_sorter: DS_HASH_TOPOLOGICAL_SORTER [ET_CLASS]
+			l_parent_list: ET_PARENT_LIST
+			i1, nb1: INTEGER
+			i2, nb2: INTEGER
+			i3, nb3: INTEGER
+			l_class: ET_CLASS
+			l_parent: ET_CLASS
+		do
+			if is_unknown then
+					-- Class "*UNKNOWN*" has no descendants.
+				create Result.make (0)
+			elseif is_none then
+					-- Class "NONE" has no descendants.
+				create Result.make (0)
+			elseif not is_preparsed then
+					-- Current class is not preparsed, this means that we know nothing
+					-- about it, not even its filename. Therefore it cannot possibly
+					-- have descendant classes.
+				create Result.make (0)
+			else
+				create l_descendants.make (initial_descendants_capacity)
+				current_system.classes_do_recursive (agent {ET_CLASS}.add_to_descendants (Current, l_descendants))
+				nb1 := l_descendants.count
+				create l_sorter.make (nb1)
+				from i1 := 1 until i1 > nb1 loop
+					l_class := l_descendants.item (i1)
+					l_sorter.put (l_class)
+					i1 := i1 + 1
+				end
+				from i1 := 1 until i1 > nb1 loop
+					l_class := l_descendants.item (i1)
+					nb2 := parents_count
+					from i2 := 1 until i2 > nb2 loop
+						l_parent_list := parents (i2)
+						nb3 := l_parent_list.count
+						from i3 := 1 until i3 > nb3 loop
+							l_parent := l_parent_list.parent (i3).type.base_class
+							if l_sorter.has (l_parent) then
+								l_sorter.put_relation (l_class, l_parent)
+							end
+							i3 := i3 + 1
+						end
+						i2 := i2 + 1
+					end
+					i1 := i1 + 1
+				end
+				l_sorter.sort
+				check is_sorted: attached l_sorter.sorted_items as l_sorted_descendants then
+					Result := l_sorted_descendants
+				end
+			end
+		ensure
+			descendant_classes_not_void: Result /= Void
+			no_void_descendant_class: not Result.has_void
+			classes_not_repeated: across Result as l_descendant all Result.occurrences (l_descendant) = 1 end
 		end
 
 	add_to_descendants (a_class: ET_CLASS; a_descendants: DS_ARRAYED_LIST [ET_CLASS])
@@ -1791,7 +1985,8 @@ feature -- Ancestors
 		end
 
 	conforming_descendants: DS_ARRAYED_LIST [ET_CLASS]
-			-- Proper conforming descendant classes of current class in the surrounding Eiffel system
+			-- Proper conforming descendant classes of current class in the surrounding Eiffel system,
+			-- in no specific order.
 			-- (Note: you have to make sure that the ancestors of the classes in the
 			-- surrounding Eiffel system have correctly been built first in order to
 			-- get the correct answer.)
@@ -1814,6 +2009,74 @@ feature -- Ancestors
 		ensure
 			conforming_descendants_not_void: Result /= Void
 			no_void_conforming_descendant: not Result.has_void
+			classes_not_repeated: across Result as l_descendant all Result.occurrences (l_descendant) = 1 end
+		end
+
+	conforming_descendant_classes: DS_ARRAYED_LIST [ET_CLASS]
+			-- Proper conforming descendant classes of current class in the surrounding
+			-- Eiffel system, in topological order.
+			-- (Note: you have to make sure that the ancestors of the classes in the
+			-- surrounding Eiffel system have correctly been built first in order to
+			-- get the correct answer.)
+		local
+			l_descendants: like conforming_descendants
+			l_sorter: DS_HASH_TOPOLOGICAL_SORTER [ET_CLASS]
+			l_parent_list: ET_PARENT_LIST
+			i1, nb1: INTEGER
+			i2, nb2: INTEGER
+			i3, nb3: INTEGER
+			l_class: ET_CLASS
+			l_parent: ET_CLASS
+		do
+			if is_unknown then
+					-- Class "*UNKNOWN*" has no descendants.
+				create Result.make (0)
+			elseif is_none then
+					-- Class "NONE" has no descendants.
+				create Result.make (0)
+			elseif not is_preparsed then
+					-- Current class is not preparsed, this means that we know nothing
+					-- about it, not even its filename. Therefore it cannot possibly
+					-- have descendant classes.
+				create Result.make (0)
+			else
+				create l_descendants.make (initial_descendants_capacity)
+				current_system.classes_do_recursive (agent {ET_CLASS}.add_to_conforming_descendants (Current, l_descendants))
+				nb1 := l_descendants.count
+				create l_sorter.make (nb1)
+				from i1 := 1 until i1 > nb1 loop
+					l_class := l_descendants.item (i1)
+					l_sorter.put (l_class)
+					i1 := i1 + 1
+				end
+				from i1 := 1 until i1 > nb1 loop
+					l_class := l_descendants.item (i1)
+					nb2 := parents_count
+					from i2 := 1 until i2 > nb2 loop
+						l_parent_list := parents (i2)
+						if l_parent_list.is_conforming then
+							nb3 := l_parent_list.count
+							from i3 := 1 until i3 > nb3 loop
+								l_parent := l_parent_list.parent (i3).type.base_class
+								if l_sorter.has (l_parent) then
+									l_sorter.put_relation (l_class, l_parent)
+								end
+								i3 := i3 + 1
+							end
+						end
+						i2 := i2 + 1
+					end
+					i1 := i1 + 1
+				end
+				l_sorter.sort
+				check is_sorted: attached l_sorter.sorted_items as l_sorted_descendants then
+					Result := l_sorted_descendants
+				end
+			end
+		ensure
+			conforming_descendant_classes_not_void: Result /= Void
+			no_void_conforming_descendan_class: not Result.has_void
+			classes_not_repeated: across Result as l_descendant all Result.occurrences (l_descendant) = 1 end
 		end
 
 	add_to_conforming_descendants (a_class: ET_CLASS; a_descendants: DS_ARRAYED_LIST [ET_CLASS])
@@ -1903,6 +2166,58 @@ feature -- Ancestors
 			parents_not_void: Result /= Void
 		end
 
+	has_parent (a_class: ET_CLASS): BOOLEAN
+			-- Is `a_class' a parent of current class?
+		require
+			a_class_not_void: a_class /= Void
+		local
+			l_parent_list: ET_PARENT_LIST
+			i1, nb1: INTEGER
+			i2, nb2: INTEGER
+		do
+			nb1 := parents_count
+			from i1 := 1 until i1 > nb1 loop
+				l_parent_list := parents (i1)
+				nb2 := l_parent_list.count
+				from i2 := 1 until i2 > nb2 loop
+					if l_parent_list.parent (i2).type.base_class = a_class then
+						Result := True
+						i2 := nb2 + 1 -- Jump out of the inner loop.
+						i1 := nb1 + 1 -- Jump out of the outer loop.
+					end
+					i2 := i2 + 1
+				end
+				i1 := i1 + 1
+			end
+		end
+
+	has_conforming_parent (a_class: ET_CLASS): BOOLEAN
+			-- Is `a_class' a conforming parent of current class?
+		require
+			a_class_not_void: a_class /= Void
+		local
+			l_parent_list: ET_PARENT_LIST
+			i1, nb1: INTEGER
+			i2, nb2: INTEGER
+		do
+			nb1 := parents_count
+			from i1 := 1 until i1 > nb1 loop
+				l_parent_list := parents (i1)
+				if l_parent_list.is_conforming then
+					nb2 := l_parent_list.count
+					from i2 := 1 until i2 > nb2 loop
+						if l_parent_list.parent (i2).type.base_class = a_class then
+							Result := True
+							i2 := nb2 + 1 -- Jump out of the inner loop.
+							i1 := nb1 + 1 -- Jump out of the outer loop.
+						end
+						i2 := i2 + 1
+					end
+				end
+				i1 := i1 + 1
+			end
+		end
+
 	add_base_class_of_parents_exported_to (a_client: ET_CLASS; a_set: DS_HASH_SET [ET_CLASS])
 			-- Add to `a_set' the base class of the parents which are exported
 			-- to `a_client' (all conforming parents, and if `a_client' is "NONE"
@@ -1932,6 +2247,64 @@ feature -- Ancestors
 			end
 		ensure
 			no_void_classes: not a_set.has_void
+		end
+
+	add_heirs_exported_to (a_client: ET_CLASS; a_list: DS_ARRAYED_LIST [ET_CLASS])
+			-- Add to `a_list' the heirs of current class which are exported
+			-- to `a_client' (all conforming heirs, and if `a_client' is "NONE"
+			-- then the non-conforming heirs as well).
+		require
+			a_client_not_void: a_client /= Void
+			a_list_not_void: a_list /= Void
+			no_void_classes: not a_list.has_void
+		do
+			if is_unknown then
+					-- Class "*UNKNOWN*" has no heirs.
+			elseif is_none then
+					-- Class "NONE" has no heirs.
+			elseif not is_preparsed then
+					-- Current class is not preparsed, this means that we know nothing
+					-- about it, not even its filename. Therefore it cannot possibly
+					-- have heir classes.
+			elseif a_client.is_none then
+				current_system.classes_do_recursive (agent {ET_CLASS}.add_to_heirs (Current, a_list))
+			else
+				current_system.classes_do_recursive (agent {ET_CLASS}.add_to_conforming_heirs (Current, a_list))
+			end
+		ensure
+			no_void_classes: not a_list.has_void
+		end
+
+	add_to_heirs (a_class: ET_CLASS; a_heirs: DS_ARRAYED_LIST [ET_CLASS])
+			-- Add current class to `a_heirs' if it is an heir of `a_class'.
+		require
+			a_class_not_void: a_class /= Void
+			a_heirs_not_void: a_heirs /= Void
+			no_void_heirs: not a_heirs.has_void
+		do
+			if a_class /= Current then
+				if has_parent (a_class) then
+					a_heirs.force_last (Current)
+				end
+			end
+		ensure
+			no_void_heirs: not a_heirs.has_void
+		end
+
+	add_to_conforming_heirs (a_class: ET_CLASS; a_heirs: DS_ARRAYED_LIST [ET_CLASS])
+			-- Add current class to `a_heirs' if it is a conforming  heir of `a_class'.
+		require
+			a_class_not_void: a_class /= Void
+			a_heirs_not_void: a_heirs /= Void
+			no_void_heirs: not a_heirs.has_void
+		do
+			if a_class /= Current then
+				if has_conforming_parent (a_class) then
+					a_heirs.force_last (Current)
+				end
+			end
+		ensure
+			no_void_heirs: not a_heirs.has_void
 		end
 
 feature -- Ancestor building status
@@ -2136,6 +2509,60 @@ feature -- Conversion
 							-- separateness status of the types involved.
 						if a_feature.types.has_named_type_with_type_marks (other_type, tokens.attached_separate_type_mark, other, tokens.attached_separate_type_mark, a_type) then
 							Result := a_feature
+							i := nb + 1 -- Jump out of the loop.
+						end
+					end
+					i := i + 1
+				end
+			end
+		end
+
+	has_convert_to_with_base_class (a_class: ET_CLASS): BOOLEAN
+			-- Is there a conversion query whose convert type's base class is `a_class`?
+		require
+			a_class_not_void: a_class /= Void
+		local
+			i, nb: INTEGER
+			a_feature: ET_CONVERT_FEATURE
+			other_type: ET_TYPE
+		do
+			if attached convert_features as l_convert_features then
+				other_type := tokens.identity_type
+				nb := l_convert_features.count
+				from i := 1 until i > nb loop
+					a_feature := l_convert_features.convert_feature (i)
+					if a_feature.is_convert_to then
+							-- Do not take into account the attachment and
+							-- separateness status of the types involved.
+						if a_feature.types.has_base_class (a_class, Current) then
+							Result := True
+							i := nb + 1 -- Jump out of the loop.
+						end
+					end
+					i := i + 1
+				end
+			end
+		end
+
+	has_convert_from_with_base_class (a_class: ET_CLASS): BOOLEAN
+			-- Is there a conversion procedure whose convert type's base class is `a_class`?
+		require
+			a_class_not_void: a_class /= Void
+		local
+			i, nb: INTEGER
+			a_feature: ET_CONVERT_FEATURE
+			other_type: ET_TYPE
+		do
+			if attached convert_features as l_convert_features then
+				other_type := tokens.identity_type
+				nb := l_convert_features.count
+				from i := 1 until i > nb loop
+					a_feature := l_convert_features.convert_feature (i)
+					if a_feature.is_convert_from then
+							-- Do not take into account the attachment and
+							-- separateness status of the types involved.
+						if a_feature.types.has_base_class (a_class, Current) then
+							Result := True
 							i := nb + 1 -- Jump out of the loop.
 						end
 					end
@@ -2855,6 +3282,92 @@ feature {NONE} -- Implementation checking status
 
 	unprotected_has_implementation_error: BOOLEAN
 			-- Has a fatal error occurred during implementation checking?
+			--
+			-- This is not protected by a mutex in case of multi-threading.
+
+feature -- Attribute initialization checking status
+
+	attached_attribute_initialization_checked: BOOLEAN
+			-- Has the initialization of attached attributes of current
+			-- class been checked?
+		do
+			status_mutex.lock
+			Result := unprotected_attached_attribute_initialization_checked
+			status_mutex.unlock
+		end
+
+	attached_attribute_initialization_checked_successfully: BOOLEAN
+			-- Has the initialization of attached attributes of current
+			-- class been successfully checked?
+		do
+			status_mutex.lock
+			Result := unprotected_attached_attribute_initialization_checked and then not unprotected_has_attached_attribute_initialization_error
+			status_mutex.unlock
+		end
+
+	has_attached_attribute_initialization_error: BOOLEAN
+			-- Has a fatal error occurred during attached attribute initialization checking?
+		do
+			status_mutex.lock
+			Result := unprotected_has_attached_attribute_initialization_error
+			status_mutex.unlock
+		end
+
+	set_attached_attribute_initialization_checked
+			-- Set `attached_attribute_initialization_checked' to True.
+		do
+			status_mutex.lock
+			unprotected_attached_attribute_initialization_checked := True
+			status_mutex.unlock
+		ensure
+			attached_attribute_initialization_checked: attached_attribute_initialization_checked
+		end
+
+	set_attached_attribute_initialization_error
+			-- Set `has_attached_attribute_initialization_error' to True.
+		do
+			status_mutex.lock
+			unprotected_attached_attribute_initialization_checked := True
+			unprotected_has_attached_attribute_initialization_error := True
+			status_mutex.unlock
+		ensure
+			attached_attribute_initialization_checked: attached_attribute_initialization_checked
+			has_attached_attribute_initialization_error: has_attached_attribute_initialization_error
+		end
+
+	unset_attached_attribute_initialization_error
+			-- Set `has_attached_attribute_initialization_error' to False.
+		do
+			status_mutex.lock
+			unprotected_has_attached_attribute_initialization_error := False
+			status_mutex.unlock
+		ensure
+			not_has_attached_attribute_initialization_error: not has_attached_attribute_initialization_error
+		end
+
+	reset_attached_attribute_initialization_checked
+			-- Set `attached_attribute_initialization_checked' to False.
+		do
+			status_mutex.lock
+			unprotected_has_attached_attribute_initialization_error := False
+			unprotected_attached_attribute_initialization_checked := False
+			status_mutex.unlock
+		ensure
+			attached_attribute_initialization_not_checked: not attached_attribute_initialization_checked
+			no_attached_attribute_initialization_error: not has_attached_attribute_initialization_error
+		end
+
+feature {NONE} -- Implementation checking status
+
+	unprotected_attached_attribute_initialization_checked: BOOLEAN
+			-- Has the initialization of attached attributes of current
+			-- class been checked?
+			--
+			-- This is not protected by a mutex in case of multi-threading.
+
+	unprotected_has_attached_attribute_initialization_error: BOOLEAN
+			-- Has a fatal error occurred during attached attribute
+			-- initialization checking?
 			--
 			-- This is not protected by a mutex in case of multi-threading.
 

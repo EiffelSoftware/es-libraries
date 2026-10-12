@@ -128,6 +128,7 @@ feature -- Initialization
 			l_flattening_status_checker: ET_FLATTENING_STATUS_CHECKER
 			l_interface_status_checker: ET_INTERFACE_STATUS_CHECKER
 			l_implementation_status_checker: ET_IMPLEMENTATION_STATUS_CHECKER
+			l_attached_attribute_initialization_status_checker: ET_ATTACHED_ATTRIBUTE_INITIALIZATION_STATUS_CHECKER
 		do
 				-- Start by taking care of classes containing errors, and
 				-- also reset overridden and ignored classes as they were when last parsed.
@@ -178,6 +179,16 @@ feature -- Initialization
 				-- to the previous processing step. Otherwise the error
 				-- flag will be cleared.
 			classes_do_if_recursive (agent {ET_CLASS}.set_implementation_error, agent {ET_CLASS}.implementation_checked)
+				-- Classes that had an attached attribute initialization error need to be reprocessed.
+			classes_do_if_recursive (agent {ET_CLASS}.reset_after_implementation_checked, agent {ET_CLASS}.has_attached_attribute_initialization_error)
+				-- We mark classes with an attached attribute initialization error here to indicate that
+				-- we need to check whether they are still correct. If the error
+				-- is confirmed (because the class processing has become
+				-- invalid due to other classes having been modified or
+				-- recursively made invalid), then the class will be reset
+				-- to the previous processing step. Otherwise the error
+				-- flag will be cleared.
+			classes_do_if_recursive (agent {ET_CLASS}.set_attached_attribute_initialization_error, agent {ET_CLASS}.attached_attribute_initialization_checked)
 				-- Reset ancestors building.
 			create l_ancestors_status_checker.make (a_system_processor)
 			classes_do_if_recursive (agent l_ancestors_status_checker.process_class, agent {ET_CLASS}.ancestors_built)
@@ -190,6 +201,9 @@ feature -- Initialization
 				-- Reset implementation checking.
 			create l_implementation_status_checker.make (a_system_processor)
 			classes_do_if_recursive (agent l_implementation_status_checker.process_class, agent {ET_CLASS}.implementation_checked)
+				-- Reset attached attribute initialization checking.
+			create l_attached_attribute_initialization_status_checker.make (a_system_processor)
+			classes_do_if_recursive (agent l_attached_attribute_initialization_status_checker.process_class, agent {ET_CLASS}.attached_attribute_initialization_checked)
 				-- Reset the modified status of all classes.
 			master_classes_do_recursive (agent {ET_MASTER_CLASS}.set_modified (False))
 		end
@@ -405,31 +419,6 @@ feature -- Access
 		ensure
 			classes_not_void: Result /= Void
 			no_void_class: not Result.has_void
-		end
-
-	add_classes_by_wildcarded_name (a_wildcard: LX_DFA_WILDCARD; a_list: DS_HASH_SET [ET_CLASS])
-			-- Add to `a_list' all classes declared locally in current universe
-			-- whose name (in upper-case) matches `a_wildcard'.
-			-- Do not take into account overridden classes.
-		require
-			a_wildcard_not_void: a_wildcard /= Void
-			a_wildcard_compiled: a_wildcard.is_compiled
-			a_list_not_void: a_list /= Void
-		do
-			classes_do_all (agent do_class_by_wildcarded_name (?, a_wildcard, agent a_list.force_last))
-		end
-
-	add_classes_by_wildcarded_name_recursive (a_wildcard: LX_DFA_WILDCARD; a_list: DS_HASH_SET [ET_CLASS])
-			-- Add to `a_list' all classes declared locally in current universe,
-			-- or recursively in one of the universes it depends on,
-			-- whose name (in upper-case) matches `a_wildcard'.
-			-- Do not take into account overridden classes.
-		require
-			a_wildcard_not_void: a_wildcard /= Void
-			a_wildcard_compiled: a_wildcard.is_compiled
-			a_list_not_void: a_list /= Void
-		do
-			universes_do_recursive (agent {ET_UNIVERSE}.add_classes_by_wildcarded_name (a_wildcard, a_list))
 		end
 
 	classes_in_group (a_group: ET_GROUP): DS_ARRAYED_LIST [ET_CLASS]
@@ -2112,6 +2101,60 @@ feature -- Built-in convert features
 	string_32_convert_feature: ET_BUILTIN_CONVERT_FEATURE
 			-- Built-in conversion feature to STRING_32
 
+feature -- Basic operations
+
+	add_classes_by_wildcarded_name (a_wildcard: LX_DFA_WILDCARD; a_set: DS_HASH_SET [ET_CLASS])
+			-- Add to `a_set' all classes declared locally in current universe
+			-- whose name (in upper-case) matches `a_wildcard'.
+			-- Do not take into account overridden classes.
+		require
+			a_wildcard_not_void: a_wildcard /= Void
+			a_wildcard_compiled: a_wildcard.is_compiled
+			a_set_not_void: a_set /= Void
+		do
+			classes_do_all (agent do_class_by_wildcarded_name (?, a_wildcard, agent a_set.force_last))
+		end
+
+	add_classes_by_wildcarded_name_recursive (a_wildcard: LX_DFA_WILDCARD; a_set: DS_HASH_SET [ET_CLASS])
+			-- Add to `a_set' all classes declared locally in current universe,
+			-- or recursively in one of the universes it depends on,
+			-- whose name (in upper-case) matches `a_wildcard'.
+			-- Do not take into account overridden classes.
+		require
+			a_wildcard_not_void: a_wildcard /= Void
+			a_wildcard_compiled: a_wildcard.is_compiled
+			a_set_not_void: a_set /= Void
+		do
+			universes_do_recursive (agent {ET_UNIVERSE}.add_classes_by_wildcarded_name (a_wildcard, a_set))
+		end
+
+	add_classes_if_wildcarded_universe_name (a_wildcard: LX_DFA_WILDCARD; a_set: DS_HASH_SET [ET_CLASS])
+			-- Add to `a_set' all classes declared locally in current universe
+			-- if its name (in lower-case) matches `a_wildcard'.
+			-- Do not take into account overridden classes.
+		require
+			a_wildcard_not_void: a_wildcard /= Void
+			a_wildcard_compiled: a_wildcard.is_compiled
+			a_set_not_void: a_set /= Void
+		do
+			if a_wildcard.recognizes (lower_name) then
+				classes_do_all (agent a_set.force_last)
+			end
+		end
+
+	add_classes_if_wildcarded_universe_name_recursive (a_wildcard: LX_DFA_WILDCARD; a_set: DS_HASH_SET [ET_CLASS])
+			-- Add to `a_set' all classes declared locally in current universe,
+			-- or recursively in one of the universes it depends on,
+			-- if their names (in lower-case) match `a_wildcard'.
+			-- Do not take into account overridden classes.
+		require
+			a_wildcard_not_void: a_wildcard /= Void
+			a_wildcard_compiled: a_wildcard.is_compiled
+			a_set_not_void: a_set /= Void
+		do
+			universes_do_recursive (agent {ET_UNIVERSE}.add_classes_if_wildcarded_universe_name (a_wildcard, a_set))
+		end
+
 feature -- Iteration
 
 	classes_do_all (an_action: PROCEDURE [ET_CLASS])
@@ -2628,6 +2671,19 @@ feature -- Actions
 		do
 			if a_wildcard.recognizes (a_class.upper_name) then
 				a_action.call ([a_class])
+			end
+		end
+
+	do_universe_by_wildcarded_name (a_wildcard: LX_DFA_WILDCARD; a_action: PROCEDURE [ET_UNIVERSE])
+			-- Execute `a_action' on current universe if its name (in lower-case) matches `a_wildcard'.
+			-- Do nothing otherwise.
+		require
+			a_wildcard_not_void: a_wildcard /= Void
+			a_wildcard_compiled: a_wildcard.is_compiled
+			a_action_not_void: a_action /= Void
+		do
+			if a_wildcard.recognizes (lower_name) then
+				a_action.call ([Current])
 			end
 		end
 
