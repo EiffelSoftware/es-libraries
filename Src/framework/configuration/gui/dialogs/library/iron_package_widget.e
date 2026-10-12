@@ -260,7 +260,7 @@ feature -- Element change
 							j := txt.text_length + 1
 							txt.format_region (i, j, keyword_text_format)
 
-							txt.append_text (":")
+							txt.append_text (": ")
 							i := txt.text_length + 1
 							if attached ic as s then
 								txt.append_text (s)

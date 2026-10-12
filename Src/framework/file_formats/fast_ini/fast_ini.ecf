@@ -5,7 +5,7 @@
 		<root all_classes="true"/>
 		<file_rule>
 			<exclude>/EIFGENs$</exclude>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<cluster name="fast_ini" location=".\" recursive="true"/>

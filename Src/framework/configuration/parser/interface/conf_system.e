@@ -117,6 +117,25 @@ feature -- Access, stored in configuration file
 	library_target: detachable CONF_TARGET
 			-- The target to use if this is used as a library.
 
+	is_library_target_extended_by_application: BOOLEAN
+			-- Is `library_target' extended by another target with its own root class?
+			-- If so, the library target is only a way to compile all classes of an application
+			-- (as for instance in Gobo examples and tests), and Current is not a real library.
+		do
+			if attached library_target as l_library_target then
+				across
+					targets as ic
+				until
+					Result
+				loop
+					Result := ic /= l_library_target and then
+						ic.extends = l_library_target and then
+						attached ic.root as l_root and then
+						not l_root.is_all_root
+				end
+			end
+		end
+
 feature -- Access, in compiled only
 
 	application_target: detachable CONF_TARGET

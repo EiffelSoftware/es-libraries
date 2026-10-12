@@ -31,6 +31,9 @@ feature -- Access
 
 	value: ANY
 
+	category: detachable READABLE_STRING_32
+			-- Optional category (see {ES_LIBRARY_CATEGORIES}).
+
 	score_is_zero: BOOLEAN
 		do
 			Result := score <= {REAL_32}.machine_epsilon
@@ -58,6 +61,18 @@ feature -- Access: additional information
 				tb.force (a_value, a_name)
 			elseif tb /= Void then
 				tb.remove (a_name)
+			end
+		end
+
+feature -- Element change
+
+	set_category (a_category: like category)
+			-- Set `category' to `a_category'.
+		do
+			if a_category /= Void and then not a_category.is_whitespace then
+				category := a_category
+			else
+				category := Void
 			end
 		end
 

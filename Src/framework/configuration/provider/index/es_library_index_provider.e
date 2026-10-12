@@ -32,6 +32,7 @@ feature -- Access
 			q: LIBRARY_DATABASE_CLASS_QUERY
 			elt: ES_LIBRARY_PROVIDER_ITEM
 			l_info: LIBRARY_INFO
+			l_package: like package_files.owner_package
 		do
 			if
 				attached class_query_from (a_query) as s and then
@@ -40,11 +41,28 @@ feature -- Access
 				create q.make (db, s)
 				q.execute
 				create Result.make (q.items.count)
+				package_files.reset
 				across
 					q.items as ic
 				loop
 					l_info := @ ic.key
 					create elt.make (1.0, l_info, l_info.name + " (" + l_info.uuid.out + ")")
+					l_package := package_files.owner_package (l_info.location)
+					if categories.is_precompile_system_name (l_info.name) then
+						elt.set_category (categories.precompiled)
+					elseif l_package /= Void and then attached l_package.package.category as l_category then
+						elt.set_category (l_category)
+					else
+						elt.set_category (categories.category_from_path (l_info.location))
+					end
+					if l_package /= Void then
+						if attached l_package.package.package_name as l_package_name then
+							elt.set_info (l_package_name, "package")
+						end
+						if attached l_package.project_name as l_project_name then
+							elt.set_info (l_project_name.to_string_32, "project")
+						end
+					end
 					elt.set_info (ic, "classes")
 					Result.force (elt)
 				end
@@ -58,14 +76,21 @@ feature -- Access
 			if attached q then
 				create Result.make_from_string (q)
 				Result.adjust
+				if Result.starts_with ("class:") or Result.starts_with ("class=") then
+						-- FIXME: check it is a simple query (not an expression).
+					Result.remove_head (6)
+					Result.adjust
+				end
 				if Result.is_empty then
 					Result := Void
-				elseif Result.starts_with ("class:") then
-						-- FIXME: check it is a simple query (not an expression).
-					Result.remove_head (6)
-				elseif Result.starts_with ("class=") then
-						-- FIXME: check it is a simple query (not an expression).
-					Result.remove_head (6)
+				elseif not is_strict then
+						-- Search for "*text*"
+					if Result [1] /= '*' then
+						Result.prepend_character ('*')
+					end
+					if Result [Result.count] /= '*' then
+						Result.append_character ('*')
+					end
 				end
 			end
 		end
@@ -77,7 +102,8 @@ feature -- Access
 			else
 				create Result.make_current
 			end
-			Result := Result.extended ("libraries_index.db")
+			Result := Result.extended ("libraries_index-3.db")
+				--| 2: excludes systems whose library target is extended by an application target.
 		end
 
 	library_index: detachable LIBRARY_DATABASE

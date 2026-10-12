@@ -3,7 +3,7 @@
 	<target name="command_tunnel">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf" readonly="false"/>

@@ -85,7 +85,51 @@ feature -- Package management
 			end
 		end
 
-feature {NONE} -- Package management		
+feature -- Repository management
+
+	register_repository (a_uri: READABLE_STRING_32; cb: detachable PROCEDURE [TUPLE [succeed: BOOLEAN]])
+			-- Register repository located at `a_uri' and call associated callback `cb'.
+			-- Note: `iron repository` does not accept the --batch switch, and does not ask for any input.
+		require
+			a_uri_not_empty: not a_uri.is_whitespace
+		do
+			launch_iron_command (conf_interface_names.iron_box_repository_registration_title (a_uri),
+					<<{STRING_32} "repository", {STRING_32} "--add", a_uri>>
+				)
+			if last_launch_iron_command_succeed then
+				installation_api.notify_change
+			end
+			if cb /= Void then
+				cb.call ([last_launch_iron_command_succeed])
+			end
+		end
+
+	unregister_repository (a_uri: READABLE_STRING_32; cb: detachable PROCEDURE [TUPLE [succeed: BOOLEAN]])
+			-- Unregister repository located at `a_uri' and call associated callback `cb'.
+			-- Note: packages installed from that repository are removed.
+		require
+			a_uri_not_empty: not a_uri.is_whitespace
+		do
+			launch_iron_command (conf_interface_names.iron_box_repository_unregistration_title (a_uri),
+					<<{STRING_32} "repository", {STRING_32} "--remove", a_uri>>
+				)
+			if last_launch_iron_command_succeed then
+				installation_api.notify_change
+			end
+			if cb /= Void then
+				cb.call ([last_launch_iron_command_succeed])
+			end
+		end
+
+	is_repository_registered (a_uri: READABLE_STRING_GENERAL): BOOLEAN
+			-- Is a repository located at `a_uri' already registered?
+		do
+			if attached installation_api.repositories as l_repositories then
+				Result := across l_repositories as ic some ic.location_string.is_case_insensitive_equal_general (a_uri) end
+			end
+		end
+
+feature {NONE} -- Package management
 
 	launch_iron_command (a_title: READABLE_STRING_32; a_args: ITERABLE [READABLE_STRING_GENERAL])
 			-- Execute externally iron command with argument `args'.

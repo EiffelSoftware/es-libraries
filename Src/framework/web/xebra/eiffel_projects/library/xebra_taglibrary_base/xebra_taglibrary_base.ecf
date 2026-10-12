@@ -11,8 +11,7 @@
 		<library name="xebra_utilities" location="$XEBRA_LIBRARY\xebra_utilities\xebra_utilities.ecf"/>
 		<cluster name="xebra_taglibrary_base" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

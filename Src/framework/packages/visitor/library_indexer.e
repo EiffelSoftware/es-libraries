@@ -129,7 +129,10 @@ feature -- Execution
 		local
 			b_continue: BOOLEAN
 		do
-			if attached a_system.library_target as l_target then
+			if
+				attached a_system.library_target as l_target and then
+				not a_system.is_library_target_extended_by_application
+			then
 				if attached l_target.root as l_root then
 					b_continue := l_root.is_all_root
 				else

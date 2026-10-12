@@ -155,6 +155,7 @@ feature -- Button texts
 	b_Redo: STRING_32							do Result := locale.translation("Redo")	end
 	b_Create_new_cluster: STRING_32				do Result := locale.translation("Add Cluster")	end
 	b_Create_new_library: STRING_32				do Result := locale.translation("Add Library")	end
+	b_find_library: STRING_32				do Result := locale.translation("Find Library")	end
 	b_Create_new_assembly: STRING_32			do Result := locale.translation("Add Assembly")	end
 	b_Create_new_precompile: STRING_32			do Result := locale.translation("Add Precompile")	end
 	b_Create_new_class: STRING_32				do Result := locale.translation("New Class")	end
@@ -483,6 +484,7 @@ feature -- Accelerator, focus label and menu name
 
 	f_Create_new_cluster: STRING_32		do Result := locale.translation("Add a cluster")	end
 	f_Create_new_library: STRING_32		do Result := locale.translation("Add a library")	end
+	f_find_library: STRING_32		do Result := locale.translation("Find a library (or an IRON package), and include it in the current target")	end
 	f_Create_new_assembly: STRING_32	do Result := locale.translation("Add an assembly")	end
 	f_Create_new_precompile: STRING_32 	do Result := locale.translation("Add a precompile")	end
 	f_Create_new_class: STRING_32		do Result := locale.translation("Add a new class")	end
@@ -1009,6 +1011,7 @@ feature -- Menu mnenomics
 	m_Check_exports: STRING_32			do Result := locale.translation("Chec&k Export Clauses")	end
 	m_Create_new_cluster: STRING_32		do Result := locale.translation("Add C&luster...")	end
 	m_Create_new_library: STRING_32		do Result := locale.translation("Add L&ibrary...")	end
+	m_find_library: STRING_32		do Result := locale.translation("Find Librar&y...")	end
 	m_Create_new_precompile: STRING_32	do Result := locale.translation("Add &Precompile")	end
 	m_Create_new_assembly: STRING_32	do Result := locale.translation("Add &Assembly...")	end
 	m_Create_new_class: STRING_32		do Result := locale.translation("&New Class...")	end
@@ -1196,6 +1199,8 @@ feature -- Context menu
 
 feature -- Label texts
 
+	l_compile_after_including_libraries: STRING_32
+			do Result := locale.translation ("Libraries were included in the current target.%NCompile the project now?") end
 	l_Ace_file_for_frame: STRING_32		do Result := locale.translation("Configuration file")	end
 	l_action_colon: STRING_32			do Result := locale.translation("Action:")	end
 	l_Active_query: STRING_32			do Result := locale.translation("Active query")	end

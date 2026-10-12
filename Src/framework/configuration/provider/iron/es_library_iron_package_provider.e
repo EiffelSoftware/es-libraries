@@ -41,13 +41,15 @@ feature -- Access
 			if
 				attached l_api.available_packages as l_iron_packages
 			then
-				if a_query /= Void then
+				if a_query /= Void and then not a_query.is_whitespace then
 					create Result.make (l_iron_packages.count)
+					scorer.set_is_strict (is_strict)
 					across
 						scorer.scored_list (a_query, l_iron_packages, False) as ic
 					loop
 						p := ic.value
 						create i.make (ic.score, p, p.identifier)
+						i.set_category (p.category)
 						i.set_info (l_api.is_package_installed (p), "is_installed")
 						Result.extend (i)
 					end
@@ -58,6 +60,7 @@ feature -- Access
 					loop
 						p := ic
 						create i.make (1.0, ic, ic.identifier)
+						i.set_category (p.category)
 						i.set_info (l_api.is_package_installed (p), "is_installed")
 						Result.force (i)
 					end

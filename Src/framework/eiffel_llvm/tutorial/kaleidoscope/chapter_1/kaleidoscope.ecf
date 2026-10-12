@@ -19,8 +19,7 @@
 			<option warning="none" is_obsolete_iteration="true">
 			</option>
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

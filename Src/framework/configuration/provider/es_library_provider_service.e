@@ -73,6 +73,27 @@ feature -- Access
 			Result := providers.item (a_id)
 		end
 
+feature -- Status report
+
+	is_strict: BOOLEAN
+			-- Is the query matching strict for all providers?
+			-- If False, a searched text is considered as "*text*".
+
+feature -- Settings
+
+	set_is_strict (b: BOOLEAN)
+			-- Set `is_strict' to `b', for Current and all registered providers.
+		do
+			is_strict := b
+			across
+				providers as ic
+			loop
+				ic.set_is_strict (b)
+			end
+		ensure
+			is_strict_set: is_strict = b
+		end
+
 feature -- Actions
 
 	on_provider_execution_begin_actions: ACTION_SEQUENCE [TUPLE [ES_LIBRARY_PROVIDER]]
@@ -123,6 +144,7 @@ feature -- Element change
 
 	register (a_prov: ES_LIBRARY_PROVIDER)
 		do
+			a_prov.set_is_strict (is_strict)
 			providers.put (a_prov, a_prov.identifier)
 		end
 

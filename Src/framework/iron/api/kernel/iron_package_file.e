@@ -63,7 +63,7 @@ feature -- Access
 
 	category: detachable READABLE_STRING_32 assign set_category
 			-- Optional category.
-			--| such as "official", "contrib", "prerelease" or "sdk".
+			--| such as "official", "contrib" or "prerelease".
 		do
 			Result := item ("category")
 		end

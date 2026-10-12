@@ -3,7 +3,7 @@
 	<target name="clib">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<option warning="error">
 		</option>

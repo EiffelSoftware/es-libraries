@@ -38,8 +38,7 @@
 		</library>
 		<cluster name="xebra_translator" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

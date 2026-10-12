@@ -85,8 +85,7 @@
 		<cluster name="eiffel_llvm" location=".\" recursive="true">
 			<file_rule>
 				<exclude>/.git$</exclude>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 				<exclude>/testing</exclude>
 			</file_rule>

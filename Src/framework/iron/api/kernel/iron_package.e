@@ -281,7 +281,7 @@ feature -- Access: items
 
 	category: detachable READABLE_STRING_32
 			-- Optional category.
-			--| such as "official", "contrib", "prerelease" or "sdk".
+			--| such as "official", "contrib" or "prerelease".
 		do
 			Result := item ("category")
 		end

@@ -143,7 +143,10 @@ feature -- Basic operation
 				if l_description /= Void and then l_description.is_empty then
 					l_description := Void
 				end
-				if attached l_system.library_target as l_target then
+				if
+					attached l_system.library_target as l_target and then
+					not l_system.is_library_target_extended_by_application
+				then
 					has_library_target := True
 					conf_option := l_target.options
 					l_target_name := l_target.name

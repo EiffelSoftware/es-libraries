@@ -4,7 +4,7 @@
 		<root all_classes="true"/>
 		<file_rule>
 			<exclude>/.git$</exclude>
-			<exclude>/.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option warning="error">
@@ -19,6 +19,7 @@
 		<library name="configuration_compiler" location="..\..\configuration\configuration_compiler.ecf"/>
 		<library name="configuration_parser" location="..\..\configuration\configuration_parser.ecf"/>
 		<library name="environment" location="$EIFFEL_SRC\framework\environment\environment.ecf"/>
+		<library name="iron_api" location="..\..\iron\api\iron_api.ecf"/>
 		<cluster name="src" location=".\">
 			<cluster name="implementation" location="$|implementation\" recursive="true" hidden="true"/>
 		</cluster>

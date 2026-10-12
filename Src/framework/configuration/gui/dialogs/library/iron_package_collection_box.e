@@ -49,6 +49,8 @@ feature {NONE} -- Initialization
 			create info_widget.make (iron_service)
 			create packages_grid
 			create update_button
+			create add_repository_button
+			create remove_repository_button
 			create on_iron_package_selected_actions
 			create on_iron_packages_changed_actions
 
@@ -62,6 +64,21 @@ feature {NONE} -- Initialization
 			hb.extend (create {EV_LABEL}.make_with_text (conf_interface_names.iron_box_repositories_label))
 			hb.disable_item_expand (hb.last)
 			hb.extend (create {EV_CELL})
+
+			but := add_repository_button
+			but.set_text (conf_interface_names.iron_box_add_repository_label)
+			but.set_tooltip (conf_interface_names.iron_box_add_repository_tooltip)
+			but.set_pixmap (conf_pixmaps.general_add_icon)
+			hb.extend (but)
+			hb.disable_item_expand (but)
+
+			but := remove_repository_button
+			but.set_text (conf_interface_names.iron_box_remove_repository_label)
+			but.set_tooltip (conf_interface_names.iron_box_remove_repository_tooltip)
+			but.set_pixmap (conf_pixmaps.general_remove_icon)
+			but.disable_sensitive
+			hb.extend (but)
+			hb.disable_item_expand (but)
 
 			create lst
 			b.extend (lst)
@@ -146,6 +163,12 @@ feature {NONE} -- Initialization
 			hsp.set_split_position (hsp.height - vb.minimum_height)
 
 			b.focus_in_actions.extend_kamikaze (agent populate)
+
+				-- Repository management
+			add_repository_button.select_actions.extend (agent on_add_repository)
+			remove_repository_button.select_actions.extend (agent on_remove_repository)
+			repositories_grid.row_select_actions.extend (agent (r: EV_GRID_ROW) do remove_repository_button.enable_sensitive end)
+			repositories_grid.row_deselect_actions.extend (agent (r: EV_GRID_ROW) do remove_repository_button.disable_sensitive end)
 		end
 
 	iron_service: ES_IRON_SERVICE
@@ -289,6 +312,7 @@ feature -- Basic operations
 			else
 				repos := repositories_grid
 				repos.clear
+				remove_repository_button.disable_sensitive
 
 				api := iron_service.installation_api
 				if attached api.repositories as l_repositories then
@@ -299,6 +323,7 @@ feature -- Basic operations
 					loop
 						i := i + 1
 						repos.set_item (1, i, create {EV_GRID_LABEL_ITEM}.make_with_text (ic.location_string))
+						repos.row (i).set_data (ic.location_string.to_string_32)
 					end
 				end
 				repos.set_minimum_height (i.min (5).max (1) *  repos.row_height)
@@ -447,7 +472,7 @@ feature -- Basic operations
 					-- Information
 				create s.make_empty
 				if attached l_package.tags as l_tags and then not l_tags.is_empty then
-					s.append ("tags:")
+					s.append ("tags: ")
 					create t.make_empty
 					across
 						l_tags as tags_ic
@@ -522,18 +547,111 @@ feature -- Actions
 		end
 
 	update_iron
-			-- Install iron package `a_package' and call associated callback `cb'.
+			-- Update iron data.
 		do
-			iron_service.update_iron (
-						agent (ia_succeed: BOOLEAN)
-							do
-								iron_service.installation_api.refresh
-								if ia_succeed then
-									reload
-								end
-								on_iron_packages_changed_actions.call ([Void])
-							end
-				)
+			iron_service.update_iron (agent on_iron_data_changed)
+		end
+
+	on_iron_data_changed (a_succeed: BOOLEAN)
+			-- Iron data (repositories, packages) changed, if `a_succeed'.
+		do
+			iron_service.installation_api.refresh
+			if a_succeed then
+				reload
+			end
+			on_iron_packages_changed_actions.call ([Void])
+		end
+
+feature -- Repository management
+
+	selected_repository_uri: detachable READABLE_STRING_32
+			-- Location of the selected repository, if any.
+		do
+			if
+				attached repositories_grid.selected_rows as lst and then
+				lst.count = 1 and then
+				attached {READABLE_STRING_32} lst.first.data as l_uri
+			then
+				Result := l_uri
+			end
+		end
+
+	on_add_repository
+			-- Ask for the location of a new repository, and register it.
+		local
+			dlg: EV_DIALOG
+			vb: EV_VERTICAL_BOX
+			hb: EV_HORIZONTAL_BOX
+			lab: EV_LABEL
+			tf: EV_TEXT_FIELD
+			b_ok, b_cancel: EV_BUTTON
+		do
+			create dlg.make_with_title (conf_interface_names.iron_box_add_repository_dialog_title)
+			create vb
+			vb.set_padding (layout_constants.default_padding_size)
+			vb.set_border_width (layout_constants.default_border_size)
+
+			create lab.make_with_text (conf_interface_names.iron_box_add_repository_uri_label)
+			lab.align_text_left
+			vb.extend (lab)
+			vb.disable_item_expand (lab)
+
+			create tf
+			tf.set_minimum_width (400)
+			vb.extend (tf)
+			vb.disable_item_expand (tf)
+
+			create hb
+			hb.set_padding (layout_constants.default_padding_size)
+			hb.extend (create {EV_CELL})
+			create b_ok.make_with_text_and_action (names.b_ok, agent on_repository_uri_entered (tf, dlg))
+			layout_constants.set_default_width_for_button (b_ok)
+			hb.extend (b_ok)
+			hb.disable_item_expand (b_ok)
+			create b_cancel.make_with_text_and_action (names.b_cancel, agent dlg.destroy)
+			layout_constants.set_default_width_for_button (b_cancel)
+			hb.extend (b_cancel)
+			hb.disable_item_expand (b_cancel)
+			vb.extend (hb)
+			vb.disable_item_expand (hb)
+
+			dlg.extend (vb)
+			dlg.set_default_push_button (b_ok)
+			dlg.set_default_cancel_button (b_cancel)
+			dlg.show_actions.extend_kamikaze (agent tf.set_focus)
+			if attached parent_window_of (widget) as win then
+				dlg.show_modal_to_window (win)
+			else
+				dlg.show
+			end
+		end
+
+	on_repository_uri_entered (tf: EV_TEXT_FIELD; dlg: EV_DIALOG)
+			-- Register repository whose location is the text of `tf', and close `dlg'.
+		local
+			s: STRING_32
+		do
+			s := tf.text
+			s.adjust
+			if s.is_empty then
+					-- Nothing to register.
+			elseif iron_service.is_repository_registered (s) then
+				prompts.show_error_prompt (conf_interface_names.iron_box_repository_already_registered_message (s), dlg, Void)
+			else
+				dlg.destroy
+				iron_service.register_repository (s, agent on_iron_data_changed)
+			end
+		end
+
+	on_remove_repository
+			-- Unregister the selected repository, after confirmation.
+		do
+			if attached selected_repository_uri as l_uri then
+				prompts.show_question_prompt (conf_interface_names.iron_box_confirm_remove_repository_question (l_uri), parent_window_of (widget),
+						agent iron_service.unregister_repository (l_uri, agent on_iron_data_changed),
+						Void
+					)
+			end
 		end
 
 feature -- Access
@@ -560,6 +678,12 @@ feature -- Access
 	filter_text: EV_TEXT_FIELD
 
 	update_button: EV_BUTTON
+
+	add_repository_button: EV_BUTTON
+			-- Button to register a new repository.
+
+	remove_repository_button: EV_BUTTON
+			-- Button to unregister the selected repository.
 
 feature -- Widgets		
 

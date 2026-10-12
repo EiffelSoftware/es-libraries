@@ -20,8 +20,7 @@
 		<library name="xebra_web_application" location="$XEBRA_LIBRARY\xebra_web_application\xebra_web_application.ecf" readonly="false"/>
 		<cluster name="demoapplication" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

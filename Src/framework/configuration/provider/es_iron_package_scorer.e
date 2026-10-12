@@ -25,14 +25,7 @@ feature -- Conversion
 			else
 				create {ARRAYED_LIST [SCORED_VALUE [IRON_PACKAGE]]} Result.make (a_packages.count)
 					-- Using simple wildchar comparison.
-				create f.make_from_string_general (a_query)
-				f.adjust
-				if f.item (1) /= '*' then
-					f.prepend_character ('*')
-				end
-				if f.item (f.count) /= '*' then
-					f.append_character ('*')
-				end
+				f := fallback_pattern (a_query)
 				create l_filter_engine.make_empty
 				l_filter_engine.set_pattern (f)
 				l_filter_engine.disable_case_sensitive
@@ -53,13 +46,15 @@ feature -- Conversion
 	title_weight: REAL = 0.25
 	description_weight: REAL = 0.20
 	tag_weight: REAL = 0.25
+	category_weight: REAL = 0.25
 	any_weight: REAL
 		do
-			Result := name_weight + title_weight + tag_weight
+			Result := name_weight + title_weight + tag_weight + description_weight
 		end
 
 	scores_factory: SCORER_CRITERIA_FACTORY [IRON_PACKAGE]
-		once
+			-- Factory, with criteria associated with Current scorer (see `is_strict').
+		once ("OBJECT")
 			create Result.make
 			Result.register_builder ("name", agent (n, v: READABLE_STRING_32): detachable SCORER_CRITERIA [IRON_PACKAGE]
 						do
@@ -79,6 +74,11 @@ feature -- Conversion
 			Result.register_builder ("tag", agent (n, v: READABLE_STRING_32): detachable SCORER_CRITERIA [IRON_PACKAGE]
 						do
 							create {SCORER_CRITERIA_AGENT [IRON_PACKAGE]} Result.make (n + ":" + v, tag_weight, agent score_tag (?, v))
+						end
+				)
+			Result.register_builder ("category", agent (n, v: READABLE_STRING_32): detachable SCORER_CRITERIA [IRON_PACKAGE]
+						do
+							create {SCORER_CRITERIA_AGENT [IRON_PACKAGE]} Result.make (n + ":" + v, category_weight, agent score_category (?, v))
 						end
 				)
 			Result.register_builder ("any", agent (n, v: READABLE_STRING_32): detachable SCORER_CRITERIA [IRON_PACKAGE]
@@ -116,53 +116,9 @@ feature -- Conversion
 			Result := ∃ ic: obj.tags ¦ meet_text (ic, s)
 		end
 
-	meet_text (a_text: detachable READABLE_STRING_GENERAL; s: READABLE_STRING_GENERAL): BOOLEAN
-		local
-			kmp: KMP_WILD
-			tok: READABLE_STRING_GENERAL
-			tok_len: INTEGER
-			l_lower_text: READABLE_STRING_GENERAL
-			c: CHARACTER_32
-			i: INTEGER
+	meet_category (obj: IRON_PACKAGE; s: READABLE_STRING_GENERAL): BOOLEAN
 		do
-			if a_text /= Void then
-				if s.has ('*') or s.has ('?') then
-					create kmp.make (s, a_text)
-					kmp.disable_case_sensitive
-					Result := kmp.pattern_matches
-				else
-					from
-						l_lower_text := a_text.as_lower
-						tok := s.as_lower
-						tok_len := tok.count
-						i := 1
-					until
-						i = 0 or Result
-					loop
-						i := l_lower_text.substring_index (tok, i)
-						if i > 0 then
-							Result := True
-							if i > 1 then
-									-- Check lower boundary
-								c := l_lower_text [i - 1]
-								if c.is_alpha_numeric then
-									Result := False
-								end
-							end
-							if Result and i + tok_len <= l_lower_text.count then
-									-- Check lower boundary
-								c := l_lower_text [i + tok_len]
-								if c.is_alpha_numeric then
-									Result := False
-								end
-							end
-							if not Result then
-								i := i + 1
-							end
-						end
-					end
-				end
-			end
+			Result := meet_text (obj.category, s)
 		end
 
 	score_any (obj: IRON_PACKAGE; s: READABLE_STRING_GENERAL): REAL
@@ -191,6 +147,11 @@ feature -- Conversion
 	score_tag (obj: IRON_PACKAGE; s: READABLE_STRING_GENERAL): REAL
 		do
 			Result := if meet_tag (obj, s) then 1.0 else 0.0 end
+		end
+
+	score_category (obj: IRON_PACKAGE; s: READABLE_STRING_GENERAL): REAL
+		do
+			Result := if meet_category (obj, s) then 1.0 else 0.0 end
 		end
 
 note

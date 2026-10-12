@@ -4,8 +4,7 @@
 	<target name="base64-tests">
 		<root class="ANY" feature="default_create"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 			<exclude>/tests$</exclude>
 		</file_rule>
