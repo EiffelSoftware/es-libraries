@@ -2,8 +2,6 @@ package epdf
 
 project
 	epdf = "epdf.ecf"
-	epdf_tests = "testing/testing.ecf"
-	pdf_processor = "example/example.ecf"
 
 note
 	title: ePDF
