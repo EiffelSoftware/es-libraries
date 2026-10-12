@@ -5,7 +5,7 @@
 		"LSP value processors"
 
 	library: "Gobo Eiffel Language Server Protocol Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 deferred class LS_PROCESSOR
@@ -47,6 +47,90 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
+	process_call_hierarchy_capabilities (a_value: LS_CALL_HIERARCHY_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_incoming_call (a_value: LS_CALL_HIERARCHY_INCOMING_CALL)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_incoming_call_list (a_value: LS_CALL_HIERARCHY_INCOMING_CALL_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_incoming_calls_request (a_value: LS_CALL_HIERARCHY_INCOMING_CALLS_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_item (a_value: LS_CALL_HIERARCHY_ITEM)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_item_list (a_value: LS_CALL_HIERARCHY_ITEM_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_options (a_value: LS_CALL_HIERARCHY_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_outgoing_call (a_value: LS_CALL_HIERARCHY_OUTGOING_CALL)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_outgoing_call_list (a_value: LS_CALL_HIERARCHY_OUTGOING_CALL_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_outgoing_calls_request (a_value: LS_CALL_HIERARCHY_OUTGOING_CALLS_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_prepare_request (a_value: LS_CALL_HIERARCHY_PREPARE_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_call_hierarchy_registration_options (a_value: LS_CALL_HIERARCHY_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
 	process_cancel_request_notification (a_value: LS_CANCEL_REQUEST_NOTIFICATION)
 			-- Process `a_value`.
 		require
@@ -82,6 +166,139 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
+	process_command (a_value: LS_COMMAND)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_capabilities (a_value: LS_COMPLETION_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_context (a_value: LS_COMPLETION_CONTEXT)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item (a_value: LS_COMPLETION_ITEM)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_capabilities (a_value: LS_COMPLETION_ITEM_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_defaults (a_value: LS_COMPLETION_ITEM_DEFAULTS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_kind_list (a_value: LS_COMPLETION_ITEM_KIND_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_kind_set (a_value: LS_COMPLETION_ITEM_KIND_SET)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_label_details (a_value: LS_COMPLETION_ITEM_LABEL_DETAILS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_list (a_value: LS_COMPLETION_ITEM_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_options (a_value: LS_COMPLETION_ITEM_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_resolve_request (a_value: LS_COMPLETION_ITEM_RESOLVE_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_tag_list (a_value: LS_COMPLETION_ITEM_TAG_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_item_tag_set (a_value: LS_COMPLETION_ITEM_TAG_SET)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_list (a_value: LS_COMPLETION_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_list_capabilities (a_value: LS_COMPLETION_LIST_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_request (a_value: LS_COMPLETION_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_options (a_value: LS_COMPLETION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_completion_registration_options (a_value: LS_COMPLETION_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
 	process_configuration_item (a_value: LS_CONFIGURATION_ITEM)
 			-- Process `a_value`.
 		require
@@ -103,7 +320,35 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
-	process_command (a_value: LS_COMMAND)
+	process_custom_notification (a_value: LS_CUSTOM_NOTIFICATION)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_declaration_capabilities (a_value: LS_DECLARATION_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_declaration_options (a_value: LS_DECLARATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_declaration_registration_options (a_value: LS_DECLARATION_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_declaration_request (a_value: LS_DECLARATION_REQUEST)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void
@@ -174,6 +419,20 @@ feature {LS_ANY} -- Processing
 		end
 
 	process_diagnostic_tag_set (a_value: LS_DIAGNOSTIC_TAG_SET)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_did_change_configuration_capabilities (a_value: LS_DID_CHANGE_CONFIGURATION_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_did_change_configuration_notification (a_value: LS_DID_CHANGE_CONFIGURATION_NOTIFICATION)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void
@@ -299,6 +558,48 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
+	process_document_highlight (a_value: LS_DOCUMENT_HIGHLIGHT)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_document_highlight_capabilities (a_value: LS_DOCUMENT_HIGHLIGHT_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_document_highlight_list (a_value: LS_DOCUMENT_HIGHLIGHT_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_document_highlight_options (a_value: LS_DOCUMENT_HIGHLIGHT_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_document_highlight_registration_options (a_value: LS_DOCUMENT_HIGHLIGHT_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_document_highlight_request (a_value: LS_DOCUMENT_HIGHLIGHT_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
 	process_document_selector (a_value: LS_DOCUMENT_SELECTOR)
 			-- Process `a_value`.
 		require
@@ -418,7 +719,35 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
-	process_hover_result (a_value: LS_HOVER_RESULT)
+	process_hover (a_value: LS_HOVER)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_implementation_capabilities (a_value: LS_IMPLEMENTATION_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_implementation_options (a_value: LS_IMPLEMENTATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_implementation_registration_options (a_value: LS_IMPLEMENTATION_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_implementation_request (a_value: LS_IMPLEMENTATION_REQUEST)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void
@@ -447,6 +776,34 @@ feature {LS_ANY} -- Processing
 		end
 
 	process_initialized_notification (a_value: LS_INITIALIZED_NOTIFICATION)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_insert_replace_edit (a_value: LS_INSERT_REPLACE_EDIT)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_insert_replace_ranges (a_value: LS_INSERT_REPLACE_RANGES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_insert_text_mode_list (a_value: LS_INSERT_TEXT_MODE_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_insert_text_mode_set (a_value: LS_INSERT_TEXT_MODE_SET)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void
@@ -544,6 +901,13 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
+	process_optional_range_location (a_value: LS_OPTIONAL_RANGE_LOCATION)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
 	process_optional_versioned_text_document_identifier (a_value: LS_OPTIONAL_VERSIONED_TEXT_DOCUMENT_IDENTIFIER)
 			-- Process `a_value`.
 		require
@@ -552,6 +916,13 @@ feature {LS_ANY} -- Processing
 		end
 
 	process_position (a_value: LS_POSITION)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_position_list (a_value: LS_POSITION_LIST)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void
@@ -586,6 +957,13 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
+	process_range_list (a_value: LS_RANGE_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
 	process_register_capability_request (a_value: LS_REGISTER_CAPABILITY_REQUEST)
 			-- Process `a_value`.
 		require
@@ -614,6 +992,13 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
+	process_resolve_capabilities (a_value: LS_RESOLVE_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
 	process_response (a_value: LS_RESPONSE)
 			-- Process `a_value`.
 		require
@@ -622,6 +1007,48 @@ feature {LS_ANY} -- Processing
 		end
 
 	process_response_error (a_value: LS_RESPONSE_ERROR)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_selection_range (a_value: LS_SELECTION_RANGE)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_selection_range_capabilities (a_value: LS_SELECTION_RANGE_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_selection_range_list (a_value: LS_SELECTION_RANGE_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_selection_range_options (a_value: LS_SELECTION_RANGE_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_selection_range_registration_options (a_value: LS_SELECTION_RANGE_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_selection_range_request (a_value: LS_SELECTION_RANGE_REQUEST)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void
@@ -650,6 +1077,13 @@ feature {LS_ANY} -- Processing
 		end
 
 	process_string (a_value: LS_STRING)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_string_list (a_value: LS_STRING_LIST)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void
@@ -775,6 +1209,90 @@ feature {LS_ANY} -- Processing
 		deferred
 		end
 
+	process_type_definition_capabilities (a_value: LS_TYPE_DEFINITION_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_definition_options (a_value: LS_TYPE_DEFINITION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_definition_registration_options (a_value: LS_TYPE_DEFINITION_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_definition_request (a_value: LS_TYPE_DEFINITION_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_capabilities (a_value: LS_TYPE_HIERARCHY_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_item (a_value: LS_TYPE_HIERARCHY_ITEM)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_item_list (a_value: LS_TYPE_HIERARCHY_ITEM_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_options (a_value: LS_TYPE_HIERARCHY_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_prepare_request (a_value: LS_TYPE_HIERARCHY_PREPARE_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_registration_options (a_value: LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_subtypes_request (a_value: LS_TYPE_HIERARCHY_SUBTYPES_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_type_hierarchy_supertypes_request (a_value: LS_TYPE_HIERARCHY_SUPERTYPES_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
 	process_uinteger (a_value: LS_UINTEGER)
 			-- Process `a_value`.
 		require
@@ -874,6 +1392,55 @@ feature {LS_ANY} -- Processing
 		end
 
 	process_workspace_folder_list (a_value: LS_WORKSPACE_FOLDER_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_workspace_symbol (a_value: LS_WORKSPACE_SYMBOL)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_workspace_symbol_capabilities (a_value: LS_WORKSPACE_SYMBOL_CAPABILITIES)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_workspace_symbol_list (a_value: LS_WORKSPACE_SYMBOL_LIST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_workspace_symbol_options (a_value: LS_WORKSPACE_SYMBOL_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_workspace_symbol_registration_options (a_value: LS_WORKSPACE_SYMBOL_REGISTRATION_OPTIONS)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_workspace_symbol_request (a_value: LS_WORKSPACE_SYMBOL_REQUEST)
+			-- Process `a_value`.
+		require
+			a_value_not_void: a_value /= Void
+		deferred
+		end
+
+	process_workspace_symbol_resolve_request (a_value: LS_WORKSPACE_SYMBOL_RESOLVE_REQUEST)
 			-- Process `a_value`.
 		require
 			a_value_not_void: a_value /= Void

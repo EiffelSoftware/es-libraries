@@ -5,14 +5,17 @@
 		"Browsable names of formal parameters"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_BROWSABLE_FORMAL_PARAMETER_NAME
 
 inherit
 
-	ET_BROWSABLE_NAME
+	ET_BROWSABLE_NAMED_TYPE
+		redefine
+			append_description_to_string
+		end
 
 create
 
@@ -32,8 +35,8 @@ feature {NONE} -- Initialization
 			current_class := a_class
 		ensure
 			name_set: name = a_name
-			formal_parameter_not_void: formal_parameter = a_formal_parameter
-			current_class_not_void: current_class = a_class
+			formal_parameter_set: formal_parameter = a_formal_parameter
+			current_class_set: current_class = a_class
 		end
 
 feature -- Access
@@ -44,44 +47,28 @@ feature -- Access
 	formal_parameter: ET_FORMAL_PARAMETER
 			-- Formal parameter
 
+	type_base_class: ET_CLASS
+			-- Base class of the type of the browsable name, if any
+		do
+			Result := formal_parameter.base_class (current_class)
+		ensure then
+			type_base_class_not_void: Result /= Void
+		end
+
 feature -- Output
 
 	append_description_to_string (a_string: STRING_8)
 			-- Append `description' to `a_string'.
-		local
-			l_printer: ET_AST_PRETTY_PRINTER
-			l_stream: KL_STRING_OUTPUT_STREAM
 		do
-			a_string.append_character ('[')
-			a_string.append_character (' ')
-			a_string.append_string (name.upper_name)
-			a_string.append_character (' ')
-			a_string.append_string (tokens.arrow_symbol.text)
-			a_string.append_character (' ')
-			if attached formal_parameter.constraint as l_constraint then
-				create l_stream.make (a_string)
-				create l_printer.make (l_stream)
-				l_constraint.process (l_printer)
-				if attached formal_parameter.creation_procedures as l_creation_procedures then
-					a_string.append_character (' ')
-					l_creation_procedures.process (l_printer)
-				end
-			else
-				a_string.append_string (tokens.detachable_keyword.text)
-				a_string.append_character (' ')
-				a_string.append_string (tokens.separate_keyword.text)
-				a_string.append_character (' ')
-				a_string.append_string (tokens.any_class_name.upper_name)
-			end
-			a_string.append_character (' ')
-			a_string.append_character (']')
+			append_formal_parameter_description_to_string (formal_parameter, a_string)
 		end
 
-	definition_ast_node: detachable TUPLE [ast_node: ET_AST_NODE; class_impl: ET_CLASS]
-			-- AST node, and its implementation class, where
-			-- the current browsable name is defined
+feature -- Processing
+
+	process (a_processor: ET_BROWSABLE_NAME_PROCESSOR)
+			-- Process current name.
 		do
-			Result := [formal_parameter.name, current_class]
+			a_processor.process_formal_parameter_name (Current)
 		end
 
 invariant

@@ -5,12 +5,12 @@
 
 		"Eiffel Implicit Conversions"
 
-	tool: "Gobo Eiffel Compiler"
+	tool: "Gobo Eiffel Doc"
 	copyright: "Copyright (c) 2020, Eric Bezault and others"
 	license: "MIT License"
 -->
 
-<chapter xmlns="https://www.gobosoft.com/eiffel/gobo/documentation" id="gedoc/implicit_conversions">
+<chapter xmlns="http://gobo-eiffel.gobosoft.com/documentation" id="gedoc/implicit_conversions">
 <chapterinfo>
 	<copyright>
 		<year>2020</year>

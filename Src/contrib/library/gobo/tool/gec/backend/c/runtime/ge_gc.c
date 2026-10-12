@@ -83,7 +83,11 @@ void* GE_memset(void* str, int c, size_t n)
  * Call dispose routine on object `C'.
  */
 void GE_boehm_dispose(void* C, void* disp) {
-	((GE_types[((EIF_REFERENCE)C)->id][0]).dispose)(GE_current_context(), (EIF_REFERENCE) C);
+	GE_context* ac = GE_current_context();
+	uint32_t volatile in_qualified_call = ac->in_qualified_call;
+	ac->in_qualified_call = 0;
+	((GE_types[((EIF_REFERENCE)C)->id][0]).dispose)(ac, (EIF_REFERENCE) C);
+	ac->in_qualified_call = in_qualified_call;
 }
 
 /*
@@ -94,10 +98,28 @@ void GE_boehm_dispose_once_per_object_data(void* data, void* disp) {
 }
 #endif
 
+/* The C side protects an object. */
+EIF_OBJECT eif_protect(EIF_REFERENCE object)
+{
+#ifdef GE_USE_BOEHM_GC
+	EIF_REFERENCE* result = (EIF_REFERENCE*)GC_malloc_uncollectable(sizeof(EIF_REFERENCE));
+	*result = object;
+	return (EIF_OBJECT)result;
+#else
+	return (EIF_OBJECT)object;
+#endif
+}
+
 /* The C side weans adopted object. */
 EIF_REFERENCE eif_wean(EIF_OBJECT object)
 {
+#ifdef GE_USE_BOEHM_GC
+	EIF_REFERENCE result = eif_access(object);
+	GE_free(object);
+	return result;
+#else
 	return (EIF_REFERENCE)object;
+#endif
 }
 
 #ifdef __cplusplus

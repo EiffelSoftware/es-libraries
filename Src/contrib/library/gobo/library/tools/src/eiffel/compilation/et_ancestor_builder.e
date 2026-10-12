@@ -5,7 +5,7 @@
 		"Eiffel class ancestor builders"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2003-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2003-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_ANCESTOR_BUILDER
@@ -105,23 +105,32 @@ feature {NONE} -- Processing
 			old_class: ET_CLASS
 			i, nb: INTEGER
 			i2, nb2: INTEGER
+			l_has_syntax_error: BOOLEAN
+			l_old_error_handler: detachable ET_ERROR_HANDLER
+			l_old_other_error_handler: detachable ET_ERROR_HANDLER
 		do
 			old_class := current_class
 			current_class := a_class
 			if not current_class.ancestors_built then
 				current_class.process (system_processor.eiffel_parser)
-				if not current_class.is_parsed or else current_class.has_syntax_error then
-					set_fatal_error (current_class)
-				else
+				l_has_syntax_error := not current_class.is_parsed_successfully
+				if not l_has_syntax_error or system_processor.is_fault_tolerant then
+					if l_has_syntax_error then
+						l_old_error_handler := system_processor.error_handler
+						system_processor.set_error_handler_only (tokens.null_error_handler)
+					end
 					add_class_to_sorter (current_class)
 					class_sorter.sort
 					check postcondition_of_sort: attached class_sorter.sorted_items as l_sorted_ancestors then
 						nb := l_sorted_ancestors.count
 						from i := 1 until i > nb loop
 							current_class := l_sorted_ancestors.item (i)
-							if not current_class.is_parsed or else current_class.has_syntax_error then
-								set_fatal_error (current_class)
-							else
+							l_has_syntax_error := not current_class.is_parsed_successfully
+							if not l_has_syntax_error or system_processor.is_fault_tolerant then
+								if l_has_syntax_error then
+									l_old_other_error_handler := system_processor.error_handler
+									system_processor.set_error_handler_only (tokens.null_error_handler)
+								end
 								current_class.set_ancestors_built
 								error_handler.report_compilation_status (Current, current_class, system_processor)
 								set_ancestors
@@ -130,6 +139,12 @@ feature {NONE} -- Processing
 									check_formal_parameters_validity
 									check_parents_validity
 								end
+								if l_old_other_error_handler /= Void then
+									system_processor.set_error_handler_only (l_old_other_error_handler)
+									set_fatal_error (current_class)
+								end
+							else
+								set_fatal_error (current_class)
 							end
 							i := i + 1
 						end
@@ -155,6 +170,13 @@ feature {NONE} -- Processing
 							class_sorter.wipe_out
 						end
 					end
+					if l_old_error_handler /= Void then
+						current_class := a_class
+						system_processor.set_error_handler_only (l_old_error_handler)
+						set_fatal_error (current_class)
+					end
+				else
+					set_fatal_error (current_class)
 				end
 			end
 			current_class := old_class
@@ -180,6 +202,8 @@ feature {NONE} -- Topological sort
 			i, nb: INTEGER
 			l_has_conforming_parent: BOOLEAN
 			l_parent_list: ET_PARENT_LIST
+			l_current_class_has_syntax_error: BOOLEAN
+			l_any_class_has_syntax_error: BOOLEAN
 		do
 			if a_class.is_none then
 				-- The validity error will be reported in `set_ancestors'.
@@ -192,7 +216,8 @@ feature {NONE} -- Topological sort
 				current_class := a_class
 				if not current_class.ancestors_built then
 					current_class.process (system_processor.eiffel_parser)
-					if not current_class.is_parsed or else current_class.has_syntax_error then
+					l_current_class_has_syntax_error := not current_class.is_parsed_successfully
+					if l_current_class_has_syntax_error and not system_processor.is_fault_tolerant then
 							-- This error has already been reported
 							-- somewhere else (during the parsing).
 						set_fatal_error (current_class)
@@ -202,8 +227,8 @@ feature {NONE} -- Topological sort
 					elseif class_sorter.has (current_class) then
 							-- Nothing to be done.
 					else
+						class_sorter.force (current_class)
 						if attached current_class.parent_clauses as l_parent_clauses then
-							class_sorter.force (current_class)
 							nb := l_parent_clauses.count
 							from i := 1 until i > nb loop
 								l_parent_list := l_parent_clauses.item (i)
@@ -221,38 +246,44 @@ feature {NONE} -- Topological sort
 										-- (for that to work we need to add `current_class' to the
 										-- class sorter despite the error).
 									set_fatal_error (l_system_object_class)
-									class_sorter.force (current_class)
 								elseif not l_system_object_class.is_dotnet then
 										-- Error: class "SYSTEM_OBJECT" not a .NET class (GVHSO-2, not in ETL2).
 										-- The validity error will be reported in `set_ancestors'
 										-- (for that to work we need to add `current_class' to the
 										-- class sorter despite the error).
 									set_fatal_error (l_system_object_class)
-									class_sorter.force (current_class)
 								else
-									class_sorter.force (current_class)
 									add_parents_to_sorter (current_class, current_universe.system_object_parents)
 								end
 							else
 								l_any_class := current_universe.any_type.base_class
 								l_any_class.process (system_processor.eiffel_parser)
+								l_any_class_has_syntax_error := not l_any_class.is_parsed_successfully
 								if not l_any_class.is_preparsed then
 										-- Error: class "ANY" not in universe (VHAY, ETL2 p.88).
 										-- The validity error will be reported in `set_ancestors'
 										-- (for that to work we need to add `current_class' to the
 										-- class sorter despite the error).
 									set_fatal_error (l_any_class)
-									class_sorter.force (current_class)
-								elseif not l_any_class.is_parsed or else l_any_class.has_syntax_error then
+								elseif l_any_class_has_syntax_error and not system_processor.is_fault_tolerant then
 										-- This error has already been reported
 										-- somewhere else (during the parsing).
 									set_fatal_error (l_any_class)
 								else
-									class_sorter.force (current_class)
 									add_parents_to_sorter (current_class, current_universe.any_parents)
+								end
+								if l_any_class_has_syntax_error then
+										-- This error has already been reported
+										-- somewhere else (during the parsing).
+									set_fatal_error (l_any_class)
 								end
 							end
 						end
+					end
+					if l_current_class_has_syntax_error then
+							-- This error has already been reported
+							-- somewhere else (during the parsing).
+						set_fatal_error (current_class)
 					end
 				end
 				current_class := old_class
@@ -342,6 +373,8 @@ feature {NONE} -- Ancestors
 						if l_parent_clause = system_object_parents and not a_parent_class.is_dotnet then
 								-- Error: class "SYSTEM_OBJECT" not a .NET class (GVHSO-2, not in ETL2).
 							error_handler.report_gvhso2a_error (current_class)
+						elseif system_processor.is_fault_tolerant then
+							add_parent_to_ancestors (a_parent, l_is_conforming)
 						end
 						has_error := True
 					elseif a_parent_class.is_frozen and l_is_conforming then
@@ -349,7 +382,7 @@ feature {NONE} -- Ancestors
 						set_fatal_error (current_class)
 						error_handler.report_vhpr2a_error (current_class, a_type)
 						has_error := True
-					elseif not has_error then
+					elseif not has_error or system_processor.is_fault_tolerant then
 						add_parent_to_ancestors (a_parent, l_is_conforming)
 						if current_class.has_ancestors_error then
 							has_error := True
@@ -393,12 +426,15 @@ feature {NONE} -- Ancestors
 			a_type, l_ancestor_type, l_parent_ancestor_type: ET_BASE_TYPE
 			i, nb: INTEGER
 			anc: ET_BASE_TYPE_LIST
+			l_already_added: BOOLEAN
+			l_already_resolved: BOOLEAN
 		do
 				-- Add current parent to `ancestors'.
 			a_parent_type := a_parent.type
 			a_parent_class := a_parent_type.base_class
 			ancestors.search (a_parent_class)
 			if ancestors.found then
+				l_already_added := True
 				l_ancestor_type := ancestors.found_item
 					-- The context in which the current parent appears is
 					-- `current_class', hence `current_class' appearing
@@ -407,20 +443,26 @@ feature {NONE} -- Ancestors
 					set_fatal_error (current_class)
 					error_handler.report_gvagp0a_error (current_class, l_ancestor_type, a_parent_type)
 				end
-			else
-				l_ancestor_type := a_parent_type
-				ancestors.force_last_new (l_ancestor_type, a_parent_class)
-					-- Add proper ancestors of current parent
-					-- to the ancestors of `current_class'.
-				a_parameters := a_parent.type.actual_parameters
-				parent_context.set (a_parent_type, current_class)
-				anc := a_parent_class.ancestors
-				nb := anc.count
-				from i := 1 until i > nb loop
-					a_type := anc.item (i)
-					a_class := a_type.base_class
-					ancestors.search (a_class)
-					if ancestors.found then
+					-- Make sure to preserve topological order:
+					-- so even when the ancestor was already added
+					-- we move it to last position.
+				ancestors.remove_found_item
+			end
+			l_ancestor_type := a_parent_type
+			ancestors.force_last_new (l_ancestor_type, a_parent_class)
+				-- Add proper ancestors of current parent
+				-- to the ancestors of `current_class'.
+			a_parameters := a_parent.type.actual_parameters
+			parent_context.set (a_parent_type, current_class)
+			anc := a_parent_class.ancestors
+			nb := anc.count
+			from i := 1 until i > nb loop
+				l_already_resolved := False
+				a_type := anc.item (i)
+				a_class := a_type.base_class
+				ancestors.search (a_class)
+				if ancestors.found then
+					if not l_already_added then
 						l_parent_ancestor_type := ancestors.found_item
 						if not l_parent_ancestor_type.same_syntactical_type (a_type, parent_context, current_class) then
 								-- Compute actual generic derivation of `a_type' in
@@ -428,44 +470,56 @@ feature {NONE} -- Ancestors
 							if a_parameters /= Void then
 								a_type := a_type.resolved_formal_parameters (a_parameters)
 							end
+							l_already_resolved := True
 							set_fatal_error (current_class)
 							error_handler.report_gvagp0a_error (current_class, l_parent_ancestor_type, a_type)
 						end
-					else
-							-- Compute actual generic derivation of `a_type' in
-							-- `current_class' if needed before inserting it in
-							-- `ancestors'.
-						if a_parameters /= Void then
-							a_type := a_type.resolved_formal_parameters (a_parameters)
-						end
-						ancestors.force_last_new (a_type, a_class)
 					end
-					i := i + 1
+						-- Make sure to preserve topological order:
+						-- so even when the ancestor was already added
+						-- we move it to last position.
+					ancestors.remove_found_item
 				end
+					-- Compute actual generic derivation of `a_type' in
+					-- `current_class' if needed before inserting it in
+					-- `ancestors'.
+				if not l_already_resolved and a_parameters /= Void then
+					a_type := a_type.resolved_formal_parameters (a_parameters)
+				end
+				ancestors.force_last_new (a_type, a_class)
+				i := i + 1
 			end
 			if a_is_conforming then
 				conforming_ancestors.search (a_parent_class)
-				if not conforming_ancestors.found then
-					conforming_ancestors.force_last_new (l_ancestor_type, a_parent_class)
-					anc := a_parent_class.conforming_ancestors
-					nb := anc.count
-					from i := 1 until i > nb loop
-						a_type := anc.item (i)
-						a_class := a_type.base_class
+				if conforming_ancestors.found then
+						-- Make sure to preserve topological order:
+						-- so even when the ancestor was already added
+						-- we move it to last position.
+					conforming_ancestors.remove_found_item
+				end
+				conforming_ancestors.force_last_new (l_ancestor_type, a_parent_class)
+				anc := a_parent_class.conforming_ancestors
+				nb := anc.count
+				from i := 1 until i > nb loop
+					a_type := anc.item (i)
+					a_class := a_type.base_class
+					ancestors.search (a_class)
+					if not ancestors.found then
+							-- Internal error: a conforming ancestor is an ancestor.
+						set_fatal_error (current_class)
+						error_handler.report_giaaa_error
+					else
 						conforming_ancestors.search (a_class)
-						if not conforming_ancestors.found then
-							ancestors.search (a_class)
-							if not ancestors.found then
-									-- Internal error: a conforming ancestor is an ancestor.
-								set_fatal_error (current_class)
-								error_handler.report_giaaa_error
-							else
-								l_parent_ancestor_type := ancestors.found_item
-								conforming_ancestors.force_last_new (l_parent_ancestor_type, a_class)
-							end
+						if conforming_ancestors.found then
+								-- Make sure to preserve topological order:
+								-- so even when the ancestor was already added
+								-- we move it to last position.
+							conforming_ancestors.remove_found_item
 						end
-						i := i + 1
+						l_parent_ancestor_type := ancestors.found_item
+						conforming_ancestors.force_last_new (l_parent_ancestor_type, a_class)
 					end
+					i := i + 1
 				end
 			end
 		end

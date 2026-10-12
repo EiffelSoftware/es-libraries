@@ -5,7 +5,7 @@
 		"C code generators"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2004-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2004-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_C_GENERATOR
@@ -271,11 +271,13 @@ feature {NONE} -- Initialization
 			create separate_call_instruction.make (tokens.current_keyword, current_feature.static_feature.name, Void)
 			create separate_call_expression.make (tokens.current_keyword, current_feature.static_feature.name, Void)
 			create separate_arguments.make (10)
+			create separate_formal_arguments.make (20)
 			create formal_arguments.make (20)
 			create manifest_array_types.make (100)
 			create big_manifest_array_types.make (100)
 			create manifest_tuple_types.make (100)
 			create once_features.make_map (10000)
+			create once_creation_procedures.make_map (1000)
 			create once_per_process_counts.make_filled (0, 1, once_kind_count)
 			create once_per_thread_counts.make_filled (0, 1, once_kind_count)
 			create constant_features.make_map (10000)
@@ -297,6 +299,9 @@ feature {NONE} -- Initialization
 			create inlined_boolean.make
 			create called_features.make (1000)
 			create inlined_features.make (10000)
+			create integer_choice_constant.make ("1", 1, False)
+			create inspect_if_choices.make (1000)
+			create inspect_case_choices.make (1000)
 			create included_header_filenames.make (100)
 			included_header_filenames.set_equality_tester (string_equality_tester)
 			create included_cpp_header_filenames.make (50)
@@ -1396,7 +1401,9 @@ extern void* GE_memset(void* str, int c, size_t n);
 #	define EMPTY_GETENV_RESULTS
 #	define DONT_USE_USER32_DLL
 #else
-#	if !defined(GE_MACOS)
+#	if defined(GE_MACOS)
+#		define FORCE_DESC_CATCH_EXCEPTION_RAISE
+#	else
 #		define GC_PTHREAD_START_STANDALONE
 #	endif
 #	ifndef _REENTRANT
@@ -1407,6 +1414,9 @@ extern void* GE_memset(void* str, int c, size_t n);
 
 #if defined(__clang__) || defined(__GNUC__) || defined(__MINGW32__) || defined(__MINGW64__)
 #	define GC_BUILTIN_ATOMIC
+#	if defined(GE_WINDOWS)
+#		define NO_WRAP_MARK_SOME
+#	endif
 #endif
 
 #if defined(__clang__)
@@ -1526,12 +1536,16 @@ extern void* GE_memset(void* str, int c, size_t n);
 			create l_common_defines.make (15)
 			create l_common_undefines.make (15)
 			create l_common_includes.make (5)
+			if use_boehm_gc then
+				l_common_defines.force_last (c_ge_use_boehm_gc)
+			end
 			if use_threads then
 				l_common_defines.force_last (c_ge_use_threads)
 			end
 			if use_scoop then
 				l_common_defines.force_last (c_ge_use_scoop)
 			end
+			include_runtime_header_file ("eif_config.h", False, header_file)
 			if a_library_name.same_string ("net") then
 				l_common_defines.force_last ("FD_SETSIZE 256")
 				l_common_undefines.force_last ("_UNICODE")
@@ -1540,6 +1554,10 @@ extern void* GE_memset(void* str, int c, size_t n);
 				include_runtime_header_file ("eif_retrieve.h", False, header_file)
 				include_runtime_header_file ("eif_store.h", False, header_file)
 				include_runtime_header_file ("eif_threads.h", False, header_file)
+			elseif a_library_name.same_string ("vision2_gtk3") then
+				l_common_defines.force_last ("GDK_DISABLE_DEPRECATED")
+				l_common_defines.force_last ("GTK_DISABLE_DEPRECATED")
+				l_common_defines.force_last ("GSEAL_ENABLE")
 			elseif a_library_name.same_string ("zlib") then
 				l_common_undefines.force_last ("_UNICODE")
 				l_common_undefines.force_last ("UNICODE")
@@ -1933,6 +1951,7 @@ feature {NONE} -- C code Generation
 				included_runtime_header_files.wipe_out
 				included_runtime_c_files.wipe_out
 				once_features.wipe_out
+				once_creation_procedures.wipe_out
 				once_per_process_counts.fill_with (0)
 				once_per_thread_counts.fill_with (0)
 				constant_features.wipe_out
@@ -2100,9 +2119,7 @@ feature {NONE} -- C code Generation
 			l_count: INTEGER
 			l_id: INTEGER
 		do
-			if current_dynamic_system.ise_runtime_type_conforms_to_feature /= Void then
-				sort_types
-			end
+			sort_types
 			l_dynamic_types := dynamic_types
 			nb := l_dynamic_types.count
 			from i := 1 until i > nb loop
@@ -2536,7 +2553,7 @@ feature {NONE} -- Feature generation
 			a_feature_not_void: a_feature /= Void
 			valid_feature: current_feature.static_feature = a_feature
 			is_creation: a_creation implies current_feature.is_creation
-			one_kind: (not a_creation and not a_inline) or (a_creation xor a_inline)
+			one_kind: (a_creation implies not a_inline) and (a_inline implies not a_creation)
 		local
 			l_result_type_set: detachable ET_DYNAMIC_TYPE_SET
 			l_result_type: detachable ET_DYNAMIC_PRIMARY_TYPE
@@ -2558,10 +2575,16 @@ feature {NONE} -- Feature generation
 			l_struct_type: STRING
 			old_file: KI_TEXT_OUTPUT_STREAM
 			l_is_inline: BOOLEAN
+			l_need_distinct_inline: BOOLEAN
 			l_is_cpp: BOOLEAN
 			l_cpp_class_type: STRING
 			l_dll_file: STRING
 			l_has_include_files: BOOLEAN
+			l_has_reference_arguments: BOOLEAN
+			l_has_separate_formal_arguments: BOOLEAN
+			l_preconditions_enabled: BOOLEAN
+			l_print_body: BOOLEAN
+			l_print_footer: BOOLEAN
 		do
 			old_file := current_file
 			current_file := current_function_header_buffer
@@ -2680,10 +2703,28 @@ feature {NONE} -- Feature generation
 						current_file.put_character (' ')
 						l_argument_type_set := argument_type_set (i)
 						l_argument_type := l_argument_type_set.static_type.primary_type
-						print_type_declaration (l_argument_type, header_file)
-						print_type_declaration (l_argument_type, current_file)
-						header_file.put_character (' ')
-						current_file.put_character (' ')
+						if a_inline and then use_boehm_gc and then not l_argument_type.is_expanded and then not current_feature.is_builtin then
+							header_file.put_string (c_eif_object)
+							current_file.put_string (c_eif_object)
+						else
+							print_type_declaration (l_argument_type, header_file)
+							print_type_declaration (l_argument_type, current_file)
+						end
+						if a_inline and then l_argument_type.is_expanded and then not l_argument_type.is_basic then
+							header_file.put_character ('*')
+							current_file.put_character ('*')
+							header_file.put_character (' ')
+							current_file.put_character (' ')
+						elseif not a_inline and then use_boehm_gc and then not l_argument_type.is_expanded and then not current_feature.is_builtin then
+							l_has_reference_arguments := True
+							header_file.put_character (' ')
+							current_file.put_character (' ')
+							header_file.put_character ('r')
+							current_file.put_character ('r')
+						else
+							header_file.put_character (' ')
+							current_file.put_character (' ')
+						end
 						l_name := l_arguments.formal_argument (i).name
 						print_argument_name (l_name, header_file)
 						print_argument_name (l_name, current_file)
@@ -2712,65 +2753,89 @@ feature {NONE} -- Feature generation
 				l_is_inline := True
 				l_is_cpp := True
 			end
+			l_need_distinct_inline := l_is_inline and then not a_inline and then
+				(l_has_reference_arguments or (exception_trace_mode or trace_mode) or
+				(current_type.base_class.invariants_enabled and then not current_feature.is_static) or
+				(current_type.base_class.postconditions_enabled and then not current_feature.postconditions.is_empty))
 				--
 				-- Declaration of variables.
 				--
-			if current_type.base_class.invariants_enabled and not current_feature.is_static then
-			print_indentation
-				current_file.put_string (c_uint32_t)
-				current_file.put_character (' ')
-				current_file.put_string (c_in_qualified_call)
-				print_assign_to
-				if a_creation then
-					current_file.put_character ('2')
-				else
+			if l_arguments /= Void and then l_has_reference_arguments then
+				from i := 1 until i > nb_args loop
+					l_argument_type_set := argument_type_set (i)
+					l_argument_type := l_argument_type_set.static_type.primary_type
+					if not l_argument_type.is_expanded then
+						print_indentation
+						current_file.put_string (c_eif_object)
+						current_file.put_character (' ')
+						l_name := l_arguments.formal_argument (i).name
+						print_argument_name (l_name, current_file)
+						print_assign_to
+						current_file.put_string (c_eif_protect)
+						current_file.put_character ('(')
+						current_file.put_character ('r')
+						print_argument_name (l_name, current_file)
+						current_file.put_character (')')
+						print_semicolon_newline
+					end
+					i := i + 1
+				end
+			end
+			if not a_inline then
+				if current_type.base_class.invariants_enabled and then not current_feature.is_static then
+					print_indentation
+					current_file.put_string (c_uint32_t)
+					current_file.put_character (' ')
+					current_file.put_string (c_in_qualified_call)
+					print_assign_to
+					if a_creation then
+						current_file.put_character ('2')
+					else
+						current_file.put_string (c_ac)
+						current_file.put_string (c_arrow)
+						current_file.put_string (c_in_qualified_call)
+					end
+					print_semicolon_newline
+				end
+					-- Variable for exception trace.
+				if exception_trace_mode then
+					print_indentation
+					current_file.put_string (c_ge_call)
+					current_file.put_character (' ')
+					current_file.put_string (c_tc)
+					current_file.put_character (' ')
+					current_file.put_character ('=')
+					current_file.put_character (' ')
+					current_file.put_character ('{')
+					if current_in_exception_trace then
+						if current_feature.is_static or a_creation then
+							current_file.put_character ('0')
+						else
+							print_current_name (current_file)
+						end
+						current_file.put_character (',')
+					end
+					print_escaped_string (current_type.base_class.upper_name)
+					current_file.put_character (',')
+					print_escaped_string (a_feature.lower_name)
+					current_file.put_character (',')
 					current_file.put_string (c_ac)
 					current_file.put_string (c_arrow)
-					current_file.put_string (c_in_qualified_call)
+					current_file.put_string (c_call)
+					current_file.put_character ('}')
+					current_file.put_character (';')
+					current_file.put_new_line
 				end
-				print_semicolon_newline
-			end
-				-- Variable for exception trace.
-			if exception_trace_mode and not a_inline then
-				print_indentation
-				current_file.put_string (c_ge_call)
-				current_file.put_character (' ')
-				current_file.put_string (c_tc)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('{')
-				if current_in_exception_trace then
-					if current_feature.is_static or a_creation then
-						current_file.put_character ('0')
-					else
-						print_current_name (current_file)
-					end
-					current_file.put_character (',')
+					-- Variable for 'Result' entity.
+				if l_result_type /= Void and (not l_is_inline or else l_need_distinct_inline) then
+					print_indentation
+					print_type_declaration (l_result_type, current_file)
+					current_file.put_character (' ')
+					print_result_name (current_file)
+					print_assign_to
+					print_default_entity_value (l_result_type, current_file)
+					print_semicolon_newline
 				end
-				print_escaped_string (current_type.base_class.upper_name)
-				current_file.put_character (',')
-				print_escaped_string (a_feature.lower_name)
-				current_file.put_character (',')
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_call)
-				current_file.put_character ('}')
-				current_file.put_character (';')
-				current_file.put_new_line
-			end
-				-- Variable for 'Result' entity.
-			if l_result_type /= Void and (not l_is_inline or else ((exception_trace_mode or trace_mode) and not a_inline)) then
-				print_indentation
-				print_type_declaration (l_result_type, current_file)
-				current_file.put_character (' ')
-				print_result_name (current_file)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				print_default_entity_value (l_result_type, current_file)
-				current_file.put_character (';')
-				current_file.put_new_line
 			end
 				--
 				-- Instructions.
@@ -2783,37 +2848,72 @@ feature {NONE} -- Feature generation
 					current_file.put_string (c_ac)
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_call)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					current_file.put_string (c_tc_address)
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 				end
 				print_feature_trace_message_call (True)
-			end
-			if current_type.base_class.invariants_enabled and not current_feature.is_static and not a_creation then
-				print_all_invariants (True)
-			end
-			if current_type.base_class.preconditions_enabled then
-				print_all_preconditions (a_feature)
-			end
-			if current_type.base_class.postconditions_enabled then
-				print_all_old_expression_declarations (a_feature)
+				if use_scoop then
+						-- Declaration of SCOOP sessions to register separate calls
+						-- in assertions of `a_feature'.
+					if has_separate_formal_arguments (a_feature) then
+						l_has_separate_formal_arguments := True
+						print_formal_argument_scoop_session_declarations (a_feature)
+						print_scoop_multisession_declaration
+						print_current_scoop_region_declaration
+						print_scoop_session_protection_declaration
+						print_indentation
+						current_file.put_string (c_while)
+						current_file.put_character (' ')
+						current_file.put_character ('(')
+						current_file.put_character ('1')
+						current_file.put_character (')')
+						current_file.put_character (' ')
+						current_file.put_character ('{')
+						current_file.put_new_line
+						indent
+						print_protect_all_scoop_sessions (a_feature)
+						print_open_formal_argument_scoop_sessions (a_feature)
+						l_print_body := True
+					end
+				end
+				if current_type.base_class.invariants_enabled and not current_feature.is_static and not a_creation then
+					print_all_invariants (True)
+					l_print_body := True
+				end
+				l_preconditions_enabled := current_type.base_class.preconditions_enabled
+				if l_preconditions_enabled or l_has_separate_formal_arguments then
+					print_all_preconditions (a_feature, l_preconditions_enabled)
+					l_print_body := True
+				end
+				if l_has_separate_formal_arguments then
+					print_indentation
+					current_file.put_string (c_break)
+					print_semicolon_newline
+					dedent
+					print_indentation
+					current_file.put_character ('}')
+					current_file.put_new_line
+				end
+				if current_type.base_class.postconditions_enabled then
+					print_all_old_expression_declarations (a_feature)
+					l_print_body := True
+				end
+				if l_print_body then
+					print_body_comment
+				end
 			end
 			if a_creation then
 				print_malloc_current (a_feature)
+				print_attributes_initialization (tokens.current_keyword, current_type, False)
 				if exception_trace_mode and then current_in_exception_trace then
 					print_indentation
 					current_file.put_string (c_tc)
 					current_file.put_character ('.')
 					current_file.put_string (c_object)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					print_current_name (current_file)
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 				end
 			end
 				-- Put the body of the feature in a block so that there
@@ -2836,11 +2936,11 @@ feature {NONE} -- Feature generation
 						print_external_c_includes (external_c_inline_regexp.captured_substring (3))
 					end
 				end
-				if (exception_trace_mode or trace_mode) and not a_inline then
+				if l_need_distinct_inline then
 						-- The inline C code may contain 'return' statement.
 						-- So we need to enclose its code in a separate C function.
+					print_indentation
 					if l_result_type_set /= Void then
-						print_indentation
 						print_result_name (current_file)
 						current_file.put_character (' ')
 						current_file.put_character ('=')
@@ -2853,6 +2953,11 @@ feature {NONE} -- Feature generation
 						from i := 1 until i > nb_args loop
 							current_file.put_character (',')
 							current_file.put_character (' ')
+							l_argument_type_set := argument_type_set (i)
+							l_argument_type := l_argument_type_set.static_type.primary_type
+							if l_argument_type.is_expanded and then not l_argument_type.is_basic then
+								current_file.put_character ('&')
+							end
 							l_name := l_arguments.formal_argument (i).name
 							print_argument_name (l_name, current_file)
 							i := i + 1
@@ -2862,7 +2967,7 @@ feature {NONE} -- Feature generation
 					current_file.put_character (';')
 					current_file.put_new_line
 				else
-					print_external_c_inline_body (a_feature)
+					print_external_c_inline_body (a_feature, a_inline)
 				end
 			elseif a_feature.is_builtin then
 				print_external_builtin_body (a_feature)
@@ -3078,13 +3183,22 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			print_indentation
 			current_file.put_character ('}')
 			current_file.put_new_line
-			if current_type.base_class.invariants_enabled and not current_feature.is_static then
-				print_all_invariants (False)
-			end
-			if current_type.base_class.postconditions_enabled then
-				print_all_postconditions (a_feature)
-			end
 			if not a_inline then
+				if current_type.base_class.invariants_enabled and not current_feature.is_static then
+					print_all_invariants (False)
+					l_print_footer := True
+				end
+				if current_type.base_class.postconditions_enabled then
+					print_all_postconditions (a_feature)
+					l_print_footer := True
+				end
+				if l_print_footer then
+					print_footer_comment
+				end
+				if l_has_separate_formal_arguments then
+					print_unprotect_scoop_sessions
+					print_close_formal_argument_scoop_sessions (a_feature, False)
+				end
 				print_feature_trace_message_call (False)
 					-- Call stack.
 				if exception_trace_mode then
@@ -3102,7 +3216,23 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					current_file.put_new_line
 				end
 			end
-			if l_result_type /= Void and (not l_is_inline or else ((exception_trace_mode or trace_mode) and not a_inline)) then
+			if l_arguments /= Void and then l_has_reference_arguments then
+				from i := 1 until i > nb_args loop
+					l_argument_type_set := argument_type_set (i)
+					l_argument_type := l_argument_type_set.static_type.primary_type
+					if not l_argument_type.is_expanded then
+						print_indentation
+						current_file.put_string (c_eif_wean)
+						current_file.put_character ('(')
+						l_name := l_arguments.formal_argument (i).name
+						print_argument_name (l_name, current_file)
+						current_file.put_character (')')
+						print_semicolon_newline
+					end
+					i := i + 1
+				end
+			end
+			if l_result_type /= Void and (not l_is_inline or else l_need_distinct_inline) then
 				print_indentation
 				current_file.put_string (c_return)
 				current_file.put_character (' ')
@@ -3124,6 +3254,14 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				-- Declarations of temporary variables.
 			current_file := current_function_header_buffer
 			print_temporary_variable_declarations
+			if
+				not a_inline and then
+				(current_type.base_class.preconditions_enabled or
+				current_type.base_class.postconditions_enabled)
+			then
+				print_object_test_local_declarations
+				print_iteration_cursor_declarations
+			end
 				-- Flush to file.
 			if l_is_cpp then
 				flush_to_cpp_file
@@ -3134,7 +3272,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				-- Clean up.
 				--
 			current_file := old_file
-			if (exception_trace_mode or trace_mode) and l_is_inline and not a_inline then
+			if l_need_distinct_inline then
 				print_external_routine (a_feature, False, True)
 			end
 		end
@@ -3146,289 +3284,16 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			a_feature_is_builtin: a_feature.is_builtin
 			valid_feature: current_feature.static_feature = a_feature
 		local
-			i, nb: INTEGER
-			l_name: ET_IDENTIFIER
-			l_argument_type: ET_DYNAMIC_TYPE
-			l_arguments: detachable ET_FORMAL_ARGUMENT_LIST
-			l_argument: ET_FORMAL_ARGUMENT
 			old_file: KI_TEXT_OUTPUT_STREAM
-			l_has_separate_arguments: BOOLEAN
-			l_separate_arguments_count: INTEGER
 		do
 			old_file := current_file
 			current_file := current_function_header_buffer
-				--
-				-- Declaration of variables.
-				--
-			if use_scoop then
-					-- Declaration of SCOOP sessions to register separate calls.
-				l_arguments := a_feature.arguments
-				if l_arguments /= Void then
-					nb := l_arguments.count
-					from i := 1 until i > nb loop
-						l_argument := l_arguments.formal_argument (i)
-						l_name := l_argument.name
-						l_argument_type := dynamic_type_set (l_name).static_type
-						if l_argument_type.is_separate then
-							l_has_separate_arguments := True
-							l_separate_arguments_count := l_separate_arguments_count + 1
-							print_indentation
-							current_file.put_string (c_ge_scoop_session)
-							current_file.put_character ('*')
-							current_file.put_character (' ')
-							print_separate_argument_session_name (l_name, current_file)
-							current_file.put_character (' ')
-							current_file.put_character ('=')
-							current_file.put_character (' ')
-							current_file.put_character ('0')
-							print_semicolon_newline
-						end
-						i := i + 1
-					end
-				end
-				if l_has_separate_arguments then
-					print_indentation
-					current_file.put_string (c_ge_scoop_region)
-					current_file.put_character ('*')
-					current_file.put_character (' ')
-					current_file.put_string (c_sr)
-					print_assign_to
-					current_file.put_string (c_ac)
-					current_file.put_string (c_arrow)
-					current_file.put_string (c_region)
-					print_semicolon_newline
-					print_indentation
-					current_file.put_string (c_ge_scoop_condition)
-					current_file.put_character ('*')
-					current_file.put_character (' ')
-					current_file.put_string (c_scond)
-					print_assign_to
-					current_file.put_character ('0')
-					print_semicolon_newline
-					print_indentation
-					current_file.put_string (c_ge_rescue)
-					current_file.put_character (' ')
-					current_file.put_character ('r')
-					current_file.put_character (';')
-					current_file.put_new_line
-				end
-			end
-				--
 				-- Instructions.
-				--
 			current_file := current_function_body_buffer
-			if l_has_separate_arguments then
-					-- Start the current SCOOP sessions.
-				if l_separate_arguments_count > 1 then
-					print_indentation
-					current_file.put_string (c_ge_scoop_multisessions_open_start)
-					current_file.put_character ('(')
-					current_file.put_character (')')
-					print_semicolon_newline
-					print_indentation
-					current_file.put_string (c_scond)
-					print_assign_to
-					current_file.put_string (c_ge_new_scoop_condition)
-					current_file.put_character ('(')
-					current_file.put_integer (l_separate_arguments_count)
-					current_file.put_character (')')
-					print_semicolon_newline
-				end
-				check l_has_separate_arguments: l_arguments /= Void then end
-				nb := l_arguments.count
-				from i := 1 until i > nb loop
-					l_argument := l_arguments.formal_argument (i)
-					l_name := l_argument.name
-					l_argument_type := dynamic_type_set (l_name).static_type
-					if l_argument_type.is_separate then
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_formal_argument (l_name)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (' ')
-						current_file.put_character ('=')
-						current_file.put_character (' ')
-						current_file.put_string (c_ge_scoop_session_open)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						print_attribute_region_access (l_name, l_argument_type.primary_type, False)
-						print_comma
-						current_file.put_string (c_scond)
-						current_file.put_character (')')
-						if l_separate_arguments_count > 1 then
-							current_file.put_character (';')
-							current_file.put_character (' ')
-							current_file.put_string (c_else)
-							current_file.put_character (' ')
-							current_file.put_string (c_ge_scoop_condition_decrement)
-							current_file.put_character ('(')
-							current_file.put_string (c_scond)
-							current_file.put_character (')')
-						end
-						print_semicolon_newline
-					end
-					i := i + 1
-				end
-				if l_separate_arguments_count > 1 then
-					print_indentation
-					current_file.put_string (c_ge_scoop_multisessions_open_stop)
-					current_file.put_character ('(')
-					current_file.put_character (')')
-					print_semicolon_newline
-				end
-				print_indentation
-				current_file.put_character ('r')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_if)
-				current_file.put_character (' ')
-				current_file.put_character ('(')
-				current_file.put_string (c_ge_setjmp)
-				current_file.put_character ('(')
-				current_file.put_character ('r')
-				current_file.put_character ('.')
-				current_file.put_character ('j')
-				current_file.put_character ('b')
-				current_file.put_character (')')
-				current_file.put_character (' ')
-				current_file.put_character ('!')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('0')
-				current_file.put_character (')')
-				current_file.put_character (' ')
-				current_file.put_character ('{')
-				current_file.put_new_line
-				indent
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
-					-- Make sure to exit from the current SCOOP sessions
-					-- before propagating the exception.
-				check l_has_separate_arguments: l_arguments /= Void then end
-				nb := l_arguments.count
-				from i := 1 until i > nb loop
-					l_argument := l_arguments.formal_argument (i)
-					l_name := l_argument.name
-					l_argument_type := dynamic_type_set (l_name).static_type
-					if l_argument_type.is_separate then
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						current_file.put_string (c_ge_scoop_session_close)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						print_semicolon_newline
-					end
-					i := i + 1
-				end
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_ge_jump_to_last_rescue)
-				current_file.put_character ('(')
-				current_file.put_string (c_ac)
-				current_file.put_character (')')
-				current_file.put_character (';')
-				current_file.put_new_line
-				dedent
-				print_indentation
-				current_file.put_character ('}')
-				current_file.put_new_line
-			end
 			if a_feature.is_function then
 				print_external_builtin_function_body (a_feature)
 			else
 				print_external_builtin_procedure_body (a_feature)
-			end
-			if l_has_separate_arguments then
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				current_file.put_character (';')
-				current_file.put_new_line
-					-- Exit from the current SCOOP sessions.
-				check l_has_separate_arguments: l_arguments /= Void then end
-				nb := l_arguments.count
-				from i := 1 until i > nb loop
-					l_argument := l_arguments.formal_argument (i)
-					l_name := l_argument.name
-					l_argument_type := dynamic_type_set (l_name).static_type
-					if l_argument_type.is_separate then
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						current_file.put_string (c_ge_scoop_session_close)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						print_semicolon_newline
-					end
-					i := i + 1
-				end
 			end
 				-- Clean up.
 			current_file := old_file
@@ -3468,6 +3333,8 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				print_external_builtin_exception_manager_factory_function_body (a_feature)
 			when {ET_TOKEN_CODES}.builtin_function_class then
 				print_external_builtin_function_function_body (a_feature)
+			when {ET_TOKEN_CODES}.builtin_identified_controller_class then
+				print_external_builtin_identified_controller_function_body (a_feature)
 			when {ET_TOKEN_CODES}.builtin_identified_routines_class then
 				print_external_builtin_identified_routines_function_body (a_feature)
 			when {ET_TOKEN_CODES}.builtin_integer_8_class then
@@ -3897,6 +3764,31 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					-- This error should already have been reported in ET_FEATURE_FLATTENER.
 				set_fatal_error
 				error_handler.report_giaac_error (generator, "print_external_builtin_function_function_body", 1, "unknown built-in feature.")
+			end
+		end
+
+	print_external_builtin_identified_controller_function_body (a_feature: ET_EXTERNAL_ROUTINE)
+			-- Print to `current_file' the body of built-in feature `a_feature'.
+			-- `a_feature' is a built-in function introduced in class "IDENTIFIED_CONTROLLER".
+		require
+			a_feature_not_void: a_feature /= Void
+			a_feature_is_function: a_feature.is_function
+			a_feature_is_builtin: a_feature.is_builtin
+			a_feature_is_builtin_identified_controller: current_feature.is_builtin_identified_controller_class
+			valid_feature: current_feature.static_feature = a_feature
+		do
+			inspect a_feature.builtin_feature_code
+			when {ET_TOKEN_CODES}.builtin_identified_controller_object_id_stack_size then
+				fill_call_formal_arguments (a_feature)
+				print_indentation_assign_to_result
+				print_builtin_identified_controller_object_id_stack_size_call (current_feature, current_type, False)
+				print_semicolon_newline
+				call_operands.wipe_out
+			else
+					-- Internal error: unknown built-in feature.
+					-- This error should already have been reported in ET_FEATURE_FLATTENER.
+				set_fatal_error
+				error_handler.report_giaac_error (generator, "print_external_builtin_identified_conroller_function_body", 1, "unknown built-in feature.")
 			end
 		end
 
@@ -5269,6 +5161,8 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				print_external_builtin_com_failure_procedure_body (a_feature)
 			when {ET_TOKEN_CODES}.builtin_exception_manager_class then
 				print_external_builtin_exception_manager_procedure_body (a_feature)
+			when {ET_TOKEN_CODES}.builtin_identified_controller_class then
+				print_external_builtin_identified_controller_procedure_body (a_feature)
 			when {ET_TOKEN_CODES}.builtin_identified_routines_class then
 				print_external_builtin_identified_routines_procedure_body (a_feature)
 			when {ET_TOKEN_CODES}.builtin_integer_8_ref_class then
@@ -5429,6 +5323,29 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					-- This error should already have been reported in ET_FEATURE_FLATTENER.
 				set_fatal_error
 				error_handler.report_giaac_error (generator, "print_external_builtin_exception_manager_procedure_body", 1, "unknown built-in feature.")
+			end
+		end
+
+	print_external_builtin_identified_controller_procedure_body (a_feature: ET_EXTERNAL_ROUTINE)
+			-- Print to `current_file' the body of built-in feature `a_feature'.
+			-- `a_feature' is a built-in procedure introduced in class "IDENTIFIED_CONTROLLER".
+		require
+			a_feature_not_void: a_feature /= Void
+			a_feature_is_procedure: a_feature.is_procedure
+			a_feature_is_builtin: a_feature.is_builtin
+			a_feature_is_builtin_identified_controller: current_feature.is_builtin_identified_controller_class
+			valid_feature: current_feature.static_feature = a_feature
+		do
+			inspect a_feature.builtin_feature_code
+			when {ET_TOKEN_CODES}.builtin_identified_controller_extend_object_id_stack then
+				fill_call_formal_arguments (a_feature)
+				print_builtin_identified_controller_extend_object_id_stack_call (current_feature, current_type, False)
+				call_operands.wipe_out
+			else
+					-- Internal error: unknown built-in feature.
+					-- This error should already have been reported in ET_FEATURE_FLATTENER.
+				set_fatal_error
+				error_handler.report_giaac_error (generator, "print_external_builtin_identified_controller_procedure_body", 1, "unknown built-in feature.")
 			end
 		end
 
@@ -6227,8 +6144,10 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			current_file.put_new_line
 		end
 
-	print_external_c_inline_body (a_feature: ET_EXTERNAL_ROUTINE)
+	print_external_c_inline_body (a_feature: ET_EXTERNAL_ROUTINE; a_inline: BOOLEAN)
 			-- Print body of external "C inline" `a_feature' to `current_file'.
+			-- `a_inline' means that `a_feature' is a C inline or C++ inline feature and
+			-- we want to generate its code in a separate function.
 		require
 			a_feature_not_void: a_feature /= Void
 			valid_feature: current_feature.static_feature = a_feature
@@ -6250,6 +6169,9 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			l_newline_needed_before_semicolon: BOOLEAN
 			l_has_result_type_cast: BOOLEAN
 			c, c3: CHARACTER
+			l_is_typed_pointer: BOOLEAN
+			l_is_pointer: BOOLEAN
+			l_is_inlined: BOOLEAN
 		do
 			if attached a_feature.alias_clause as l_alias then
 				l_alias_value := l_alias.manifest_string
@@ -6355,6 +6277,9 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 										i2 := i2 + 1
 									end
 									if l_max_index /= 0 then
+										l_is_typed_pointer := False
+										l_is_pointer := False
+										l_is_inlined := False
 										l_argument_name := l_formal_arguments.formal_argument (l_max_index).name
 										l_argument_type_set := argument_type_set (l_max_index)
 										l_argument_type := l_argument_type_set.static_type.primary_type
@@ -6369,7 +6294,9 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 												set_fatal_error
 												error_handler.report_giaac_error (generator, "print_external_c_inline_body", 1, "missing generic parameter for type 'TYPED_POINTER'.")
 											else
+												l_is_typed_pointer := True
 												l_actual_parameter := current_dynamic_system.dynamic_primary_type (l_actual_parameters.type (1), current_system.any_type)
+												current_file.put_character ('(')
 												current_file.put_character ('(')
 												print_type_declaration (l_actual_parameter, current_file)
 												if l_actual_parameter.is_expanded then
@@ -6377,21 +6304,33 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 												end
 												current_file.put_character (')')
 												current_file.put_character ('(')
-												print_argument_name (l_argument_name, current_file)
-												current_file.put_character ('.')
-												current_file.put_character ('a')
-												current_file.put_character ('1')
-												current_file.put_character (')')
 											end
-										else
-											if l_argument_type = current_dynamic_system.pointer_type then
-													-- Get rid of the volatile type marker.
-												current_file.put_character ('(')
-												current_file.put_string (c_void)
-												current_file.put_character ('*')
-												current_file.put_character (')')
-											end
-											print_argument_name (l_argument_name, current_file)
+										elseif l_argument_type = current_dynamic_system.pointer_type then
+											l_is_pointer := True
+												-- Get rid of the volatile type marker.
+											current_file.put_character ('(')
+											current_file.put_character ('(')
+											current_file.put_string (c_void)
+											current_file.put_character ('*')
+											current_file.put_character (')')
+										end
+										if a_inline and then l_argument_type.is_expanded and then not l_argument_type.is_basic then
+											l_is_inlined := True
+											current_file.put_character ('(')
+											current_file.put_character ('*')
+										end
+										print_argument_name (l_argument_name, current_file)
+										if l_is_inlined then
+											current_file.put_character (')')
+										end
+										if l_is_typed_pointer then
+											current_file.put_character ('.')
+											current_file.put_character ('a')
+											current_file.put_character ('1')
+											current_file.put_character (')')
+											current_file.put_character (')')
+										elseif l_is_pointer then
+											current_file.put_character (')')
 										end
 										i := i + l_max
 									else
@@ -7047,9 +6986,6 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			l_once_kind: INTEGER
 			l_once_index: INTEGER
 			l_is_once: BOOLEAN
-			l_is_once_per_process: BOOLEAN
-			l_is_once_per_thread: BOOLEAN
-			l_is_once_per_object: BOOLEAN
 			l_is_self_initialized_attribute: BOOLEAN
 		do
 			old_file := current_file
@@ -7170,15 +7106,20 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			end
 				-- Call stack.
 			if exception_trace_mode then
-				l_is_empty := not a_creation and then (not attached a_feature.compound as l_compound or else l_compound.is_empty) and then a_feature.rescue_clause = Void
+				l_is_empty :=
+					not a_creation and then
+					not current_feature.has_separate_argument and then
+					not (current_type.base_class.invariants_enabled and not current_closure.is_static) and then
+					not current_type.base_class.preconditions_enabled and then
+					not current_type.base_class.postconditions_enabled and then
+					(not attached a_feature.compound as l_compound or else l_compound.is_empty) and then
+					a_feature.rescue_clause = Void
 				if not l_is_empty then
 					print_indentation
 					current_file.put_string (c_ge_call)
 					current_file.put_character (' ')
 					current_file.put_string (c_tc)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					current_file.put_character ('{')
 					if current_in_exception_trace then
 						if current_feature.is_static or a_creation then
@@ -7196,204 +7137,60 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_call)
 					current_file.put_character ('}')
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 				end
 			end
 				--
 				-- Print body to `current_file'.
 				--
 			current_file := current_function_body_buffer
-			if a_feature.is_once then
-				l_is_once := True
-				l_is_once_per_process := a_feature.is_once_per_process
-				l_is_once_per_thread := a_feature.is_once_per_thread
-				l_is_once_per_object := a_feature.is_once_per_object
-				if l_is_once_per_process or l_is_once_per_thread then
-					register_once_feature (current_feature)
-					l_once_index := once_features.value (a_feature.implementation_feature)
-					l_once_kind := once_kind (current_feature)
-				end
-				if l_is_once_per_object then
-						-- Create once-per-object data for 'Current' object if not created yet.
-					if use_threads then
-						print_once_per_object_global_mutex_lock
-					end
-					print_indentation
-					current_file.put_string (c_if)
-					current_file.put_character (' ')
-					current_file.put_character ('(')
-					current_file.put_character ('!')
-					print_attribute_onces_access (tokens.current_keyword, current_type, False)
-					current_file.put_character (')')
-					current_file.put_character (' ')
-					current_file.put_character ('{')
-					current_file.put_new_line
-					indent
-					print_indentation
-					print_attribute_onces_access (tokens.current_keyword, current_type, False)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
-					current_file.put_string (c_ge_new_once_per_object_data)
-					current_file.put_integer (current_type.id)
-					current_file.put_character ('(')
-					current_file.put_character (')')
-					current_file.put_character (';')
-					current_file.put_new_line
-					dedent
-					print_indentation
-					current_file.put_character ('}')
-					current_file.put_new_line
-					if use_threads then
-						print_once_per_object_global_mutex_unlock
-					end
-				end
-				if not use_threads or else l_is_once_per_thread then
-					print_indentation
-					current_file.put_string (c_if)
-					current_file.put_character (' ')
-					current_file.put_character ('(')
-					print_once_status (current_feature, l_once_kind, l_once_index)
-					current_file.put_character (')')
-					current_file.put_character (' ')
-					current_file.put_character ('{')
-					current_file.put_new_line
-					indent
-					print_raise_once_exception_if_any (current_feature, l_once_kind, l_once_index)
-					print_return_once_value (current_feature, l_once_kind, l_once_index)
-					dedent
-					print_indentation
-					current_file.put_character ('}')
-					current_file.put_character (' ')
-					current_file.put_string (c_else)
-					current_file.put_character (' ')
-					current_file.put_character ('{')
-					current_file.put_new_line
-					indent
-				else
-					if use_threads and then l_is_once_per_process then
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_thread_safe_once_per_process_status (current_feature, l_once_kind, l_once_index)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						current_file.put_character ('{')
-						current_file.put_new_line
-						indent
-						print_raise_thread_safe_once_exception_if_any (current_feature, l_once_kind, l_once_index)
-						print_return_thread_safe_once_value (current_feature, l_once_kind, l_once_index)
-						dedent
-						print_indentation
-						current_file.put_character ('}')
-						current_file.put_character (' ')
-						current_file.put_string (c_else)
-						current_file.put_character (' ')
-						current_file.put_character ('{')
-						current_file.put_new_line
-						indent
-					end
-					print_indentation
-					current_file.put_string (c_if)
-					current_file.put_character (' ')
-					current_file.put_character ('(')
-					current_file.put_character ('!')
-					print_once_mutex_try_lock (current_feature, l_once_kind, l_once_index)
-					current_file.put_character (')')
-					current_file.put_character (' ')
-					current_file.put_character ('{')
-					current_file.put_new_line
-					indent
-						-- Wait for other thread to complete (lock/unlock).
-					print_once_mutex_lock (current_feature, l_once_kind, l_once_index)
-					print_once_mutex_unlock (current_feature, l_once_kind, l_once_index)
-					if l_result_type /= Void then
-						print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index)
-						if l_is_once_per_process then
-							print_assign_result_to_thread_safe_once_value (current_feature, l_once_kind, l_once_index)
-						end
-					end
-					if l_is_once_per_process then
-						print_assign_once_exception_to_thread_safe_once_exception (current_feature, l_once_kind, l_once_index)
-						print_assign_called_to_thread_safe_once_status (current_feature, l_once_kind, l_once_index)
-					end
-					print_raise_once_exception_if_any (current_feature, l_once_kind, l_once_index)
-					print_return_statement (a_feature)
-					dedent
-					print_indentation
-					current_file.put_character ('}')
-					current_file.put_character (' ')
-					current_file.put_string (c_else)
-					current_file.put_character (' ')
-					current_file.put_string (c_if)
-					current_file.put_character (' ')
-					current_file.put_character ('(')
-					print_once_status_is_completed (current_feature, l_once_kind, l_once_index)
-					current_file.put_character (')')
-					current_file.put_character (' ')
-					current_file.put_character ('{')
-					current_file.put_new_line
-					indent
-					if l_result_type /= Void then
-						print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index)
-						if l_is_once_per_process then
-							print_assign_result_to_thread_safe_once_value (current_feature, l_once_kind, l_once_index)
-						end
-					end
-					if l_is_once_per_process then
-						print_assign_once_exception_to_thread_safe_once_exception (current_feature, l_once_kind, l_once_index)
-						print_assign_called_to_thread_safe_once_status (current_feature, l_once_kind, l_once_index)
-					end
-					print_once_mutex_unlock (current_feature, l_once_kind, l_once_index)
-					print_raise_once_exception_if_any (current_feature, l_once_kind, l_once_index)
-					print_return_statement (a_feature)
-					dedent
-					print_indentation
-					current_file.put_character ('}')
-					current_file.put_character (' ')
-					current_file.put_string (c_else)
-					current_file.put_character (' ')
-					current_file.put_string (c_if)
-					current_file.put_character (' ')
-					current_file.put_character ('(')
-					print_once_status (current_feature, l_once_kind, l_once_index)
-					current_file.put_character (')')
-					current_file.put_character (' ')
-					current_file.put_character ('{')
-					current_file.put_new_line
-					indent
-					print_return_once_value (current_feature, l_once_kind, l_once_index)
-					dedent
-					print_indentation
-					current_file.put_character ('}')
-					current_file.put_character (' ')
-					current_file.put_string (c_else)
-					current_file.put_character (' ')
-					current_file.put_character ('{')
-					current_file.put_new_line
-					indent
-				end
-				print_assign_called_to_once_status (current_feature, l_once_kind, l_once_index)
-				if l_result_type /= Void then
-						-- The following is to make sure that if a once-function is called
-						-- recursively, the semantics specified by ECMA will be satisfied.
-						-- ECMA 367-2 section 8.23.22 page 124 says that the recursive calls
-						-- to the once-function should return the value of 'Result' as it
-						-- was when the recursive calls occurred.
-					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index)
-				end
-				dedent
+				-- Call stack.
+			if exception_trace_mode and then not l_is_empty then
 				print_indentation
-				current_file.put_character ('}')
-				current_file.put_new_line
-				if use_threads and then l_is_once_per_process then
-					dedent
+				current_file.put_string (c_ac)
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_call)
+				print_assign_to
+				current_file.put_string (c_tc_address)
+				print_semicolon_newline
+			end
+			print_feature_trace_message_call (True)
+			l_is_once := a_feature.is_once
+			if l_is_once and a_creation then
+				print_before_once_routine (a_feature, True)
+			end
+			if a_creation then
+				print_malloc_current (a_feature)
+				print_attributes_initialization (tokens.current_keyword, current_type, False)
+				if l_is_once then
 					print_indentation
-					current_file.put_character ('}')
-					current_file.put_new_line
+					print_attribute_once_class_index_access (tokens.current_keyword, current_type, False)
+					print_assign_to
+					print_integer_value (a_feature.once_creation_index, False, current_dynamic_system.natural_32_type, False)
+					print_semicolon_newline
+					print_indentation
+					print_result_name (current_file)
+					print_assign_to
+					print_current_name (current_file)
+					print_semicolon_newline
+					if a_feature.is_once_per_process or a_feature.is_once_per_thread then
+						l_once_index := (if a_creation then once_creation_procedures else once_features end).value (a_feature.implementation_feature)
+						l_once_kind := once_kind (current_feature, a_creation)
+					end
+					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index, a_creation)
 				end
+				if exception_trace_mode and then current_in_exception_trace then
+					print_indentation
+					current_file.put_string (c_tc)
+					current_file.put_character ('.')
+					current_file.put_string (c_object)
+					print_assign_to
+					print_current_name (current_file)
+					print_semicolon_newline
+				end
+			end
+			if l_is_once then
+				print_before_once_routine (a_feature, False)
 			elseif a_feature.is_attribute then
 					-- Self-initialized attribute.
 				l_is_self_initialized_attribute := True
@@ -7409,46 +7206,37 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				current_file.put_new_line
 				indent
 				print_indentation
-				current_file.put_string (c_return)
-				current_file.put_character (' ')
+				print_result_name (current_file)
+				print_assign_to
 				print_attribute_access (current_feature, tokens.current_keyword, current_type, False)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
+				print_indentation
+				current_file.put_string (c_goto)
+				current_file.put_character (' ')
+				current_file.put_string (c_ge_attribute_return)
+				print_semicolon_newline
 				dedent
 				print_indentation
 				current_file.put_character ('}')
 				current_file.put_new_line
 			end
-				-- Call stack.
-			if exception_trace_mode and then not l_is_empty then
+			print_internal_feature_body_declaration (a_feature, l_result_type, a_creation)
+			if l_is_once then
+				print_after_once_routine (a_feature, False)
+				if a_creation then
+					print_after_once_routine (a_feature, True)
+				end
+			elseif l_is_self_initialized_attribute then
+					-- Record value of self-initialized attribute.
 				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_call)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_string (c_tc_address)
-				current_file.put_character (';')
+				print_attribute_access (current_feature, tokens.current_keyword, current_type, False)
+				print_assign_to
+				print_result_name (current_file)
+				print_semicolon_newline
+				current_file.put_string (c_ge_attribute_return)
+				current_file.put_character (':')
 				current_file.put_new_line
 			end
-			print_feature_trace_message_call (True)
-			if a_creation then
-				print_malloc_current (a_feature)
-				if exception_trace_mode and then current_in_exception_trace then
-					print_indentation
-					current_file.put_string (c_tc)
-					current_file.put_character ('.')
-					current_file.put_string (c_object)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
-					print_current_name (current_file)
-					current_file.put_character (';')
-					current_file.put_new_line
-				end
-			end
-			print_internal_feature_body_declaration (a_feature, l_result_type, a_creation)
 			print_feature_trace_message_call (False)
 				-- Call stack.
 			if exception_trace_mode and then not l_is_empty then
@@ -7456,53 +7244,11 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_call)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_string (c_tc)
 				current_file.put_character ('.')
 				current_file.put_string (c_caller)
-				current_file.put_character (';')
-				current_file.put_new_line
-			end
-			if l_is_once then
-				if l_result_type /= Void and then (l_result_type.is_expanded and then not l_result_type.is_basic) then
-						-- The following is to make sure that if a once-function is called
-						-- recursively, the semantics specified by ECMA will be satisfied.
-						-- ECMA 367-2 section 8.23.22 page 124 says that the recursive calls
-						-- to the once-function should return the value of 'Result' as it
-						-- was when the recursive calls occurred.
-						-- There is a special treatment for once-per-process and once-per-thread
-						-- functions of non-basic expanded types because a boxed version of the
-						-- Result (and not the Result itself) is kept in the 'GE_onces' C struct.
-						-- So we usede the content of the boxed value in place of Result
-						-- in case its fields get modified. Likewise for once-per-object functions
-						-- even though the Result is not boxed in that case. (See `print_result'.)
-						-- Set it back to Result here.
-					print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index)
-				end
-				if use_threads then
-					if l_is_once_per_process then
-						if l_result_type /= Void then
-							print_assign_result_to_thread_safe_once_value (current_feature, l_once_kind, l_once_index)
-						end
-						print_assign_called_to_thread_safe_once_status (current_feature, l_once_kind, l_once_index)
-					end
-					if not l_is_once_per_thread then
-						print_assign_completed_to_once_status (current_feature, l_once_kind, l_once_index)
-						print_once_mutex_unlock (current_feature, l_once_kind, l_once_index)
-					end
-				end
-			elseif l_is_self_initialized_attribute then
-					-- Record value of self-initialized attribute.
-				print_indentation
-				print_attribute_access (current_feature, tokens.current_keyword, current_type, False)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				print_result_name (current_file)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 			end
 			if l_result_type /= Void then
 				print_return_statement (a_feature)
@@ -7510,12 +7256,17 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				print_indentation
 				current_file.put_string (c_return)
 				current_file.put_character (' ')
-				if current_type.is_expanded then
-					current_file.put_character ('*')
+				if l_is_once then
+					print_result_name (current_file)
+				else
+					if current_type.is_expanded then
+						current_file.put_character ('*')
+					end
+					print_current_name (current_file)
 				end
-				print_current_name (current_file)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
+			elseif l_is_once then
+				print_return_statement (a_feature)
 			end
 			dedent
 			current_file.put_character ('}')
@@ -7524,6 +7275,8 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				-- Declarations of temporary variables.
 			current_file := current_function_header_buffer
 			print_temporary_variable_declarations
+			print_object_test_local_declarations
+			print_iteration_cursor_declarations
 				-- Flush to file.
 			flush_to_c_file
 				--
@@ -7540,9 +7293,6 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 		local
 			i, nb: INTEGER
 			l_name: ET_IDENTIFIER
-			l_argument_type: ET_DYNAMIC_TYPE
-			l_arguments: detachable ET_FORMAL_ARGUMENT_LIST
-			l_argument: ET_FORMAL_ARGUMENT
 			l_local_type_set: ET_DYNAMIC_TYPE_SET
 			l_local_type: ET_DYNAMIC_PRIMARY_TYPE
 			l_rescue: detachable ET_COMPOUND
@@ -7556,7 +7306,9 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			l_once_index: INTEGER
 			l_has_separate_arguments: BOOLEAN
 			l_has_separate_formal_arguments: BOOLEAN
-			l_separate_formal_arguments_count: INTEGER
+			l_preconditions_enabled: BOOLEAN
+			l_print_body: BOOLEAN
+			l_print_footer: BOOLEAN
 		do
 			old_file := current_file
 			current_file := current_function_header_buffer
@@ -7570,7 +7322,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					once_features.search (current_feature.static_feature.implementation_feature)
 					if once_features.found then
 						l_once_index := once_features.found_item
-						l_once_kind := once_kind (current_feature)
+						l_once_kind := once_kind (current_feature, False)
 					end
 				end
 			end
@@ -7579,66 +7331,18 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					-- even for those of inline separate instructions contained
 					-- in `a_feature'.
 				if attached a_feature.inline_separate_arguments as l_inline_separate_arguments then
-					nb := l_inline_separate_arguments.count
-					l_has_separate_arguments := nb > 0
-					from i := 1 until i > nb loop
-						print_indentation
-						current_file.put_string (c_ge_scoop_session)
-						current_file.put_character ('*')
-						current_file.put_character (' ')
-						print_separate_argument_session_name (l_inline_separate_arguments.argument (i).name, current_file)
-						current_file.put_character (' ')
-						current_file.put_character ('=')
-						current_file.put_character (' ')
-						current_file.put_character ('0')
-						print_semicolon_newline
-						i := i + 1
-					end
+					l_has_separate_arguments := l_inline_separate_arguments.count > 0
+					print_inline_argument_scoop_session_declarations (a_feature)
 				end
-				l_arguments := a_feature.arguments
-				if l_arguments /= Void then
-					nb := l_arguments.count
-					from i := 1 until i > nb loop
-						l_argument := l_arguments.formal_argument (i)
-						l_name := l_argument.name
-						l_argument_type := dynamic_type_set (l_name).static_type
-						if l_argument_type.is_separate then
-							l_has_separate_formal_arguments := True
-							l_separate_formal_arguments_count := l_separate_formal_arguments_count + 1
-							l_has_separate_arguments := True
-							print_indentation
-							current_file.put_string (c_ge_scoop_session)
-							current_file.put_character ('*')
-							current_file.put_character (' ')
-							print_separate_argument_session_name (l_name, current_file)
-							current_file.put_character (' ')
-							current_file.put_character ('=')
-							current_file.put_character (' ')
-							current_file.put_character ('0')
-							print_semicolon_newline
-						end
-						i := i + 1
-					end
+				if has_separate_formal_arguments (a_feature) then
+					l_has_separate_formal_arguments := True
+					l_has_separate_arguments := True
+					print_formal_argument_scoop_session_declarations (a_feature)
 				end
 				if l_has_separate_arguments then
-					print_indentation
-					current_file.put_string (c_ge_scoop_region)
-					current_file.put_character ('*')
-					current_file.put_character (' ')
-					current_file.put_string (c_sr)
-					print_assign_to
-					current_file.put_string (c_ac)
-					current_file.put_string (c_arrow)
-					current_file.put_string (c_region)
-					print_semicolon_newline
-					print_indentation
-					current_file.put_string (c_ge_scoop_condition)
-					current_file.put_character ('*')
-					current_file.put_character (' ')
-					current_file.put_string (c_scond)
-					print_assign_to
-					current_file.put_character ('0')
-					print_semicolon_newline
+					print_scoop_multisession_declaration
+					print_current_scoop_region_declaration
+					print_scoop_session_protection_declaration
 				end
 			end
 			l_rescue := a_feature.rescue_clause
@@ -7646,281 +7350,98 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				print_indentation
 				current_file.put_string (c_ge_rescue)
 				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
+				current_file.put_string (c_r)
+				print_semicolon_newline
 				print_indentation
 				current_file.put_string (c_volatile)
 				current_file.put_character (' ')
 				current_file.put_string (c_uint32_t)
 				current_file.put_character (' ')
 				current_file.put_string (c_tr)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_in_rescue)
-				current_file.put_character (';')
-				current_file.put_new_line
-			end
-			if l_has_separate_arguments then
-				print_indentation
-				current_file.put_string (c_ge_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character ('2')
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 			end
 				--
 				-- Instructions.
 				--
 			current_file := current_function_body_buffer
-			if current_type.base_class.invariants_enabled and not current_closure.is_static and not a_creation then
-				print_all_invariants (True)
-			end
-			if current_type.base_class.preconditions_enabled then
-				print_all_preconditions (a_feature)
-			end
-			if current_type.base_class.postconditions_enabled then
-				print_all_old_expression_declarations (a_feature)
-			end
 			if l_has_separate_formal_arguments then
-					-- Start the current SCOOP sessions.
-				if l_separate_formal_arguments_count > 1 then
-					print_indentation
-					current_file.put_string (c_ge_scoop_multisessions_open_start)
-					current_file.put_character ('(')
-					current_file.put_character (')')
-					print_semicolon_newline
-					print_indentation
-					current_file.put_string (c_scond)
-					print_assign_to
-					current_file.put_string (c_ge_new_scoop_condition)
-					current_file.put_character ('(')
-					current_file.put_integer (l_separate_formal_arguments_count)
-					current_file.put_character (')')
-					print_semicolon_newline
-				end
-				check l_has_separate_formal_arguments: l_arguments /= Void then end
-				nb := l_arguments.count
-				from i := 1 until i > nb loop
-					l_argument := l_arguments.formal_argument (i)
-					l_name := l_argument.name
-					l_argument_type := dynamic_type_set (l_name).static_type
-					if l_argument_type.is_separate then
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_formal_argument (l_name)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (' ')
-						current_file.put_character ('=')
-						current_file.put_character (' ')
-						current_file.put_string (c_ge_scoop_session_open)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						print_attribute_region_access (l_name, l_argument_type.primary_type, False)
-						print_comma
-						current_file.put_string (c_scond)
-						current_file.put_character (')')
-						if l_separate_formal_arguments_count > 1 then
-							current_file.put_character (';')
-							current_file.put_character (' ')
-							current_file.put_string (c_else)
-							current_file.put_character (' ')
-							current_file.put_string (c_ge_scoop_condition_decrement)
-							current_file.put_character ('(')
-							current_file.put_string (c_scond)
-							current_file.put_character (')')
-						end
-						print_semicolon_newline
-					end
-					i := i + 1
-				end
-				if l_separate_formal_arguments_count > 1 then
-					print_indentation
-					current_file.put_string (c_ge_scoop_multisessions_open_stop)
-					current_file.put_character ('(')
-					current_file.put_character (')')
-					print_semicolon_newline
-				end
-			end
-			reset_volatile_data
-			reset_rescue_data
-			locals_written := locals_written_in_rescue
-			locals_read := locals_read_in_rescue
-			if l_has_separate_arguments then
 				print_indentation
-				current_file.put_character ('r')
-				current_file.put_character ('2')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character ('2')
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_if)
+				current_file.put_string (c_while)
 				current_file.put_character (' ')
 				current_file.put_character ('(')
-				current_file.put_string (c_ge_setjmp)
-				current_file.put_character ('(')
-				current_file.put_character ('r')
-				current_file.put_character ('2')
-				current_file.put_character ('.')
-				current_file.put_character ('j')
-				current_file.put_character ('b')
-				current_file.put_character (')')
-				current_file.put_character (' ')
-				current_file.put_character ('!')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('0')
+				current_file.put_character ('1')
 				current_file.put_character (')')
 				current_file.put_character (' ')
 				current_file.put_character ('{')
 				current_file.put_new_line
 				indent
+			end
+			if l_has_separate_arguments then
+				print_protect_all_scoop_sessions (a_feature)
+				l_print_body := True
+			end
+			if l_has_separate_formal_arguments then
+				print_open_formal_argument_scoop_sessions (a_feature)
+				l_print_body := True
+			end
+			if current_type.base_class.invariants_enabled and not current_closure.is_static and not a_creation then
+				print_all_invariants (True)
+				l_print_body := True
+			end
+			l_preconditions_enabled := current_type.base_class.preconditions_enabled
+			if l_preconditions_enabled or l_has_separate_formal_arguments then
+				print_all_preconditions (a_feature, l_preconditions_enabled)
+				l_print_body := True
+			end
+			if l_has_separate_formal_arguments then
 				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character ('2')
-				current_file.put_character (';')
-				current_file.put_new_line
-					-- Make sure to exit from the current SCOOP sessions
-					-- before propagating the exception.
-				if l_has_separate_formal_arguments then
-					check l_has_separate_formal_arguments: l_arguments /= Void then end
-					nb := l_arguments.count
-					from i := 1 until i > nb loop
-						l_argument := l_arguments.formal_argument (i)
-						l_name := l_argument.name
-						l_argument_type := dynamic_type_set (l_name).static_type
-						if l_argument_type.is_separate then
-							print_indentation
-							current_file.put_string (c_if)
-							current_file.put_character (' ')
-							current_file.put_character ('(')
-							print_separate_argument_session_name (l_name, current_file)
-							current_file.put_character (')')
-							current_file.put_character (' ')
-							current_file.put_string (c_ge_scoop_session_close)
-							current_file.put_character ('(')
-							current_file.put_string (c_sr)
-							print_comma
-							print_separate_argument_session_name (l_name, current_file)
-							current_file.put_character (')')
-							print_semicolon_newline
-						end
-						i := i + 1
-					end
-				end
-					-- Even the SCOOP sessions from the inline separate instructions.
-				if attached a_feature.inline_separate_arguments as l_inline_separate_arguments then
-					nb := l_inline_separate_arguments.count
-					from i := 1 until i > nb loop
-						l_name := l_inline_separate_arguments.argument (i).name
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						current_file.put_string (c_ge_scoop_session_close)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						print_semicolon_newline
-						i := i + 1
-					end
-				end
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character ('2')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_ge_jump_to_last_rescue)
-				current_file.put_character ('(')
-				current_file.put_string (c_ac)
-				current_file.put_character (')')
-				current_file.put_character (';')
-				current_file.put_new_line
+				current_file.put_string (c_break)
+				print_semicolon_newline
 				dedent
 				print_indentation
 				current_file.put_character ('}')
 				current_file.put_new_line
 			end
+			if current_type.base_class.postconditions_enabled then
+				print_all_old_expression_declarations (a_feature)
+				l_print_body := True
+			end
+			if l_print_body then
+				print_body_comment
+			end
+			reset_volatile_data
+			reset_rescue_data
+			locals_written := locals_written_in_rescue
+			locals_read := locals_read_in_rescue
 			if l_rescue /= Void or l_is_once then
 				print_indentation
-				current_file.put_character ('r')
+				current_file.put_string (c_r)
 				current_file.put_character ('.')
 				current_file.put_string (c_previous)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 				print_indentation
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
+				current_file.put_string (c_r)
+				print_semicolon_newline
 				print_indentation
 				current_file.put_string (c_if)
 				current_file.put_character (' ')
 				current_file.put_character ('(')
 				current_file.put_string (c_ge_setjmp)
 				current_file.put_character ('(')
-				current_file.put_character ('r')
+				current_file.put_string (c_r)
 				current_file.put_character ('.')
 				current_file.put_character ('j')
 				current_file.put_character ('b')
@@ -7940,38 +7461,29 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					current_file.put_string (c_ac)
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_call)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					current_file.put_string (c_tc_address)
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 				end
 				print_indentation
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
+				current_file.put_string (c_r)
+				print_semicolon_newline
 				print_indentation
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_in_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_string (c_tr)
 				current_file.put_character (' ')
 				current_file.put_character ('+')
 				current_file.put_character (' ')
 				current_file.put_character ('1')
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 				if l_rescue /= Void then
 					has_rescue := True
 					print_compound (l_rescue)
@@ -7993,30 +7505,25 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
+				print_assign_to
+				current_file.put_string (c_r)
 				current_file.put_character ('.')
 				current_file.put_string (c_previous)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 				if l_rescue /= Void then
 					print_indentation
 					current_file.put_string (c_ge_raise)
 					current_file.put_character ('(')
 					current_file.put_string (c_ge_ex_fail)
 					current_file.put_character (')')
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 				else
 					print_indentation
 					current_file.put_string (c_ge_jump_to_last_rescue)
 					current_file.put_character ('(')
 					current_file.put_string (c_ac)
 					current_file.put_character (')')
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 				end
 				dedent
 				print_indentation
@@ -8033,75 +7540,45 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			locals_written := locals_written_in_body
 			locals_read := locals_read_in_body
 			if attached a_feature.compound as l_compound then
+				if a_result_type /= Void then
+					print_result_initialization (a_result_type)
+				end
+				print_local_variables_initialization (a_feature)
 				print_compound (l_compound)
 			end
 			if current_type.base_class.invariants_enabled and not current_closure.is_static then
 				print_all_invariants (False)
+				l_print_footer := True
 			end
 			if current_type.base_class.postconditions_enabled then
 				print_all_postconditions (a_feature)
+				l_print_footer := True
+			end
+			if l_print_footer then
+				print_footer_comment
 			end
 			l_result_written_in_body := result_written
 			l_result_read_in_body := result_read
+			if l_has_separate_arguments then
+				print_unprotect_scoop_sessions
+			end
+			if l_has_separate_formal_arguments then
+				print_close_formal_argument_scoop_sessions (a_feature, False)
+			end
 			if l_rescue /= Void or l_is_once then
 				print_indentation
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
+				print_assign_to
+				current_file.put_string (c_r)
 				current_file.put_character ('.')
 				current_file.put_string (c_previous)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 			end
 			if a_result_type /= Void then
 					-- The 'Result' entity is always implicitly read in the body to return its value.
 				l_result_read_in_body := True
-			end
-			if l_has_separate_arguments then
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character ('2')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				current_file.put_character (';')
-				current_file.put_new_line
-			end
-			if l_has_separate_formal_arguments then
-					-- Exit from the current SCOOP sessions.
-				check l_has_separate_formal_arguments: l_arguments /= Void then end
-				nb := l_arguments.count
-				from i := 1 until i > nb loop
-					l_argument := l_arguments.formal_argument (i)
-					l_name := l_argument.name
-					l_argument_type := dynamic_type_set (l_name).static_type
-					if l_argument_type.is_separate then
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						current_file.put_string (c_ge_scoop_session_close)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						print_semicolon_newline
-					end
-					i := i + 1
-				end
 			end
 				--
 				-- Local variables and result declaration.
@@ -8136,12 +7613,9 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				end
 				current_file.put_character (' ')
 				print_result_name (current_file)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				print_default_entity_value (a_result_type, current_file)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 			end
 				-- Local variables.
 			if attached a_feature.locals as l_locals then
@@ -8178,22 +7652,400 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					end
 					current_file.put_character (' ')
 					print_local_name (l_name, current_file)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					print_default_entity_value (l_local_type, current_file)
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 					i := i + 1
 				end
 			end
-			print_object_test_local_declarations
-			print_iteration_cursor_declarations
 			print_inline_separate_argument_declarations (a_feature)
 				-- Clean up.
 			reset_volatile_data
 			reset_rescue_data
 			current_file := old_file
+		end
+
+	print_before_once_routine (a_feature: ET_INTERNAL_FEATURE; a_creation: BOOLEAN)
+			-- Print to `current_file' the code before the body of once routine `a_feature`.
+			-- `a_creation` indicates whether `a_feature` should be treated as a once creation procedure.
+		require
+			a_feature_not_void: a_feature /= Void
+			valid_feature: current_feature.static_feature = a_feature
+			is_once: a_feature.is_once
+			is_creation: a_creation implies current_feature.is_creation
+		local
+			l_once_kind: INTEGER
+			l_once_index: INTEGER
+			l_is_once_per_process: BOOLEAN
+			l_is_once_per_thread: BOOLEAN
+			l_is_once_per_object: BOOLEAN
+			l_result_type: detachable ET_DYNAMIC_PRIMARY_TYPE
+			old_file: KI_TEXT_OUTPUT_STREAM
+		do
+			l_is_once_per_process := a_feature.is_once_per_process
+			l_is_once_per_thread := a_feature.is_once_per_thread
+			l_is_once_per_object := a_feature.is_once_per_object
+			if l_is_once_per_process or l_is_once_per_thread then
+				register_once_feature (current_feature, a_creation)
+				l_once_index := (if a_creation then once_creation_procedures else once_features end).value (a_feature.implementation_feature)
+				l_once_kind := once_kind (current_feature, a_creation)
+			end
+			if a_creation then
+				l_result_type := current_type
+				old_file := current_file
+				current_file := current_function_header_buffer
+				print_indentation
+				current_file.put_string (c_ge_rescue)
+				current_file.put_character (' ')
+				current_file.put_string (c_r3)
+				print_semicolon_newline
+				print_indentation
+				print_type_declaration (current_type, current_file)
+				current_file.put_character (' ')
+				print_result_name (current_file)
+				print_assign_to
+				current_file.put_character ('0')
+				print_semicolon_newline
+				current_file := old_file
+			elseif attached current_feature.result_type_set as l_result_type_set then
+				l_result_type := l_result_type_set.static_type.primary_type
+			end
+			if l_is_once_per_object then
+					-- Create once-per-object data for 'Current' object if not created yet.
+				if use_threads then
+					print_once_per_object_global_mutex_lock
+				end
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_character ('!')
+				print_attribute_onces_access (tokens.current_keyword, current_type, False)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_indentation
+				print_attribute_onces_access (tokens.current_keyword, current_type, False)
+				current_file.put_character (' ')
+				current_file.put_character ('=')
+				current_file.put_character (' ')
+				current_file.put_string (c_ge_new_once_per_object_data)
+				current_file.put_integer (current_type.id)
+				current_file.put_character ('(')
+				current_file.put_character (')')
+				current_file.put_character (';')
+				current_file.put_new_line
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_new_line
+				if use_threads then
+					print_once_per_object_global_mutex_unlock
+				end
+			end
+			if not use_threads or else l_is_once_per_thread then
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				print_once_status (current_feature, l_once_kind, l_once_index)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_raise_once_exception_if_any (current_feature, l_once_kind, l_once_index)
+				print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index, a_creation)
+				print_goto_once_return (a_creation)
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_character (' ')
+				current_file.put_string (c_else)
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+			else
+				if use_threads and then l_is_once_per_process then
+					print_indentation
+					current_file.put_string (c_if)
+					current_file.put_character (' ')
+					current_file.put_character ('(')
+					print_thread_safe_once_per_process_status (current_feature, l_once_kind, l_once_index)
+					current_file.put_character (')')
+					current_file.put_character (' ')
+					current_file.put_character ('{')
+					current_file.put_new_line
+					indent
+					print_raise_thread_safe_once_exception_if_any (current_feature, l_once_kind, l_once_index)
+					print_assign_thread_safe_once_value_to_result (current_feature, l_once_kind, l_once_index, a_creation)
+					print_goto_once_return (a_creation)
+					dedent
+					print_indentation
+					current_file.put_character ('}')
+					current_file.put_character (' ')
+					current_file.put_string (c_else)
+					current_file.put_character (' ')
+					current_file.put_character ('{')
+					current_file.put_new_line
+					indent
+				end
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_character ('!')
+				print_once_mutex_try_lock (current_feature, l_once_kind, l_once_index)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+					-- Wait for other thread to complete (lock/unlock).
+				print_once_mutex_lock (current_feature, l_once_kind, l_once_index)
+				print_once_mutex_unlock (current_feature, l_once_kind, l_once_index)
+				if l_result_type /= Void then
+					print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index, a_creation)
+					if l_is_once_per_process then
+						print_assign_result_to_thread_safe_once_value (current_feature, l_once_kind, l_once_index, a_creation)
+					end
+				end
+				if l_is_once_per_process then
+					print_assign_once_exception_to_thread_safe_once_exception (current_feature, l_once_kind, l_once_index)
+					print_assign_called_to_thread_safe_once_status (current_feature, l_once_kind, l_once_index)
+				end
+				print_raise_once_exception_if_any (current_feature, l_once_kind, l_once_index)
+				print_goto_once_return (a_creation)
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_character (' ')
+				current_file.put_string (c_else)
+				current_file.put_character (' ')
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				print_once_status_is_completed (current_feature, l_once_kind, l_once_index)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				if l_result_type /= Void then
+					print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index, a_creation)
+					if l_is_once_per_process then
+						print_assign_result_to_thread_safe_once_value (current_feature, l_once_kind, l_once_index, a_creation)
+					end
+				end
+				if l_is_once_per_process then
+					print_assign_once_exception_to_thread_safe_once_exception (current_feature, l_once_kind, l_once_index)
+					print_assign_called_to_thread_safe_once_status (current_feature, l_once_kind, l_once_index)
+				end
+				print_once_mutex_unlock (current_feature, l_once_kind, l_once_index)
+				print_raise_once_exception_if_any (current_feature, l_once_kind, l_once_index)
+				print_goto_once_return (a_creation)
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_character (' ')
+				current_file.put_string (c_else)
+				current_file.put_character (' ')
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				print_once_status (current_feature, l_once_kind, l_once_index)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index, a_creation)
+				print_goto_once_return (a_creation)
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_character (' ')
+				current_file.put_string (c_else)
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+			end
+			print_assign_called_to_once_status (current_feature, l_once_kind, l_once_index)
+			if l_result_type /= Void then
+					-- The following is to make sure that if a once-function is called
+					-- recursively, the semantics specified by ECMA will be satisfied.
+					-- ECMA 367-2 section 8.23.22 page 124 says that the recursive calls
+					-- to the once-function should return the value of 'Result' as it
+					-- was when the recursive calls occurred.
+				print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index, a_creation)
+			end
+			dedent
+			print_indentation
+			current_file.put_character ('}')
+			current_file.put_new_line
+			if use_threads and then l_is_once_per_process then
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_new_line
+			end
+			if a_creation then
+				print_indentation
+				current_file.put_string (c_r3)
+				current_file.put_character ('.')
+				current_file.put_string (c_previous)
+				current_file.put_character (' ')
+				current_file.put_character ('=')
+				current_file.put_character (' ')
+				current_file.put_string (c_ac)
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_last_rescue)
+				print_semicolon_newline
+				print_indentation
+				current_file.put_string (c_ac)
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_last_rescue)
+				print_assign_to
+				current_file.put_character ('&')
+				current_file.put_string (c_r3)
+				print_semicolon_newline
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_string (c_ge_setjmp)
+				current_file.put_character ('(')
+				current_file.put_string (c_r3)
+				current_file.put_character ('.')
+				current_file.put_character ('j')
+				current_file.put_character ('b')
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('!')
+				current_file.put_character ('=')
+				current_file.put_character (' ')
+				current_file.put_character ('0')
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_indentation
+				current_file.put_string (c_ac)
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_last_rescue)
+				print_assign_to
+				current_file.put_character ('&')
+				current_file.put_string (c_r3)
+				print_semicolon_newline
+				print_assign_last_exception_to_once_exception (current_feature, l_once_kind, l_once_index)
+				if use_threads then
+					if a_feature.is_once_per_process then
+						print_assign_once_exception_to_thread_safe_once_exception (current_feature, l_once_kind, l_once_index)
+						print_assign_called_to_thread_safe_once_status (current_feature, l_once_kind, l_once_index)
+					end
+					if not current_feature.is_once_per_thread then
+						print_assign_completed_to_once_status (current_feature, l_once_kind, l_once_index)
+						print_once_mutex_unlock (current_feature, l_once_kind, l_once_index)
+					end
+				end
+				print_indentation
+				current_file.put_string (c_ac)
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_last_rescue)
+				print_assign_to
+				current_file.put_string (c_r3)
+				current_file.put_character ('.')
+				current_file.put_string (c_previous)
+				print_semicolon_newline
+				print_indentation
+				current_file.put_string (c_ge_jump_to_last_rescue)
+				current_file.put_character ('(')
+				current_file.put_string (c_ac)
+				current_file.put_character (')')
+				print_semicolon_newline
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_new_line
+			end
+		end
+
+	print_after_once_routine (a_feature: ET_INTERNAL_FEATURE; a_creation: BOOLEAN)
+			-- Print to `current_file' the code after the body of once routine `a_feature`.
+			-- `a_creation` indicates whether `a_feature` should be treated as a once creation procedure.
+		require
+			a_feature_not_void: a_feature /= Void
+			valid_feature: current_feature.static_feature = a_feature
+			is_once: a_feature.is_once
+			is_creation: a_creation implies current_feature.is_creation
+		local
+			l_once_kind: INTEGER
+			l_once_index: INTEGER
+			l_is_once_per_process: BOOLEAN
+			l_is_once_per_thread: BOOLEAN
+			l_result_type: detachable ET_DYNAMIC_PRIMARY_TYPE
+		do
+			l_is_once_per_process := a_feature.is_once_per_process
+			l_is_once_per_thread := a_feature.is_once_per_thread
+			if l_is_once_per_process or l_is_once_per_thread then
+				l_once_index := (if a_creation then once_creation_procedures else once_features end).value (a_feature.implementation_feature)
+				l_once_kind := once_kind (current_feature, a_creation)
+			end
+			if a_creation then
+				l_result_type := current_type
+			elseif attached current_feature.result_type_set as l_result_type_set then
+				l_result_type := l_result_type_set.static_type.primary_type
+			end
+			if l_result_type /= Void and then (l_result_type.is_expanded and then not l_result_type.is_basic) then
+					-- The following is to make sure that if a once-function is called
+					-- recursively, the semantics specified by ECMA will be satisfied.
+					-- ECMA 367-2 section 8.23.22 page 124 says that the recursive calls
+					-- to the once-function should return the value of 'Result' as it
+					-- was when the recursive calls occurred.
+					-- There is a special treatment for once-per-process and once-per-thread
+					-- functions of non-basic expanded types because a boxed version of the
+					-- Result (and not the Result itself) is kept in the 'GE_onces' C struct.
+					-- So we usede the content of the boxed value in place of Result
+					-- in case its fields get modified. Likewise for once-per-object functions
+					-- even though the Result is not boxed in that case. (See `print_result'.)
+					-- Set it back to Result here.
+				print_assign_once_value_to_result (current_feature, l_once_kind, l_once_index, a_creation)
+			end
+			if use_threads then
+				if l_is_once_per_process then
+					if l_result_type /= Void then
+						print_assign_result_to_thread_safe_once_value (current_feature, l_once_kind, l_once_index, a_creation)
+					end
+					print_assign_called_to_thread_safe_once_status (current_feature, l_once_kind, l_once_index)
+				end
+				if not l_is_once_per_thread then
+					print_assign_completed_to_once_status (current_feature, l_once_kind, l_once_index)
+					print_once_mutex_unlock (current_feature, l_once_kind, l_once_index)
+				end
+			end
+			if a_creation then
+				print_indentation
+				current_file.put_string (c_ac)
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_last_rescue)
+				print_assign_to
+				current_file.put_string (c_r3)
+				current_file.put_character ('.')
+				current_file.put_string (c_previous)
+				print_semicolon_newline
+			end
+			if a_creation then
+				current_file.put_string (c_ge_once_return2)
+			else
+				current_file.put_string (c_ge_once_return)
+			end
+			current_file.put_character (':')
+			current_file.put_new_line
 		end
 
 	print_once_function (a_feature: ET_ONCE_FUNCTION)
@@ -8290,6 +8142,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			l_name: ET_FEATURE_NAME
 			l_result: ET_RESULT
 			l_index: INTEGER
+			l_print_footer: BOOLEAN
 		do
 			old_file := current_file
 			current_file := current_function_header_buffer
@@ -8358,7 +8211,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					--
 					-- Declaration of variables.
 					--
-				if current_type.base_class.invariants_enabled then
+				if current_type.base_class.invariants_enabled and not current_feature.is_static then
 					print_indentation
 					current_file.put_string (c_uint32_t)
 					current_file.put_character (' ')
@@ -8429,6 +8282,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 					--
 				if current_type.base_class.postconditions_enabled then
 					print_all_old_expression_declarations (a_feature)
+					print_body_comment
 				end
 					-- Prepare dynamic type sets of wrapper feature.
 				extra_dynamic_type_sets.force_last (l_result_type_set)
@@ -8454,9 +8308,14 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				end
 				if current_type.base_class.invariants_enabled and not current_feature.is_static then
 					print_all_invariants (False)
+					l_print_footer := True
 				end
 				if current_type.base_class.postconditions_enabled then
 					print_all_postconditions (a_feature)
+					l_print_footer := True
+				end
+				if l_print_footer then
+					print_footer_comment
 				end
 					-- Clean up.
 				call_operands.wipe_out
@@ -8492,6 +8351,10 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				-- Declarations of temporary variables.
 			current_file := current_function_header_buffer
 			print_temporary_variable_declarations
+			if current_type.base_class.postconditions_enabled then
+				print_object_test_local_declarations
+				print_iteration_cursor_declarations
+			end
 				-- Flush to file.
 			flush_to_c_file
 				--
@@ -8569,7 +8432,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			if attached current_feature.invariants as l_all_invariants then
 				nb := l_all_invariants.count
 				if nb > 0 then
-					print_before_assertions
+					print_before_assertions (False)
 					from i := 1 until i > nb loop
 						index_offset := l_all_invariants.item_2 (i)
 						l_invariants := l_all_invariants.item_1 (i)
@@ -8600,12 +8463,13 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 		end
 
 	print_object_test_local_declarations
-			-- Print the object-test local declarations  used in the
+			-- Print the object-test local declarations used in the
 			-- generated C function to `current_file'.
 		local
 			i, nb: INTEGER
 			l_type: ET_DYNAMIC_PRIMARY_TYPE
 		do
+			indent
 			nb := current_object_test_local_types.count
 			from i := 1 until i > nb loop
 				l_type := current_object_test_local_types.item (i)
@@ -8633,6 +8497,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				print_semicolon_newline
 				i := i + 1
 			end
+			dedent
 			current_object_test_locals.wipe_out
 			current_object_test_local_types.wipe_out
 		end
@@ -8644,6 +8509,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 			i, nb: INTEGER
 			l_type: ET_DYNAMIC_PRIMARY_TYPE
 		do
+			indent
 			nb := current_iteration_cursor_types.count
 			from i := 1 until i > nb loop
 				l_type := current_iteration_cursor_types.item (i)
@@ -8669,6 +8535,7 @@ error_handler.report_warning_message ("**** language not recognized: " + l_langu
 				print_semicolon_newline
 				i := i + 1
 			end
+			dedent
 			current_iteration_cursors.wipe_out
 			current_iteration_cursor_types.wipe_out
 		end
@@ -8829,9 +8696,9 @@ feature {NONE} -- Instruction generation
 					once_features.search (current_feature.static_feature.implementation_feature)
 					if once_features.found then
 						l_once_index := once_features.found_item
-						l_once_kind := once_kind (current_feature)
+						l_once_kind := once_kind (current_feature, False)
 					end
-					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index)
+					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index, False)
 				end
 			end
 		end
@@ -9150,9 +9017,9 @@ feature {NONE} -- Instruction generation
 					once_features.search (current_feature.static_feature.implementation_feature)
 					if once_features.found then
 						l_once_index := once_features.found_item
-						l_once_kind := once_kind (current_feature)
+						l_once_kind := once_kind (current_feature, False)
 					end
-					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index)
+					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index, False)
 				end
 			end
 		end
@@ -9180,7 +9047,7 @@ feature {NONE} -- Instruction generation
 				if line_generation_mode then
 					print_position (an_instruction.position, current_feature.static_feature.implementation_class)
 				end
-				print_before_assertions
+				print_before_assertions (False)
 				print_assertions (an_instruction, c_ge_ex_check)
 				print_after_assertions
 			else
@@ -9297,9 +9164,9 @@ feature {NONE} -- Instruction generation
 					once_features.search (current_feature.static_feature.implementation_feature)
 					if once_features.found then
 						l_once_index := once_features.found_item
-						l_once_kind := once_kind (current_feature)
+						l_once_kind := once_kind (current_feature, False)
 					end
-					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index)
+					print_assign_result_to_once_value (current_feature, l_once_kind, l_once_index, False)
 				end
 			end
 			if l_is_separate_call then
@@ -9416,7 +9283,6 @@ feature {NONE} -- Instruction generation
 			i, nb: INTEGER
 			l_dynamic_type_set: ET_DYNAMIC_TYPE_SET
 			l_dynamic_type: ET_DYNAMIC_TYPE
-			l_dynamic_primary_type: ET_DYNAMIC_PRIMARY_TYPE
 		do
 			if line_generation_mode then
 				print_position (a_instruction.position, current_feature.static_feature.implementation_class)
@@ -9444,384 +9310,1225 @@ feature {NONE} -- Instruction generation
 			end
 			if attached a_instruction.compound as l_compound then
 				if use_scoop then
-						-- Start the current SCOOP sessions.
-					if nb > 1 then
-						print_indentation
-						current_file.put_string (c_ge_scoop_multisessions_open_start)
-						current_file.put_character ('(')
-						current_file.put_character (')')
-						print_semicolon_newline
-						print_indentation
-						current_file.put_string (c_scond)
-						print_assign_to
-						current_file.put_string (c_ge_new_scoop_condition)
-						current_file.put_character ('(')
-						current_file.put_integer (nb)
-						current_file.put_character (')')
-						print_semicolon_newline
-					else
-						print_indentation
-						current_file.put_string (c_scond)
-						print_assign_to
-						current_file.put_character ('0')
-						print_semicolon_newline
-					end
-					from i := 1 until i > nb loop
-						l_argument := l_arguments.argument (i)
-						l_name := l_argument.name
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_inline_separate_argument_name (l_name, current_file)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						current_file.put_character ('{')
-						current_file.put_new_line
-						indent
-						print_indentation
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (' ')
-						current_file.put_character ('=')
-						current_file.put_character (' ')
-						current_file.put_string (c_ge_scoop_session_open)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						l_dynamic_type_set := dynamic_type_set (l_name)
-						l_dynamic_primary_type := l_dynamic_type_set.static_type.primary_type
-						print_attribute_region_access (l_name, l_dynamic_primary_type, False)
-						print_comma
-						current_file.put_string (c_scond)
-						current_file.put_character (')')
-						print_semicolon_newline
-						dedent
-						print_indentation
-						current_file.put_character ('}')
-						if nb > 1 then
-							current_file.put_character (' ')
-							current_file.put_string (c_else)
-							current_file.put_character (' ')
-							current_file.put_character ('{')
-							current_file.put_new_line
-							indent
-							print_indentation
-							current_file.put_string (c_ge_scoop_condition_decrement)
-							current_file.put_character ('(')
-							current_file.put_string (c_scond)
-							current_file.put_character (')')
-							print_semicolon_newline
-							dedent
-							print_indentation
-							current_file.put_character ('}')
-						end
-						current_file.put_new_line
-						i := i + 1
-					end
-					if nb > 1 then
-						print_indentation
-						current_file.put_string (c_ge_scoop_multisessions_open_stop)
-						current_file.put_character ('(')
-						current_file.put_character (')')
-						print_semicolon_newline
-					end
+					print_open_inline_argument_scoop_sessions (a_instruction)
 				end
 				print_compound (l_compound)
 				if use_scoop then
 						-- Exit from the current SCOOP sessions.
-					from i := 1 until i > nb loop
-						l_argument := l_arguments.argument (i)
-						l_name := l_argument.name
-						print_indentation
-						current_file.put_string (c_if)
-						current_file.put_character (' ')
-						current_file.put_character ('(')
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						current_file.put_character (' ')
-						current_file.put_character ('{')
-						current_file.put_new_line
-						indent
-						print_indentation
-						current_file.put_string (c_ge_scoop_session_close)
-						current_file.put_character ('(')
-						current_file.put_string (c_sr)
-						print_comma
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (')')
-						print_semicolon_newline
-							-- Set the session to NULL so that we don't try to
-							-- exit again from it in case of an exception.
-						print_indentation
-						print_separate_argument_session_name (l_name, current_file)
-						current_file.put_character (' ')
-						current_file.put_character ('=')
-						current_file.put_character (' ')
-						current_file.put_character ('0')
-						print_semicolon_newline
-						dedent
-						print_indentation
-						current_file.put_character ('}')
-						current_file.put_new_line
-						i := i + 1
-					end
+					print_close_inline_argument_scoop_sessions (a_instruction, False)
 				end
 			end
 		end
 
-	print_inspect_instruction (an_instruction: ET_INSPECT_INSTRUCTION)
-			-- Print `an_instruction'.
+	print_inspect_instruction (a_instruction: ET_INSPECT_INSTRUCTION)
+			-- Print `a_instruction'.
 		require
-			an_instruction_not_void: an_instruction /= Void
+			a_instruction_not_void: a_instruction /= Void
+		do
+			if line_generation_mode then
+				print_position (a_instruction.position, current_feature.static_feature.implementation_class)
+			end
+			print_inspect_component (a_instruction, Void, Void)
+		end
+
+	print_inspect_component (a_inspect_component: ET_INSPECT_COMPONENT; a_result: detachable ET_IDENTIFIER; a_result_type: detachable ET_DYNAMIC_TYPE)
+			-- Print `a_inspect_component'.
+			-- `a_result` is the temporary variable receiving the value of the expression
+			-- when `a_inspect_component` is an expression.
+			-- a_result_type` is the type of `a_result` when `a_inspect_component` is an expression.
+		require
+			a_inspect_component_not_void: a_inspect_component /= Void
+			a_result_is_temporary: a_result /= Void implies a_result.is_temporary
+			a_result_type_not_void: a_result /= Void implies a_result_type /= Void
 		local
+			l_is_character_n_type: BOOLEAN
+			l_is_integer_n_type: BOOLEAN
+			l_is_string_n_type: BOOLEAN
+			l_is_once_class: BOOLEAN
+			l_is_type_type: BOOLEAN
 			l_expression: ET_EXPRESSION
-			l_when_part: ET_WHEN_PART
+			l_value: ET_IDENTIFIER
+			l_old_value: ET_IDENTIFIER
+			l_count: detachable ET_IDENTIFIER
+			l_value_type_set: ET_DYNAMIC_TYPE_SET
+			l_value_type: ET_DYNAMIC_PRIMARY_TYPE
+			l_when_part: ET_WHEN_COMPONENT
 			l_choices: ET_CHOICE_LIST
 			l_choice: ET_CHOICE
 			i, nb: INTEGER
 			j, nb2: INTEGER
 			l_has_case: BOOLEAN
-			l_lower: detachable ET_CONSTANT
-			l_upper: detachable ET_CONSTANT
-			l_lower_integer: detachable ET_INTEGER_CONSTANT
-			l_upper_integer: detachable ET_INTEGER_CONSTANT
-			l_lower_character: detachable ET_CHARACTER_CONSTANT
-			l_upper_character: detachable ET_CHARACTER_CONSTANT
-			k, nb3: INTEGER
-			l_i_nat32, l_nb_nat32: NATURAL_32
-			l_value_type_set: ET_DYNAMIC_TYPE_SET
-			l_value_type: ET_DYNAMIC_PRIMARY_TYPE
-			l_stop: BOOLEAN
+			l_has_if: BOOLEAN
+			l_is_first: BOOLEAN
+			l_expression_dynamic_type_set: ET_DYNAMIC_TYPE_SET
+			l_inspect_if_choices: like inspect_if_choices
+			l_inspect_case_choices: like inspect_case_choices
+			l_old_inspect_if_choices_count: INTEGER
+			l_old_inspect_case_choices_count: INTEGER
+			l_old_index: INTEGER
+			l_attribute: ET_DYNAMIC_FEATURE
+			l_area_type: ET_DYNAMIC_PRIMARY_TYPE
+			l_index: INTEGER
+			l_need_if: BOOLEAN
 		do
--- TODO.
-			if line_generation_mode then
-				print_position (an_instruction.position, current_feature.static_feature.implementation_class)
-			end
-			l_expression := an_instruction.conditional.expression
+			l_inspect_if_choices := inspect_if_choices
+			l_inspect_case_choices := inspect_case_choices
+			l_old_inspect_if_choices_count := l_inspect_if_choices.count
+			l_old_inspect_case_choices_count := l_inspect_case_choices.count
+			l_expression := a_inspect_component.conditional.expression
 			l_value_type_set := dynamic_type_set (l_expression)
 			l_value_type := l_value_type_set.static_type.primary_type
-			print_operand (l_expression)
+			if current_system.character_8_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_character_n_type := True
+			elseif current_system.character_32_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_character_n_type := True
+			elseif current_system.integer_8_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.integer_16_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.integer_32_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.integer_64_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.natural_8_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.natural_16_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.natural_32_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.natural_64_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
+				l_is_integer_n_type := True
+			elseif current_system.string_8_type.same_named_type_with_type_marks (l_value_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type) then
+				l_is_string_n_type := True
+			elseif current_system.string_32_type.same_named_type_with_type_marks (l_value_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type) then
+				l_is_string_n_type := True
+			elseif current_system.immutable_string_8_type.same_named_type_with_type_marks (l_value_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type) then
+				l_is_string_n_type := True
+			elseif current_system.immutable_string_32_type.same_named_type_with_type_marks (l_value_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type) then
+				l_is_string_n_type := True
+			elseif l_value_type.base_class.is_once then
+				l_is_once_class := True
+			elseif l_value_type.base_class.is_type_class then
+				l_is_type_type := True
+			end
+			l_value := new_temp_variable (l_value_type)
+			mark_temp_variable_frozen (l_value)
+			print_assignment_operand (l_expression, l_value_type_set, l_value, l_value_type)
 			fill_call_operands (1)
-			print_indentation
-			current_file.put_string (c_switch)
-			current_file.put_character (' ')
-			current_file.put_character ('(')
-			print_expression (call_operands.first)
+			if call_operands.first /= l_value then
+				print_indentation
+				print_temp_name (l_value, current_file)
+				print_assign_to
+				print_attachment_expression (call_operands.first, l_value_type_set, l_value_type)
+				print_semicolon_newline
+			end
 			call_operands.wipe_out
-			current_file.put_character (')')
-			current_file.put_character (' ')
-			current_file.put_character ('{')
-			current_file.put_new_line
-			if attached an_instruction.when_parts as l_when_parts then
+			if l_is_once_class then
+					-- Get the once creation procedure index.
+				l_old_value := l_value
+				l_value := new_temp_variable (current_dynamic_system.natural_32_type)
+				mark_temp_variable_frozen (l_value)
+				print_indentation
+				print_temp_name (l_value, current_file)
+				print_assign_to
+				l_old_index := l_old_value.index
+				l_old_value.set_index (l_expression.index)
+				print_attribute_once_class_index_access (l_old_value, l_value_type, True)
+				l_old_value.set_index (l_old_index)
+				print_semicolon_newline
+				mark_temp_variable_unfrozen (l_old_value)
+				mark_temp_variable_free (l_old_value)
+			elseif l_is_type_type then
+					-- Get the type id.
+				l_old_value := l_value
+				l_value := new_temp_variable (current_dynamic_system.integer_32_type)
+				mark_temp_variable_frozen (l_value)
+				print_indentation
+				print_temp_name (l_value, current_file)
+				print_assign_to
+				current_file.put_character ('(')
+				current_file.put_character ('(')
+				current_file.put_string (c_eif_type)
+				current_file.put_character ('*')
+				current_file.put_character (')')
+				current_file.put_character ('(')
+				l_old_index := l_old_value.index
+				l_old_value.set_index (l_expression.index)
+				print_target_expression (l_old_value, l_value_type, True)
+				l_old_value.set_index (l_old_index)
+				current_file.put_character (')')
+				current_file.put_character (')')
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_type_id)
+				print_semicolon_newline
+				mark_temp_variable_unfrozen (l_old_value)
+				mark_temp_variable_free (l_old_value)
+			elseif l_is_string_n_type then
+				if l_value_type.attribute_count < 2 then
+						-- Internal error: string classes should have at least the
+						-- features 'area' and 'count' as first features.
+						-- Already reported in ET_DYNAMIC_SYSTEM.compile_kernel.
+					set_fatal_error
+					error_handler.report_giaac_error (generator, "print_inspect_component", 1, "missing attributes in string class.")
+				else
+						-- 'count'.
+					l_attribute := l_value_type.queries.item (2)
+					if not attached l_attribute.result_type_set as l_dynamic_type_set then
+							-- Error in feature 'count', already reported in ET_DYNAMIC_SYSTEM.compile_kernel.
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_inspect_component", 2, "attribute `count' has no type.")
+					else
+						l_count := new_temp_variable (l_dynamic_type_set.static_type.primary_type)
+						mark_temp_variable_frozen (l_count)
+						print_indentation
+						print_temp_name (l_count, current_file)
+						print_assign_to
+						l_old_index := l_value.index
+						l_value.set_index (l_expression.index)
+						print_attribute_access (l_attribute, l_value, l_value_type, True)
+						l_value.set_index (l_old_index)
+						print_semicolon_newline
+					end
+						-- 'area'.
+					l_attribute := l_value_type.queries.item (1)
+					if not attached l_attribute.result_type_set as l_dynamic_type_set then
+							-- Error in feature 'area', already reported in ET_DYNAMIC_SYSTEM.compile_kernel.
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_inspect_component", 3, "attribute `area' has no type.")
+					else
+						l_area_type := l_dynamic_type_set.static_type.primary_type
+						l_old_value := l_value
+						l_value := new_temp_variable (l_area_type)
+						mark_temp_variable_frozen (l_value)
+						print_indentation
+						print_temp_name (l_value, current_file)
+						print_assign_to
+						l_old_index := l_old_value.index
+						l_old_value.set_index (l_expression.index)
+						print_attribute_access (l_attribute, l_old_value, l_value_type, False)
+						l_old_value.set_index (l_old_index)
+						print_semicolon_newline
+						mark_temp_variable_unfrozen (l_old_value)
+						mark_temp_variable_free (l_old_value)
+						l_old_value := l_value
+						l_value := new_temp_variable (current_dynamic_system.pointer_type)
+						mark_temp_variable_frozen (l_value)
+						print_indentation
+						print_temp_name (l_value, current_file)
+						print_assign_to
+						print_type_cast (current_dynamic_system.pointer_type, current_file)
+						current_file.put_character ('(')
+						l_old_index := l_old_value.index
+						extra_dynamic_type_sets.force_last (l_area_type)
+						l_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
+						l_old_value.set_index (l_index)
+						print_attribute_special_item_access (l_old_value, l_area_type, True)
+						l_old_value.set_index (l_old_index)
+						current_file.put_character (')')
+						print_semicolon_newline
+						mark_temp_variable_unfrozen (l_old_value)
+						mark_temp_variable_free (l_old_value)
+					end
+				end
+			end
+			if attached a_inspect_component.when_parts as l_when_parts then
 				nb := l_when_parts.count
 				from i := 1 until i > nb loop
+					l_need_if := False
 					l_when_part := l_when_parts.item (i)
-					if line_generation_mode then
-						print_position (l_when_part.position, current_feature.static_feature.implementation_class)
-					end
-					l_choices := l_when_part.choices
-					nb2 := l_choices.count
-					if nb2 = 0 then
-						-- Do nothing.
-					else
-						l_has_case := False
+					if l_is_string_n_type  then
+						l_need_if := True
+					elseif l_is_type_type or l_is_integer_n_type or l_is_character_n_type then
+						l_choices := l_when_part.choices
+						nb2 := l_choices.count
 						from j := 1 until j > nb2 loop
 							l_choice := l_choices.choice (j)
 							if l_choice.is_range then
--- TODO
-								l_lower := choice_constant (l_choice.lower)
-								l_upper := choice_constant (l_choice.upper)
-								if attached {ET_INTEGER_CONSTANT} l_lower as l_integer_constant then
-									l_lower_integer := l_integer_constant
-									l_lower_character := Void
-								elseif attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
-									l_lower_character := l_character_constant
-									l_lower_integer := Void
-								else
-									l_lower_integer := Void
-									l_lower_character := Void
-								end
-								if attached {ET_INTEGER_CONSTANT} l_upper as l_integer_constant then
-									l_upper_integer := l_integer_constant
-									l_upper_character := Void
-								elseif attached {ET_CHARACTER_CONSTANT} l_upper as l_character_constant then
-									l_upper_character := l_character_constant
-									l_upper_integer := Void
-								else
-									l_upper_integer := Void
-									l_upper_character := Void
-								end
-								if l_lower_integer /= Void and l_upper_integer /= Void then
-									from
--- TODO: check type of inspect value.
-										k := l_lower_integer.to_integer_32
-										nb3 := l_upper_integer.to_integer_32
-									until
-										k > nb3
-									loop
-										l_has_case := True
-										print_indentation
-										current_file.put_string (c_case)
-										current_file.put_character (' ')
-										print_integer_value (k.abs.to_natural_64, k < 0, l_value_type, True)
-										current_file.put_character (':')
-										current_file.put_new_line
-										k := k + 1
+								if l_is_type_type then
+										-- Type conformance cannot be expressed in a case-statement.
+									l_need_if := True
+								elseif l_is_character_n_type then
+										-- Do not use case-statements if there are too many characters
+										-- in the interval.
+									if
+										attached {ET_CHARACTER_CONSTANT} choice_constant (l_choice.lower) as l_lower and then
+										attached {ET_CHARACTER_CONSTANT} choice_constant (l_choice.upper) as l_upper and then
+										l_lower.value.natural_32_code <= l_upper.value.natural_32_code and then
+										l_upper.value.natural_32_code - l_lower.value.natural_32_code >= 256
+									then
+										l_need_if := True
 									end
-								elseif l_lower_character /= Void and l_upper_character /= Void then
-									from
-										l_i_nat32 := l_lower_character.value.natural_32_code
-										l_nb_nat32 := l_upper_character.value.natural_32_code
-										l_stop := l_i_nat32 > l_nb_nat32
-									until
-										l_stop
-									loop
-										l_has_case := True
-										print_indentation
-										current_file.put_string (c_case)
-										current_file.put_character (' ')
-										if current_system.character_32_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
-											current_file.put_string (c_ge_nat32)
-											current_file.put_character ('(')
-											current_file.put_natural_32 (l_i_nat32)
-											current_file.put_character (')')
-										else
-												-- Type cast needed when compiling with mingw when the character
-												-- is represented by '\xyz' where x is not 0.
-											print_type_cast (l_value_type, current_file)
-											print_escaped_character_8 (l_i_nat32.to_character_8)
-										end
-										current_file.put_character (':')
-										current_file.put_new_line
-										if l_i_nat32 = l_nb_nat32 then
-											l_stop := True
-										else
-											l_i_nat32 := l_i_nat32 + 1
+								elseif l_is_integer_n_type then
+										-- Do not use case-statements if there are too many integers
+										-- in the interval.
+									if
+										attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.lower) as l_lower and
+										attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.upper) as l_upper
+									then
+										if l_lower.is_negative then
+											if l_upper.is_negative then
+												if
+													l_upper.value <= l_lower.value and then
+													l_lower.value - l_upper.value >= 256
+												then
+													l_need_if := True
+												end
+											else
+												if
+														-- Try to avoid overflow by using three comparisons.
+													l_lower.value >= 256 or else
+													l_upper.value >= 256 or else
+													l_lower.value + l_upper.value >= 256
+												then
+													l_need_if := True
+												end
+											end
+										elseif not l_upper.is_negative then
+											if
+												l_lower.value <= l_upper.value and then
+												l_upper.value - l_lower.value >= 256
+											then
+												l_need_if := True
+											end
 										end
 									end
-								else
--- TODO
-error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_instruction - range")
 								end
+							end
+							if l_need_if then
+								j := nb2 + 1 -- Jump out of the loop.
 							else
-								l_has_case := True
-								print_indentation
-								current_file.put_string (c_case)
-								current_file.put_character (' ')
-								l_lower := choice_constant (l_choice.lower)
-								if attached {ET_INTEGER_CONSTANT} l_lower as l_integer_constant then
-									print_integer_value (l_integer_constant.value, l_integer_constant.is_negative, l_value_type, True)
-								elseif attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
-									if current_system.character_32_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
-										current_file.put_string (c_ge_nat32)
-										current_file.put_character ('(')
-										current_file.put_natural_32 (l_character_constant.value.natural_32_code)
-										current_file.put_character (')')
-									else
-											-- Type cast needed when compiling with mingw when the character
-											-- is represented by '\xyz' where x is not 0.
-										print_type_cast (l_value_type, current_file)
-										print_escaped_character_8 (l_character_constant.value.to_character_8)
-									end
-								else
-									if l_value_type /= dynamic_type_set (l_choice.lower).static_type.primary_type then
-										print_type_cast (l_value_type, current_file)
-									end
-									print_expression (l_choice.lower)
-								end
-								current_file.put_character (':')
-								current_file.put_new_line
+								j := j + 1
 							end
-							j := j + 1
 						end
-						if l_has_case then
-							indent
-							if attached l_when_part.then_compound as l_then_compound then
-								print_compound (l_then_compound)
-							end
-							print_indentation
-							current_file.put_string (c_break)
-							current_file.put_character (';')
-							current_file.put_new_line
-							dedent
-						end
+					end
+					if l_need_if then
+						l_inspect_if_choices.force_last (l_when_part)
+					else
+						l_inspect_case_choices.force_last (l_when_part)
 					end
 					i := i + 1
 				end
 			end
-			print_indentation
-			current_file.put_string (c_default)
-			current_file.put_character (':')
-			current_file.put_new_line
-			if attached an_instruction.else_compound as l_else_compound then
-				indent
-				print_compound (l_else_compound)
+			l_has_if := l_old_inspect_if_choices_count /= l_inspect_if_choices.count
+			l_has_case := l_old_inspect_case_choices_count /= l_inspect_case_choices.count
+			if l_has_case then
 				print_indentation
-				current_file.put_string (c_break)
-				current_file.put_character (';')
+				current_file.put_string (c_switch)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				print_expression (l_value)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
 				current_file.put_new_line
-				dedent
-			else
+				from
+					i := l_old_inspect_case_choices_count + 1
+					nb := l_inspect_case_choices.count
+				until
+					i > nb
+				loop
+					l_when_part := l_inspect_case_choices.item (i)
+					if line_generation_mode then
+						print_position (l_when_part.position, current_feature.static_feature.implementation_class)
+					end
+					l_choices := l_when_part.choices
+					if l_choices.count /= 0 then
+						if l_is_character_n_type then
+							print_case_character_choices (l_choices, l_value_type)
+						elseif l_is_integer_n_type then
+							print_case_integer_choices (l_choices, l_value_type)
+						elseif l_is_once_class then
+							print_case_integer_choices (l_choices, current_dynamic_system.natural_32_type)
+						elseif l_is_type_type then
+							print_case_type_choices (l_choices, current_dynamic_system.integer_32_type)
+						end
+						indent
+						if a_result /= Void and a_result_type /= Void and attached {ET_EXPRESSION} l_when_part.then_part as l_then_expression then
+							l_expression_dynamic_type_set := dynamic_type_set (l_then_expression)
+							print_assignment_operand (l_then_expression, l_expression_dynamic_type_set, a_result, a_result_type)
+							fill_call_operands (1)
+							if call_operands.first /= a_result then
+								print_indentation
+								print_temp_name (a_result, current_file)
+								print_assign_to
+								print_attachment_expression (call_operands.first, l_expression_dynamic_type_set, a_result_type)
+								print_semicolon_newline
+							end
+							call_operands.wipe_out
+						elseif attached {ET_COMPOUND} l_when_part.then_part as l_then_compund then
+							print_compound (l_then_compund)
+						end
+						print_indentation
+						current_file.put_string (c_break)
+						print_semicolon_newline
+						dedent
+					end
+					i := i + 1
+				end
+				l_inspect_case_choices.keep_first (l_old_inspect_case_choices_count)
+				print_indentation
+				current_file.put_string (c_default)
+				current_file.put_character (':')
+				current_file.put_new_line
 				indent
+			end
+			if l_has_if then
+				from
+					i := l_old_inspect_if_choices_count + 1
+					nb := l_inspect_if_choices.count
+					l_is_first := True
+				until
+					i > nb
+				loop
+					l_when_part := l_inspect_if_choices.item (i)
+					if line_generation_mode then
+						print_position (l_when_part.position, current_feature.static_feature.implementation_class)
+					end
+					l_choices := l_when_part.choices
+					if l_choices.count /= 0 then
+						if l_is_first then
+							print_indentation
+							l_is_first := False
+						end
+						if l_is_integer_n_type then
+							print_if_integer_choices (l_choices, l_value, l_value_type)
+						elseif l_is_character_n_type then
+							print_if_character_choices (l_choices, l_value, l_value_type)
+						elseif l_is_string_n_type and l_count /= Void then
+							print_if_string_choices (l_choices, l_value, l_value_type, l_count)
+						elseif l_is_once_class then
+							print_if_integer_choices (l_choices, l_value, current_dynamic_system.natural_32_type)
+						elseif l_is_type_type then
+							print_if_type_choices (l_choices, l_value, current_dynamic_system.integer_32_type)
+						end
+						indent
+						if a_result /= Void and a_result_type /= Void and attached {ET_EXPRESSION} l_when_part.then_part as l_then_expression then
+							l_expression_dynamic_type_set := dynamic_type_set (l_then_expression)
+							print_assignment_operand (l_then_expression, l_expression_dynamic_type_set, a_result, a_result_type)
+							fill_call_operands (1)
+							if call_operands.first /= a_result then
+								print_indentation
+								print_temp_name (a_result, current_file)
+								print_assign_to
+								print_attachment_expression (call_operands.first, l_expression_dynamic_type_set, a_result_type)
+								print_semicolon_newline
+							end
+							call_operands.wipe_out
+						elseif attached {ET_COMPOUND} l_when_part.then_part as l_then_compund then
+							print_compound (l_then_compund)
+						end
+						dedent
+						print_indentation
+						current_file.put_character ('}')
+						current_file.put_character (' ')
+						current_file.put_string (c_else)
+						current_file.put_character (' ')
+					end
+					i := i + 1
+				end
+				l_inspect_if_choices.keep_first (l_old_inspect_if_choices_count)
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+			end
+			if a_result /= Void and a_result_type /= Void and attached {ET_EXPRESSION} a_inspect_component.else_part as l_else_expression then
+				l_expression_dynamic_type_set := dynamic_type_set (l_else_expression)
+				print_assignment_operand (l_else_expression, l_expression_dynamic_type_set, a_result, a_result_type)
+				fill_call_operands (1)
+				if call_operands.first /= a_result then
+					print_indentation
+					print_temp_name (a_result, current_file)
+					print_assign_to
+					print_attachment_expression (call_operands.first, l_expression_dynamic_type_set, a_result_type)
+					print_semicolon_newline
+				end
+				call_operands.wipe_out
+			elseif attached {ET_COMPOUND} a_inspect_component.else_part as l_else_compund then
+				print_compound (l_else_compund)
+			else
 				print_indentation
 				current_file.put_string (c_ge_raise)
 				current_file.put_character ('(')
 				current_file.put_string (c_ge_ex_when)
 				current_file.put_character (')')
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
+			end
+			if l_has_if then
+				dedent
+				print_indentation_end_newline
+			end
+			if l_has_case then
 				print_indentation
 				current_file.put_string (c_break)
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 				dedent
+				print_indentation_end_newline
 			end
-			print_indentation
-			current_file.put_character ('}')
+			mark_temp_variable_unfrozen (l_value)
+			mark_temp_variable_free (l_value)
+			if l_count /= Void then
+				mark_temp_variable_unfrozen (l_count)
+				mark_temp_variable_free (l_count)
+			end
+		end
+
+	print_case_integer_choices (a_choices: ET_CHOICE_LIST; a_value_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- 'case' statement corresponding to `a_choices`.
+			-- `a_value_type` is the type of the integer values being compared.
+		require
+			a_choices_not_void: a_choices /= Void
+			a_value_type_not_void: a_value_type /= Void
+		local
+			i, nb: INTEGER
+			l_choice: ET_CHOICE
+			l_lower_integer: detachable ET_INTEGER_CONSTANT
+			l_upper_integer: detachable ET_INTEGER_CONSTANT
+			l_lower_is_negative: BOOLEAN
+			l_lower_value: NATURAL_64
+			l_upper_is_negative: BOOLEAN
+			l_upper_value: NATURAL_64
+			j, nb2: NATURAL_64
+			l_stop: BOOLEAN
+		do
+			nb := a_choices.count
+			from i := 1 until i > nb loop
+				l_choice := a_choices.choice (i)
+				if l_choice.is_range then
+					if attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.lower) as l_integer_constant then
+						l_lower_integer := l_integer_constant
+						l_lower_value := l_lower_integer.value
+						l_lower_is_negative := l_lower_integer.is_negative
+					else
+						l_lower_integer := Void
+					end
+					if attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.upper) as l_integer_constant then
+						l_upper_integer := l_integer_constant
+						l_upper_value := l_upper_integer.value
+						l_upper_is_negative := l_upper_integer.is_negative
+					else
+						l_upper_integer := Void
+					end
+					if l_lower_integer /= Void and l_upper_integer /= Void then
+						if l_lower_is_negative and l_lower_value /= 0 then
+							j := l_lower_value
+							if l_upper_is_negative and l_upper_value /= 0 then
+								nb2 := l_upper_value
+							else
+								nb2 := 1
+							end
+							from
+							until
+								j < nb2
+							loop
+								print_indentation
+								current_file.put_string (c_case)
+								current_file.put_character (' ')
+								print_integer_value (j, True, a_value_type, True)
+								current_file.put_character (':')
+								current_file.put_new_line
+								j := j - 1
+							end
+						end
+						if not l_upper_is_negative then
+							nb2 := l_upper_value
+							if not l_lower_is_negative then
+								j := l_lower_value
+							else
+								j := 0
+							end
+							from
+								l_stop := j > nb2
+							until
+								l_stop
+							loop
+								print_indentation
+								current_file.put_string (c_case)
+								current_file.put_character (' ')
+								print_integer_value (j, False, a_value_type, True)
+								current_file.put_character (':')
+								current_file.put_new_line
+									-- Avoid overflow:
+								if j = nb2 then
+									l_stop := True
+								else
+									j := j + 1
+								end
+							end
+						end
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_case_integer_choices", 1, "invalid range type.")
+					end
+				else
+					print_indentation
+					current_file.put_string (c_case)
+					current_file.put_character (' ')
+					if attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.lower) as l_integer_constant then
+						print_integer_value (l_integer_constant.value, l_integer_constant.is_negative, a_value_type, True)
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_case_integer_choices", 2, "integer constant expected.")
+					end
+					current_file.put_character (':')
+					current_file.put_new_line
+				end
+				i := i + 1
+			end
+		end
+
+	print_if_integer_choices (a_choices: ET_CHOICE_LIST; a_value: ET_IDENTIFIER; a_value_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- 'if' statement corresponding to `a_choices`.
+			-- `a_value` is the integer value being compared.
+			-- `a_value_type` is the type of `a_value`.
+		require
+			a_choices_not_void: a_choices /= Void
+			a_value_not_void: a_value /= Void
+			a_value_is_temporary: a_value.is_temporary
+			a_value_type_not_void: a_value_type /= Void
+		local
+			i, nb: INTEGER
+			l_choice: ET_CHOICE
+			l_lower_integer: detachable ET_INTEGER_CONSTANT
+			l_upper_integer: detachable ET_INTEGER_CONSTANT
+			l_lower_is_negative: BOOLEAN
+			l_lower_value: NATURAL_64
+			l_upper_is_negative: BOOLEAN
+			l_upper_value: NATURAL_64
+		do
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			nb := a_choices.count
+			from i := 1 until i > nb loop
+				if i /= 1 then
+					current_file.put_character (' ')
+					current_file.put_string (c_or_else)
+					current_file.put_character (' ')
+				end
+				if nb > 1 then
+					current_file.put_character ('(')
+				end
+				l_choice := a_choices.choice (i)
+				if l_choice.is_range then
+					if attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.lower) as l_integer_constant then
+						l_lower_integer := l_integer_constant
+						l_lower_value := l_lower_integer.value
+						l_lower_is_negative := l_lower_integer.is_negative
+					else
+						l_lower_integer := Void
+					end
+					if attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.upper) as l_integer_constant then
+						l_upper_integer := l_integer_constant
+						l_upper_value := l_upper_integer.value
+						l_upper_is_negative := l_upper_integer.is_negative
+					else
+						l_upper_integer := Void
+					end
+					if l_lower_integer /= Void and l_upper_integer /= Void then
+						print_integer_value (l_lower_value, l_lower_is_negative, a_value_type, True)
+						current_file.put_character (' ')
+						current_file.put_character ('<')
+						current_file.put_character ('=')
+						current_file.put_character (' ')
+						print_temp_name (a_value, current_file)
+						current_file.put_character (' ')
+						current_file.put_string (c_and_then)
+						current_file.put_character (' ')
+						print_temp_name (a_value, current_file)
+						current_file.put_character (' ')
+						current_file.put_character ('<')
+						current_file.put_character ('=')
+						current_file.put_character (' ')
+						print_integer_value (l_upper_value, l_upper_is_negative, a_value_type, True)
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_integer_choices", 1, "invalid range type.")
+					end
+				else
+					print_temp_name (a_value, current_file)
+					current_file.put_character (' ')
+					current_file.put_string (c_equal)
+					current_file.put_character (' ')
+					if attached {ET_INTEGER_CONSTANT} choice_constant (l_choice.lower) as l_integer_constant then
+						print_integer_value (l_integer_constant.value, l_integer_constant.is_negative, a_value_type, True)
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_integer_choices", 2, "integer constant expected.")
+					end
+				end
+				if nb > 1 then
+					current_file.put_character (')')
+				end
+				i := i + 1
+			end
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			current_file.put_character ('{')
 			current_file.put_new_line
 		end
 
-	choice_constant (a_choice_constant: ET_CHOICE_CONSTANT): detachable ET_CONSTANT
-			-- Constant value of the inspect choice `a_choice_constant',
-			-- or Void if it appears not to be a constant after all
-			--
-			-- Note that validity `a_choice_constant' as an expression
-			-- is assumed to have already been checked.
-			-- It will just return Void if something unexpected is encountered.
+	print_case_character_choices (a_choices: ET_CHOICE_LIST; a_value_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- 'case' statement corresponding to `a_choices`.
+			-- `a_value_type` is the type of the character values being compared.
 		require
-			a_choice_constant_not_void: a_choice_constant /= Void
+			a_choices_not_void: a_choices /= Void
+			a_value_type_not_void: a_value_type /= Void
 		local
-			l_query: detachable ET_QUERY
-			l_seed: INTEGER
-			l_target_type: ET_DYNAMIC_PRIMARY_TYPE
+			i, nb: INTEGER
+			l_choice: ET_CHOICE
+			l_lower: detachable ET_CONSTANT
+			l_upper: detachable ET_CONSTANT
+			l_lower_character: detachable ET_CHARACTER_CONSTANT
+			l_upper_character: detachable ET_CHARACTER_CONSTANT
+			l_i_nat32, l_nb_nat32: NATURAL_32
+			l_stop: BOOLEAN
+			l_is_character_32: BOOLEAN
 		do
-			if attached {ET_CONSTANT} a_choice_constant as l_constant then
-				Result := l_constant
-			else
-				if attached {ET_IDENTIFIER} a_choice_constant as l_identifier then
-					if l_identifier.is_argument then
-							-- This is not a constant.
-					elseif l_identifier.is_local then
-							-- This is not a constant.
-					elseif l_identifier.is_object_test_local then
-							-- This is not a constant.
-					elseif l_identifier.is_iteration_item then
-							-- This is not a constant.
+			l_is_character_32 := current_system.character_32_type.same_named_type (a_value_type.base_type, current_type.base_type, current_type.base_type)
+			nb := a_choices.count
+			from i := 1 until i > nb loop
+				l_choice := a_choices.choice (i)
+				if l_choice.is_range then
+					l_lower := choice_constant (l_choice.lower)
+					l_upper := choice_constant (l_choice.upper)
+					if attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
+						l_lower_character := l_character_constant
 					else
-						l_seed := l_identifier.seed
-						l_query := current_type.base_class.seeded_query (l_seed)
+						l_lower_character := Void
 					end
-				elseif attached {ET_UNQUALIFIED_FEATURE_CALL} a_choice_constant as l_unqualified_call and then l_unqualified_call.arguments_count = 0 then
-					l_seed := l_unqualified_call.name.seed
-					l_query := current_type.base_class.seeded_query (l_seed)
-				elseif attached {ET_STATIC_CALL_EXPRESSION} a_choice_constant as l_static_call then
-					l_target_type := current_dynamic_system.dynamic_primary_type (l_static_call.type, current_type.base_type)
-					l_query := l_target_type.base_class.seeded_query (l_static_call.name.seed)
+					if attached {ET_CHARACTER_CONSTANT} l_upper as l_character_constant then
+						l_upper_character := l_character_constant
+					else
+						l_upper_character := Void
+					end
+					if l_lower_character /= Void and l_upper_character /= Void then
+						from
+							l_i_nat32 := l_lower_character.value.natural_32_code
+							l_nb_nat32 := l_upper_character.value.natural_32_code
+							l_stop := l_i_nat32 > l_nb_nat32
+						until
+							l_stop
+						loop
+							print_indentation
+							current_file.put_string (c_case)
+							current_file.put_character (' ')
+							if l_is_character_32 then
+								current_file.put_string (c_ge_nat32)
+								current_file.put_character ('(')
+								current_file.put_natural_32 (l_i_nat32)
+								current_file.put_character (')')
+							else
+									-- Type cast needed when compiling with mingw when the character
+									-- is represented by '\xyz' where x is not 0.
+								print_type_cast (a_value_type, current_file)
+								print_escaped_character_8 (l_i_nat32.to_character_8)
+							end
+							current_file.put_character (':')
+							current_file.put_new_line
+								-- Avoid overflow:
+							if l_i_nat32 = l_nb_nat32 then
+								l_stop := True
+							else
+								l_i_nat32 := l_i_nat32 + 1
+							end
+						end
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_case_character_choices", 1, "invalid range type.")
+					end
+				else
+					print_indentation
+					current_file.put_string (c_case)
+					current_file.put_character (' ')
+					l_lower := choice_constant (l_choice.lower)
+					if attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
+						if l_is_character_32 then
+							current_file.put_string (c_ge_nat32)
+							current_file.put_character ('(')
+							current_file.put_natural_32 (l_character_constant.value.natural_32_code)
+							current_file.put_character (')')
+						else
+								-- Type cast needed when compiling with mingw when the character
+								-- is represented by '\xyz' where x is not 0.
+							print_type_cast (a_value_type, current_file)
+							print_escaped_character_8 (l_character_constant.value.to_character_8)
+						end
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_case_character_choices", 2, "character constant expected.")
+					end
+					current_file.put_character (':')
+					current_file.put_new_line
 				end
-				if attached {ET_CONSTANT_QUERY} l_query as l_constant_query then
-					Result := l_constant_query.constant
-				end
+				i := i + 1
 			end
+		end
+
+	print_if_character_choices (a_choices: ET_CHOICE_LIST; a_value: ET_IDENTIFIER; a_value_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- 'if' statement corresponding to `a_choices`.
+			-- `a_value` is the character value being compared.
+			-- `a_value_type` is the type of `a_value`.
+		require
+			a_choices_not_void: a_choices /= Void
+			a_value_not_void: a_value /= Void
+			a_value_is_temporary: a_value.is_temporary
+			a_value_type_not_void: a_value_type /= Void
+		local
+			i, nb: INTEGER
+			l_choice: ET_CHOICE
+			l_lower: detachable ET_CONSTANT
+			l_upper: detachable ET_CONSTANT
+			l_lower_character: detachable ET_CHARACTER_CONSTANT
+			l_upper_character: detachable ET_CHARACTER_CONSTANT
+			l_is_character_32: BOOLEAN
+		do
+			l_is_character_32 := current_system.character_32_type.same_named_type (a_value_type.base_type, current_type.base_type, current_type.base_type)
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			nb := a_choices.count
+			from i := 1 until i > nb loop
+				if i /= 1 then
+					current_file.put_character (' ')
+					current_file.put_string (c_or_else)
+					current_file.put_character (' ')
+				end
+				if nb > 1 then
+					current_file.put_character ('(')
+				end
+				l_choice := a_choices.choice (i)
+				if l_choice.is_range then
+					l_lower := choice_constant (l_choice.lower)
+					l_upper := choice_constant (l_choice.upper)
+					if attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
+						l_lower_character := l_character_constant
+					else
+						l_lower_character := Void
+					end
+					if attached {ET_CHARACTER_CONSTANT} l_upper as l_character_constant then
+						l_upper_character := l_character_constant
+					else
+						l_upper_character := Void
+					end
+					if l_lower_character /= Void and l_upper_character /= Void then
+						if l_is_character_32 then
+							current_file.put_string (c_ge_nat32)
+							current_file.put_character ('(')
+							current_file.put_natural_32 (l_lower_character.value.natural_32_code)
+							current_file.put_character (')')
+						else
+								-- Type cast needed when compiling with mingw when the character
+								-- is represented by '\xyz' where x is not 0.
+							print_type_cast (a_value_type, current_file)
+							print_escaped_character_8 (l_lower_character.value.to_character_8)
+						end
+						current_file.put_character (' ')
+						current_file.put_character ('<')
+						current_file.put_character ('=')
+						current_file.put_character (' ')
+						print_temp_name (a_value, current_file)
+						current_file.put_character (' ')
+						current_file.put_string (c_and_then)
+						current_file.put_character (' ')
+						print_temp_name (a_value, current_file)
+						current_file.put_character (' ')
+						current_file.put_character ('<')
+						current_file.put_character ('=')
+						current_file.put_character (' ')
+						if l_is_character_32 then
+							current_file.put_string (c_ge_nat32)
+							current_file.put_character ('(')
+							current_file.put_natural_32 (l_upper_character.value.natural_32_code)
+							current_file.put_character (')')
+						else
+								-- Type cast needed when compiling with mingw when the character
+								-- is represented by '\xyz' where x is not 0.
+							print_type_cast (a_value_type, current_file)
+							print_escaped_character_8 (l_upper_character.value.to_character_8)
+						end
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_character_choices", 1, "invalid range type.")
+					end
+				else
+					print_temp_name (a_value, current_file)
+					current_file.put_character (' ')
+					current_file.put_string (c_equal)
+					current_file.put_character (' ')
+					l_lower := choice_constant (l_choice.lower)
+					if attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
+						if l_is_character_32 then
+							current_file.put_string (c_ge_nat32)
+							current_file.put_character ('(')
+							current_file.put_natural_32 (l_character_constant.value.natural_32_code)
+							current_file.put_character (')')
+						else
+								-- Type cast needed when compiling with mingw when the character
+								-- is represented by '\xyz' where x is not 0.
+							print_type_cast (a_value_type, current_file)
+							print_escaped_character_8 (l_character_constant.value.to_character_8)
+						end
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_character_choices", 2, "character constant expected.")
+					end
+				end
+				if nb > 1 then
+					current_file.put_character (')')
+				end
+				i := i + 1
+			end
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			current_file.put_character ('{')
+			current_file.put_new_line
+		end
+
+	print_if_string_choices (a_choices: ET_CHOICE_LIST; a_value: ET_IDENTIFIER; a_value_type: ET_DYNAMIC_PRIMARY_TYPE; a_count: ET_IDENTIFIER)
+			-- 'if' statement corresponding to `a_choices`.
+			-- `a_value` is the string value being compared.
+			-- `a_value_type` is the type of `a_value`.
+		require
+			a_choices_not_void: a_choices /= Void
+			a_value_not_void: a_value /= Void
+			a_value_is_temporary: a_value.is_temporary
+			a_value_type_not_void: a_value_type /= Void
+			a_count_not_void: a_count /= Void
+			a_count_is_temporary: a_count.is_temporary
+		local
+			i, nb: INTEGER
+			l_choice: ET_CHOICE
+			l_lower: detachable ET_CONSTANT
+			l_upper: detachable ET_CONSTANT
+			l_lower_string: detachable ET_MANIFEST_STRING
+			l_upper_string: detachable ET_MANIFEST_STRING
+			l_is_string_32: BOOLEAN
+			l_string_value: STRING_8
+			l_old_file: KI_TEXT_OUTPUT_STREAM
+		do
+			if current_system.string_32_type.same_named_type_with_type_marks (a_value_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type) then
+				l_is_string_32 := True
+			elseif current_system.immutable_string_32_type.same_named_type_with_type_marks (a_value_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type, tokens.implicit_detachable_separate_type_mark, current_type.base_type) then
+				l_is_string_32 := True
+			end
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			nb := a_choices.count
+			from i := 1 until i > nb loop
+				if i /= 1 then
+					current_file.put_character (' ')
+					current_file.put_string (c_or_else)
+					current_file.put_character (' ')
+				end
+				if nb > 1 then
+					current_file.put_character ('(')
+				end
+				l_choice := a_choices.choice (i)
+				if l_choice.is_range then
+					l_lower := choice_constant (l_choice.lower)
+					l_upper := choice_constant (l_choice.upper)
+					if attached {ET_MANIFEST_STRING} l_lower as l_string_constant then
+						l_lower_string := l_string_constant
+					else
+						l_lower_string := Void
+					end
+					if attached {ET_MANIFEST_STRING} l_upper as l_string_constant then
+						l_upper_string := l_string_constant
+					else
+						l_upper_string := Void
+					end
+					if l_lower_string /= Void and l_upper_string /= Void then
+						if l_is_string_32 then
+							current_file.put_string (c_ge_str32_is_inbetween)
+							current_file.put_character ('(')
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							print_temp_name (a_value, current_file)
+							print_comma
+							print_temp_name (a_count, current_file)
+							print_comma
+							l_string_value := l_lower_string.value
+							inspect_choice_string_count := inspect_choice_string_count + 1
+							l_old_file := current_file
+							current_file := current_function_header_buffer
+							current_file.put_character ('%T')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character (' ')
+							current_file.put_character ('k')
+							current_file.put_integer (inspect_choice_string_count)
+							current_file.put_character ('[')
+							current_file.put_character (']')
+							print_assign_to
+							print_utf8_as_array_of_character_32 (l_string_value)
+							print_semicolon_newline
+							current_file := l_old_file
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							current_file.put_character ('k')
+							current_file.put_integer (inspect_choice_string_count)
+							print_comma
+							current_file.put_integer ({UC_UTF8_ROUTINES}.unicode_character_count (l_string_value))
+							print_comma
+							l_string_value := l_upper_string.value
+							inspect_choice_string_count := inspect_choice_string_count + 1
+							l_old_file := current_file
+							current_file := current_function_header_buffer
+							current_file.put_character ('%T')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character (' ')
+							current_file.put_character ('k')
+							current_file.put_integer (inspect_choice_string_count)
+							current_file.put_character ('[')
+							current_file.put_character (']')
+							print_assign_to
+							print_utf8_as_array_of_character_32 (l_string_value)
+							print_semicolon_newline
+							current_file := l_old_file
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							current_file.put_character ('k')
+							current_file.put_integer (inspect_choice_string_count)
+							print_comma
+							current_file.put_integer ({UC_UTF8_ROUTINES}.unicode_character_count (l_string_value))
+							current_file.put_character (')')
+						else
+							current_file.put_string (c_ge_str8_is_inbetween)
+							current_file.put_character ('(')
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_8)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							print_temp_name (a_value, current_file)
+							print_comma
+							print_temp_name (a_count, current_file)
+							print_comma
+							l_string_value := l_lower_string.value
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_8)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							print_utf8_as_escaped_string_8 (l_string_value)
+							print_comma
+							current_file.put_integer (l_string_value.count)
+							print_comma
+							l_string_value := l_upper_string.value
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_8)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							print_utf8_as_escaped_string_8 (l_string_value)
+							print_comma
+							current_file.put_integer (l_string_value.count)
+							current_file.put_character (')')
+						end
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_string_choices", 1, "invalid range type.")
+					end
+				else
+					l_lower := choice_constant (l_choice.lower)
+					if attached {ET_MANIFEST_STRING} l_lower as l_string_constant then
+						if l_is_string_32 then
+							current_file.put_string (c_ge_str32_same_characters)
+							current_file.put_character ('(')
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							print_temp_name (a_value, current_file)
+							print_comma
+							print_temp_name (a_count, current_file)
+							print_comma
+							l_string_value := l_string_constant.value
+							inspect_choice_string_count := inspect_choice_string_count + 1
+							l_old_file := current_file
+							current_file := current_function_header_buffer
+							current_file.put_character ('%T')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character (' ')
+							current_file.put_character ('k')
+							current_file.put_integer (inspect_choice_string_count)
+							current_file.put_character ('[')
+							current_file.put_character (']')
+							print_assign_to
+							print_utf8_as_array_of_character_32 (l_string_value)
+							print_semicolon_newline
+							current_file := l_old_file
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_32)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							current_file.put_character ('k')
+							current_file.put_integer (inspect_choice_string_count)
+							print_comma
+							current_file.put_integer ({UC_UTF8_ROUTINES}.unicode_character_count (l_string_value))
+							current_file.put_character (')')
+						else
+							current_file.put_string (c_ge_str8_same_characters)
+							current_file.put_character ('(')
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_8)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							print_temp_name (a_value, current_file)
+							print_comma
+							print_temp_name (a_count, current_file)
+							print_comma
+							l_string_value := l_string_constant.value
+							current_file.put_character ('(')
+							current_file.put_string (c_eif_character_8)
+							current_file.put_character ('*')
+							current_file.put_character (')')
+							print_utf8_as_escaped_string_8 (l_string_value)
+							print_comma
+							current_file.put_integer (l_string_value.count)
+							current_file.put_character (')')
+						end
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_string_choices", 2, "string constant expected.")
+					end
+				end
+				if nb > 1 then
+					current_file.put_character (')')
+				end
+				i := i + 1
+			end
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			current_file.put_character ('{')
+			current_file.put_new_line
+		end
+
+	print_case_type_choices (a_choices: ET_CHOICE_LIST; a_value_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- 'case' statement corresponding to `a_choices`.
+			-- `a_value_type` is the type of the type_id values being compared.
+		require
+			a_choices_not_void: a_choices /= Void
+			a_value_type_not_void: a_value_type /= Void
+		local
+			i, nb: INTEGER
+			l_choice: ET_CHOICE
+			l_lower: detachable ET_CONSTANT
+			l_type: ET_DYNAMIC_TYPE
+		do
+			nb := a_choices.count
+			from i := 1 until i > nb loop
+				l_choice := a_choices.choice (i)
+				if l_choice.is_range then
+					set_fatal_error
+					error_handler.report_giaac_error (generator, "print_case_type_choices", 1, "range not allowed.")
+				else
+					print_indentation
+					current_file.put_string (c_case)
+					current_file.put_character (' ')
+					l_lower := choice_constant (l_choice.lower)
+					l_lower := choice_constant (l_choice.lower)
+					if attached {ET_MANIFEST_TYPE} l_lower as l_type_constant then
+						l_type := current_dynamic_system.dynamic_type (l_type_constant.type, current_type.base_type)
+						current_file.put_integer (l_type.type_id)
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_case_type_choices", 2, "type constant expected.")
+					end
+					current_file.put_character (':')
+					current_file.put_new_line
+				end
+				i := i + 1
+			end
+		end
+
+	print_if_type_choices (a_choices: ET_CHOICE_LIST; a_value: ET_IDENTIFIER; a_value_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- 'if' statement corresponding to `a_choices`.
+			-- `a_value` is the type_id value being compared.
+			-- `a_value_type` is the type of `a_value`.
+		require
+			a_choices_not_void: a_choices /= Void
+			a_value_not_void: a_value /= Void
+			a_value_is_temporary: a_value.is_temporary
+			a_value_type_not_void: a_value_type /= Void
+		local
+			i, nb: INTEGER
+			l_choice: ET_CHOICE
+			l_lower: detachable ET_CONSTANT
+			l_upper: detachable ET_CONSTANT
+			l_lower_type: detachable ET_MANIFEST_TYPE
+			l_upper_type: detachable ET_MANIFEST_TYPE
+			l_type: ET_DYNAMIC_TYPE
+		do
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			nb := a_choices.count
+			from i := 1 until i > nb loop
+				if i /= 1 then
+					current_file.put_character (' ')
+					current_file.put_string (c_or_else)
+					current_file.put_character (' ')
+				end
+				if nb > 1 then
+					current_file.put_character ('(')
+				end
+				l_choice := a_choices.choice (i)
+				if l_choice.is_range then
+					l_lower := choice_constant (l_choice.lower)
+					l_upper := choice_constant (l_choice.upper)
+					if attached {ET_MANIFEST_TYPE} l_lower as l_type_constant then
+						l_lower_type := l_type_constant
+					else
+						l_lower_type := Void
+					end
+					if attached {ET_MANIFEST_TYPE} l_upper as l_type_constant then
+						l_upper_type := l_type_constant
+					else
+						l_upper_type := Void
+					end
+					if l_lower_type /= Void and l_upper_type /= Void then
+						type_info_ancestors_used := True
+						current_file.put_string (c_ge_encoded_type_is_inbetween)
+						current_file.put_character ('(')
+						print_temp_name (a_value, current_file)
+						print_comma
+						l_type := current_dynamic_system.dynamic_type (l_lower_type.type, current_type.base_type)
+						current_file.put_integer (l_type.type_id)
+						print_comma
+						l_type := current_dynamic_system.dynamic_type (l_upper_type.type, current_type.base_type)
+						current_file.put_integer (l_type.type_id)
+						current_file.put_character (')')
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_type_choices", 1, "invalid range type.")
+					end
+				else
+					print_temp_name (a_value, current_file)
+					current_file.put_character (' ')
+					current_file.put_string (c_equal)
+					current_file.put_character (' ')
+					l_lower := choice_constant (l_choice.lower)
+					if attached {ET_MANIFEST_TYPE} l_lower as l_type_constant then
+						l_type := current_dynamic_system.dynamic_type (l_type_constant.type, current_type.base_type)
+						current_file.put_integer (l_type.type_id)
+					else
+						set_fatal_error
+						error_handler.report_giaac_error (generator, "print_if_type_choices", 2, "type constant expected.")
+					end
+				end
+				if nb > 1 then
+					current_file.put_character (')')
+				end
+				i := i + 1
+			end
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			current_file.put_character ('{')
+			current_file.put_new_line
 		end
 
 	print_instruction (an_instruction: ET_INSTRUCTION)
@@ -10482,8 +11189,7 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_instruction 
 			current_file.put_string (c_goto)
 			current_file.put_character (' ')
 			current_file.put_string (c_ge_retry)
-			current_file.put_character (';')
-			current_file.put_new_line
+			print_semicolon_newline
 			has_retry := True
 		end
 
@@ -10947,6 +11653,8 @@ feature {NONE} -- Procedure call generation
 				print_builtin_character_n_ref_procedure_call (a_feature, a_target_type, a_check_void_target)
 			when {ET_TOKEN_CODES}.builtin_com_failure_class then
 				print_builtin_com_failure_procedure_call (a_feature, a_target_type, a_check_void_target)
+			when {ET_TOKEN_CODES}.builtin_identified_controller_class then
+				print_builtin_identified_controller_procedure_call (a_feature, a_target_type, a_check_void_target)
 			when {ET_TOKEN_CODES}.builtin_identified_routines_class then
 				print_builtin_identified_routines_procedure_call (a_feature, a_target_type, a_check_void_target)
 			when {ET_TOKEN_CODES}.builtin_integer_8_ref_class then
@@ -11069,6 +11777,27 @@ feature {NONE} -- Procedure call generation
 			inspect a_feature.builtin_feature_code
 			when {ET_TOKEN_CODES}.builtin_com_failure_cwin_local_free then
 				print_builtin_com_failure_cwin_local_free_call (a_feature, a_target_type, a_check_void_target)
+			else
+				print_non_inlined_procedure_call (a_feature, a_target_type, a_check_void_target)
+			end
+		end
+
+	print_builtin_identified_controller_procedure_call (a_feature: ET_DYNAMIC_FEATURE; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
+			-- Print to `current_file' a call to procedure `a_feature' (static binding).
+			-- `a_feature' is a built-in feature introduced in class "IDENTIFIED_CONTROLLER".
+			-- `a_target_type' is the dynamic type of the target.
+			-- `a_check_void_target' means that we need to check whether the target is Void or not.
+			-- Operands can be found in `call_operands'.
+		require
+			a_feature_not_void: a_feature /= Void
+			a_feature_is_builtin: a_feature.is_builtin
+			a_feature_is_builtin_identified_controller: a_feature.is_builtin_identified_controller_class
+			a_target_type_not_void: a_target_type /= Void
+			call_operands_not_empty: not call_operands.is_empty
+		do
+			inspect a_feature.builtin_feature_code
+			when {ET_TOKEN_CODES}.builtin_identified_controller_extend_object_id_stack then
+				print_builtin_identified_controller_extend_object_id_stack_call (a_feature, a_target_type, a_check_void_target)
 			else
 				print_non_inlined_procedure_call (a_feature, a_target_type, a_check_void_target)
 			end
@@ -11853,6 +12582,30 @@ feature {NONE} -- Expression generation
 				current_file.put_string (c_arrow)
 			end
 			print_attribute_name (an_attribute, a_target_type, current_file)
+		end
+
+	print_attribute_once_class_index_access (a_target: ET_EXPRESSION; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
+			-- Print access to '_index' pseudo attribute of a once class applied to object `a_target' of type `a_target_type'.
+			-- `a_check_void_target' means that we need to check whether the target is Void or not.
+		require
+			a_target_not_void: a_target /= Void
+			a_target_type_not_void: a_target_type /= Void
+		do
+			if a_target_type.is_expanded then
+				current_file.put_character ('(')
+				print_expression (a_target)
+				current_file.put_character (')')
+				current_file.put_character ('.')
+			else
+				current_file.put_character ('(')
+				print_type_cast (a_target_type, current_file)
+				current_file.put_character ('(')
+				print_non_void_expression (a_target, a_check_void_target)
+				current_file.put_character (')')
+				current_file.put_character (')')
+				current_file.put_string (c_arrow)
+			end
+			print_attribute_once_class_index_name (a_target_type, current_file)
 		end
 
 	print_attribute_special_capacity_access (a_target: ET_EXPRESSION; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
@@ -13538,28 +14291,8 @@ feature {NONE} -- Expression generation
 			l_temp: ET_IDENTIFIER
 			l_temp_index: INTEGER
 			l_dynamic_type_set: ET_DYNAMIC_TYPE_SET
-			l_expression_dynamic_type_set: ET_DYNAMIC_TYPE_SET
 			l_dynamic_type: ET_DYNAMIC_TYPE
-			l_expression: ET_EXPRESSION
-			l_when_part: ET_WHEN_EXPRESSION
-			l_choices: ET_CHOICE_LIST
-			l_choice: ET_CHOICE
-			i, nb: INTEGER
-			j, nb2: INTEGER
-			l_has_case: BOOLEAN
-			l_lower: detachable ET_CONSTANT
-			l_upper: detachable ET_CONSTANT
-			l_lower_integer: detachable ET_INTEGER_CONSTANT
-			l_upper_integer: detachable ET_INTEGER_CONSTANT
-			l_lower_character: detachable ET_CHARACTER_CONSTANT
-			l_upper_character: detachable ET_CHARACTER_CONSTANT
-			k, nb3: INTEGER
-			l_i_nat32, l_nb_nat32: NATURAL_32
-			l_value_type_set: ET_DYNAMIC_TYPE_SET
-			l_value_type: ET_DYNAMIC_PRIMARY_TYPE
-			l_stop: BOOLEAN
 		do
--- TODO
 			assignment_target := Void
 				-- Declaration of temporary result.
 			l_dynamic_type_set := dynamic_type_set (a_expression)
@@ -13570,211 +14303,7 @@ feature {NONE} -- Expression generation
 				-- it could still be used in `call_operands'.
 			l_temp_index := a_expression.index
 			operand_stack.force (l_temp)
-			l_expression := a_expression.conditional.expression
-			l_value_type_set := dynamic_type_set (l_expression)
-			l_value_type := l_value_type_set.static_type.primary_type
-			print_operand (l_expression)
-			fill_call_operands (1)
-			print_indentation
-			current_file.put_string (c_switch)
-			current_file.put_character (' ')
-			current_file.put_character ('(')
-			print_expression (call_operands.first)
-			call_operands.wipe_out
-			current_file.put_character (')')
-			current_file.put_character (' ')
-			current_file.put_character ('{')
-			current_file.put_new_line
-			if attached a_expression.when_parts as l_when_parts then
-				nb := l_when_parts.count
-				from i := 1 until i > nb loop
-					l_when_part := l_when_parts.item (i)
-					l_choices := l_when_part.choices
-					nb2 := l_choices.count
-					if nb2 = 0 then
-						-- Do nothing.
-					else
-						l_has_case := False
-						from j := 1 until j > nb2 loop
-							l_choice := l_choices.choice (j)
-							if l_choice.is_range then
--- TODO
-								l_lower := choice_constant (l_choice.lower)
-								l_upper := choice_constant (l_choice.upper)
-								if attached {ET_INTEGER_CONSTANT} l_lower as l_integer_constant then
-									l_lower_integer := l_integer_constant
-									l_lower_character := Void
-								elseif attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
-									l_lower_character := l_character_constant
-									l_lower_integer := Void
-								else
-									l_lower_integer := Void
-									l_lower_character := Void
-								end
-								if attached {ET_INTEGER_CONSTANT} l_upper as l_integer_constant then
-									l_upper_integer := l_integer_constant
-									l_upper_character := Void
-								elseif attached {ET_CHARACTER_CONSTANT} l_upper as l_character_constant then
-									l_upper_character := l_character_constant
-									l_upper_integer := Void
-								else
-									l_upper_integer := Void
-									l_upper_character := Void
-								end
-								if l_lower_integer /= Void and l_upper_integer /= Void then
-									from
--- TODO: check type of inspect value.
-										k := l_lower_integer.to_integer_32
-										nb3 := l_upper_integer.to_integer_32
-									until
-										k > nb3
-									loop
-										l_has_case := True
-										print_indentation
-										current_file.put_string (c_case)
-										current_file.put_character (' ')
-										print_integer_value (k.abs.to_natural_64, k < 0, l_value_type, True)
-										current_file.put_character (':')
-										current_file.put_new_line
-										k := k + 1
-									end
-								elseif l_lower_character /= Void and l_upper_character /= Void then
-									from
-										l_i_nat32 := l_lower_character.value.natural_32_code
-										l_nb_nat32 := l_upper_character.value.natural_32_code
-										l_stop := l_i_nat32 > l_nb_nat32
-									until
-										l_stop
-									loop
-										l_has_case := True
-										print_indentation
-										current_file.put_string (c_case)
-										current_file.put_character (' ')
-										if current_system.character_32_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
-											current_file.put_string (c_ge_nat32)
-											current_file.put_character ('(')
-											current_file.put_natural_32 (l_i_nat32)
-											current_file.put_character (')')
-										else
-												-- Type cast needed when compiling with mingw when the character
-												-- is represented by '\xyz' where x is not 0.
-											print_type_cast (l_value_type, current_file)
-											print_escaped_character_8 (l_i_nat32.to_character_8)
-										end
-										current_file.put_character (':')
-										current_file.put_new_line
-										if l_i_nat32 = l_nb_nat32 then
-											l_stop := True
-										else
-											l_i_nat32 := l_i_nat32 + 1
-										end
-									end
-								else
--- TODO
-error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_expression - range")
-								end
-							else
-								l_has_case := True
-								print_indentation
-								current_file.put_string (c_case)
-								current_file.put_character (' ')
-								l_lower := choice_constant (l_choice.lower)
-								if attached {ET_INTEGER_CONSTANT} l_lower as l_integer_constant then
-									print_integer_value (l_integer_constant.value, l_integer_constant.is_negative, l_value_type, True)
-								elseif attached {ET_CHARACTER_CONSTANT} l_lower as l_character_constant then
-									if current_system.character_32_type.same_named_type (l_value_type.base_type, current_type.base_type, current_type.base_type) then
-										current_file.put_string (c_ge_nat32)
-										current_file.put_character ('(')
-										current_file.put_natural_32 (l_character_constant.value.natural_32_code)
-										current_file.put_character (')')
-									else
-											-- Type cast needed when compiling with mingw when the character
-											-- is represented by '\xyz' where x is not 0.
-										print_type_cast (l_value_type, current_file)
-										print_escaped_character_8 (l_character_constant.value.to_character_8)
-									end
-								else
-									if l_value_type /= dynamic_type_set (l_choice.lower).static_type.primary_type then
-										print_type_cast (l_value_type, current_file)
-									end
-									print_expression (l_choice.lower)
-								end
-								current_file.put_character (':')
-								current_file.put_new_line
-							end
-							j := j + 1
-						end
-						if l_has_case then
-							indent
-							l_expression := l_when_part.then_expression
-							l_expression_dynamic_type_set := dynamic_type_set (l_expression)
-							print_assignment_operand (l_expression, l_expression_dynamic_type_set, l_temp, l_dynamic_type)
-							fill_call_operands (1)
-							if call_operands.first /= l_temp then
-								print_indentation
-								print_temp_name (l_temp, current_file)
-								current_file.put_character (' ')
-								current_file.put_character ('=')
-								current_file.put_character (' ')
-								print_attachment_expression (call_operands.first, l_expression_dynamic_type_set, l_dynamic_type)
-								current_file.put_character (';')
-								current_file.put_new_line
-							end
-							call_operands.wipe_out
-							print_indentation
-							current_file.put_string (c_break)
-							current_file.put_character (';')
-							current_file.put_new_line
-							dedent
-						end
-					end
-					i := i + 1
-				end
-			end
-			print_indentation
-			current_file.put_string (c_default)
-			current_file.put_character (':')
-			current_file.put_new_line
-			if attached a_expression.else_part as l_else_part then
-				indent
-				l_expression := l_else_part.expression
-				l_expression_dynamic_type_set := dynamic_type_set (l_expression)
-				print_assignment_operand (l_expression, l_expression_dynamic_type_set, l_temp, l_dynamic_type)
-				fill_call_operands (1)
-				if call_operands.first /= l_temp then
-					print_indentation
-					print_temp_name (l_temp, current_file)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
-					print_attachment_expression (call_operands.first, l_expression_dynamic_type_set, l_dynamic_type)
-					current_file.put_character (';')
-					current_file.put_new_line
-				end
-				call_operands.wipe_out
-				print_indentation
-				current_file.put_string (c_break)
-				current_file.put_character (';')
-				current_file.put_new_line
-				dedent
-			else
-				indent
-				print_indentation
-				current_file.put_string (c_ge_raise)
-				current_file.put_character ('(')
-				current_file.put_string (c_ge_ex_when)
-				current_file.put_character (')')
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_break)
-				current_file.put_character (';')
-				current_file.put_new_line
-				dedent
-			end
-			print_indentation
-			current_file.put_character ('}')
-			current_file.put_new_line
+			print_inspect_component (a_expression, l_temp, l_dynamic_type)
 			if l_temp_index /= 0 then
 					-- We had to wait until this stage to set the index of `l_temp'
 					-- because it could have still been used in `call_operands'.
@@ -13826,17 +14355,11 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_expression -
 		local
 			l_dynamic_type_set: ET_DYNAMIC_TYPE_SET
 			l_static_type: ET_DYNAMIC_TYPE
-			l_current_closure: ET_CLOSURE
 			l_iteration_component: ET_ITERATION_COMPONENT
 			l_seed: INTEGER
 			l_done: BOOLEAN
 		do
-			if attached {ET_INLINE_AGENT} current_agent as l_inline_agent then
-				l_current_closure := l_inline_agent
-			else
-				l_current_closure := current_feature.static_feature
-			end
-			if attached l_current_closure.iteration_components as l_iteration_components then
+			if attached current_closure_impl.iteration_components as l_iteration_components then
 				l_seed := a_name.seed
 				if l_seed >= 1 and l_seed <= l_iteration_components.count then
 					l_iteration_component := l_iteration_components.iteration_component (l_seed)
@@ -14562,6 +15085,9 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_expression -
 				l_target_type_set := dynamic_type_set (l_name)
 				l_target_type := l_target_type_set.static_type
 				current_object_test_local_types.force_last (l_target_type.primary_type)
+					-- Note that the following line works even when we have two different object-tests
+					-- form two different inherited pre- or postconditions with the same name seed
+					-- because they cannot have scope overlap.
 				current_object_test_locals.force_last (current_object_test_local_types.count, l_name.seed)
 			elseif l_type /= Void then
 				l_target_type := current_dynamic_system.dynamic_type (l_type, current_type.base_type)
@@ -14768,10 +15294,10 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_expression -
 					print_temp_name (l_exception_temp, current_file)
 					current_file.put_character (')')
 					current_file.put_character (',')
-					print_temp_name (l_temp, current_file)
+					print_temporary_variable (l_temp)
 					current_file.put_character (')')
 					current_file.put_character (':')
-					print_temp_name (l_temp, current_file)
+					print_temporary_variable (l_temp)
 					current_file.put_character (')')
 				end
 			end
@@ -15431,7 +15957,7 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_expression -
 									once_features.search (current_feature.static_feature.implementation_feature)
 									if once_features.found then
 										l_once_index := once_features.found_item
-										l_once_kind := once_kind (current_feature)
+										l_once_kind := once_kind (current_feature, False)
 									end
 										-- The once value has been boxed.
 										-- It needs to be unboxed.
@@ -15482,7 +16008,7 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_expression -
 							once_features.search (current_feature.static_feature.implementation_feature)
 							if once_features.found then
 								l_once_index := once_features.found_item
-								l_once_kind := once_kind (current_feature)
+								l_once_kind := once_kind (current_feature, False)
 							end
 								-- The once value has been boxed.
 								-- It needs to be unboxed.
@@ -15587,7 +16113,7 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_inspect_expression -
 								once_features.search (current_feature.static_feature.implementation_feature)
 								if once_features.found then
 									l_once_index := once_features.found_item
-									l_once_kind := once_kind (current_feature)
+									l_once_kind := once_kind (current_feature, False)
 								end									-- The once value has been boxed.
 									-- It needs to be unboxed.
 								current_file.put_character ('(')
@@ -17413,11 +17939,11 @@ feature {NONE} -- Query call generation
 				print_query_call (a_feature, a_target_type, a_check_void_target)
 				print_comma
 					-- Then return the boxed value.
-				register_once_feature (a_feature)
+				register_once_feature (a_feature, False)
 				once_features.search (a_feature.static_feature.implementation_feature)
 				if once_features.found then
 					l_once_index := once_features.found_item
-					l_once_kind := once_kind (a_feature)
+					l_once_kind := once_kind (a_feature, False)
 				end
 				if a_feature.is_once_per_object or l_query_type_set.static_type.is_basic then
 					print_adapted_expression_with_agent (agent print_once_value (a_feature, l_once_kind, l_once_index), l_query_type_set, a_result_type, in_call_target)
@@ -17466,7 +17992,7 @@ feature {NONE} -- Query call generation
 						-- Try to inject the commit SHA-1 to the Gobo version if not already done yet.
 						-- Useful when compiling Gobo tools from a local Git clone.
 					if
-						l_string_constant.value.same_string ("xx.xx.xx+xxxxxxxxx") and
+						l_string_constant.value.same_string ("xx.xx.xx+xxxxxxx") and
 						l_constant_attribute.implementation_class.upper_name.same_string ("UT_GOBO_VERSION")
 					then
 						l_constant := gobo_version_string_constant
@@ -17718,6 +18244,8 @@ feature {NONE} -- Query call generation
 				print_builtin_com_failure_query_call (a_feature, a_target_type, a_check_void_target)
 			when {ET_TOKEN_CODES}.builtin_function_class then
 				print_builtin_function_query_call (a_feature, a_target_type, a_check_void_target)
+			when {ET_TOKEN_CODES}.builtin_identified_controller_class then
+				print_builtin_identified_controller_query_call (a_feature, a_target_type, a_check_void_target)
 			when {ET_TOKEN_CODES}.builtin_identified_routines_class then
 				print_builtin_identified_routines_query_call (a_feature, a_target_type, a_check_void_target)
 			when {ET_TOKEN_CODES}.builtin_integer_8_class then
@@ -18024,6 +18552,31 @@ feature {NONE} -- Query call generation
 				print_builtin_function_fast_item_call (a_feature, a_target_type, a_check_void_target)
 			when {ET_TOKEN_CODES}.builtin_function_item then
 				print_builtin_function_item_call (a_feature, a_target_type, a_check_void_target)
+			else
+				print_non_inlined_query_call (a_feature, a_target_type, a_check_void_target)
+			end
+		end
+
+	print_builtin_identified_controller_query_call (a_feature: ET_DYNAMIC_FEATURE; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
+			-- Print to `current_file' a call to query `a_feature' (static binding).
+			-- `a_feature' is a built-in feature introduced in class "IDENTIFIED_CONTROLLER".
+			-- `a_target_type' is the dynamic type of the target.
+			-- `a_check_void_target' means that we need to check whether the target is Void or not.
+			-- Operands can be found in `call_operands'.
+			-- Note that the result of the query is not adapted to match the kind
+			-- of result type expected by the caller. It is recommended to use
+			-- `print_adapted_query_call' whenever possible.
+		require
+			a_feature_not_void: a_feature /= Void
+			a_feature_is_query: a_feature.is_query
+			a_feature_is_builtin: a_feature.is_builtin
+			a_feature_is_builtin_controller_routines: a_feature.is_builtin_identified_controller_class
+			a_target_type_not_void: a_target_type /= Void
+			call_operands_not_empty: not call_operands.is_empty
+		do
+			inspect a_feature.builtin_feature_code
+			when {ET_TOKEN_CODES}.builtin_identified_controller_object_id_stack_size then
+				print_builtin_identified_controller_object_id_stack_size_call (a_feature, a_target_type, a_check_void_target)
 			else
 				print_non_inlined_query_call (a_feature, a_target_type, a_check_void_target)
 			end
@@ -19320,6 +19873,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 				-- Declarations of temporary variables.
 			current_file := current_function_header_buffer
 			print_temporary_variable_declarations
+			print_object_test_local_declarations
+			print_iteration_cursor_declarations
 				-- Do not flush code to C file here (no call to `flush_to_c_file')
 				-- because we want the function associated with this agent and the
 				-- creation of the agent (printed just below) to be in the same C file.
@@ -19538,10 +20093,18 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 			an_agent_not_void: an_agent /= Void
 		local
 			l_old_agent: like current_agent
+			l_old_preconditions: like current_preconditions
+			l_old_postconditions: like current_postconditions
 		do
 			l_old_agent := current_agent
 			current_agent := an_agent
+			l_old_preconditions := current_preconditions
+			current_preconditions := Void
+			l_old_postconditions := current_postconditions
+			current_postconditions := Void
 			an_agent.process (Current)
+			current_preconditions := l_old_preconditions
+			current_postconditions := l_old_postconditions
 			current_agent := l_old_agent
 		end
 
@@ -19571,35 +20134,12 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 				current_file.put_character ('*')
 				current_file.put_character (' ')
 				print_separate_argument_session_name (agent_inline_separate_argument.name, current_file)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('0')
-				print_semicolon_newline
-				print_indentation
-				current_file.put_string (c_ge_scoop_region)
-				current_file.put_character ('*')
-				current_file.put_character (' ')
-				current_file.put_string (c_sr)
-				print_assign_to
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_region)
-				print_semicolon_newline
-				print_indentation
-				current_file.put_string (c_ge_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
-				current_file.put_string (c_ge_scoop_condition)
-				current_file.put_character ('*')
-				current_file.put_character (' ')
-				current_file.put_string (c_scond)
 				print_assign_to
 				current_file.put_character ('0')
 				print_semicolon_newline
+				print_scoop_multisession_declaration
+				print_current_scoop_region_declaration
+				print_scoop_session_protection_declaration
 				print_indentation
 				print_type_declaration (l_target_type.primary_type, current_file)
 				current_file.put_character (' ')
@@ -19620,18 +20160,14 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 			current_file := current_function_body_buffer
 			if l_target_type_is_separate then
 				print_indentation
-				current_file.put_character ('r')
+				current_file.put_string (c_rs)
 				current_file.put_character ('.')
 				current_file.put_string (c_previous)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
-				current_file.put_character (';')
-				current_file.put_new_line
-				print_indentation
+				print_semicolon_newline
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
@@ -19639,16 +20175,15 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 				current_file.put_character ('=')
 				current_file.put_character (' ')
 				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
+				current_file.put_string (c_rs)
+				print_semicolon_newline
 				print_indentation
 				current_file.put_string (c_if)
 				current_file.put_character (' ')
 				current_file.put_character ('(')
 				current_file.put_string (c_ge_setjmp)
 				current_file.put_character ('(')
-				current_file.put_character ('r')
+				current_file.put_string (c_rs)
 				current_file.put_character ('.')
 				current_file.put_character ('j')
 				current_file.put_character ('b')
@@ -19667,13 +20202,10 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 				current_file.put_string (c_ac)
 				current_file.put_string (c_arrow)
 				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_character ('&')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
+				current_file.put_string (c_rs)
+				print_semicolon_newline
 				print_indentation
 				current_file.put_string (c_if)
 				current_file.put_character (' ')
@@ -19686,26 +20218,17 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 				current_file.put_string (c_sr)
 				print_comma
 				print_separate_argument_session_name (agent_inline_separate_argument.name, current_file)
+				print_comma
+				current_file.put_character ('0')
 				current_file.put_character (')')
 				print_semicolon_newline
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				print_semicolon_newline
+				print_unprotect_scoop_sessions
 				print_indentation
 				current_file.put_string (c_ge_jump_to_last_rescue)
 				current_file.put_character ('(')
 				current_file.put_string (c_ac)
 				current_file.put_character (')')
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 				dedent
 				print_indentation
 				current_file.put_character ('}')
@@ -19757,17 +20280,7 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_once_procedure_inlin
 				end
 			end
 			if l_target_type_is_separate then
-				print_indentation
-				current_file.put_string (c_ac)
-				current_file.put_string (c_arrow)
-				current_file.put_string (c_last_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character ('.')
-				current_file.put_string (c_previous)
-				print_semicolon_newline
+				print_unprotect_scoop_sessions
 			end
 				-- Clean up.
 			current_file := old_file
@@ -21906,7 +22419,7 @@ feature {NONE} -- Deep features generation
 			-- Dynamic type sets of target of deep feature (deep twin or deep equal),
 			-- indexed by target static type
 
-feature {NONE} -- Separate calls
+feature {NONE} -- SCOOP
 
 	print_separate_call_declaration (i: INTEGER; a_separate_call: ET_SEPARATE_CALL; a_closure: ET_CLOSURE)
 			-- Print functions associated with the `i'-th separate call `a_separate_call'
@@ -21938,7 +22451,12 @@ feature {NONE} -- Separate calls
 			l_is_creation_call: BOOLEAN
 			l_is_passive_region: BOOLEAN
 			l_and_then_needed: BOOLEAN
+			l_once_creation_procedure: detachable ET_DYNAMIC_FEATURE
+			l_once_creation_static_procedure: detachable ET_ONCE_PROCEDURE
+			l_once_kind: INTEGER
+			l_once_index: INTEGER
 			l_old_current_type: like current_type
+			l_old_current_feature: like current_feature
 			l_old_max_nested_inlining_count: INTEGER
 			old_file: KI_TEXT_OUTPUT_STREAM
 			old_function_header_buffer: like current_function_header_buffer
@@ -21953,6 +22471,7 @@ feature {NONE} -- Separate calls
 			old_in_operand: BOOLEAN
 			old_call_target_type: like call_target_type
 			old_current_agent: like current_agent
+			l_old_in_separate_creation_call: BOOLEAN
 		do
 			old_indentation := indentation
 			indentation := 0
@@ -22126,16 +22645,7 @@ feature {NONE} -- Separate calls
 			current_file.put_character ('{')
 			current_file.put_new_line
 			indent
-			print_indentation
-			current_file.put_string (c_ge_scoop_region)
-			current_file.put_character ('*')
-			current_file.put_character (' ')
-			current_file.put_string (c_sr)
-			print_assign_to
-			current_file.put_string (c_ac)
-			current_file.put_string (c_arrow)
-			current_file.put_string (c_region)
-			print_semicolon_newline
+			print_current_scoop_region_declaration
 			if l_result_type /= Void then
 				print_indentation
 				print_type_declaration (l_result_type, current_file)
@@ -22158,8 +22668,7 @@ feature {NONE} -- Separate calls
 				current_file.put_string (c_ge_scoop_region)
 				current_file.put_character ('*')
 				current_file.put_character (' ')
-				current_file.put_string (c_sr)
-				current_file.put_character ('2')
+				current_file.put_string (c_sr1)
 				print_semicolon_newline
 				print_indentation
 				print_type_declaration (l_target_type, current_file)
@@ -22173,117 +22682,146 @@ feature {NONE} -- Separate calls
 			current_file.put_character (' ')
 			current_file.put_string (c_se)
 			if not l_is_creation_call then
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
+				print_assign_to
 				current_file.put_character ('0')
 			end
 			print_semicolon_newline
 			l_is_synchronous_call := l_result_type /= Void or l_has_non_separate_reference_actual_argument or l_is_passive_region
 			l_is_asynchronous_call := l_is_creation_call and not l_has_reference_actual_argument and not l_is_passive_region
 			if not l_is_creation_call or else l_is_passive_region then
-				print_indentation
-				current_file.put_string (c_ge_rescue)
-				current_file.put_character (' ')
-				current_file.put_character ('r')
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_scoop_session_protection_declaration
 			end
 				-- Print body to `current_file'.
 			current_file := current_function_body_buffer
 			if l_is_creation_call then
-				print_indentation
-				current_file.put_string (c_sr)
-				current_file.put_character ('2')
-				print_assign_to
-				current_file.put_string (c_ge_new_scoop_region)
-				current_file.put_character ('(')
-				current_file.put_string (c_ac)
-				print_comma
-				if l_is_passive_region then
-					current_file.put_character ('%'')
-					current_file.put_character ('\')
-					current_file.put_character ('1')
-					current_file.put_character ('%'')
-				else
-					current_file.put_character ('0')
-				end
-				current_file.put_character (')')
-				print_semicolon_newline
-				if attached l_target_type.seeded_dynamic_procedure (a_separate_call.name.seed, current_dynamic_system) as l_procedure then
-					l_old_current_type := current_type
-					current_type := l_target_type
-					print_malloc_current (l_procedure.static_feature)
-					current_type := l_old_current_type
-				else
+				if not attached l_target_type.seeded_dynamic_procedure (a_separate_call.name.seed, current_dynamic_system) as l_procedure then
 						-- Internal error: there should be a procedure with the seed.
 						-- It has been computed in ET_FEATURE_CHECKER or else an
 						-- error should have already been reported.
 					set_fatal_error
 					error_handler.report_giaac_error (generator, "print_separate_call_declaration", 1, "procedure not found.")
-				end
-				print_indentation
-				current_file.put_string (c_ge_scoop_region_set_context)
-				current_file.put_character ('(')
-				current_file.put_string (c_sr)
-				print_comma
-				current_file.put_string (c_ac)
-				current_file.put_character (')')
-				print_semicolon_newline
-				print_indentation
-				current_file.put_string (c_se)
-				print_assign_to
-				current_file.put_string (c_ge_scoop_session_open)
-				current_file.put_character ('(')
-				current_file.put_string (c_sr)
-				print_comma
-				current_file.put_string (c_sr)
-				current_file.put_character ('2')
-				print_comma
-				current_file.put_character ('0')
-				current_file.put_character (')')
-				print_semicolon_newline
-				if l_is_passive_region then
+				else
+					if attached {ET_ONCE_PROCEDURE} l_procedure.static_feature as l_once_procedure then
+						l_once_creation_procedure := l_procedure
+						l_once_creation_static_procedure := l_once_procedure
+						l_old_current_feature := current_feature
+						current_feature := l_procedure
+						l_old_current_type := current_type
+						current_type := l_target_type
+						print_before_once_routine (l_once_procedure, True)
+						current_type := l_old_current_type
+						current_feature := l_old_current_feature
+					end
+					print_indentation
+					current_file.put_string (c_sr1)
+					print_assign_to
+					current_file.put_string (c_ge_new_scoop_region)
+					current_file.put_character ('(')
+					current_file.put_string (c_ac)
+					print_comma
+					if l_is_passive_region then
+						current_file.put_character ('%'')
+						current_file.put_character ('\')
+						current_file.put_character ('1')
+						current_file.put_character ('%'')
+					else
+						current_file.put_character ('0')
+					end
+					current_file.put_character (')')
+					print_semicolon_newline
+					l_old_current_type := current_type
+					current_type := l_target_type
+					print_malloc_current (l_procedure.static_feature)
+					current_type := l_old_current_type
+					if l_once_creation_procedure /= Void and l_once_creation_static_procedure /= Void then
+						print_indentation
+						print_attribute_once_class_index_access (tokens.current_keyword, l_target_type, False)
+						print_assign_to
+						print_integer_value (l_once_creation_static_procedure.once_creation_index, False, current_dynamic_system.natural_32_type, False)
+						print_semicolon_newline
+						print_indentation
+						print_result_name (current_file)
+						print_assign_to
+						print_current_name (current_file)
+						print_semicolon_newline
+						if l_once_creation_static_procedure.is_once_per_process or l_once_creation_static_procedure.is_once_per_thread then
+							l_once_index := once_creation_procedures.value (l_once_creation_static_procedure.implementation_feature)
+							l_once_kind := once_kind (l_once_creation_procedure, True)
+						end
+						print_assign_result_to_once_value (l_once_creation_procedure, l_once_kind, l_once_index, True)
+					end
 					print_indentation
 					current_file.put_string (c_ge_scoop_region_set_context)
 					current_file.put_character ('(')
 					current_file.put_string (c_sr)
-					current_file.put_character ('2')
+					print_comma
+					current_file.put_string (c_ac)
+					current_file.put_character (')')
+					print_semicolon_newline
+					print_indentation
+					current_file.put_string (c_se)
+					print_assign_to
+					current_file.put_string (c_ge_scoop_session_open)
+					current_file.put_character ('(')
+					current_file.put_string (c_sr)
+					print_comma
+					current_file.put_string (c_sr1)
 					print_comma
 					current_file.put_character ('0')
 					current_file.put_character (')')
 					print_semicolon_newline
-				else
+						-- Make sure that this session is executed first by
+						-- the process of this new region.
 					print_indentation
-					current_file.put_string (c_ge_thread_create_with_attr)
-					current_file.put_character ('(')
-					print_current_name (current_file);
-					print_comma
-					current_file.put_character ('0')
-					print_comma
-					current_file.put_character ('0')
-					print_comma
-					current_file.put_character ('0')
-					print_comma
+					current_file.put_string (c_se)
+					current_file.put_string (c_arrow)
+					current_file.put_string (c_is_running)
+					print_assign_to
+					current_file.put_character ('%'')
+					current_file.put_character ('\')
 					current_file.put_character ('1')
-					current_file.put_character (')')
+					current_file.put_character ('%'')
+					print_semicolon_newline
+					if l_is_passive_region then
+						print_indentation
+						current_file.put_string (c_ge_scoop_region_set_context)
+						current_file.put_character ('(')
+						current_file.put_string (c_sr1)
+						print_comma
+						current_file.put_character ('0')
+						current_file.put_character (')')
+						print_semicolon_newline
+					else
+						print_indentation
+						current_file.put_string (c_ge_thread_create_with_attr)
+						current_file.put_character ('(')
+						print_current_name (current_file);
+						print_comma
+						current_file.put_character ('0')
+						print_comma
+						current_file.put_character ('0')
+						print_comma
+						current_file.put_character ('0')
+						print_comma
+						current_file.put_character ('1')
+						current_file.put_character (')')
+						print_semicolon_newline
+					end
+						-- Target.
+					l_formal_argument := formal_argument (1)
+					l_formal_argument.set_index (a_separate_call.target.index)
+					print_indentation
+					print_argument_name (l_formal_argument, current_file)
+					print_assign_to
+					print_current_name (current_file)
 					print_semicolon_newline
 				end
-					-- Target.
-				l_formal_argument := formal_argument (1)
-				l_formal_argument.set_index (a_separate_call.target.index)
-				print_indentation
-				print_argument_name (l_formal_argument, current_file)
-				print_assign_to
-				print_current_name (current_file)
-				print_semicolon_newline
 			else
 				print_indentation
 				current_file.put_string (c_ge_scoop_region)
 				current_file.put_character ('*')
 				current_file.put_character (' ')
-				current_file.put_string (c_sr)
-				current_file.put_character ('1')
+				current_file.put_string (c_sr1)
 				print_assign_to
 				print_attribute_region_access (formal_argument (1), l_target_type, True)
 				print_semicolon_newline
@@ -22299,12 +22837,8 @@ feature {NONE} -- Separate calls
 					current_file.put_integer (j)
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_callee)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
-					current_file.put_string (c_sr)
-					current_file.put_character ('1')
+					print_equal_to
+					current_file.put_string (c_sr1)
 					current_file.put_character (')')
 					current_file.put_character (' ')
 					current_file.put_string (c_se)
@@ -22546,35 +23080,29 @@ feature {NONE} -- Separate calls
 					current_file.put_character ('}')
 					current_file.put_new_line
 					print_indentation
-					current_file.put_character ('r')
+					current_file.put_string (c_rs)
 					current_file.put_character ('.')
 					current_file.put_string (c_previous)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					current_file.put_string (c_ac)
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_last_rescue)
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 					print_indentation
 					current_file.put_string (c_ac)
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_last_rescue)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					current_file.put_character ('&')
-					current_file.put_character ('r')
-					current_file.put_character (';')
-					current_file.put_new_line
+					current_file.put_string (c_rs)
+					print_semicolon_newline
 					print_indentation
 					current_file.put_string (c_if)
 					current_file.put_character (' ')
 					current_file.put_character ('(')
 					current_file.put_string (c_ge_setjmp)
 					current_file.put_character ('(')
-					current_file.put_character ('r')
+					current_file.put_string (c_rs)
 					current_file.put_character ('.')
 					current_file.put_character ('j')
 					current_file.put_character ('b')
@@ -22593,13 +23121,10 @@ feature {NONE} -- Separate calls
 					current_file.put_string (c_ac)
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_last_rescue)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
+					print_assign_to
 					current_file.put_character ('&')
-					current_file.put_character ('r')
-					current_file.put_character (';')
-					current_file.put_new_line
+					current_file.put_string (c_rs)
+					print_semicolon_newline
 					print_indentation
 					current_file.put_string (c_if)
 					current_file.put_character (' ')
@@ -22634,24 +23159,13 @@ feature {NONE} -- Separate calls
 					print_indentation
 					current_file.put_character ('}')
 					current_file.put_new_line
-					print_indentation
-					current_file.put_string (c_ac)
-					current_file.put_string (c_arrow)
-					current_file.put_string (c_last_rescue)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
-					current_file.put_character ('r')
-					current_file.put_character ('.')
-					current_file.put_string (c_previous)
-					print_semicolon_newline
+					print_unprotect_scoop_sessions
 					print_indentation
 					current_file.put_string (c_ge_jump_to_last_rescue)
 					current_file.put_character ('(')
 					current_file.put_string (c_ac)
 					current_file.put_character (')')
-					current_file.put_character (';')
-					current_file.put_new_line
+					print_semicolon_newline
 					dedent
 					print_indentation
 					current_file.put_character ('}')
@@ -22684,20 +23198,16 @@ feature {NONE} -- Separate calls
 						separate_call_instruction.set_target (formal_argument (1))
 						separate_call_instruction.set_name (a_separate_call.name)
 						separate_call_instruction.set_arguments (l_separate_call_arguments)
+						l_old_in_separate_creation_call := in_separate_creation_call
+						in_separate_creation_call := l_is_creation_call
+						if l_is_creation_call then
+							print_attributes_initialization (separate_call_instruction.target, l_target_type, False)
+						end
 						print_qualified_call_instruction (separate_call_instruction)
+						in_separate_creation_call := l_old_in_separate_creation_call
 					end
 					max_nested_inlining_count := l_old_max_nested_inlining_count
-					print_indentation
-					current_file.put_string (c_ac)
-					current_file.put_string (c_arrow)
-					current_file.put_string (c_last_rescue)
-					current_file.put_character (' ')
-					current_file.put_character ('=')
-					current_file.put_character (' ')
-					current_file.put_character ('r')
-					current_file.put_character ('.')
-					current_file.put_string (c_previous)
-					print_semicolon_newline
+					print_unprotect_scoop_sessions
 					print_indentation
 					current_file.put_string (c_if)
 					current_file.put_character (' ')
@@ -22726,6 +23236,17 @@ feature {NONE} -- Separate calls
 					current_file.put_string (c_se)
 					current_file.put_string (c_arrow)
 					current_file.put_string (c_callee)
+					current_file.put_character (')')
+					print_semicolon_newline
+					print_indentation
+					current_file.put_string (c_ge_scoop_session_set_eiffel_called)
+					current_file.put_character ('(')
+					current_file.put_string (c_se)
+					print_comma
+					current_file.put_character ('%'')
+					current_file.put_character ('\')
+					current_file.put_character ('1')
+					current_file.put_character ('%'')
 					current_file.put_character (')')
 					print_semicolon_newline
 					dedent
@@ -22761,13 +23282,30 @@ feature {NONE} -- Separate calls
 				current_file.put_string (c_sr)
 				print_comma
 				current_file.put_string (c_se)
+				print_comma
+				current_file.put_character ('0')
 				current_file.put_character (')')
 				print_semicolon_newline
-				print_indentation
-				current_file.put_string (c_return)
-				current_file.put_character (' ')
-				print_current_name (current_file)
-				print_semicolon_newline
+				if l_once_creation_procedure /= Void and l_once_creation_static_procedure /= Void then
+					l_old_current_feature := current_feature
+					current_feature := l_once_creation_procedure
+					l_old_current_type := current_type
+					current_type := l_target_type
+					print_after_once_routine (l_once_creation_static_procedure, True)
+					current_type := l_old_current_type
+					current_feature := l_old_current_feature
+					print_indentation
+					current_file.put_string (c_return)
+					current_file.put_character (' ')
+					print_result_name (current_file)
+					print_semicolon_newline
+				else
+					print_indentation
+					current_file.put_string (c_return)
+					current_file.put_character (' ')
+					print_current_name (current_file)
+					print_semicolon_newline
+				end
 			end
 			dedent
 			current_file.put_character ('}')
@@ -23017,6 +23555,9 @@ feature {NONE} -- Separate calls
 				separate_call_instruction.set_arguments (l_separate_call_arguments)
 				l_old_in_separate_creation_call := in_separate_creation_call
 				in_separate_creation_call := attached {ET_CREATION_COMPONENT} a_separate_call
+				if in_separate_creation_call then
+					print_attributes_initialization (separate_call_instruction.target, l_target_type, False)
+				end
 				print_qualified_call_instruction (separate_call_instruction)
 				in_separate_creation_call := l_old_in_separate_creation_call
 			end
@@ -23414,6 +23955,1036 @@ feature {NONE} -- Separate calls
 			end
 		end
 
+	print_formal_argument_scoop_session_declarations (a_feature: ET_FEATURE_CLOSURE)
+			-- Print declaration of SCOOP sessions to register separate calls,
+			-- for the formal arguments of `a_feature'.
+		require
+			a_feature_not_void: a_feature /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_argument: ET_FORMAL_ARGUMENT
+			l_name: ET_IDENTIFIER
+			l_argument_type: ET_DYNAMIC_TYPE
+		do
+			if attached a_feature.arguments as l_arguments then
+				nb := l_arguments.count
+				from i := 1 until i > nb loop
+					from i := 1 until i > nb loop
+						l_argument := l_arguments.formal_argument (i)
+						l_name := l_argument.name
+						l_argument_type := dynamic_type_set (l_name).static_type
+						if l_argument_type.is_separate then
+							print_indentation
+							current_file.put_string (c_ge_scoop_session)
+							current_file.put_character ('*')
+							current_file.put_character (' ')
+							print_separate_argument_session_name (l_name, current_file)
+							print_assign_to
+							current_file.put_character ('0')
+							print_semicolon_newline
+							print_indentation
+							current_file.put_string (c_uint32_t)
+							current_file.put_character (' ')
+							print_separate_argument_session_is_open_name (l_name, current_file)
+							print_assign_to
+							current_file.put_character ('2')
+							print_semicolon_newline
+						end
+						i := i + 1
+					end
+				end
+			end
+		end
+
+	print_inline_argument_scoop_session_declarations (a_feature: ET_FEATURE_CLOSURE)
+			-- Print declaration of SCOOP sessions to register separate calls,
+			-- for the arguments of inline separate instructions contained in `a_feature'.
+		require
+			a_feature_not_void: a_feature /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+		do
+			if attached a_feature.inline_separate_arguments as l_inline_separate_arguments then
+				nb := l_inline_separate_arguments.count
+				from i := 1 until i > nb loop
+					print_indentation
+					current_file.put_string (c_ge_scoop_session)
+					current_file.put_character ('*')
+					current_file.put_character (' ')
+					print_separate_argument_session_name (l_inline_separate_arguments.argument (i).name, current_file)
+					print_assign_to
+					current_file.put_character ('0')
+					print_semicolon_newline
+					i := i + 1
+				end
+			end
+		end
+
+	print_scoop_multisession_declaration
+			-- Print declaration of SCOOP session pointing to the previous open
+			-- session in case of multisession.
+		require
+			use_scoop: use_scoop
+		do
+			print_indentation
+			current_file.put_string (c_ge_scoop_session)
+			current_file.put_character ('*')
+			current_file.put_character (' ')
+			current_file.put_string (c_se0)
+			print_assign_to
+			current_file.put_character ('0')
+			print_semicolon_newline
+			print_indentation
+			current_file.put_string (c_char)
+			current_file.put_character (' ')
+			current_file.put_string (c_se_had_lock)
+			print_assign_to
+			current_file.put_character ('0')
+			print_semicolon_newline
+		end
+
+	print_current_scoop_region_declaration
+			-- Print declaration of current SCOOP region.
+		require
+			use_scoop: use_scoop
+		do
+			print_indentation
+			current_file.put_string (c_ge_scoop_region)
+			current_file.put_character ('*')
+			current_file.put_character (' ')
+			current_file.put_string (c_sr)
+			print_assign_to
+			current_file.put_string (c_ac)
+			current_file.put_string (c_arrow)
+			current_file.put_string (c_region)
+			print_semicolon_newline
+		end
+
+	print_scoop_session_protection_declaration
+			-- Print declaration of the protection of SCOOP regions.
+		require
+			use_scoop: use_scoop
+		do
+			print_indentation
+			current_file.put_string (c_ge_rescue)
+			current_file.put_character (' ')
+			current_file.put_string (c_rs)
+			print_semicolon_newline
+		end
+
+	print_open_formal_argument_scoop_sessions (a_feature: ET_FEATURE_CLOSURE)
+			-- Print code to open SCOOP sessions of all separate formal arguments of `a_feature`.
+		require
+			a_feature_not_void: a_feature /= Void
+			use_scoop: use_scoop
+		local
+			l_separate_formal_arguments_count: INTEGER
+			i, nb: INTEGER
+			l_argument: ET_FORMAL_ARGUMENT
+			l_name: ET_IDENTIFIER
+			l_argument_type: ET_DYNAMIC_TYPE
+		do
+			if attached a_feature.arguments as l_arguments then
+				nb := l_arguments.count
+				from i := 1 until i > nb loop
+					l_argument := l_arguments.formal_argument (i)
+					l_name := l_argument.name
+					l_argument_type := dynamic_type_set (l_name).static_type
+					if l_argument_type.is_separate then
+						l_separate_formal_arguments_count := l_separate_formal_arguments_count + 1
+					end
+					i := i + 1
+				end
+				if l_separate_formal_arguments_count > 1 then
+					print_indentation
+					current_file.put_string (c_se_had_lock)
+					print_assign_to
+					current_file.put_character ('0')
+					print_semicolon_newline
+				end
+				from i := 1 until i > nb loop
+					l_argument := l_arguments.formal_argument (i)
+					l_name := l_argument.name
+					l_argument_type := dynamic_type_set (l_name).static_type
+					if l_argument_type.is_separate then
+						print_open_separate_argument_scoop_session (l_name, l_argument_type.primary_type, l_separate_formal_arguments_count > 1, a_feature, Void)
+					end
+					i := i + 1
+				end
+				if l_separate_formal_arguments_count > 1 then
+					print_indentation
+					current_file.put_string (c_se0)
+					print_assign_to
+					current_file.put_character ('0')
+					print_semicolon_newline
+					print_indentation
+					current_file.put_string (c_if)
+					current_file.put_character (' ')
+					current_file.put_character ('(')
+					current_file.put_string (c_se_had_lock)
+					current_file.put_character (')')
+					current_file.put_character (' ')
+					current_file.put_character ('{')
+					current_file.put_new_line
+					indent
+					from i := 1 until i > nb loop
+						l_argument := l_arguments.formal_argument (i)
+						l_name := l_argument.name
+						l_argument_type := dynamic_type_set (l_name).static_type
+						if l_argument_type.is_separate then
+							print_indentation
+							current_file.put_string (c_if)
+							current_file.put_character (' ')
+							current_file.put_character ('(')
+							print_separate_argument_session_name (l_name, current_file)
+							print_and_then
+							current_file.put_character ('!')
+							current_file.put_string (c_ge_scoop_session_is_submitted)
+							current_file.put_character ('(')
+							print_separate_argument_session_name (l_name, current_file)
+							current_file.put_character (')')
+							current_file.put_character (')')
+							current_file.put_character (' ')
+							current_file.put_string (c_ge_add_scoop_session)
+							current_file.put_character ('(')
+							print_separate_argument_session_name (l_name, current_file)
+							current_file.put_character (')')
+							print_semicolon_newline
+						end
+						i := i + 1
+					end
+					dedent
+					print_indentation
+					current_file.put_character ('}')
+					current_file.put_new_line
+				end
+			end
+		end
+
+	print_close_formal_argument_scoop_sessions (a_feature: ET_FEATURE_CLOSURE; a_in_wait_condition: BOOLEAN)
+			-- Print code to close SCOOP sessions of all separate formal arguments of `a_feature`.
+		require
+			a_feature_not_void: a_feature /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_argument: ET_FORMAL_ARGUMENT
+			l_name: ET_IDENTIFIER
+			l_argument_type: ET_DYNAMIC_TYPE
+		do
+			if attached a_feature.arguments as l_arguments then
+				nb := l_arguments.count
+				from i := 1 until i > nb loop
+					l_argument := l_arguments.formal_argument (i)
+					l_name := l_argument.name
+					l_argument_type := dynamic_type_set (l_name).static_type
+					if l_argument_type.is_separate then
+						print_close_separate_argument_scoop_session (l_name, False, a_in_wait_condition)
+					end
+					i := i + 1
+				end
+			end
+		end
+
+	print_open_inline_argument_scoop_sessions (a_instruction: ET_INLINE_SEPARATE_INSTRUCTION)
+			-- Print code to open SCOOP sessions of all separate inline arguments of `a_instruction`.
+		require
+			a_instruction_not_void: a_instruction /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_arguments: ET_INLINE_SEPARATE_ARGUMENTS
+			l_argument: ET_INLINE_SEPARATE_ARGUMENT
+			l_name: ET_IDENTIFIER
+			l_dynamic_type_set: ET_DYNAMIC_TYPE_SET
+			l_dynamic_primary_type: ET_DYNAMIC_PRIMARY_TYPE
+		do
+			l_arguments := a_instruction.arguments
+			nb := l_arguments.count
+			if nb > 1 then
+				print_indentation
+				current_file.put_string (c_se_had_lock)
+				print_assign_to
+				current_file.put_character ('0')
+				print_semicolon_newline
+			end
+			from i := 1 until i > nb loop
+				l_argument := l_arguments.argument (i)
+				l_name := l_argument.name
+				l_dynamic_type_set := dynamic_type_set (l_name)
+				l_dynamic_primary_type := l_dynamic_type_set.static_type.primary_type
+				print_open_separate_argument_scoop_session (l_name, l_dynamic_primary_type, nb > 1, Void, a_instruction)
+				i := i + 1
+			end
+			if nb > 1 then
+				print_indentation
+				current_file.put_string (c_se0)
+				print_assign_to
+				current_file.put_character ('0')
+				print_semicolon_newline
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_string (c_se_had_lock)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				from i := 1 until i > nb loop
+					l_argument := l_arguments.argument (i)
+					l_name := l_argument.name
+					print_indentation
+					current_file.put_string (c_if)
+					current_file.put_character (' ')
+					current_file.put_character ('(')
+					print_separate_argument_session_name (l_name, current_file)
+					print_and_then
+					current_file.put_character ('!')
+					current_file.put_string (c_ge_scoop_session_is_submitted)
+					current_file.put_character ('(')
+					print_separate_argument_session_name (l_name, current_file)
+					current_file.put_character (')')
+					current_file.put_character (')')
+					current_file.put_character (' ')
+					current_file.put_string (c_ge_add_scoop_session)
+					current_file.put_character ('(')
+					print_separate_argument_session_name (l_name, current_file)
+					current_file.put_character (')')
+					print_semicolon_newline
+					i := i + 1
+				end
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_new_line
+			end
+		end
+
+	print_close_inline_argument_scoop_sessions (a_instruction: ET_INLINE_SEPARATE_INSTRUCTION; a_in_wait_condition: BOOLEAN)
+			-- Print code to close SCOOP sessions of all separate inline arguments of `a_instruction`.
+		require
+			a_instruction_not_void: a_instruction /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_arguments: ET_INLINE_SEPARATE_ARGUMENTS
+			l_argument: ET_INLINE_SEPARATE_ARGUMENT
+			l_name: ET_IDENTIFIER
+		do
+			l_arguments := a_instruction.arguments
+			nb := l_arguments.count
+			from i := 1 until i > nb loop
+				l_argument := l_arguments.argument (i)
+				l_name := l_argument.name
+				print_close_separate_argument_scoop_session (l_name, True, a_in_wait_condition)
+				i := i + 1
+			end
+		end
+
+	print_open_separate_argument_scoop_session (a_name: ET_IDENTIFIER; a_type: ET_DYNAMIC_PRIMARY_TYPE; a_is_multisession: BOOLEAN;
+		a_feature: detachable ET_FEATURE_CLOSURE; a_instruction: detachable ET_INLINE_SEPARATE_INSTRUCTION)
+			-- Print code to open SCOOP session of separate argument `a_name`, which is either
+			-- a formal argument of `a_feature` or an inline separate argument of `a_instruction`.
+			-- `a_type` is the type of the separate argument.
+			-- `a_is_multisession` indicate whether there are several separate arguments in
+			-- `a_feature` or `a_instruction`.
+		require
+			a_name_not_void: a_name /= Void
+			a_name_separate_argument: a_name.is_argument or a_name.is_inline_separate_argument
+			a_name_formal_argument: a_name.is_argument implies a_feature /= Void
+			a_name_inline_argument: a_name.is_inline_separate_argument implies a_instruction /= Void
+			a_type_not_void: a_type /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_other_name: ET_IDENTIFIER
+		do
+			print_indentation
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			print_separate_argument_name (a_name, current_file)
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			if a_is_multisession then
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_indentation
+			end
+			print_separate_argument_session_name (a_name, current_file)
+			print_assign_to
+			current_file.put_string (c_ge_scoop_session_open)
+			current_file.put_character ('(')
+			current_file.put_string (c_sr)
+			print_comma
+			print_attribute_region_access (a_name, a_type, False)
+			print_comma
+			current_file.put_string (c_se0)
+			current_file.put_character (')')
+			print_semicolon_newline
+			if a_is_multisession then
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_character ('!')
+				print_separate_argument_session_name (a_name, current_file)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_indentation
+				current_file.put_string (c_se_had_lock)
+				print_assign_to
+				current_file.put_character ('%'')
+				current_file.put_character ('\')
+				current_file.put_character ('1')
+				current_file.put_character ('%'')
+				print_semicolon_newline
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_character (' ')
+				current_file.put_string (c_else)
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_indentation
+				current_file.put_string (c_uint32_t)
+				current_file.put_character (' ')
+				current_file.put_string (c_se_is_open)
+				print_assign_to
+				current_file.put_string (c_ge_scoop_session_is_open)
+				current_file.put_character ('(')
+				print_separate_argument_session_name (a_name, current_file)
+				current_file.put_character (')')
+				print_semicolon_newline
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_string (c_se_is_open)
+				print_equal_to
+				current_file.put_character ('1')
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				print_indentation
+				current_file.put_string (c_se0)
+				print_assign_to
+				print_separate_argument_session_name (a_name, current_file)
+				print_semicolon_newline
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_character (' ')
+				current_file.put_string (c_else)
+				current_file.put_character (' ')
+				current_file.put_character ('{')
+				current_file.put_new_line
+				indent
+				if a_feature /= Void and then attached a_feature.arguments as l_arguments then
+					nb := l_arguments.count
+					from i := 1 until i > nb loop
+						l_other_name := l_arguments.formal_argument (i).name
+						if l_other_name.seed >= a_name.seed then
+							i := nb + 1 -- Jump out of the loop
+						elseif dynamic_type_set (l_other_name).static_type.is_separate then
+							print_indentation
+							current_file.put_string (c_if)
+							current_file.put_character (' ')
+							current_file.put_character ('(')
+							print_separate_argument_session_name (a_name, current_file)
+							print_equal_to
+							print_separate_argument_session_name (l_other_name, current_file)
+							current_file.put_character (')')
+							current_file.put_character (' ')
+							current_file.put_string (c_se_is_open)
+							current_file.put_character ('-')
+							current_file.put_character ('-')
+							print_semicolon_newline
+						end
+						i := i + 1
+					end
+				elseif a_instruction /= Void and then attached a_instruction.arguments as l_arguments then
+					nb := l_arguments.count
+					from i := 1 until i > nb loop
+						l_other_name := l_arguments.argument (i).name
+						if l_other_name.seed >= a_name.seed then
+							i := nb + 1 -- Jump out of the loop
+						else
+							print_indentation
+							current_file.put_string (c_if)
+							current_file.put_character (' ')
+							current_file.put_character ('(')
+							print_separate_argument_session_name (a_name, current_file)
+							print_equal_to
+							print_separate_argument_session_name (l_other_name, current_file)
+							current_file.put_character (')')
+							current_file.put_character (' ')
+							current_file.put_string (c_se_is_open)
+							current_file.put_character ('-')
+							current_file.put_character ('-')
+							print_semicolon_newline
+						end
+						i := i + 1
+					end
+				end
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_string (c_se_is_open)
+				print_greater_than
+				current_file.put_character ('1')
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				current_file.put_string (c_se_had_lock)
+				print_assign_to
+				current_file.put_character ('%'')
+				current_file.put_character ('\')
+				current_file.put_character ('1')
+				current_file.put_character ('%'')
+				print_semicolon_newline
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_new_line
+				if a_feature /= Void then
+					print_indentation
+					print_separate_argument_session_is_open_name (a_name, current_file)
+					print_assign_to
+					current_file.put_string (c_se_is_open)
+					print_semicolon_newline
+				end
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_new_line
+				dedent
+				print_indentation
+				current_file.put_character ('}')
+				current_file.put_new_line
+			elseif a_feature /= Void then
+				print_indentation
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				print_separate_argument_session_name (a_name, current_file)
+				current_file.put_character (')')
+				current_file.put_character (' ')
+				print_separate_argument_session_is_open_name (a_name, current_file)
+				print_assign_to
+				current_file.put_string (c_ge_scoop_session_is_open)
+				current_file.put_character ('(')
+				print_separate_argument_session_name (a_name, current_file)
+				current_file.put_character (')')
+				print_semicolon_newline
+			end
+		end
+
+	print_close_separate_argument_scoop_session (a_name: ET_IDENTIFIER; a_inline: BOOLEAN; a_in_wait_condition: BOOLEAN)
+			-- Print code to close SCOOP session of separate argument of `a_name`.
+		require
+			a_name_not_void: a_name /= Void
+			a_name_separate_argument: a_name.is_argument or a_name.is_inline_separate_argument
+			use_scoop: use_scoop
+		do
+			print_indentation
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			print_separate_argument_session_name (a_name, current_file)
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			current_file.put_string (c_ge_scoop_session_close)
+			current_file.put_character ('(')
+			current_file.put_string (c_sr)
+			print_comma
+			print_separate_argument_session_name (a_name, current_file)
+			print_comma
+			if a_in_wait_condition then
+				current_file.put_character ('%'')
+				current_file.put_character ('\')
+				current_file.put_character ('1')
+				current_file.put_character ('%'')
+			else
+				current_file.put_character ('0')
+			end
+			current_file.put_character (')')
+			print_semicolon_newline
+			if a_inline or a_in_wait_condition then
+					-- Set the session to NULL so that we don't try to
+					-- close it again from it in case of an exception
+					-- or a wait condition.
+				print_indentation
+				print_separate_argument_session_name (a_name, current_file)
+				print_assign_to
+				current_file.put_character ('0')
+				print_semicolon_newline
+			end
+		end
+
+	print_protect_all_scoop_sessions (a_feature: ET_FEATURE_CLOSURE)
+			-- Print code to start protection of SCOOP sessions of all separate
+			-- formal arguments and inline separate arguments of `a_feature`.
+		require
+			a_feature_not_void: a_feature /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_name: ET_IDENTIFIER
+		do
+			print_indentation
+			current_file.put_string (c_rs)
+			current_file.put_character ('.')
+			current_file.put_string (c_previous)
+			print_assign_to
+			current_file.put_string (c_ac)
+			current_file.put_string (c_arrow)
+			current_file.put_string (c_last_rescue)
+			print_semicolon_newline
+			print_indentation
+			current_file.put_string (c_ac)
+			current_file.put_string (c_arrow)
+			current_file.put_string (c_last_rescue)
+			print_assign_to
+			current_file.put_character ('&')
+			current_file.put_string (c_rs)
+			print_semicolon_newline
+			print_indentation
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			current_file.put_string (c_ge_setjmp)
+			current_file.put_character ('(')
+			current_file.put_string (c_rs)
+			current_file.put_character ('.')
+			current_file.put_character ('j')
+			current_file.put_character ('b')
+			current_file.put_character (')')
+			print_not_equal_to
+			current_file.put_character ('0')
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			current_file.put_character ('{')
+			current_file.put_new_line
+			indent
+			print_indentation
+			current_file.put_string (c_ac)
+			current_file.put_string (c_arrow)
+			current_file.put_string (c_last_rescue)
+			print_assign_to
+			current_file.put_character ('&')
+			current_file.put_string (c_rs)
+			print_semicolon_newline
+				-- Make sure to exit from the current SCOOP sessions
+				-- before propagating the exception.
+			print_close_formal_argument_scoop_sessions (a_feature, False)
+				-- Even the SCOOP sessions from the inline separate instructions.
+			if attached a_feature.inline_separate_arguments as l_inline_separate_arguments then
+				nb := l_inline_separate_arguments.count
+				from i := 1 until i > nb loop
+					l_name := l_inline_separate_arguments.argument (i).name
+					print_indentation
+					current_file.put_string (c_if)
+					current_file.put_character (' ')
+					current_file.put_character ('(')
+					print_separate_argument_session_name (l_name, current_file)
+					current_file.put_character (')')
+					current_file.put_character (' ')
+					current_file.put_string (c_ge_scoop_session_close)
+					current_file.put_character ('(')
+					current_file.put_string (c_sr)
+					print_comma
+					print_separate_argument_session_name (l_name, current_file)
+					print_comma
+					current_file.put_character ('0')
+					current_file.put_character (')')
+					print_semicolon_newline
+					i := i + 1
+				end
+			end
+			print_unprotect_scoop_sessions
+			print_indentation
+			current_file.put_string (c_ge_jump_to_last_rescue)
+			current_file.put_character ('(')
+			current_file.put_string (c_ac)
+			current_file.put_character (')')
+			print_semicolon_newline
+			dedent
+			print_indentation
+			current_file.put_character ('}')
+			current_file.put_new_line
+		end
+
+	print_unprotect_scoop_sessions
+			-- Print code to stop protection of SCOOP sessions.
+		require
+			use_scoop: use_scoop
+		do
+			print_indentation
+			current_file.put_string (c_ac)
+			current_file.put_string (c_arrow)
+			current_file.put_string (c_last_rescue)
+			print_assign_to
+			current_file.put_string (c_rs)
+			current_file.put_character ('.')
+			current_file.put_string (c_previous)
+			print_semicolon_newline
+		end
+
+	print_before_scoop_wait_precondition (a_feature: ET_FEATURE_CLOSURE; a_separate_formal_arguments: DS_ARRAYED_LIST_2 [detachable ET_IDENTIFIER, BOOLEAN]; a_correctness_enabled: BOOLEAN)
+			-- Print code before SCOOP wait precondition to `current_file'.
+			-- Reset the flag `was_eiffel_called` to the SCOOP sessions associated
+			-- with the used separate formal arguments of `a_feature` listed in
+			-- `a_separate_formal_arguments' if the region of this formal argument
+			-- is freshly locked in `a_feature' (no lock passing).
+		require
+			a_feature_not_void: a_feature /= Void
+			a_separate_formal_arguments_not_void: a_separate_formal_arguments /= Void
+		local
+			i, nb: INTEGER
+			l_name: detachable ET_IDENTIFIER
+			l_is_used: BOOLEAN
+			l_used_count: INTEGER
+			l_is_not_first: BOOLEAN
+		do
+			nb := a_separate_formal_arguments.count
+			from i := 1 until i > nb loop
+				l_name := a_separate_formal_arguments.item_1 (i)
+				l_is_used := a_separate_formal_arguments.item_2 (i)
+				if l_name /= Void and l_is_used then
+					l_used_count := l_used_count + 1
+					print_indentation
+					current_file.put_string (c_int)
+					current_file.put_character (' ')
+					current_file.put_character ('t')
+					current_file.put_character ('s')
+					current_file.put_integer_32 (l_name.seed)
+					print_assign_to
+					current_file.put_character ('(')
+					print_separate_argument_session_name (l_name, current_file)
+					print_and_then
+					print_separate_argument_session_is_open_name (l_name, current_file)
+					print_equal_to
+					current_file.put_character ('1')
+					current_file.put_character (')')
+					print_semicolon_newline
+				end
+				i := i + 1
+			end
+			from i := 1 until i > nb loop
+				l_name := a_separate_formal_arguments.item_1 (i)
+				l_is_used := a_separate_formal_arguments.item_2 (i)
+				if l_name /= Void and l_is_used then
+					print_indentation
+					current_file.put_string (c_if)
+					current_file.put_character (' ')
+					current_file.put_character ('(')
+					current_file.put_character ('t')
+					current_file.put_character ('s')
+					current_file.put_integer_32 (l_name.seed)
+					current_file.put_character (')')
+					current_file.put_character (' ')
+					current_file.put_string (c_ge_scoop_session_set_eiffel_called)
+					current_file.put_character ('(')
+					print_separate_argument_session_name (l_name, current_file)
+					print_comma
+					current_file.put_character ('0')
+					current_file.put_character (')')
+					print_semicolon_newline
+				end
+				i := i + 1
+			end
+			print_indentation
+			if not a_correctness_enabled then
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				from i := 1 until i > nb loop
+					l_name := a_separate_formal_arguments.item_1 (i)
+					l_is_used := a_separate_formal_arguments.item_2 (i)
+					if l_name /= Void and l_is_used then
+						if l_is_not_first then
+							print_or_else
+						end
+						l_is_not_first := True
+						current_file.put_character ('t')
+						current_file.put_character ('s')
+						current_file.put_integer_32 (l_name.seed)
+					end
+					i := i + 1
+				end
+				current_file.put_character (')')
+				current_file.put_character (' ')
+			end
+		end
+
+	print_after_scoop_wait_precondition (a_feature: ET_FEATURE_CLOSURE; a_separate_formal_arguments: DS_ARRAYED_LIST_2 [detachable ET_IDENTIFIER, BOOLEAN])
+			-- Print to `current_file' then code after SCOOP wait precondition has been evaluated to false.
+			-- Check whether the flag `was_eiffel_called` has been set for the SCOOP sessions
+			-- associated with the used separate formal arguments of `a_feature` listed in
+			-- `a_separate_formal_arguments' if the region of this formal argument is freshly
+			-- locked in `a_feature' (no lock passing). If so, then this is a wait condition,
+			-- otherwise this is a correctness condition.
+		require
+			a_feature_not_void: a_feature /= Void
+			a_separate_formal_arguments_not_void: a_separate_formal_arguments /= Void
+		local
+			i, nb: INTEGER
+			l_name: detachable ET_IDENTIFIER
+			l_is_used: BOOLEAN
+			l_is_not_first: BOOLEAN
+			l_used_count: INTEGER
+		do
+			nb := a_separate_formal_arguments.count
+			from i := 1 until i > nb loop
+				l_name := a_separate_formal_arguments.item_1 (i)
+				l_is_used := a_separate_formal_arguments.item_2 (i)
+				if l_name /= Void and l_is_used then
+					l_used_count := l_used_count + 1
+					print_indentation
+					current_file.put_character ('t')
+					current_file.put_character ('s')
+					current_file.put_integer_32 (l_name.seed)
+					print_assign_to
+					current_file.put_character ('(')
+					current_file.put_character ('t')
+					current_file.put_character ('s')
+					current_file.put_integer_32 (l_name.seed)
+					print_and_then
+					current_file.put_string (c_ge_scoop_session_was_eiffel_called)
+					current_file.put_character ('(')
+					print_separate_argument_session_name (l_name, current_file)
+					current_file.put_character (')')
+					current_file.put_character (')')
+					print_semicolon_newline
+				end
+				i := i + 1
+			end
+			print_indentation
+			current_file.put_string (c_if)
+			current_file.put_character (' ')
+			current_file.put_character ('(')
+			from i := 1 until i > nb loop
+				l_name := a_separate_formal_arguments.item_1 (i)
+				l_is_used := a_separate_formal_arguments.item_2 (i)
+				if l_name /= Void and l_is_used then
+					if l_is_not_first then
+						print_or_else
+					end
+					l_is_not_first := True
+					current_file.put_character ('t')
+					current_file.put_character ('s')
+					current_file.put_integer_32 (l_name.seed)
+				end
+				i := i + 1
+			end
+			current_file.put_character (')')
+			current_file.put_character (' ')
+			current_file.put_character ('{')
+			current_file.put_new_line
+			indent
+			from i := 1 until i > nb loop
+				l_name := a_separate_formal_arguments.item_1 (i)
+				l_is_used := a_separate_formal_arguments.item_2 (i)
+				if l_name /= Void and l_is_used then
+					print_indentation
+					current_file.put_string (c_ge_scoop_precondition)
+					current_file.put_character ('*')
+					current_file.put_character (' ')
+					current_file.put_string (c_sprecond)
+					current_file.put_integer_32 (l_name.seed)
+					print_assign_to
+					current_file.put_character ('0')
+					print_semicolon_newline
+					print_indentation
+					current_file.put_string (c_ge_scoop_region)
+					current_file.put_character ('*')
+					current_file.put_character (' ')
+					current_file.put_string (c_sr)
+					current_file.put_integer_32 (l_name.seed)
+					print_assign_to
+					if l_used_count /= 1 then
+						current_file.put_character ('0')
+						print_semicolon_newline
+						print_indentation
+						current_file.put_string (c_if)
+						current_file.put_character (' ')
+						current_file.put_character ('(')
+						current_file.put_character ('t')
+						current_file.put_character ('s')
+						current_file.put_integer_32 (l_name.seed)
+						current_file.put_character (')')
+						current_file.put_character (' ')
+						current_file.put_string (c_sr)
+						current_file.put_integer_32 (l_name.seed)
+						print_assign_to
+					end
+					print_separate_argument_session_name (l_name, current_file)
+					current_file.put_string (c_arrow)
+					current_file.put_string (c_callee)
+					print_semicolon_newline
+				end
+				i := i + 1
+			end
+			print_unprotect_scoop_sessions
+			print_close_formal_argument_scoop_sessions (a_feature, True)
+			from i := 1 until i > nb loop
+				l_name := a_separate_formal_arguments.item_1 (i)
+				l_is_used := a_separate_formal_arguments.item_2 (i)
+				if l_name /= Void and l_is_used then
+					if l_used_count /= 1 then
+						print_indentation
+						current_file.put_string (c_if)
+						current_file.put_character (' ')
+						current_file.put_character ('(')
+						current_file.put_string (c_sr)
+						current_file.put_integer_32 (l_name.seed)
+						current_file.put_character (')')
+						current_file.put_character (' ')
+						current_file.put_character ('{')
+						current_file.put_new_line
+						indent
+					end
+					print_indentation
+					current_file.put_string (c_sprecond)
+					current_file.put_integer_32 (l_name.seed)
+					print_assign_to
+					current_file.put_string (c_ge_new_scoop_precondition)
+					current_file.put_character ('(')
+					current_file.put_string (c_sr)
+					current_file.put_character (')')
+					print_semicolon_newline
+					print_indentation
+					current_file.put_string (c_ge_scoop_region_add_precondition)
+					current_file.put_character ('(')
+					current_file.put_string (c_sprecond)
+					current_file.put_integer_32 (l_name.seed)
+					print_comma
+					current_file.put_string (c_sr)
+					current_file.put_integer_32 (l_name.seed)
+					current_file.put_character (')')
+					print_semicolon_newline
+					if l_used_count /= 1 then
+						dedent
+						print_indentation
+						current_file.put_character ('}')
+						current_file.put_new_line
+					end
+				end
+				i := i + 1
+			end
+			print_indentation
+			current_file.put_string (c_ge_scoop_region_wait_preconditions)
+			current_file.put_character ('(')
+			current_file.put_string (c_sr)
+			current_file.put_character (')')
+			print_semicolon_newline
+			from i := 1 until i > nb loop
+				l_name := a_separate_formal_arguments.item_1 (i)
+				l_is_used := a_separate_formal_arguments.item_2 (i)
+				if l_name /= Void and l_is_used then
+					print_indentation
+					if l_used_count /= 1 then
+						current_file.put_string (c_if)
+						current_file.put_character (' ')
+						current_file.put_character ('(')
+						current_file.put_string (c_sr)
+						current_file.put_integer_32 (l_name.seed)
+						current_file.put_character (')')
+						current_file.put_character (' ')
+					end
+					current_file.put_string (c_ge_scoop_region_remove_precondition)
+					current_file.put_character ('(')
+					current_file.put_string (c_sprecond)
+					current_file.put_integer_32 (l_name.seed)
+					print_comma
+					current_file.put_string (c_sr)
+					current_file.put_integer_32 (l_name.seed)
+					current_file.put_character (')')
+					print_semicolon_newline
+				end
+				i := i + 1
+			end
+			print_reset_assertions
+			print_indentation
+			current_file.put_string (c_continue)
+			print_semicolon_newline
+			dedent
+			print_indentation
+			current_file.put_character ('}')
+			current_file.put_new_line
+		end
+
+	has_separate_formal_arguments (a_feature: ET_FEATURE_CLOSURE): BOOLEAN
+			-- Does `a_feature` have separate formal arguments?
+		require
+			a_feature_not_void: a_feature /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_argument: ET_FORMAL_ARGUMENT
+			l_name: ET_IDENTIFIER
+			l_argument_type: ET_DYNAMIC_TYPE
+		do
+			if attached a_feature.arguments as l_arguments then
+				nb := l_arguments.count
+				from i := 1 until i > nb loop
+					l_argument := l_arguments.formal_argument (i)
+					l_name := l_argument.name
+					l_argument_type := dynamic_type_set (l_name).static_type
+					if l_argument_type.is_separate then
+						Result := True
+						i := nb + 1 -- Jump out of the loop
+					end
+					i := i + 1
+				end
+			end
+		end
+
+	fill_separate_formal_arguments (a_feature: ET_CLOSURE; a_separate_formal_arguments: DS_ARRAYED_LIST_2 [detachable ET_IDENTIFIER, BOOLEAN])
+			-- Fill `a_separate_formal_arguments` with separate formal arguments of `a_feature`.
+		require
+			a_feature_not_void: a_feature /= Void
+			a_separate_formal_arguments_not_void: a_separate_formal_arguments /= Void
+			use_scoop: use_scoop
+		local
+			i, nb: INTEGER
+			l_argument: ET_FORMAL_ARGUMENT
+			l_name: ET_IDENTIFIER
+			l_argument_type: ET_DYNAMIC_TYPE
+		do
+			a_separate_formal_arguments.wipe_out
+			if attached a_feature.arguments as l_arguments then
+				nb := l_arguments.count
+				if nb > a_separate_formal_arguments.capacity then
+					a_separate_formal_arguments.resize (nb)
+				end
+				from i := 1 until i > nb loop
+					l_argument := l_arguments.formal_argument (i)
+					l_name := l_argument.name
+					l_argument_type := dynamic_type_set (l_name).static_type
+					if l_argument_type.is_separate then
+						a_separate_formal_arguments.put_last (l_name, False)
+					else
+						a_separate_formal_arguments.put_last (Void, False)
+					end
+					i := i + 1
+				end
+			end
+		end
+
 	separate_call_arguments: ET_ACTUAL_ARGUMENT_LIST
 			-- Arguments to be used when generating separate call objects
 
@@ -23430,8 +25001,21 @@ feature {NONE} -- Separate calls
 			-- (Used when determining the SCOOP sessions to be used when recording
 			-- a separate call to another SCOOP region.)
 
+	separate_formal_arguments: DS_ARRAYED_LIST_2 [detachable ET_IDENTIFIER, BOOLEAN]
+			-- Formal arguments, indexed by seed, which are declared as separate,
+			-- and void if not declrated as separate.
+			-- The boolean value indicates whether this separate formal argument
+			-- is used or not.
+
 	in_separate_creation_call: BOOLEAN
 			-- Is `separate_call_instruction' a creation of a separate object?
+
+	current_separate_call_count: INTEGER
+			-- Number of separate calls (calls whose target type is separate)
+			-- appearing in `current_feature'
+
+	current_inline_separate_arguments: DS_HASH_SET [INTEGER]
+			-- Inline separate argument seeds which are used in `current_feature'
 
 feature {NONE} -- Built-in feature generation
 
@@ -23672,6 +25256,7 @@ feature {NONE} -- Built-in feature generation
 					dedent
 					print_indentation
 					current_file.put_character ('}')
+					current_file.put_new_line
 				else
 					print_indentation
 					current_file.put_string (c_switch)
@@ -23723,6 +25308,7 @@ feature {NONE} -- Built-in feature generation
 					dedent
 					print_indentation
 					current_file.put_character ('}')
+					current_file.put_new_line
 				end
 				l_conforming_types.wipe_out
 				l_non_conforming_types.wipe_out
@@ -23860,6 +25446,13 @@ feature {NONE} -- Built-in feature generation
 		do
 -- TODO
 error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_equal_body not implemented")
+			if current_type.has_nested_reference_attributes then
+				print_indentation_assign_to_result
+				current_file.put_string (c_eif_true)
+				print_semicolon_newline
+			else
+				print_builtin_any_standard_is_equal_body (a_feature)
+			end
 		end
 
 	print_builtin_any_is_equal_body (a_feature: ET_EXTERNAL_ROUTINE)
@@ -24147,12 +25740,32 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 			l_attribute: ET_DYNAMIC_FEATURE
 			l_name: ET_FEATURE_NAME
 			l_index: INTEGER
+			l_source_index: INTEGER
+			l_target_index: INTEGER
 			l_target_attribute: ET_QUALIFIED_CALL_EXPRESSION
 			l_source_attribute: ET_QUALIFIED_CALL_EXPRESSION
 		do
+				-- The dynamic type set of `a_target' has exactly one type, whereas the
+				-- dynamic type set of `a_source' may contain more types even though we
+				-- know that at runtime `a_source' and `a_target' will have the same type.
+				-- So, to avoid a polymorphic call when getting the attributes in `a_source'
+				-- (call to `l_source_attribute' below) we temporarily set the dynamic
+				-- type set of `a_source' to be the same as the one of `a_target'.
+			extra_dynamic_type_sets.force_last (dynamic_type_set (a_target))
+			l_target_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
+			l_source_index := a_source.index
+			a_source.set_index (l_target_index)
 			nb := current_type.attribute_count
 			l_queries := current_type.queries
-			from i := 1 until i > nb loop
+			from
+				i := 1
+				if current_type.is_special then
+						-- Skip the 'capacity' attribute.
+					i := 2
+				end
+			until
+				i > nb
+			loop
 				l_attribute := l_queries.item (i)
 				if not attached l_attribute.result_type_set as l_attribute_type_set then
 						-- Internal error: should never happen: queries have a result type set.
@@ -24176,6 +25789,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 				end
 				i := i + 1
 			end
+			a_source.set_index (l_source_index)
+			extra_dynamic_type_sets.remove_last
 		end
 
 	print_builtin_any_standard_is_equal_special_items (a_source, a_target: ET_EXPRESSION; a_special_type: ET_DYNAMIC_SPECIAL_TYPE)
@@ -24196,6 +25811,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 			l_item_type: ET_DYNAMIC_PRIMARY_TYPE
 			l_name: ET_FEATURE_NAME
 			l_index: INTEGER
+			l_source_index: INTEGER
+			l_target_index: INTEGER
 			l_target_item: ET_QUALIFIED_CALL_EXPRESSION
 			l_source_item: ET_QUALIFIED_CALL_EXPRESSION
 			l_actual_argument_list: ET_ACTUAL_ARGUMENT_LIST
@@ -24266,6 +25883,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 					l_i_temp.set_index (l_index)
 					extra_dynamic_type_sets.force_last (l_item_type_set)
 					l_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
+					extra_dynamic_type_sets.force_last (dynamic_type_set (a_target))
+					l_target_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
 						-- Prepare call expressions to 'item' feature.
 					l_name := l_item_routine.static_feature.name
 					l_name.set_seed (l_item_routine.static_feature.first_seed)
@@ -24273,12 +25892,22 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 					l_actual_argument_list.force_first (l_i_temp)
 					l_target_item := new_qualified_call_expression (a_target, l_name, l_actual_argument_list)
 					l_target_item.set_index (l_index)
+						-- The dynamic type set of `a_target' has exactly one type, whereas the
+						-- dynamic type set of `a_source' may contain more types even though we
+						-- know that at runtime `a_source' and `a_target' will have the same type.
+						-- So, to avoid a polymorphic call when getting the item in `a_source'
+						-- (call to `l_source_item' below) we temporarily set the dynamic
+						-- type set of `a_source' to be the same as the one of `a_target'.
+					l_source_index := a_source.index
+					a_source.set_index (l_target_index)
 					l_source_item := new_qualified_call_expression (a_source, l_name, l_actual_argument_list)
 					l_source_item.set_index (l_index)
 					print_builtin_any_standard_is_equal_field (l_target_item, l_source_item, l_item_type_set)
+					a_source.set_index (l_source_index)
 					free_qualified_call_expression (l_target_item)
 					free_qualified_call_expression (l_source_item)
 					free_actual_argument_list (l_actual_argument_list)
+					extra_dynamic_type_sets.remove_last
 					extra_dynamic_type_sets.remove_last
 					extra_dynamic_type_sets.remove_last
 					mark_temp_variable_unfrozen (l_i_temp)
@@ -24352,10 +25981,22 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 			l_item_type_sets: ET_DYNAMIC_TYPE_SET_LIST
 			l_item_type_set: ET_DYNAMIC_TYPE_SET
 			l_index: INTEGER
+			l_source_index: INTEGER
+			l_target_index: INTEGER
 			l_tuple_label: ET_IDENTIFIER
 			l_target_item: ET_QUALIFIED_CALL_EXPRESSION
 			l_source_item: ET_QUALIFIED_CALL_EXPRESSION
 		do
+				-- The dynamic type set of `a_target' has exactly one type, whereas the
+				-- dynamic type set of `a_source' may contain more types even though we
+				-- know that at runtime `a_source' and `a_target' will have the same type.
+				-- So, to avoid a polymorphic call when getting the items in `a_source'
+				-- (call to `l_source_item' below) we temporarily set the dynamic
+				-- type set of `a_source' to be the same as the one of `a_target'.
+			extra_dynamic_type_sets.force_last (dynamic_type_set (a_target))
+			l_target_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
+			l_source_index := a_source.index
+			a_source.set_index (l_target_index)
 			l_item_type_sets := a_tuple_type.item_type_sets
 			nb := l_item_type_sets.count
 			from i := 1 until i > nb loop
@@ -24376,6 +26017,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 				extra_dynamic_type_sets.remove_last
 				i := i + 1
 			end
+			a_source.set_index (l_source_index)
+			extra_dynamic_type_sets.remove_last
 		end
 
 	print_builtin_any_standard_is_equal_call (a_feature: ET_DYNAMIC_FEATURE; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
@@ -24558,6 +26201,7 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 		local
 			l_target: ET_EXPRESSION
 			l_argument: ET_EXPRESSION
+			l_is_special: BOOLEAN
 		do
 			if a_target_type.base_class.is_type_class then
 					-- Cannot have two instances of class "TYPE" representing the same Eiffel type.
@@ -24569,10 +26213,32 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 					-- No field to compare with.
 				current_file.put_string (c_eif_true)
 			else
-					-- Note: do not compare the flag, SCOOP region, nor once-per-object.
 				l_target := call_operands.first
 				l_argument := call_operands.item (2)
 				print_declaration_type_cast (a_result_type, current_file)
+				current_file.put_character ('(')
+					-- First, check whether they are the same object.
+				current_file.put_character ('(')
+				current_file.put_character ('(')
+				current_file.put_string (c_char)
+				current_file.put_character ('*')
+				current_file.put_character (')')
+				current_file.put_character ('(')
+				print_target_expression (l_target, a_target_type, a_check_void_target)
+				current_file.put_character (')')
+				current_file.put_character ('=')
+				current_file.put_character ('=')
+				current_file.put_character ('(')
+				current_file.put_string (c_char)
+				current_file.put_character ('*')
+				current_file.put_character (')')
+				current_file.put_character ('(')
+				print_attachment_expression (l_argument, a_argument_type_set, a_argument_formal_type)
+				current_file.put_character (')')
+				current_file.put_character (')')
+				current_file.put_character ('|')
+				current_file.put_character ('|')
+					-- Note: do not compare the flag, SCOOP region, nor once-per-object.
 				current_file.put_character ('(')
 				current_file.put_character ('!')
 				current_file.put_string (c_memcmp)
@@ -24587,7 +26253,13 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 				current_file.put_character (')')
 				current_file.put_character (')')
 				print_plus
-				print_attribute_offset (a_target_type, current_file)
+				l_is_special := a_target_type.is_special and then a_target_type.attribute_count >= 2
+				if l_is_special then
+						-- Skip the 'capacity' attribute.
+					print_special_count_offset (a_target_type, current_file)
+				else
+					print_attribute_offset (a_target_type, current_file)
+				end
 				print_comma
 				current_file.put_character ('(')
 				current_file.put_character ('(')
@@ -24599,7 +26271,12 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 				current_file.put_character (')')
 				current_file.put_character (')')
 				print_plus
-				print_attribute_offset (a_target_type, current_file)
+				if l_is_special then
+						-- Skip the 'capacity' attribute.
+					print_special_count_offset (a_target_type, current_file)
+				else
+					print_attribute_offset (a_target_type, current_file)
+				end
 				print_comma
 				if attached {ET_DYNAMIC_SPECIAL_TYPE} a_target_type as l_special_type then
 						-- Note: if `offsetof' is not supported, then we can use: ((int)&(((T317*) 0)->a2))
@@ -24624,7 +26301,13 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 					current_file.put_character (')')
 				end
 				print_minus
-				print_attribute_offset (a_target_type, current_file)
+				if l_is_special then
+						-- Skip the 'capacity' attribute.
+					print_special_count_offset (a_target_type, current_file)
+				else
+					print_attribute_offset (a_target_type, current_file)
+				end
+				current_file.put_character (')')
 				current_file.put_character (')')
 				current_file.put_character (')')
 			end
@@ -24932,9 +26615,21 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 			l_attribute_type: ET_DYNAMIC_PRIMARY_TYPE
 			l_name: ET_FEATURE_NAME
 			l_index: INTEGER
+			l_source_index: INTEGER
+			l_target_index: INTEGER
 			l_source_attribute: ET_QUALIFIED_CALL_EXPRESSION
 			l_attribute_already_copied: BOOLEAN
 		do
+				-- The dynamic type set of `a_target' has exactly one type, whereas the
+				-- dynamic type set of `a_source' may contain more types even though we
+				-- know that at runtime `a_source' and `a_target' will have the same type.
+				-- So, to avoid a polymorphic call when getting the attributes in `a_source'
+				-- (call to `l_source_attribute' below) we temporarily set the dynamic
+				-- type set of `a_source' to be the same as the one of `a_target'.
+			extra_dynamic_type_sets.force_last (dynamic_type_set (a_target))
+			l_target_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
+			l_source_index := a_source.index
+			a_source.set_index (l_target_index)
 			nb := current_type.attribute_count
 			l_queries := current_type.queries
 			from i := 1 until i > nb loop
@@ -24980,6 +26675,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 				end
 				i := i + 1
 			end
+			a_source.set_index (l_source_index)
+			extra_dynamic_type_sets.remove_last
 		end
 
 	print_builtin_any_standard_copy_custom_special_items (a_source, a_target: ET_EXPRESSION; a_special_type: ET_DYNAMIC_SPECIAL_TYPE; a_item_count: ET_IDENTIFIER)
@@ -25002,6 +26699,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 			l_item_type: ET_DYNAMIC_PRIMARY_TYPE
 			l_name: ET_FEATURE_NAME
 			l_index: INTEGER
+			l_source_index: INTEGER
+			l_target_index: INTEGER
 			l_source_item: ET_QUALIFIED_CALL_EXPRESSION
 			l_actual_argument_list: ET_ACTUAL_ARGUMENT_LIST
 			l_item_already_copied: BOOLEAN
@@ -25066,11 +26765,21 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 					l_i_temp.set_index (l_index)
 					extra_dynamic_type_sets.force_last (l_item_type_set)
 					l_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
+					extra_dynamic_type_sets.force_last (dynamic_type_set (a_target))
+					l_target_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
 						-- Prepare call expressions to 'item' feature.
 					l_name := l_item_routine.static_feature.name
 					l_name.set_seed (l_item_routine.static_feature.first_seed)
 					l_actual_argument_list := new_actual_argument_list
 					l_actual_argument_list.force_first (l_i_temp)
+						-- The dynamic type set of `a_target' has exactly one type, whereas the
+						-- dynamic type set of `a_source' may contain more types even though we
+						-- know that at runtime `a_source' and `a_target' will have the same type.
+						-- So, to avoid a polymorphic call when getting the item in `a_source'
+						-- (call to `l_source_item' below) we temporarily set the dynamic
+						-- type set of `a_source' to be the same as the one of `a_target'.
+					l_source_index := a_source.index
+					a_source.set_index (l_target_index)
 					l_source_item := new_qualified_call_expression (a_source, l_name, l_actual_argument_list)
 					l_source_item.set_index (l_index)
 						-- The clone of the item with copy semantics occurs here
@@ -25087,10 +26796,12 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 					print_semicolon_newline
 					dedent
 					print_indentation_end_newline
+					a_source.set_index (l_source_index)
 						-- Clean up.
 					call_operands.wipe_out
 					free_qualified_call_expression (l_source_item)
 					free_actual_argument_list (l_actual_argument_list)
+					extra_dynamic_type_sets.remove_last
 					extra_dynamic_type_sets.remove_last
 					extra_dynamic_type_sets.remove_last
 					mark_temp_variable_unfrozen (l_i_temp)
@@ -25116,10 +26827,22 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 			l_item_type_set: ET_DYNAMIC_TYPE_SET
 			l_item_type: ET_DYNAMIC_PRIMARY_TYPE
 			l_index: INTEGER
+			l_source_index: INTEGER
+			l_target_index: INTEGER
 			l_tuple_label: ET_IDENTIFIER
 			l_source_item: ET_QUALIFIED_CALL_EXPRESSION
 			l_item_already_copied: BOOLEAN
 		do
+				-- The dynamic type set of `a_target' has exactly one type, whereas the
+				-- dynamic type set of `a_source' may contain more types even though we
+				-- know that at runtime `a_source' and `a_target' will have the same type.
+				-- So, to avoid a polymorphic call when getting the items in `a_source'
+				-- (call to `l_source_item' below) we temporarily set the dynamic
+				-- type set of `a_source' to be the same as the one of `a_target'.
+			extra_dynamic_type_sets.force_last (dynamic_type_set (a_target))
+			l_target_index := current_dynamic_type_sets.count + extra_dynamic_type_sets.count
+			l_source_index := a_source.index
+			a_source.set_index (l_target_index)
 			l_item_type_sets := a_tuple_type.item_type_sets
 			nb := l_item_type_sets.count
 			from i := 1 until i > nb loop
@@ -25159,6 +26882,8 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 				end
 				i := i + 1
 			end
+			a_source.set_index (l_source_index)
+			extra_dynamic_type_sets.remove_last
 		end
 
 	print_builtin_any_standard_copy_call (a_feature: ET_DYNAMIC_FEATURE; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
@@ -27220,6 +28945,40 @@ error_handler.report_warning_message ("ET_C_GENERATOR.print_builtin_any_is_deep_
 			else
 				print_builtin_routine_call_call (a_feature, a_target_type, a_check_void_target)
 			end
+		end
+
+	print_builtin_identified_controller_extend_object_id_stack_call (a_feature: ET_DYNAMIC_FEATURE; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
+			-- Print to `current_file' a call (static binding) to `a_feature'
+			-- corresponding to built-in feature 'IDENTIFIED_CONTROLLER.extend_object_id_stack'.
+			-- `a_target_type' is the dynamic type of the target.
+			-- `a_check_void_target' means that we need to check whether the target is Void or not.
+			-- Operands can be found in `call_operands'.
+		require
+			a_feature_not_void: a_feature /= Void
+			a_target_type_not_void: a_target_type /= Void
+			call_operands_not_empty: not call_operands.is_empty
+		do
+			if call_operands.count /= 2 then
+					-- Internal error: this should already have been reported in ET_FEATURE_FLATTENER.
+				set_fatal_error
+				error_handler.report_giaac_error (generator, "print_builtin_identified_controller_extend_object_id_stack_call", 1, "wrong number of arguments.")
+			else
+				-- Empty implementation.
+			end
+		end
+
+	print_builtin_identified_controller_object_id_stack_size_call (a_feature: ET_DYNAMIC_FEATURE; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
+			-- Print to `current_file' a call (static binding) to `a_feature'
+			-- corresponding to built-in feature 'IDENTIFIED_CONTROLLER.object_id_stack_size'.
+			-- `a_target_type' is the dynamic type of the target.
+			-- `a_check_void_target' means that we need to check whether the target is Void or not.
+			-- Operands can be found in `call_operands'.
+		require
+			a_feature_not_void: a_feature /= Void
+			a_target_type_not_void: a_target_type /= Void
+			call_operands_not_empty: not call_operands.is_empty
+		do
+			current_file.put_character ('0')
 		end
 
 	print_builtin_identified_routines_eif_current_object_id_call (a_feature: ET_DYNAMIC_FEATURE; a_target_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
@@ -37788,26 +39547,30 @@ feature {NONE} -- Once feature generation
 			current_file.put_character ('%'')
 		end
 
-	print_assign_result_to_once_value (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER)
+	print_assign_result_to_once_value (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER; a_creation: BOOLEAN)
 			-- Print code to set the once value of `a_feature' to "Result".
 			-- In case of one-per-process or once-per-thread, `a_feature'
 			-- is expected to be a once routine of kind `a_once_kind' with
 			-- index `a_once_index' in 'GE_onces' C struct.
 			-- Otherwise, `a_once_kind' and `a_once_index' are ignored.
+			-- `a_creation` indicates whether `a_feature` should be treated as a once creation procedure.
 		require
 			a_feature_not_void: a_feature /= Void
 			a_feature_is_once: a_feature.is_once
-			a_feature_is_function: a_feature.is_function
+			a_feature_is_function_or_creation: a_feature.is_function xor a_creation
+			is_creation: a_creation implies a_feature.is_creation
 		local
 			l_result_type: ET_DYNAMIC_PRIMARY_TYPE
 		do
-			if attached a_feature.result_type_set as l_result_type_set then
+			if a_creation then
+				l_result_type := a_feature.target_type
+			elseif attached a_feature.result_type_set as l_result_type_set then
+				l_result_type := l_result_type_set.static_type.primary_type
+			end
+			if l_result_type /= Void then
 				print_indentation
 				print_once_value (a_feature, a_once_kind, a_once_index)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				l_result_type := l_result_type_set.static_type.primary_type
+				print_assign_to
 				if not a_feature.is_once_per_object and then l_result_type.is_expanded and then not l_result_type.is_basic then
 						-- The value needs to be boxed.
 					current_file.put_string (c_ge_boxed)
@@ -37820,32 +39583,35 @@ feature {NONE} -- Once feature generation
 				else
 					print_result_name (current_file)
 				end
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 			end
 		end
 
-	print_assign_result_to_thread_safe_once_value (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER)
+	print_assign_result_to_thread_safe_once_value (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER; a_creation: BOOLEAN)
 			-- Print code to set the once value of `a_feature' to "Result".
 			-- `a_feature' is expected to be a once-per-process routine of kind
 			-- `a_once_kind' with index `a_once_index' in 'GE_onces'
 			-- C struct.
+			-- `a_creation` indicates whether `a_feature` should be treated as a once creation procedure.
 			-- Use the version cached in the current thread.
 		require
 			a_feature_not_void: a_feature /= Void
 			a_feature_is_once: a_feature.is_once_per_process
-			a_feature_is_function: a_feature.is_function
+			a_feature_is_function_or_creation: a_feature.is_function xor a_creation
+			is_creation: a_creation implies a_feature.is_creation
 			use_threads: use_threads
 		local
 			l_result_type: ET_DYNAMIC_PRIMARY_TYPE
 		do
-			if attached a_feature.result_type_set as l_result_type_set then
+			if a_creation then
+				l_result_type := a_feature.target_type
+			elseif attached a_feature.result_type_set as l_result_type_set then
+				l_result_type := l_result_type_set.static_type.primary_type
+			end
+			if l_result_type /= Void then
 				print_indentation
 				print_thread_safe_once_per_process_value (a_feature, a_once_kind, a_once_index)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				l_result_type := l_result_type_set.static_type.primary_type
+				print_assign_to
 				if l_result_type.is_expanded and then not l_result_type.is_basic then
 						-- The value needs to be boxed.
 					current_file.put_string (c_ge_boxed)
@@ -37858,31 +39624,34 @@ feature {NONE} -- Once feature generation
 				else
 					print_result_name (current_file)
 				end
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 			end
 		end
 
-	print_assign_once_value_to_result (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER)
+	print_assign_once_value_to_result (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER; a_creation: BOOLEAN)
 			-- Print code to set "Result" to the once value of `a_feature'.
 			-- In case of one-per-process or once-per-thread, `a_feature'
 			-- is expected to be a once routine of kind `a_once_kind' with
 			-- index `a_once_index' in 'GE_onces' C struct.
 			-- Otherwise, `a_once_kind' and `a_once_index' are ignored.
+			-- `a_creation` indicates whether `a_feature` should be treated as a once creation procedure.
 		require
 			a_feature_not_void: a_feature /= Void
 			a_feature_is_once: a_feature.is_once
-			a_feature_is_function: a_feature.is_function
+			a_feature_is_function_or_creation: a_feature.is_function xor a_creation
+			is_creation: a_creation implies a_feature.is_creation
 		local
 			l_result_type: ET_DYNAMIC_PRIMARY_TYPE
 		do
-			if attached a_feature.result_type_set as l_result_type_set then
+			if a_creation then
+				l_result_type := a_feature.target_type
+			elseif attached a_feature.result_type_set as l_result_type_set then
+				l_result_type := l_result_type_set.static_type.primary_type
+			end
+			if l_result_type /= Void then
 				print_indentation
 				print_result_name (current_file)
-				current_file.put_character (' ')
-				current_file.put_character ('=')
-				current_file.put_character (' ')
-				l_result_type := l_result_type_set.static_type.primary_type
+				print_assign_to
 				if not a_feature.is_once_per_object and then l_result_type.is_expanded and then not l_result_type.is_basic then
 						-- The value has been boxed.
 						-- It needs to be unboxed.
@@ -37897,69 +39666,34 @@ feature {NONE} -- Once feature generation
 				else
 					print_once_value (a_feature, a_once_kind, a_once_index)
 				end
-				current_file.put_character (';')
-				current_file.put_new_line
+				print_semicolon_newline
 			end
 		end
 
-	print_return_once_value (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER)
-			-- Print C instruction to return the once value of `a_feature'.
-			-- if it is a function, or just an empty return if it's
-			-- a procedure.
-			-- In case of one-per-process or once-per-thread, `a_feature'
-			-- is expected to be a once routine of kind `a_once_kind' with
-			-- index `a_once_index' in 'GE_onces' C struct.
-			-- Otherwise, `a_once_kind' and `a_once_index' are ignored.
-		require
-			a_feature_not_void: a_feature /= Void
-			a_feature_is_once: a_feature.is_once
-		local
-			l_result_type: ET_DYNAMIC_PRIMARY_TYPE
-		do
-			print_indentation
-			current_file.put_string (c_return)
-			if attached a_feature.result_type_set as l_result_type_set then
-				current_file.put_character (' ')
-				l_result_type := l_result_type_set.static_type.primary_type
-				if not a_feature.is_once_per_object and then l_result_type.is_expanded and then not l_result_type.is_basic then
-						-- The value has been boxed.
-						-- It needs to be unboxed.
-					current_file.put_character ('(')
-					print_boxed_type_cast (l_result_type, current_file)
-					current_file.put_character ('(')
-					print_once_value (a_feature, a_once_kind, a_once_index)
-					current_file.put_character (')')
-					current_file.put_character (')')
-					current_file.put_string (c_arrow)
-					print_boxed_attribute_item_name (l_result_type, current_file)
-				else
-					print_once_value (a_feature, a_once_kind, a_once_index)
-				end
-			end
-			current_file.put_character (';')
-			current_file.put_new_line
-		end
-
-	print_return_thread_safe_once_value (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER)
-			-- Print C instruction to return the once value of `a_feature'.
-			-- if it is a function, or just an empty return if it's
-			-- a procedure.
+	print_assign_thread_safe_once_value_to_result (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER; a_creation: BOOLEAN)
+			-- Print code to set "Result" to the once value of `a_feature'.
 			-- `a_feature' is expected to be a once-per-process routine of kind
 			-- `a_once_kind' with index `a_once_index' in 'GE_onces'
 			-- C struct.
+			-- `a_creation` indicates whether `a_feature` should be treated as a once creation procedure.
 			-- Use the version cached in the current thread.
 		require
 			a_feature_not_void: a_feature /= Void
 			a_feature_is_once: a_feature.is_once_per_process
+			is_creation: a_creation implies a_feature.is_creation
 			use_threads: use_threads
 		local
 			l_result_type: ET_DYNAMIC_PRIMARY_TYPE
 		do
-			print_indentation
-			current_file.put_string (c_return)
-			if attached a_feature.result_type_set as l_result_type_set then
-				current_file.put_character (' ')
+			if a_creation then
+				l_result_type := a_feature.target_type
+			elseif attached a_feature.result_type_set as l_result_type_set then
 				l_result_type := l_result_type_set.static_type.primary_type
+			end
+			if l_result_type /= Void then
+				print_indentation
+				print_result_name (current_file)
+				print_assign_to
 				if l_result_type.is_expanded and then not l_result_type.is_basic then
 						-- The value has been boxed.
 						-- It needs to be unboxed.
@@ -37974,9 +39708,8 @@ feature {NONE} -- Once feature generation
 				else
 					print_thread_safe_once_per_process_value (a_feature, a_once_kind, a_once_index)
 				end
+				print_semicolon_newline
 			end
-			current_file.put_character (';')
-			current_file.put_new_line
 		end
 
 	print_assign_last_exception_to_once_exception (a_feature: ET_DYNAMIC_FEATURE; a_once_kind, a_once_index: INTEGER)
@@ -38254,6 +39987,7 @@ feature {NONE} -- Assertion generation
 		do
 			if attached current_type.invariants as l_invariants then
 				register_called_feature (l_invariants)
+				print_invariants_comment
 				print_indentation
 				current_file.put_string (c_if)
 				current_file.put_character (' ')
@@ -38283,8 +40017,9 @@ feature {NONE} -- Assertion generation
 			end
 		end
 
-	print_all_preconditions (a_feature: ET_CLOSURE)
+	print_all_preconditions (a_feature: ET_FEATURE_CLOSURE; a_correctness_enabled: BOOLEAN)
 			-- Print all preconditions (even those inherited from precursors) of `a_feature' to `current_file'.
+			-- Take care of SCOOP waiting preconditions.
 		require
 			a_feature_not_void: a_feature /= Void
 		local
@@ -38294,64 +40029,176 @@ feature {NONE} -- Assertion generation
 			j, k, l_count: INTEGER
 			l_assertion: ET_ASSERTION
 			l_old_index_offset: INTEGER
-			l_old_max_nested_inlining_count: INTEGER
+			l_old_preconditions: ET_PRECONDITIONS
+			l_separate_formal_arguments: like separate_formal_arguments
+			l_has_separate_formal_arguments: BOOLEAN
+			l_all_preconditions_use_separate_formal_arguments: BOOLEAN
+			l_preconditions_use_separate_formal_arguments: BOOLEAN
+			l_next_preconditions_use_separate_formal_arguments: BOOLEAN
+			l_expression_use_separate_formal_arguments: BOOLEAN
 		do
-				-- Limitation: no inlining in preconditions.
-			l_old_max_nested_inlining_count := max_nested_inlining_count
-			max_nested_inlining_count := 0
-			if attached {ET_FEATURE} a_feature as l_feature then
+			l_separate_formal_arguments := separate_formal_arguments
+			if use_scoop then
+				fill_separate_formal_arguments (a_feature, l_separate_formal_arguments)
+				l_has_separate_formal_arguments := l_separate_formal_arguments.has_non_void_1
+				if not l_has_separate_formal_arguments then
+					-- Done.
+				elseif attached {ET_FEATURE} a_feature as l_feature then
+					l_all_preconditions := current_feature.preconditions
+					nb := l_all_preconditions.count
+					from i := 1 until i > nb loop
+						l_all_preconditions.item_1 (i).add_formal_arguments (l_separate_formal_arguments)
+						i := i + 1
+					end
+				elseif attached a_feature.preconditions as l_preconditions_impl then
+					l_preconditions_impl.add_formal_arguments (l_separate_formal_arguments)
+				end
+				l_all_preconditions_use_separate_formal_arguments := l_separate_formal_arguments.has_2 (True)
+			end
+			if a_correctness_enabled or l_all_preconditions_use_separate_formal_arguments then
 				l_old_index_offset := index_offset
 				l_all_preconditions := current_feature.preconditions
-				l_count := l_all_preconditions.count
-				if l_count > 0 then
-					print_before_assertions
+				if attached {ET_FEATURE} a_feature as l_feature then
+					l_count := l_all_preconditions.count
+					if l_count > 0 then
+						index_offset := l_all_preconditions.item_2 (1)
+						l_preconditions := l_all_preconditions.item_1 (1)
+					end
+				elseif attached a_feature.preconditions as l_preconditions_impl then
+					l_preconditions := l_preconditions_impl
+					l_count := 1
+				end
+				if l_count > 0 and l_preconditions /= Void then
+					print_preconditions_comment
+					print_before_assertions (l_all_preconditions_use_separate_formal_arguments)
 					from k := 1 until k > l_count loop
-						index_offset := l_all_preconditions.item_2 (k)
-						l_preconditions := l_all_preconditions.item_1 (k)
-						if k = l_count then
-							if not l_preconditions.are_all_true then
-								print_assertions (l_preconditions, c_ge_ex_pre)
+						if k /= 1 then
+							index_offset := l_all_preconditions.item_2 (k)
+							l_preconditions := l_all_preconditions.item_1 (k)
+						end
+						l_old_preconditions := current_preconditions
+						current_preconditions := l_preconditions
+						l_preconditions_use_separate_formal_arguments := False
+						l_next_preconditions_use_separate_formal_arguments := False
+						if l_all_preconditions_use_separate_formal_arguments then
+							if k + 1 < l_count then
+								l_separate_formal_arguments.replace_all_2 (False)
+								l_all_preconditions.item_1 (k + 1).add_formal_arguments (l_separate_formal_arguments)
+								l_next_preconditions_use_separate_formal_arguments := l_separate_formal_arguments.has_2 (True)
 							end
-						else
-							j := j + 1
+							l_separate_formal_arguments.replace_all_2 (False)
+							l_preconditions.add_formal_arguments (l_separate_formal_arguments)
+							l_preconditions_use_separate_formal_arguments := l_separate_formal_arguments.has_2 (True)
+						end
+						if 
+							not l_preconditions.are_all_true and
+							(a_correctness_enabled or l_preconditions_use_separate_formal_arguments)
+						then
+							if k /= l_count then
+								j := j + 1
+							end
 							nb := l_preconditions.count
 							from i := 1 until i > nb loop
 								l_assertion := l_preconditions.assertion (i)
 								if attached l_assertion.expression as l_expression then
-									print_operand (l_expression)
-									fill_call_operands (1)
-									print_indentation
-									current_file.put_string (c_if)
-									current_file.put_character (' ')
-									current_file.put_character ('(')
-									current_file.put_character ('!')
-									current_file.put_character ('(')
-									print_expression (call_operands.first)
-									call_operands.wipe_out
-									current_file.put_character (')')
-									current_file.put_character (')')
-									current_file.put_character (' ')
-									current_file.put_character ('{')
-									current_file.put_new_line
-									indent
-									print_indentation
-									current_file.put_string (c_goto)
-									current_file.put_character (' ')
-									current_file.put_string (c_ge_pre)
-									if k + 1 /= l_count or else not l_all_preconditions.item_1 (k + 1).are_all_true then
-										current_file.put_integer (j)
-									else
-										current_file.put_integer (l_count)
+									l_expression_use_separate_formal_arguments := False
+									if l_preconditions_use_separate_formal_arguments then
+										l_separate_formal_arguments.replace_all_2 (False)
+										l_expression.add_formal_arguments (l_separate_formal_arguments)
+										l_expression_use_separate_formal_arguments := l_separate_formal_arguments.has_2 (True)
 									end
-									print_semicolon_newline
-									dedent
-									print_indentation
-									current_file.put_character ('}')
-									current_file.put_new_line
+									if a_correctness_enabled or l_expression_use_separate_formal_arguments then
+										print_indentation
+										current_file.put_character ('{')
+										current_file.put_new_line
+										indent
+										if l_expression_use_separate_formal_arguments then
+											print_before_scoop_wait_precondition (a_feature, l_separate_formal_arguments, a_correctness_enabled)
+											current_file.put_character ('{')
+											current_file.put_new_line
+											indent
+										elseif l_all_preconditions_use_separate_formal_arguments then
+											print_indentation
+											current_file.put_string (c_if)
+											current_file.put_character (' ')
+											current_file.put_character ('(')
+											current_file.put_character ('!')
+											current_file.put_string (c_old_in_assertion)
+											current_file.put_character (')')
+											current_file.put_character (' ')
+											current_file.put_character ('{')
+											current_file.put_new_line
+											indent
+										end
+										print_operand (l_expression)
+										fill_call_operands (1)
+										print_indentation
+										current_file.put_string (c_if)
+										current_file.put_character (' ')
+										current_file.put_character ('(')
+										current_file.put_character ('!')
+										current_file.put_character ('(')
+										print_expression (call_operands.first)
+										call_operands.wipe_out
+										current_file.put_character (')')
+										current_file.put_character (')')
+										current_file.put_character (' ')
+										current_file.put_character ('{')
+										current_file.put_new_line
+										indent
+										if l_expression_use_separate_formal_arguments then
+											print_after_scoop_wait_precondition (a_feature, l_separate_formal_arguments)
+										end
+										if k = l_count then
+											if a_correctness_enabled then
+												print_indentation
+												current_file.put_string (c_ge_raise_with_message)
+												current_file.put_character ('(')
+												current_file.put_string (c_ge_ex_pre)
+												print_comma
+												print_escaped_string (assertion_tag (l_assertion))
+												current_file.put_character (')')
+												print_semicolon_newline
+											end
+										else
+											print_indentation
+											current_file.put_string (c_goto)
+											current_file.put_character (' ')
+											current_file.put_string (c_ge_pre)
+											if
+												k + 1 /= l_count or else
+												(not l_all_preconditions.item_1 (k + 1).are_all_true and
+												(a_correctness_enabled or l_next_preconditions_use_separate_formal_arguments))
+											then
+												current_file.put_integer (j)
+											else
+												current_file.put_integer (l_count)
+											end
+											print_semicolon_newline
+										end
+										dedent
+										print_indentation
+										current_file.put_character ('}')
+										current_file.put_new_line
+										if l_all_preconditions_use_separate_formal_arguments or l_expression_use_separate_formal_arguments then
+											dedent
+											print_indentation
+											current_file.put_character ('}')
+											current_file.put_new_line
+										end
+										dedent
+										print_indentation
+										current_file.put_character ('}')
+										current_file.put_new_line
+									end
 								end
 								i := i + 1
 							end
-							if k + 1 /= l_count or else not l_all_preconditions.item_1 (k + 1).are_all_true then
+							if
+								k /= l_count and
+								(k + 1 /= l_count or else (not l_all_preconditions.item_1 (k + 1).are_all_true and
+								(a_correctness_enabled or l_next_preconditions_use_separate_formal_arguments)))
+							then
 								print_indentation
 								current_file.put_string (c_goto)
 								current_file.put_character (' ')
@@ -38364,6 +40211,7 @@ feature {NONE} -- Assertion generation
 								current_file.put_new_line
 							end
 						end
+						current_preconditions := l_old_preconditions
 						k := k + 1
 					end
 					if j > 0 then
@@ -38375,12 +40223,8 @@ feature {NONE} -- Assertion generation
 					print_after_assertions
 				end
 				index_offset := l_old_index_offset
-			elseif attached a_feature.preconditions as l_preconditions_impl and then not l_preconditions_impl.are_all_true then
-				print_before_assertions
-				print_assertions (l_preconditions_impl, c_ge_ex_pre)
-				print_after_assertions
 			end
-			max_nested_inlining_count := l_old_max_nested_inlining_count
+			l_separate_formal_arguments.wipe_out
 		end
 
 	print_all_postconditions (a_feature: ET_CLOSURE)
@@ -38395,29 +40239,34 @@ feature {NONE} -- Assertion generation
 			l_old_expression_exception_temp_variables: like old_expression_exception_temp_variables
 			l_temp: ET_IDENTIFIER
 			l_old_index_offset: INTEGER
-			l_old_max_nested_inlining_count: INTEGER
+			l_old_postconditions: ET_POSTCONDITIONS
 		do
-				-- Limitation: no inlining in postconditions.
-			l_old_max_nested_inlining_count := max_nested_inlining_count
-			max_nested_inlining_count := 0
 			if attached {ET_FEATURE} a_feature as l_feature then
 				l_old_index_offset := index_offset
 				l_all_postconditions := current_feature.postconditions
 				nb := l_all_postconditions.count
 				if nb > 0 then
-					print_before_assertions
+					print_postconditions_comment
+					print_before_assertions (False)
 					from i := 1 until i > nb loop
 						index_offset := l_all_postconditions.item_2 (i)
 						l_postconditions := l_all_postconditions.item_1 (i)
+						l_old_postconditions := current_postconditions
+						current_postconditions := l_postconditions
 						print_assertions (l_postconditions, c_ge_ex_post)
+						current_postconditions := l_old_postconditions
 						i := i + 1
 					end
 					print_after_assertions
 				end
 				index_offset := l_old_index_offset
 			elseif attached a_feature.postconditions as l_postconditions_impl and then not l_postconditions_impl.are_all_true then
-				print_before_assertions
+				print_postconditions_comment
+				print_before_assertions (False)
+				l_old_postconditions := current_postconditions
+				current_postconditions := l_postconditions_impl
 				print_assertions (l_postconditions_impl, c_ge_ex_post)
+				current_postconditions := l_old_postconditions
 				print_after_assertions
 			end
 				--
@@ -38439,7 +40288,6 @@ feature {NONE} -- Assertion generation
 				l_old_expression_exception_temp_variables.forth
 			end
 			l_old_expression_exception_temp_variables.wipe_out
-			max_nested_inlining_count := l_old_max_nested_inlining_count
 		end
 
 	print_all_old_expression_declarations (a_feature: ET_CLOSURE)
@@ -38454,34 +40302,45 @@ feature {NONE} -- Assertion generation
 			i, nb: INTEGER
 			l_old_expressions: like old_expressions
 			l_old_index_offset: INTEGER
-			l_old_max_nested_inlining_count: INTEGER
+			l_old_postconditions: ET_POSTCONDITIONS
+			l_first: BOOLEAN
 		do
-				-- Limitation: no inlining in postconditions.
-			l_old_max_nested_inlining_count := max_nested_inlining_count
-			max_nested_inlining_count := 0
 			l_old_expressions := old_expressions
 			l_old_expressions.wipe_out
 			old_expression_temp_variables.wipe_out
 			old_expression_exception_temp_variables.wipe_out
 			if attached {ET_FEATURE} a_feature as l_feature then
+				l_first := True
 				l_old_index_offset := index_offset
 				l_all_postconditions := current_feature.postconditions
 				nb := l_all_postconditions.count
 				from i := 1 until i > nb loop
 					index_offset := l_all_postconditions.item_2 (i)
 					l_postconditions := l_all_postconditions.item_1 (i)
+					l_old_postconditions := current_postconditions
+					current_postconditions := l_postconditions
 					l_postconditions.add_old_expressions (l_old_expressions)
+					if l_first and then not l_old_expressions.is_empty then
+						print_old_expressions_comment
+						l_first := False
+					end
 					print_old_expression_declarations (l_old_expressions)
 					l_old_expressions.wipe_out
+					current_postconditions := l_old_postconditions
 					i := i + 1
 				end
 				index_offset := l_old_index_offset
 			elseif attached a_feature.postconditions as l_postconditions_impl and then not l_postconditions_impl.are_all_true then
+				l_old_postconditions := current_postconditions
+				current_postconditions := l_postconditions_impl
 				l_postconditions_impl.add_old_expressions (l_old_expressions)
+				if l_old_expressions.is_empty then
+					print_old_expressions_comment
+				end
 				print_old_expression_declarations (l_old_expressions)
 				l_old_expressions.wipe_out
+				current_postconditions := l_old_postconditions
 			end
-			max_nested_inlining_count := l_old_max_nested_inlining_count
 		end
 
 	print_old_expression_declarations (a_old_expressions: DS_ARRAYED_LIST [ET_OLD_EXPRESSION])
@@ -38542,7 +40401,7 @@ feature {NONE} -- Assertion generation
 			a_repetition_component_not_void: a_repetition_component /= Void
 		do
 			if a_repetition_component.invariant_part /= Void or a_repetition_component.variant_part /= Void then
-				print_before_assertions
+				print_before_assertions (False)
 			end
 			if attached a_repetition_component.invariant_part as l_invariant_part then
 				print_assertions (l_invariant_part, c_ge_ex_linv)
@@ -38671,35 +40530,43 @@ feature {NONE} -- Assertion generation
 			end
 		end
 
-	print_before_assertions
+	print_before_assertions (a_recursive: BOOLEAN)
 			-- Print code before assertions to `current_file'.
-			-- Checks whether we are already checking assertions.
+			-- If `a_recursive` is False, then check whether we are already checking assertions.
 		do
 			print_indentation
-			current_file.put_string (c_if)
-			current_file.put_character (' ')
-			current_file.put_character ('(')
-			current_file.put_character ('!')
-			current_file.put_character ('(')
-			current_file.put_string (c_ac)
-			current_file.put_string (c_arrow)
-			current_file.put_string (c_in_assertion)
-			current_file.put_character (')')
-			current_file.put_character (')')
-			current_file.put_character (' ')
+			if not a_recursive then
+				current_file.put_string (c_if)
+				current_file.put_character (' ')
+				current_file.put_character ('(')
+				current_file.put_character ('!')
+				current_file.put_character ('(')
+				current_file.put_string (c_ac)
+				current_file.put_string (c_arrow)
+				current_file.put_string (c_in_assertion)
+				current_file.put_character (')')
+				current_file.put_character (')')
+				current_file.put_character (' ')
+			end
 			current_file.put_character ('{')
 			current_file.put_new_line
 			indent
 			print_indentation
+			current_file.put_string (c_uint32_t)
+			current_file.put_character (' ')
+			current_file.put_string (c_old_in_assertion)
+			print_assign_to
+			current_file.put_string (c_ac)
+			current_file.put_string (c_arrow)
+			current_file.put_string (c_in_assertion)
+			print_semicolon_newline
+			print_indentation
 			current_file.put_string (c_ge_rescue)
 			current_file.put_character (' ')
-			current_file.put_character ('r')
-			current_file.put_character ('a')
-			current_file.put_character (';')
-			current_file.put_new_line
+			current_file.put_string (c_ra)
+			print_semicolon_newline
 			print_indentation
-			current_file.put_character ('r')
-			current_file.put_character ('a')
+			current_file.put_string (c_ra)
 			current_file.put_character ('.')
 			current_file.put_string (c_previous)
 			print_assign_to
@@ -38713,8 +40580,7 @@ feature {NONE} -- Assertion generation
 			current_file.put_string (c_last_rescue)
 			print_assign_to
 			current_file.put_character ('&')
-			current_file.put_character ('r')
-			current_file.put_character ('a')
+			current_file.put_string (c_ra)
 			print_semicolon_newline
 			print_indentation
 			current_file.put_string (c_if)
@@ -38722,8 +40588,7 @@ feature {NONE} -- Assertion generation
 			current_file.put_character ('(')
 			current_file.put_string (c_ge_setjmp)
 			current_file.put_character ('(')
-			current_file.put_character ('r')
-			current_file.put_character ('a')
+			current_file.put_string (c_ra)
 			current_file.put_character ('.')
 			current_file.put_character ('j')
 			current_file.put_character ('b')
@@ -38741,26 +40606,9 @@ feature {NONE} -- Assertion generation
 			current_file.put_string (c_last_rescue)
 			print_assign_to
 			current_file.put_character ('&')
-			current_file.put_character ('r')
-			current_file.put_character ('a')
+			current_file.put_string (c_ra)
 			print_semicolon_newline
-			print_indentation
-			current_file.put_string (c_ac)
-			current_file.put_string (c_arrow)
-			current_file.put_string (c_in_assertion)
-			print_assign_to
-			current_file.put_character ('0')
-			print_semicolon_newline
-			print_indentation
-			current_file.put_string (c_ac)
-			current_file.put_string (c_arrow)
-			current_file.put_string (c_last_rescue)
-			print_assign_to
-			current_file.put_character ('r')
-			current_file.put_character ('a')
-			current_file.put_character ('.')
-			current_file.put_string (c_previous)
-			print_semicolon_newline
+			print_reset_assertions
 			print_indentation
 			current_file.put_string (c_ge_jump_to_last_rescue)
 			current_file.put_character ('(')
@@ -38783,27 +40631,32 @@ feature {NONE} -- Assertion generation
 	print_after_assertions
 			-- Print code after assertions to `current_file'.
 		do
+			print_reset_assertions
+			dedent
+			print_indentation
+			current_file.put_character ('}')
+			current_file.put_new_line
+		end
+
+	print_reset_assertions
+			-- Print code reset assertion status to `current_file'.
+		do
 			print_indentation
 			current_file.put_string (c_ac)
 			current_file.put_string (c_arrow)
 			current_file.put_string (c_in_assertion)
 			print_assign_to
-			current_file.put_character ('0')
+			current_file.put_string (c_old_in_assertion)
 			print_semicolon_newline
 			print_indentation
 			current_file.put_string (c_ac)
 			current_file.put_string (c_arrow)
 			current_file.put_string (c_last_rescue)
 			print_assign_to
-			current_file.put_character ('r')
-			current_file.put_character ('a')
+			current_file.put_string (c_ra)
 			current_file.put_character ('.')
 			current_file.put_string (c_previous)
 			print_semicolon_newline
-			dedent
-			print_indentation
-			current_file.put_character ('}')
-			current_file.put_new_line
 		end
 
 	print_before_old_expression (a_old_expression: ET_OLD_EXPRESSION)
@@ -38986,6 +40839,48 @@ feature {NONE} -- Assertion generation
 			current_file.put_new_line
 		end
 
+	print_preconditions_comment
+			-- Print "/* Preconditions */" to `current_file'.
+		do
+			print_indentation
+			current_file.put_line ("/* Preconditions */")
+		end
+
+	print_postconditions_comment
+			-- Print "/* Postconditions */" to `current_file'.
+		do
+			print_indentation
+			current_file.put_line ("/* Postconditions */")
+		end
+
+	print_old_expressions_comment
+			-- Print "/* Old expressions */" to `current_file'.
+		do
+			print_indentation
+			current_file.put_line ("/*  Old expressions */")
+		end
+
+	print_invariants_comment
+			-- Print "/* Invariants */" to `current_file'.
+		do
+			print_indentation
+			current_file.put_line ("/* Invariants */")
+		end
+
+	print_body_comment
+			-- Print "/* Body */" to `current_file'.
+		do
+			print_indentation
+			current_file.put_line ("/* Body */")
+		end
+
+	print_footer_comment
+			-- Print "/* Footer */" to `current_file'.
+		do
+			print_indentation
+			current_file.put_line ("/* Footer */")
+		end
+
 feature {NONE} -- Inlining
 
 	nested_inlining_count: INTEGER
@@ -39084,6 +40979,8 @@ feature {NONE} -- Inlining
 			if exception_trace_mode then
 					-- Exception trace mode makes the code too big to inline.
 				Result := False
+			elseif use_scoop and then a_feature.has_separate_argument then
+				Result := False
 			elseif a_feature.target_type.base_class.preconditions_enabled and then not a_feature.preconditions.is_empty then
 				Result := False
 			elseif a_feature.target_type.base_class.postconditions_enabled and then not a_feature.postconditions.is_empty then
@@ -39098,8 +40995,6 @@ feature {NONE} -- Inlining
 			elseif nested_inlining_count >= max_nested_inlining_count then
 				Result := False
 			elseif not are_inlinable_call_operands (a_feature, a_target_type) then
-				Result := False
-			elseif use_scoop and then a_feature.has_separate_argument then
 				Result := False
 			elseif not attached {ET_DO_PROCEDURE} a_feature.static_feature as l_do_procedure then
 				Result := False
@@ -39142,6 +41037,8 @@ feature {NONE} -- Inlining
 			if exception_trace_mode then
 					-- Exception trace mode makes the code too big to inline.
 				Result := False
+			elseif use_scoop and then a_feature.has_separate_argument then
+				Result := False
 			elseif a_feature.target_type.base_class.preconditions_enabled and then not a_feature.preconditions.is_empty then
 				Result := False
 			elseif a_feature.target_type.base_class.postconditions_enabled and then not a_feature.postconditions.is_empty then
@@ -39156,8 +41053,6 @@ feature {NONE} -- Inlining
 			elseif nested_inlining_count >= max_nested_inlining_count then
 				Result := False
 			elseif not are_inlinable_call_operands (a_feature, a_target_type) then
-				Result := False
-			elseif use_scoop and then a_feature.has_separate_argument then
 				Result := False
 			elseif not attached {ET_DO_FUNCTION} a_feature.static_feature as l_do_function then
 				Result := False
@@ -40539,6 +42434,7 @@ feature {NONE} -- Type generation
 			l_dispose_procedure: detachable ET_DYNAMIC_FEATURE
 			l_ancestors: DS_ARRAYED_LIST [ET_DYNAMIC_PRIMARY_TYPE]
 			l_ancestor_count: INTEGER
+			l_ancestor_actual_count: INTEGER
 			l_sorter: DS_QUICK_SORTER [ET_DYNAMIC_PRIMARY_TYPE]
 			l_attribute: ET_DYNAMIC_FEATURE
 			l_attribute_count: INTEGER
@@ -40719,32 +42615,41 @@ feature {NONE} -- Type generation
 					if l_type /= current_dynamic_system.none_type then
 						l_ancestors.append_last (l_type.conforming_ancestors)
 						l_ancestor_count := l_ancestors.count
+						l_ancestor_actual_count := 0
 						if l_ancestor_count > 0 then
 							l_ancestors.sort (l_sorter)
 							from j := 1 until j > l_ancestor_count loop
 								l_other_type := l_ancestors.item (j)
-								current_file.put_string ("GE_ancestor T")
-								current_file.put_integer (l_type.id)
-								current_file.put_string ("xx")
-								current_file.put_integer (l_other_type.id)
-								current_file.put_string (" = {")
-								current_file.put_integer (l_other_type.id)
-								current_file.put_line (", EIF_TRUE, 0};")
+								if l_other_type.id /= 0 then
+									current_file.put_string ("GE_ancestor T")
+									current_file.put_integer (l_type.id)
+									current_file.put_string ("xx")
+									current_file.put_integer (l_other_type.id)
+									current_file.put_string (" = {")
+									current_file.put_integer (l_other_type.id)
+									current_file.put_line (", EIF_TRUE, 0};")
+									l_ancestor_actual_count := l_ancestor_actual_count + 1
+								end
 								j := j + 1
 							end
+						end
+						if l_ancestor_actual_count > 0 then
 							current_file.put_string ("GE_ancestor* T")
 							current_file.put_integer (l_type.id)
 							current_file.put_string ("xx[")
-							current_file.put_integer (l_ancestor_count)
+							current_file.put_integer (l_ancestor_actual_count)
 							current_file.put_string ("] = {")
 							from j := 1 until j > l_ancestor_count loop
 								l_other_type := l_ancestors.item (j)
-								current_file.put_string ("&T")
-								current_file.put_integer (l_type.id)
-								current_file.put_string ("xx")
-								current_file.put_integer (l_other_type.id)
-								if j /= l_ancestor_count then
-									current_file.put_string (", ")
+								if l_other_type.id /= 0 then
+									current_file.put_string ("&T")
+									current_file.put_integer (l_type.id)
+									current_file.put_string ("xx")
+									current_file.put_integer (l_other_type.id)
+									l_ancestor_actual_count := l_ancestor_actual_count - 1
+									if l_ancestor_actual_count /= 0 then
+										current_file.put_string (", ")
+									end
 								end
 								j := j + 1
 							end
@@ -40794,6 +42699,14 @@ feature {NONE} -- Type generation
 								end
 								if attached l_attribute.storable_type as l_storable_type then
 									current_file.put_integer (l_storable_type.type_id)
+								elseif 
+									l_type.base_class.is_type_class and then
+									attached l_attribute.result_type_set as l_result_type_set
+								then
+										-- Attributes "TYPE.internal_name" and "TYPE.internal_name_32"
+										-- for types which have been added after the dynamic type
+										-- set building because they are meta types of other types.
+									current_file.put_integer (l_result_type_set.static_type.type_id)
 								else
 										-- Internal error: attributes have a storable type.
 									set_fatal_error
@@ -41831,7 +43744,172 @@ feature {NONE} -- Type generation
 			a_file.put_character (')')
 		end
 
+	print_special_count_offset (a_type: ET_DYNAMIC_PRIMARY_TYPE; a_file: KI_TEXT_OUTPUT_STREAM)
+			-- Print offset of pseudo-attribute 'count' of `a_type' to `a_file'.
+		require
+			a_type_not_void: a_type /= Void
+			a_type_is_special: a_type.is_special
+			has_capacity_and_count: a_type.attribute_count >= 2
+			a_file_not_void: a_file /= Void
+			a_file_open_write: a_file.is_open_write
+		do
+			a_file.put_string (c_offsetof)
+			a_file.put_character ('(')
+			print_type_name (a_type, a_file)
+			a_file.put_character (',')
+			print_attribute_name (a_type.queries.item (2), a_type, a_file)
+			a_file.put_character (')')
+		end
+
 feature {NONE} -- Default initialization values generation
+
+	print_attributes_initialization (a_object: ET_EXPRESSION; a_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
+			-- Print initialization of expanded attributes of `a_object` of type `a_type`.
+			-- `a_check_void_target' means that we need to check whether `a_object` is Void or not.
+		require
+			a_object_not_void: a_object /= Void
+			a_type_not_void: a_type /= Void
+		local
+			i, nb: INTEGER
+			l_attribute: ET_DYNAMIC_FEATURE
+		do
+			if current_system.default_create_seed /= 0 then
+				nb := a_type.attribute_count
+				from i := 1 until i > nb loop
+					l_attribute := a_type.queries.item (i)
+					print_attribute_initialization (l_attribute, a_object, a_type, a_check_void_target)
+					i := i + 1
+				end
+			end
+		end
+
+	print_attribute_initialization (a_attribute: ET_DYNAMIC_FEATURE; a_object: ET_EXPRESSION; a_type: ET_DYNAMIC_PRIMARY_TYPE; a_check_void_target: BOOLEAN)
+			-- Print initialization of `a_attribute`, if expanded, of `a_object` of type `a_type`.
+			-- `a_check_void_target' means that we need to check whether `a_object` is Void or not.
+		require
+			a_attribute_not_void: a_attribute /= Void
+			a_object_not_void: a_object /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_attribute_type: ET_DYNAMIC_PRIMARY_TYPE
+			l_default_create_seed: INTEGER
+		do
+			l_default_create_seed := current_system.default_create_seed
+			if l_default_create_seed = 0 then
+				-- `default_create` not supported.
+			elseif not attached a_attribute.result_type_set as l_result_type_set then
+					-- Internal error: attributes should have a result type.
+				set_fatal_error
+				error_handler.report_giaac_error (generator, "print_attribute_initialization", 1, "attribute with no type.")
+			else
+				l_attribute_type := l_result_type_set.static_type.primary_type
+				if not l_attribute_type.is_expanded or else l_attribute_type.is_basic then
+					-- No initialization needed.
+				elseif not l_attribute_type.has_nested_default_create_copy_routine then
+					-- Empty initialization.
+				elseif not attached l_attribute_type.seeded_dynamic_procedure (l_default_create_seed, current_dynamic_system) as l_default_create then
+						-- Internal error: feature 'default_create' not found.
+					set_fatal_error
+					error_handler.report_giaac_error (generator, "print_attribute_initialization", 2, "feature `default_create` not found.")
+				else
+					print_indentation
+					print_attribute_access (a_attribute, a_object, a_type, a_check_void_target)
+					print_assign_to
+					register_called_feature (l_default_create)
+					print_creation_procedure_name (l_default_create, l_attribute_type, current_file)
+					current_file.put_character ('(')
+					current_file.put_string (c_ac)
+					current_file.put_character (')')
+					print_semicolon_newline
+				end
+			end
+		end
+
+	print_local_variables_initialization (a_feature: ET_INTERNAL_FEATURE_CLOSURE)
+			-- Print initialization of expanded local variables of `a_feature`.
+		require
+			a_feature_not_void: a_feature /= Void
+		local
+			i, nb: INTEGER
+			l_default_create_seed: INTEGER
+		do
+			l_default_create_seed := current_system.default_create_seed
+			if l_default_create_seed /= 0 and then attached a_feature.locals as l_locals then
+				nb := l_locals.count
+				from i := 1 until i > nb loop
+					print_local_variable_initialization (l_locals.local_variable (i))
+					i := i + 1
+				end
+			end
+		end
+
+	print_local_variable_initialization (a_local: ET_LOCAL_VARIABLE)
+			-- Print initialization of `a_local` if its type is expanded.
+		require
+			a_local_not_void: a_local /= Void
+		local
+			l_name: ET_IDENTIFIER
+			l_local_type_set: ET_DYNAMIC_TYPE_SET
+			l_local_type: ET_DYNAMIC_PRIMARY_TYPE
+			l_default_create_seed: INTEGER
+		do
+			l_default_create_seed := current_system.default_create_seed
+			l_name := a_local.name
+			l_local_type_set := dynamic_type_set (l_name)
+			l_local_type := l_local_type_set.static_type.primary_type
+			if l_default_create_seed = 0 then
+				-- `default_create` not supported.
+			elseif not l_local_type.is_expanded or else l_local_type.is_basic then
+				-- No initialization needed.
+			elseif not l_local_type.has_nested_default_create_copy_routine then
+				-- Empty initialization.
+			elseif not attached l_local_type.seeded_dynamic_procedure (l_default_create_seed, current_dynamic_system) as l_default_create then
+					-- Internal error: feature 'default_create' not found.
+				set_fatal_error
+				error_handler.report_giaac_error (generator, "print_local_variable_initialization", 1, "feature `default_create` not found.")
+			else
+				print_indentation
+				print_local_name (l_name, current_file)
+				print_assign_to
+				register_called_feature (l_default_create)
+				print_creation_procedure_name (l_default_create, l_local_type, current_file)
+				current_file.put_character ('(')
+				current_file.put_string (c_ac)
+				current_file.put_character (')')
+				print_semicolon_newline
+			end
+		end
+
+	print_result_initialization (a_result_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- Print initialization of 'Result' if its type is expanded.
+		require
+			a_result_type_not_void: a_result_type /= Void
+		local
+			l_default_create_seed: INTEGER
+		do
+			l_default_create_seed := current_system.default_create_seed
+			if l_default_create_seed = 0 then
+				-- `default_create` not supported.
+			elseif not a_result_type.is_expanded or else a_result_type.is_basic then
+				-- No initialization needed.
+			elseif not a_result_type.has_nested_default_create_copy_routine then
+				-- Empty initialization.
+			elseif not attached a_result_type.seeded_dynamic_procedure (l_default_create_seed, current_dynamic_system) as l_default_create then
+					-- Internal error: feature 'default_create' not found.
+				set_fatal_error
+				error_handler.report_giaac_error (generator, "print_result_initialization", 1, "feature `default_create` not found.")
+			else
+				print_indentation
+				print_result_name (current_file)
+				print_assign_to
+				register_called_feature (l_default_create)
+				print_creation_procedure_name (l_default_create, a_result_type, current_file)
+				current_file.put_character ('(')
+				current_file.put_string (c_ac)
+				current_file.put_character (')')
+				print_semicolon_newline
+			end
+		end
 
 	print_default_declarations
 			-- Print default initialization declaration of each type
@@ -42251,6 +44329,31 @@ feature {NONE} -- Feature name generation
 			end
 		end
 
+	print_attribute_once_class_index_name (a_type: ET_DYNAMIC_PRIMARY_TYPE; a_file: KI_TEXT_OUTPUT_STREAM)
+			-- Print to `a_file' the name of the '_index' pseudo attribute for objects
+			-- of type `a_type' whose base class is a once class.
+		require
+			a_type_not_void: a_type /= Void
+			a_file_not_void: a_file /= Void
+			a_file_open_write: a_file.is_open_write
+		do
+			if short_names then
+				if a_type.attribute_count < 1 then
+						-- Internal error: a once class should have at least the
+						-- feature '_index' as first feature.
+					set_fatal_error
+					error_handler.report_giaac_error (generator, "print_attribute_once_class_index_name", 1, "missing '_index' pseudo attribute in once class'.")
+				else
+					print_attribute_name (a_type.queries.first, a_type, a_file)
+				end
+			else
+-- TODO: long names
+				short_names := True
+				print_attribute_once_class_index_name (a_type, a_file)
+				short_names := False
+			end
+		end
+
 	print_attribute_special_item_name (a_type: ET_DYNAMIC_PRIMARY_TYPE; a_file: KI_TEXT_OUTPUT_STREAM)
 			-- Print to `a_file' the name of the 'item' pseudo attribute for 'SPECIAL' objects of type `a_type'.
 		require
@@ -42279,7 +44382,7 @@ feature {NONE} -- Feature name generation
 			if short_names then
 				if a_type.attribute_count < 1 then
 						-- Internal error: class "SPECIAL" should have at least the
-						-- feature 'copacity' as first feature.
+						-- feature 'capacity' as first feature.
 						-- Already reported in ET_DYNAMIC_SYSTEM.compile_kernel.
 					set_fatal_error
 					error_handler.report_giaac_error (generator, "print_attribute_special_capacity_name", 1, "missing attributes in 'SPECIAL'.")
@@ -42686,6 +44789,18 @@ feature {NONE} -- Feature name generation
 				print_separate_argument_session_name (a_name, a_file)
 				short_names := False
 			end
+		end
+
+	print_separate_argument_session_is_open_name (a_name: ET_IDENTIFIER; a_file: KI_TEXT_OUTPUT_STREAM)
+			-- Print name of SCOOP session's 'is_open' for separate argument `a_name' to `a_file'.
+		require
+			a_name_not_void: a_name /= Void
+			a_name_separate_argument: a_name.is_argument or a_name.is_inline_separate_argument
+			a_file_not_void: a_file /= Void
+			a_file_open_write: a_file.is_open_write
+		do
+			print_separate_argument_session_name (a_name, a_file)
+			a_file.put_string (once "_is_open")
 		end
 
 	print_equality_function_name (i: INTEGER; a_routine: ET_DYNAMIC_FEATURE; a_type: ET_DYNAMIC_PRIMARY_TYPE; a_file: KI_TEXT_OUTPUT_STREAM)
@@ -43291,6 +45406,50 @@ feature {NONE} -- String generation
 			end
 		end
 
+	print_utf8_as_array_of_character_32 (a_utf8_string: STRING_8)
+			-- Print `a_utf8_string' as an array of CHARACTER_32 code points.
+		require
+			a_utf8_string_not_void: a_utf8_string /= Void
+			a_utf8_string_is_string: {KL_ANY_ROUTINES}.same_types (a_utf8_string, "")
+			valid_utf8: {UC_UTF8_ROUTINES}.valid_utf8 (a_utf8_string)
+		local
+			i, nb: INTEGER
+			c1: CHARACTER_8
+			l_code: NATURAL_32
+			l_byte_count: INTEGER
+		do
+			current_file.put_character ('{')
+			nb := a_utf8_string.count
+			from i := 1 until i > nb loop
+				if i /= 1 then
+					print_comma
+				end
+				c1 := a_utf8_string.item (i)
+				l_byte_count := {UC_UTF8_ROUTINES}.encoded_byte_count (c1)
+				inspect l_byte_count
+				when 1 then
+						-- 0xxxxxxx
+					l_code := c1.natural_32_code
+				when 2 then
+						-- 110xxxxx 10xxxxxx
+					l_code := {UC_UTF8_ROUTINES}.two_byte_character_code (c1, a_utf8_string.item (i + 1))
+				when 3 then
+						-- 1110xxxx 10xxxxxx 10xxxxxx
+					l_code := {UC_UTF8_ROUTINES}.three_byte_character_code (c1, a_utf8_string.item (i + 1), a_utf8_string.item (i + 2))
+				when 4 then
+						-- 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+					l_code := {UC_UTF8_ROUTINES}.four_byte_character_code (c1, a_utf8_string.item (i + 1), a_utf8_string.item (i + 2), a_utf8_string.item (i + 3))
+				else
+						-- Should never happen.
+					l_code := 0
+					i := i + 1
+				end
+				print_integer_value (l_code, False, current_dynamic_system.natural_32_type, False)
+				i := i + l_byte_count
+			end
+			current_file.put_character ('}')
+		end
+
 	print_escaped_character_8 (c: CHARACTER_8)
 			-- Print escaped version of `c'.
 		local
@@ -43352,6 +45511,21 @@ feature {NONE} -- Misc C code
 			if current_feature.result_type_set /= Void then
 				current_file.put_character (' ')
 				print_result_name (current_file)
+			end
+			print_semicolon_newline
+		end
+
+	print_goto_once_return (a_creation: BOOLEAN)
+			-- Print C instruction to goto the 'GE_once_return' label,
+			-- or to 'GE_once_return2' if `a_creation` is True.
+		do
+			print_indentation
+			current_file.put_string (c_goto)
+			current_file.put_character (' ')
+			if a_creation then
+				current_file.put_string (c_ge_once_return2)
+			else
+				current_file.put_string (c_ge_once_return)
 			end
 			print_semicolon_newline
 		end
@@ -43839,6 +46013,7 @@ feature {NONE} -- Include files
 					l_c_filename := "eif_except.c"
 				elseif a_filename.same_string ("eif_file.h") then
 					include_runtime_header_file ("ge_eiffel.h", a_force, a_file)
+					include_runtime_header_file ("eif_config.h", a_force, a_file)
 					l_c_filename := "eif_file.c"
 				elseif a_filename.same_string ("eif_globals.h") then
 					include_runtime_header_file ("ge_exception.h", a_force, a_file)
@@ -43950,6 +46125,8 @@ feature {NONE} -- Include files
 					l_c_filename := "ge_thread.c"
 				elseif a_filename.same_string ("ge_thread_types.h") then
 					include_runtime_header_file ("ge_eiffel.h", a_force, a_file)
+				elseif a_filename.same_string ("ge_time.h") then
+					include_runtime_header_file ("eif_config.h", a_force, a_file)
 				elseif a_filename.same_string ("ge_types.h") then
 					include_runtime_header_file ("ge_eiffel.h", a_force, a_file)
 					include_runtime_header_file ("ge_exception.h", a_force, a_file)
@@ -43991,12 +46168,14 @@ feature {NONE} -- Include files
 				if a_filename.same_string ("eif_cecil.c") then
 					include_runtime_header_file ("eif_cecil.h", False, a_header_file)
 					include_runtime_header_file ("ge_console.h", False, a_header_file)
+					include_runtime_header_file ("ge_gc.h", False, a_header_file)
 				elseif a_filename.same_string ("eif_console.c") then
 					include_runtime_header_file ("eif_console.h", False, a_header_file)
 					include_runtime_header_file ("eif_file.h", False, a_header_file)
 					include_runtime_header_file ("ge_console.h", False, a_header_file)
 				elseif a_filename.same_string ("eif_dir.c") then
 					include_runtime_header_file ("eif_dir.h", False, a_header_file)
+					include_runtime_header_file ("eif_config.h", False, a_header_file)
 				elseif a_filename.same_string ("eif_except.c") then
 					include_runtime_header_file ("eif_except.h", False, a_header_file)
 					include_runtime_header_file ("ge_string.h", False, a_header_file)
@@ -44012,6 +46191,7 @@ feature {NONE} -- Include files
 					include_runtime_header_file ("ge_gc.h", False, a_header_file)
 				elseif a_filename.same_string ("eif_misc.c") then
 					include_runtime_header_file ("eif_misc.h", False, a_header_file)
+					include_runtime_header_file ("eif_config.h", False, a_header_file)
 				elseif a_filename.same_string ("eif_path_name.c") then
 					include_runtime_header_file ("eif_path_name.h", False, a_header_file)
 					include_runtime_header_file ("ge_string.h", False, a_header_file)
@@ -44913,7 +47093,9 @@ feature {ET_AST_NODE} -- Processing
 	process_static_call_expression (an_expression: ET_STATIC_CALL_EXPRESSION)
 			-- Process `an_expression'.
 		do
-			if attached an_expression.parenthesis_call as l_parenthesis_call then
+			if an_expression.is_once_creation_call then
+				print_creation_expression (an_expression)
+			elseif attached an_expression.parenthesis_call as l_parenthesis_call then
 				print_qualified_call_expression (l_parenthesis_call)
 			else
 				print_static_call_expression (an_expression)
@@ -45048,6 +47230,12 @@ feature {NONE} -- Access
 	current_non_inlined_feature: ET_DYNAMIC_FEATURE
 			-- Non-inline feature being processed
 
+	current_preconditions: detachable ET_PRECONDITIONS
+			-- Preconditions being processed if any, Void otherwise
+
+	current_postconditions: detachable ET_POSTCONDITIONS
+			-- Postconditions being processed if any, Void otherwise
+
 	current_type: ET_DYNAMIC_PRIMARY_TYPE
 			-- Type where `current_feature' belongs
 
@@ -45079,6 +47267,27 @@ feature {NONE} -- Access
 		ensure
 			current_closure_not_void: Result /= Void
 			definition: Result = if attached {ET_INLINE_AGENT} current_agent as l_current_agent then l_current_agent else current_feature.static_feature end
+		end
+
+	current_closure_impl: ET_CLOSURE
+			-- Closure where the current pre- or postconditions have been written if any,
+			-- or inline agent being processed if any, current feature otherwise
+		do
+			if attached current_preconditions as l_preconditions then
+				Result := l_preconditions.implementation_closure
+			elseif attached current_postconditions as l_postconditions then
+				Result := l_postconditions.implementation_closure
+			elseif attached {ET_INLINE_AGENT} current_agent as l_current_agent then
+				Result := l_current_agent
+			else
+				Result := current_feature.static_feature
+			end
+		ensure
+			current_closure_not_void: Result /= Void
+			definition: Result = if attached current_preconditions as l_preconditions then l_preconditions.implementation_closure
+				elseif attached current_postconditions as l_postconditions then l_postconditions.implementation_closure
+				elseif attached {ET_INLINE_AGENT} current_agent as l_current_agent then l_current_agent
+				else current_feature.static_feature end
 		end
 
 	current_agent: detachable ET_AGENT
@@ -45123,7 +47332,7 @@ feature {NONE} -- Access
 			l_git_sha1: STRING
 			l_gobo_version: STRING
 		do
-			l_gobo_version := "xx.xx.xx+xxxxxxxxx"
+			l_gobo_version := "xx.xx.xx+xxxxxxx"
 			l_git_filename := file_system.nested_pathname ("${GOBO}", <<".git", "HEAD">>)
 			l_git_filename := Execution_environment.interpreted_string (l_git_filename)
 			l_first_line := file_system.file_first_line (l_git_filename)
@@ -45135,7 +47344,7 @@ feature {NONE} -- Access
 			end
 			if l_first_line.count = 40 then
 				l_git_sha1 := l_first_line
-				l_git_sha1.keep_head (9)
+				l_git_sha1.keep_head (7)
 				l_gobo_version := "00.00.00+" + l_git_sha1
 			end
 			create Result.make (l_gobo_version)
@@ -45148,26 +47357,36 @@ feature {NONE} -- Once features
 			-- with their indexes in 'GE_onces' C struct's arrays.
 			-- The key is the implementation feature of the once feature.
 
-	register_once_feature (a_feature: ET_DYNAMIC_FEATURE)
+	once_creation_procedures: DS_HASH_TABLE [INTEGER, ET_STANDALONE_CLOSURE]
+			-- Once-per-process or once-per-thread creation procedures already generated,
+			-- with their indexes in 'GE_onces' C struct's arrays.
+			-- The key is the implementation feature of the once feature.
+
+	register_once_feature (a_feature: ET_DYNAMIC_FEATURE; a_creation: BOOLEAN)
 			-- Register `a_feature' in `once_features' if it's a once-per-process
 			-- on once-per-thread feature.
+			-- `a_creation` indicates whether `a_feature` should be treated as 
+			-- a once creation procedure.
 		require
 			a_feature_not_void: a_feature /= Void
 			a_feature_is_once: a_feature.is_once
+			is_creation: a_creation implies a_feature.is_creation
 		local
 			l_once_feature: ET_STANDALONE_CLOSURE
 			l_is_once_per_process: BOOLEAN
 			l_is_once_per_thread: BOOLEAN
 			l_once_kind: INTEGER
 			l_once_index: INTEGER
+			l_once_features: like once_features
 		do
 			l_is_once_per_process := a_feature.is_once_per_process
 			l_is_once_per_thread := a_feature.is_once_per_thread
 			if l_is_once_per_process or l_is_once_per_thread then
 				l_once_feature := a_feature.static_feature.implementation_feature
-				once_features.search (l_once_feature)
-				if not once_features.found then
-					l_once_kind := once_kind (a_feature)
+				l_once_features := if a_creation then once_creation_procedures else once_features end
+				l_once_features.search (l_once_feature)
+				if not l_once_features.found then
+					l_once_kind := once_kind (a_feature, a_creation)
 					if not use_threads or else l_is_once_per_process then
 						l_once_index := once_per_process_counts.item (l_once_kind)
 						once_per_process_counts.put (l_once_index + 1, l_once_kind)
@@ -45175,27 +47394,35 @@ feature {NONE} -- Once features
 						l_once_index := once_per_thread_counts.item (l_once_kind)
 						once_per_thread_counts.put (l_once_index + 1, l_once_kind)
 					end
-					once_features.force_last (l_once_index, l_once_feature)
+					l_once_features.force_last (l_once_index, l_once_feature)
 				end
 			end
 		ensure
-			registered: (a_feature.is_once_per_process or a_feature.is_once_per_thread) implies once_features.has (a_feature.static_feature.implementation_feature)
+			registered: (a_feature.is_once_per_process or a_feature.is_once_per_thread) implies
+				(if a_creation then once_creation_procedures else once_features end).has (a_feature.static_feature.implementation_feature)
 		end
 
-	once_kind (a_feature: ET_DYNAMIC_FEATURE): INTEGER
+	once_kind (a_feature: ET_DYNAMIC_FEATURE; a_creation: BOOLEAN): INTEGER
 			-- Once kind of `a_feature' in 'GE_onces' C struct,
 			-- in the same order as in 'GE_onces' C struct
 			-- (1 for boolean functions, 2 for character_8 functions,
-			-- ..., 15 for reference functions and 16 for procedures)
+			-- ..., 15 for reference functions and 16 for procedures).
+			-- `a_creation` indicates whether `a_feature` should be
+			-- treated as a once creation procedure.
 		require
 			a_feature_not_void: a_feature /= Void
 			a_feature_is_once: a_feature.is_once
+			is_creation: a_creation implies a_feature.is_creation
 		local
-			l_result_type: ET_DYNAMIC_TYPE
+			l_result_type: detachable ET_DYNAMIC_TYPE
 			l_base_class: ET_CLASS
 		do
-			if attached a_feature.result_type_set as l_result_type_set then
+			if a_creation then
+				l_result_type := a_feature.target_type
+			elseif attached a_feature.result_type_set as l_result_type_set then
 				l_result_type := l_result_type_set.static_type
+			end
+			if l_result_type /= Void then
 				if l_result_type.is_basic then
 					l_base_class := l_result_type.base_class
 					if l_base_class.is_boolean_class then
@@ -45367,7 +47594,7 @@ feature {NONE} -- Dynamic type sets
 					l_adjusted_index := l_adjusted_index + index_offset
 				end
 				l_extra_index := l_index - current_dynamic_type_sets.count
-				if not current_dynamic_type_sets.valid_index (l_index) and extra_dynamic_type_sets.valid_index (l_extra_index) then
+				if extra_dynamic_type_sets.valid_index (l_extra_index) then
 					Result := extra_dynamic_type_sets.item (l_extra_index)
 				elseif current_dynamic_type_sets.valid_index (l_adjusted_index) then
 					Result := current_dynamic_type_sets.item (l_adjusted_index)
@@ -45890,6 +48117,7 @@ feature {NONE} -- Temporary variables
 			free_temp_variables.wipe_out
 			frozen_temp_variables.wipe_out
 			volatile_temp_variables.wipe_out
+			inspect_choice_string_count := 0
 		end
 
 feature {NONE} -- Temporary variables (Implementation)
@@ -46095,14 +48323,73 @@ feature {NONE} -- Iteration cursors
 	iteration_cursor_name: ET_IDENTIFIER
 			-- Iteration cursor name to be used when printing declarations
 
-feature {NONE} -- SCOOP
+feature {NONE} -- Inspect instructions/expressions
 
-	current_separate_call_count: INTEGER
-			-- Number of separate calls (calls whose target type is separate)
-			-- appearing in `current_feature'
+	choice_constant (a_choice_constant: ET_CHOICE_CONSTANT): detachable ET_CONSTANT
+			-- Constant value of the inspect choice `a_choice_constant',
+			-- or Void if it appears not to be a constant after all
+			--
+			-- Note that validity `a_choice_constant' as an expression
+			-- is assumed to have already been checked.
+			-- It will just return Void if something unexpected is encountered.
+		require
+			a_choice_constant_not_void: a_choice_constant /= Void
+		local
+			l_query: detachable ET_QUERY
+			l_seed: INTEGER
+			l_target_type: ET_DYNAMIC_PRIMARY_TYPE
+		do
+			if attached {ET_CONSTANT} a_choice_constant as l_constant then
+				Result := l_constant
+			else
+				if attached {ET_IDENTIFIER} a_choice_constant as l_identifier then
+					if l_identifier.is_argument then
+							-- This is not a constant.
+					elseif l_identifier.is_local then
+							-- This is not a constant.
+					elseif l_identifier.is_object_test_local then
+							-- This is not a constant.
+					elseif l_identifier.is_iteration_item then
+							-- This is not a constant.
+					elseif l_identifier.is_inline_separate_argument then
+							-- This is not a constant.
+					else
+						l_seed := l_identifier.seed
+						l_query := current_type.base_class.seeded_query (l_seed)
+					end
+				elseif attached {ET_UNQUALIFIED_FEATURE_CALL} a_choice_constant as l_unqualified_call and then l_unqualified_call.arguments_count = 0 then
+					l_seed := l_unqualified_call.name.seed
+					l_query := current_type.base_class.seeded_query (l_seed)
+				elseif attached {ET_STATIC_CALL_EXPRESSION} a_choice_constant as l_static_call then
+					l_target_type := current_dynamic_system.dynamic_primary_type (l_static_call.type, current_type.base_type)
+					if l_static_call.is_once_creation_call then
+						if attached l_target_type.base_class.seeded_procedure (l_static_call.name.seed) as l_procedure then
+							integer_choice_constant.set_value (l_procedure.once_creation_index)
+							integer_choice_constant.set_sign (Void)
+							Result := integer_choice_constant
+						end
+					else
+						l_query := l_target_type.base_class.seeded_query (l_static_call.name.seed)
+					end
+				end
+				if attached {ET_CONSTANT_QUERY} l_query as l_constant_query then
+					Result := l_constant_query.constant
+				end
+			end
+		end
 
-	current_inline_separate_arguments: DS_HASH_SET [INTEGER]
-			-- Inline separate argument seeds which are used in `current_feature'
+	integer_choice_constant: ET_REGULAR_INTEGER_CONSTANT
+			-- Integer constant
+
+	inspect_if_choices: DS_ARRAYED_LIST [ET_WHEN_COMPONENT]
+			-- Inspect 'when' components using 'if' statements for its choices
+
+	inspect_case_choices: DS_ARRAYED_LIST [ET_WHEN_COMPONENT]
+			-- Inspect 'when' components using 'case' statements for its choices
+
+	inspect_choice_string_count: INTEGER
+			-- Number of strings appearing in inspect instructions/expressions
+			-- in current feature, so far
 
 feature {NONE} -- Unqualified call expressions
 
@@ -46354,7 +48641,9 @@ feature {NONE} -- Inlined operands
 			current_type := current_feature.target_type
 			current_dynamic_type_sets := current_feature.dynamic_type_sets
 			current_index := current_feature.current_index
-			index_offset := 0
+			if current_feature /= l_old_feature then
+				index_offset := 0
+			end
 			l_dynamic_type_set := dynamic_type_set (a_expression)
 			current_feature := l_old_feature
 			current_type := current_feature.target_type
@@ -47057,6 +49346,7 @@ feature {NONE} -- Constants
 	c_case: STRING = "case"
 	c_char: STRING = "char"
 	c_const: STRING = "const"
+	c_continue: STRING = "continue"
 	c_cplusplus: STRING = "__cplusplus"
 	c_default: STRING = "default"
 	c_define: STRING = "#define"
@@ -47089,6 +49379,7 @@ feature {NONE} -- Constants
 	c_eif_natural_64: STRING = "EIF_NATURAL_64"
 	c_eif_object: STRING = "EIF_OBJECT"
 	c_eif_pointer: STRING = "EIF_POINTER"
+	c_eif_protect: STRING = "eif_protect"
 	c_eif_real: STRING = "EIF_REAL"
 	c_eif_real_32: STRING = "EIF_REAL_32"
 	c_eif_real_64: STRING = "EIF_REAL_64"
@@ -47099,6 +49390,7 @@ feature {NONE} -- Constants
 	c_eif_type: STRING = "EIF_TYPE_OBJ"
 	c_eif_type_index: STRING = "EIF_TYPE_INDEX"
 	c_eif_void: STRING = "EIF_VOID"
+	c_eif_wean: STRING = "eif_wean"
 	c_eif_wide_char: STRING = "EIF_WIDE_CHAR"
 	c_eif_windows: STRING = "EIF_WINDOWS"
 	c_else: STRING = "else"
@@ -47115,9 +49407,11 @@ feature {NONE} -- Constants
 	c_float: STRING = "float"
 	c_for: STRING = "for"
 	c_fprintf: STRING = "fprintf"
+	c_ge_add_scoop_session: STRING = "GE_add_scoop_session"
 	c_ge_argc: STRING = "GE_argc"
 	c_ge_argv: STRING = "GE_argv"
 	c_ge_attached_encoded_type: STRING = "GE_attached_encoded_type"
+	c_ge_attribute_return: STRING = "GE_attribute_return"
 	c_ge_bma: STRING = "GE_bma"
 	c_ge_boolean_field: STRING = "GE_boolean_field"
 	c_ge_boolean_field_at: STRING = "GE_boolean_field_at"
@@ -47156,6 +49450,7 @@ feature {NONE} -- Constants
 	c_ge_dts: STRING = "GE_dts"
 	c_ge_encoded_type_conforms_to: STRING = "GE_encoded_type_conforms_to"
 	c_ge_encoded_type_from_name: STRING = "GE_encoded_type_from_name"
+	c_ge_encoded_type_is_inbetween: STRING = "GE_encoded_type_is_inbetween"
 	c_ge_ex_cdef: STRING = "GE_EX_CDEF"
 	c_ge_ex_cinv: STRING = "GE_EX_CINV"
 	c_ge_ex_check: STRING = "GE_EX_CHECK"
@@ -47259,6 +49554,7 @@ feature {NONE} -- Constants
 	c_ge_new_once_per_object_data: STRING = "GE_new_once_per_object_data"
 	c_ge_new_scoop_call: STRING = "GE_new_scoop_call"
 	c_ge_new_scoop_condition: STRING = "GE_new_scoop_condition"
+	c_ge_new_scoop_precondition: STRING = "GE_new_scoop_precondition"
 	c_ge_new_scoop_region: STRING = "GE_new_scoop_region"
 	c_ge_new_special_of_reference_instance_of_encoded_type: STRING = "GE_new_special_of_reference_instance_of_encoded_type"
 	c_ge_new_str8: STRING = "GE_new_str8"
@@ -47272,6 +49568,8 @@ feature {NONE} -- Constants
 	c_ge_object_id: STRING = "GE_object_id"
 	c_ge_object_id_free: STRING = "GE_object_id_free"
 	c_ge_object_size: STRING = "GE_object_size"
+	c_ge_once_return: STRING = "GE_once_return"
+	c_ge_once_return2: STRING = "GE_once_return2"
 	c_ge_once_per_object_data_mutex: STRING = "GE_once_per_object_data_mutex"
 	c_ge_once_raise: STRING = "GE_once_raise"
 	c_ge_persistent_field_count_of_encoded_type: STRING = "GE_persistent_field_count_of_encoded_type"
@@ -47329,25 +49627,29 @@ feature {NONE} -- Constants
 	c_ge_rescue: STRING = "GE_rescue"
 	c_ge_retry: STRING = "GE_retry"
 	c_ge_scoop_call: STRING = "GE_scoop_call"
-	c_ge_scoop_condition: STRING = "GE_scoop_condition"
-	c_ge_scoop_condition_decrement: STRING = "GE_scoop_condition_decrement"
 	c_ge_scoop_exceptions_stop_when_dirty: STRING = "GE_SCOOP_EXCEPTIONS_STOP_WHEN_DIRTY"
-	c_ge_scoop_multisessions_open_start: STRING = "GE_scoop_multisessions_open_start"
-	c_ge_scoop_multisessions_open_stop: STRING = "GE_scoop_multisessions_open_stop"
+	c_ge_scoop_precondition: STRING = "GE_scoop_precondition"
 	c_ge_scoop_processor_run: STRING = "GE_scoop_processor_run"
 	c_ge_scoop_region: STRING = "GE_scoop_region"
+	c_ge_scoop_region_add_precondition: STRING = "GE_scoop_region_add_precondition"
 	c_ge_scoop_region_has_lock_on: STRING = "GE_scoop_region_has_lock_on"
 	c_ge_scoop_region_impersonate: STRING = "GE_scoop_region_impersonate"
 	c_ge_scoop_region_pass_locks: STRING = "GE_scoop_region_pass_locks"
-	c_ge_scoop_region_set_context: STRING = "GE_scoop_region_set_context"
 	c_ge_scoop_region_release_locks: STRING = "GE_scoop_region_release_locks"
+	c_ge_scoop_region_remove_precondition: STRING = "GE_scoop_region_remove_precondition"
+	c_ge_scoop_region_set_context: STRING = "GE_scoop_region_set_context"
+	c_ge_scoop_region_wait_preconditions: STRING = "GE_scoop_region_wait_preconditions"
 	c_ge_scoop_session: STRING = "GE_scoop_session"
 	c_ge_scoop_session_add_call: STRING = "GE_scoop_session_add_call"
 	c_ge_scoop_session_add_sync_call: STRING = "GE_scoop_session_add_sync_call"
 	c_ge_scoop_session_close: STRING = "GE_scoop_session_close"
 	c_ge_scoop_session_is_impersonation_allowed: STRING = "GE_scoop_session_is_impersonation_allowed"
+	c_ge_scoop_session_is_open: STRING = "GE_scoop_session_is_open"
+	c_ge_scoop_session_is_submitted: STRING = "GE_scoop_session_is_submitted"
 	c_ge_scoop_session_is_synchronized: STRING = "GE_scoop_session_is_synchronized"
 	c_ge_scoop_session_open: STRING = "GE_scoop_session_open"
+	c_ge_scoop_session_set_eiffel_called: STRING = "GE_scoop_session_set_eiffel_called"
+	c_ge_scoop_session_was_eiffel_called: STRING = "GE_scoop_session_was_eiffel_called"
 	c_ge_setjmp: STRING = "GE_setjmp"
 	c_ge_set_boolean_field: STRING = "GE_set_boolean_field"
 	c_ge_set_boolean_field_at: STRING = "GE_set_boolean_field_at"
@@ -47384,6 +49686,10 @@ feature {NONE} -- Constants
 	c_ge_sp8_base_address: STRING = "GE_sp8_base_address"
 	c_ge_sp32_base_address: STRING = "GE_sp32_base_address"
 	c_ge_storable_version_of_encoded_type: STRING = "GE_storable_version_of_encoded_type"
+	c_ge_str8_is_inbetween: STRING = "GE_str8_is_inbetween"
+	c_ge_str8_same_characters: STRING = "GE_str8_same_characters"
+	c_ge_str32_is_inbetween: STRING = "GE_str32_is_inbetween"
+	c_ge_str32_same_characters: STRING = "GE_str32_same_characters"
 	c_ge_thread_create_with_attr: STRING = "GE_thread_create_with_attr"
 	c_ge_thread_onces_set_counts: STRING = "GE_thread_onces_set_counts"
 	c_ge_type_flag_boolean: STRING = "GE_TYPE_FLAG_BOOLEAN"
@@ -47446,6 +49752,7 @@ feature {NONE} -- Constants
 	c_int64_t: STRING = "int64_t"
 	c_intptr_t: STRING = "intptr_t"
 	c_is_passive: STRING = "is_passive"
+	c_is_running: STRING = "is_running"
 	c_is_special: STRING = "is_special"
 	c_last_rescue: STRING = "last_rescue"
 	c_line: STRING = "#line"
@@ -47457,20 +49764,29 @@ feature {NONE} -- Constants
 	c_not_not: STRING = ""
 	c_object: STRING = "object"
 	c_offsetof: STRING = "offsetof"
+	c_old_in_assertion: STRING = "old_in_assertion"
 	c_once_objects: STRING = "once_objects"
 	c_onces: STRING = "onces"
 	c_or_else: STRING = "||"
 	c_pre_ecma_mapping_status: STRING = "pre_ecma_mapping_status"
 	c_previous: STRING = "previous"
 	c_process_onces: STRING = "process_onces"
+	c_r: STRING = "r"
+	c_r3: STRING = "r3"
+	c_ra: STRING = "ra"
 	c_region: STRING = "region"
 	c_return: STRING = "return"
+	c_rs: STRING = "rs"
 	c_sc: STRING = "sc"
-	c_scond: STRING = "scond"
 	c_se: STRING = "se"
+	c_se0: STRING = "se0"
+	c_se_had_lock: STRING = "se_had_lock"
+	c_se_is_open: STRING = "se_is_open"
 	c_size_t: STRING = "size_t"
 	c_sizeof: STRING = "sizeof"
+	c_sprecond: STRING = "sprecond"
 	c_sr: STRING = "sr"
+	c_sr1: STRING = "sr1"
 	c_status_suffix: STRING = "_status"
 	c_stderr: STRING = "stderr"
 	c_struct: STRING = "struct"
@@ -47565,6 +49881,7 @@ invariant
 	separate_call_arguments_not_void: separate_call_arguments /= Void
 	separate_arguments_not_void: separate_arguments /= Void
 	separate_arguments_valid: across separate_arguments as l_separate_argument all l_separate_argument.is_argument or l_separate_argument.is_inline_separate_argument end
+	separate_formal_arguments_not_void: separate_formal_arguments /= Void
 	manifest_array_types_not_void: manifest_array_types /= Void
 	no_void_manifest_array_type: not manifest_array_types.has_void
 	big_manifest_array_types_not_void: big_manifest_array_types /= Void
@@ -47580,6 +49897,9 @@ invariant
 	once_features_not_void: once_features /= Void
 	no_void_once_feature: not once_features.has_void
 	once_feature_constraint: across once_features as i_feature all @i_feature.key = @i_feature.key.implementation_feature end
+	once_creation_procedures_not_void: once_creation_procedures /= Void
+	no_void_once_creation_procedure: not once_features.has_void
+	once_creation_procedure_constraint: across once_creation_procedures as i_feature all @i_feature.key = @i_feature.key.implementation_feature end
 	once_per_process_counts_not_void: once_per_process_counts /= Void
 	once_per_process_counts_bounds: once_per_process_counts.lower = 1 and once_per_process_counts.upper = once_kind_count
 	no_negative_once_per_process_count: across once_per_process_counts as l_once_per_process_counts all l_once_per_process_counts.item >= 0 end
@@ -47740,5 +50060,11 @@ invariant
 	no_void_old_expression_temp_variable: not old_expression_temp_variables.has_void_item
 	old_expression_exception_temp_variables_not_void: old_expression_exception_temp_variables /= Void
 	no_void_old_expression_exception_temp_variable: not old_expression_exception_temp_variables.has_void_item
+		-- Inspect instructions/expressions.
+	integer_choice_constant_not_void: integer_choice_constant /= Void
+	inspect_if_choices_not_void: inspect_if_choices /= Void
+	no_void_inspect_if_choices: not inspect_if_choices.has_void
+	inspect_case_choices_not_void: inspect_case_choices /= Void
+	no_void_inspect_case_choices: not inspect_case_choices.has_void
 
 end

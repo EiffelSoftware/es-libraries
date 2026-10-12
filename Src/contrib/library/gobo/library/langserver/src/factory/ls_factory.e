@@ -5,7 +5,7 @@
 		"LSP factories"
 
 	library: "Gobo Eiffel Language Server Protocol Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class LS_FACTORY
@@ -216,6 +216,704 @@ feature -- Access
 				Result := boolean_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_CAPABILITIES
+			-- Convert `a_object` to a call hierarchy capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_CALL_HIERARCHY_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_dynamic_registration)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_CAPABILITIES
+			-- Call hierarchy capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_CAPABILITIES} l_value as l_call_hierarchy_capabilities then
+				Result := l_call_hierarchy_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_incoming_call_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_INCOMING_CALL
+			-- Convert `a_object` to a call hierarchy incoming call.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if not attached call_hierarchy_item_in_object (a_object, {LS_CALL_HIERARCHY_INCOMING_CALL}.from_name, False) as l_from then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_INCOMING_CALL}.from_name + ": missing field"
+				end
+			elseif not attached range_list_in_object (a_object, {LS_CALL_HIERARCHY_INCOMING_CALL}.from_ranges_name, False) as l_from_ranges then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_INCOMING_CALL}.from_ranges_name + ": missing field"
+				end
+			else
+				create Result.make (l_from, l_from_ranges)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_incoming_call_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_INCOMING_CALL
+			-- Call hierarchy incoming call stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_INCOMING_CALL} l_value as l_call_hierarchy_incoming_call then
+				Result := l_call_hierarchy_incoming_call
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_incoming_call_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_incoming_call_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_INCOMING_CALL_LIST
+			-- Convert `a_array` to call hierarchy incoming call list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			if not attached {LS_OBJECT} a_array.value (1) as l_first_object then
+				last_error := a_field_name + ".1: invalid type"
+			else
+				nb := a_array.count
+				create Result.make_with_capacity (nb)
+				from i := 1 until i > nb loop
+					if not attached {LS_OBJECT} a_array.value (i) as l_object then
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					elseif attached call_hierarchy_incoming_call_from_object (l_object, i.out) as l_call_hierarchy_incoming_call then
+						Result.put_last (l_call_hierarchy_incoming_call)
+						i := i + 1
+					elseif attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+						i := nb + 1 -- Jump out of the loop.
+					else
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					end
+				end
+				if last_error /= Void then
+					Result := Void
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_incoming_call_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_INCOMING_CALL_LIST
+			-- Call hierarchy incoming call list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_INCOMING_CALL_LIST} l_value as l_call_hierarchy_incoming_call_list then
+				Result := l_call_hierarchy_incoming_call_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_incoming_call_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_incoming_calls_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_INCOMING_CALLS_RESULT
+			-- Convert `a_any` to a call hierarchy incoming calls result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_CALL_HIERARCHY_INCOMING_CALLS_RESULT} a_any as l_call_hierarchy_incoming_calls_result then
+				Result := l_call_hierarchy_incoming_calls_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached call_hierarchy_incoming_call_list_from_array (l_array, a_field_name) as l_call_hierarchy_incoming_call_list then
+				Result := l_call_hierarchy_incoming_call_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_incoming_calls_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_INCOMING_CALLS_RESULT
+			-- Call hierarchy incoming calls result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := call_hierarchy_incoming_calls_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_item_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_ITEM
+			-- Convert `a_object` to a call hierarchy item.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_tags: detachable LS_SYMBOL_TAG_LIST
+			l_detail: detachable LS_STRING
+			l_data: detachable LS_ANY
+		do
+			last_error := Void
+			if not attached string_in_object (a_object, {LS_CALL_HIERARCHY_ITEM}.name_name, False) as l_name then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_ITEM}.name_name + ": missing field"
+				end
+			elseif not attached symbol_kind_in_object (a_object, {LS_CALL_HIERARCHY_ITEM}.kind_name, False) as l_kind then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_ITEM}.kind_name + ": missing field"
+				end
+			elseif not attached document_uri_in_object (a_object, {LS_CALL_HIERARCHY_ITEM}.uri_name, False) as l_uri then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_ITEM}.uri_name + ": missing field"
+				end
+			elseif not attached range_in_object (a_object, {LS_CALL_HIERARCHY_ITEM}.range_name, False) as l_range then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_ITEM}.range_name + ": missing field"
+				end
+			elseif not attached range_in_object (a_object, {LS_CALL_HIERARCHY_ITEM}.selection_range_name, False) as l_selection_range then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_ITEM}.selection_range_name + ": missing field"
+				end
+			else
+				l_tags := symbol_tag_list_in_object (a_object, {LS_CALL_HIERARCHY_ITEM}.tags_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_detail := string_in_object (a_object, {LS_CALL_HIERARCHY_ITEM}.detail_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_data := a_object.value ({LS_CALL_HIERARCHY_ITEM}.data_name)
+				end
+				if last_error = Void then
+					create Result.make (l_name, l_kind, l_tags, l_detail, l_uri, l_range, l_selection_range, l_data)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_item_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_ITEM
+			-- Call hierarchy item stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_ITEM} l_value as l_call_hierarchy_item then
+				Result := l_call_hierarchy_item
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_item_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_item_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_ITEM_LIST
+			-- Convert `a_array` to call hierarchy item list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			if not attached {LS_OBJECT} a_array.value (1) as l_first_object then
+				last_error := a_field_name + ".1: invalid type"
+			else
+				nb := a_array.count
+				create Result.make_with_capacity (nb)
+				from i := 1 until i > nb loop
+					if not attached {LS_OBJECT} a_array.value (i) as l_object then
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					elseif attached call_hierarchy_item_from_object (l_object, i.out) as l_call_hierarchy_item then
+						Result.put_last (l_call_hierarchy_item)
+						i := i + 1
+					elseif attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+						i := nb + 1 -- Jump out of the loop.
+					else
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					end
+				end
+				if last_error /= Void then
+					Result := Void
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_item_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_ITEM_LIST
+			-- Call hierarchy item list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_ITEM_LIST} l_value as l_call_hierarchy_item_list then
+				Result := l_call_hierarchy_item_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_item_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_OPTIONS
+			-- Convert `a_object` to a call hierarchy options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_work_done_progress := boolean_in_object (a_object, {LS_CALL_HIERARCHY_OPTIONS}.work_done_progress_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_OPTIONS
+			-- Call hierarchy options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_OPTIONS} l_value as l_call_hierarchy_options then
+				Result := l_call_hierarchy_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_outgoing_call_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_OUTGOING_CALL
+			-- Convert `a_object` to a call hierarchy outgoing call.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if not attached call_hierarchy_item_in_object (a_object, {LS_CALL_HIERARCHY_OUTGOING_CALL}.to_name, False) as l_to then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_OUTGOING_CALL}.to_name + ": missing field"
+				end
+			elseif not attached range_list_in_object (a_object, {LS_CALL_HIERARCHY_OUTGOING_CALL}.from_ranges_name, False) as l_from_ranges then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_OUTGOING_CALL}.from_ranges_name + ": missing field"
+				end
+			else
+				create Result.make (l_to, l_from_ranges)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_outgoing_call_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_OUTGOING_CALL
+			-- Call hierarchy outgoing call stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_OUTGOING_CALL} l_value as l_call_hierarchy_outgoing_call then
+				Result := l_call_hierarchy_outgoing_call
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_outgoing_call_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_outgoing_call_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_OUTGOING_CALL_LIST
+			-- Convert `a_array` to call hierarchy outgoing call list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			if not attached {LS_OBJECT} a_array.value (1) as l_first_object then
+				last_error := a_field_name + ".1: invalid type"
+			else
+				nb := a_array.count
+				create Result.make_with_capacity (nb)
+				from i := 1 until i > nb loop
+					if not attached {LS_OBJECT} a_array.value (i) as l_object then
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					elseif attached call_hierarchy_outgoing_call_from_object (l_object, i.out) as l_call_hierarchy_outgoing_call then
+						Result.put_last (l_call_hierarchy_outgoing_call)
+						i := i + 1
+					elseif attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+						i := nb + 1 -- Jump out of the loop.
+					else
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					end
+				end
+				if last_error /= Void then
+					Result := Void
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_outgoing_call_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_OUTGOING_CALL_LIST
+			-- Call hierarchy outgoing call list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_OUTGOING_CALL_LIST} l_value as l_call_hierarchy_outgoing_call_list then
+				Result := l_call_hierarchy_outgoing_call_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_outgoing_call_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_outgoing_calls_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_OUTGOING_CALLS_RESULT
+			-- Convert `a_any` to a call hierarchy outgoing calls result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_CALL_HIERARCHY_OUTGOING_CALLS_RESULT} a_any as l_call_hierarchy_outgoing_calls_result then
+				Result := l_call_hierarchy_outgoing_calls_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached call_hierarchy_outgoing_call_list_from_array (l_array, a_field_name) as l_call_hierarchy_outgoing_call_list then
+				Result := l_call_hierarchy_outgoing_call_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_outgoing_calls_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_OUTGOING_CALLS_RESULT
+			-- Call hierarchy outgoing calls result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := call_hierarchy_outgoing_calls_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_prepare_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_PREPARE_RESULT
+			-- Convert `a_any` to a call hierarchy prepare result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_CALL_HIERARCHY_PREPARE_RESULT} a_any as l_call_hierarchy_prepare_result then
+				Result := l_call_hierarchy_prepare_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached call_hierarchy_item_list_from_array (l_array, a_field_name) as l_call_hierarchy_item_list then
+				Result := l_call_hierarchy_item_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_prepare_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_PREPARE_RESULT
+			-- Call hierarchy prepare result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := call_hierarchy_prepare_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	call_hierarchy_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_CALL_HIERARCHY_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a call hierarchy registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+			l_id: detachable LS_STRING
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_CALL_HIERARCHY_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_CALL_HIERARCHY_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_work_done_progress := boolean_in_object (a_object, {LS_CALL_HIERARCHY_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_id := string_in_object (a_object, {LS_CALL_HIERARCHY_REGISTRATION_OPTIONS}.id_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					create Result.make (l_document_selector, l_work_done_progress, l_id)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	call_hierarchy_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_CALL_HIERARCHY_REGISTRATION_OPTIONS
+			-- Call hierarchy registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_CALL_HIERARCHY_REGISTRATION_OPTIONS} l_value as l_call_hierarchy_registration_options then
+				Result := l_call_hierarchy_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := call_hierarchy_registration_options_from_object (l_object, a_field_name)
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -494,6 +1192,1440 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	command_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMMAND
+			-- Convert `a_object` to a command.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+			l_arguments: detachable LS_ARRAY
+		do
+			last_error := Void
+			if not attached string_in_object (a_object, {LS_COMMAND}.title_name, False) as l_title then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_COMMAND}.title_name + ": missing field"
+				end
+			elseif not attached string_in_object (a_object, {LS_COMMAND}.command_name, False) as l_command then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_COMMAND}.command_name + ": missing field"
+				end
+			else
+				l_value := a_object.value ({LS_COMMAND}.arguments_name)
+				if attached {LS_ARRAY} l_value as l_array then
+					l_arguments := l_array
+				elseif l_value /= Void then
+					last_error := a_field_name + "." + {LS_COMMAND}.arguments_name + ": invalid type"
+				end
+				if last_error = Void then
+					create Result.make (l_title, l_command, l_arguments)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	command_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMMAND
+			-- Command stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMMAND} l_value as l_command then
+				Result := l_command
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := command_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_CAPABILITIES
+			-- Convert `a_object` to a completion capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_completion_item: detachable LS_COMPLETION_ITEM_CAPABILITIES
+			l_completion_item_kind: detachable LS_COMPLETION_ITEM_KIND_SET
+			l_context_support: detachable LS_BOOLEAN
+			l_insert_text_mode: detachable LS_INSERT_TEXT_MODE
+			l_completion_list: detachable LS_COMPLETION_LIST_CAPABILITIES
+			l_dynamic_registration: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_completion_item := completion_item_capabilities_in_object (a_object, {LS_COMPLETION_CAPABILITIES}.completion_item_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_completion_item_kind := completion_item_kind_set_in_object (a_object, {LS_COMPLETION_CAPABILITIES}.completion_item_kind_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_context_support := boolean_in_object (a_object, {LS_COMPLETION_CAPABILITIES}.context_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_insert_text_mode := insert_text_mode_in_object (a_object, {LS_COMPLETION_CAPABILITIES}.insert_text_mode_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_completion_list := completion_list_capabilities_in_object (a_object, {LS_COMPLETION_CAPABILITIES}.completion_list_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_dynamic_registration := boolean_in_object (a_object, {LS_COMPLETION_CAPABILITIES}.dynamic_registration_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_completion_item, l_completion_item_kind, l_context_support, l_insert_text_mode, l_completion_list, l_dynamic_registration)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_CAPABILITIES
+			-- Completion capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_CAPABILITIES} l_value as l_completion_capabilities then
+				Result := l_completion_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_context_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_CONTEXT
+			-- Convert `a_object` to a completion context.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_trigger_character: detachable LS_STRING
+		do
+			last_error := Void
+			if not attached completion_trigger_kind_in_object (a_object, {LS_COMPLETION_CONTEXT}.trigger_kind_name, False) as l_trigger_kind then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_COMPLETION_CONTEXT}.trigger_kind_name + ": missing field"
+				end
+			else
+				l_trigger_character := string_in_object (a_object, {LS_COMPLETION_CONTEXT}.trigger_character_name, True)
+				if attached last_error as l_last_error and a_field_name /= Void then
+					last_error := a_field_name + "." + l_last_error
+				else
+					create Result.make (l_trigger_kind, l_trigger_character)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_context_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_CONTEXT
+			-- Completion context stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_CONTEXT} l_value as l_completion_context then
+				Result := l_completion_context
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_context_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM
+			-- Convert `a_object` to a completion item.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_label_details: detachable LS_COMPLETION_ITEM_LABEL_DETAILS
+			l_kind: detachable LS_COMPLETION_ITEM_KIND
+			l_tags: detachable LS_COMPLETION_ITEM_TAG_LIST
+			l_detail: detachable LS_STRING
+			l_documentation: detachable LS_STRING_CONTENT
+			l_deprecated: detachable LS_BOOLEAN
+			l_preselect: detachable LS_BOOLEAN
+			l_sort_text: detachable LS_STRING
+			l_filter_text: detachable LS_STRING
+			l_insert_text: detachable LS_STRING
+			l_insert_text_format: detachable LS_INSERT_TEXT_FORMAT
+			l_insert_text_mode: detachable LS_INSERT_TEXT_MODE
+			l_text_edit: detachable LS_EDIT
+			l_text_edit_text: detachable LS_STRING
+			l_additional_text_edits: detachable LS_TEXT_EDIT_LIST
+			l_commit_characters: detachable LS_STRING_LIST
+			l_command: detachable LS_COMMAND
+			l_data: detachable LS_ANY
+		do
+			last_error := Void
+			if not attached string_in_object (a_object, {LS_COMPLETION_ITEM}.label_name, False) as l_label then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_COMPLETION_ITEM}.label_name + ": missing field"
+				end
+			else
+				l_label_details := completion_item_label_details_in_object (a_object, {LS_COMPLETION_ITEM}.label_details_name, True)
+				if attached last_error as l_last_error and a_field_name /= Void then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_kind := completion_item_kind_in_object (a_object, {LS_COMPLETION_ITEM}.kind_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_tags := completion_item_tag_list_in_object (a_object, {LS_COMPLETION_ITEM}.tags_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_detail := string_in_object (a_object, {LS_COMPLETION_ITEM}.detail_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_documentation := string_content_in_object (a_object, {LS_COMPLETION_ITEM}.documentation_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_deprecated := boolean_in_object (a_object, {LS_COMPLETION_ITEM}.deprecated_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_preselect := boolean_in_object (a_object, {LS_COMPLETION_ITEM}.preselect_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_sort_text := string_in_object (a_object, {LS_COMPLETION_ITEM}.sort_text_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_filter_text := string_in_object (a_object, {LS_COMPLETION_ITEM}.filter_text_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_insert_text := string_in_object (a_object, {LS_COMPLETION_ITEM}.insert_text_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_insert_text_format := insert_text_format_in_object (a_object, {LS_COMPLETION_ITEM}.insert_text_format_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_insert_text_mode := insert_text_mode_in_object (a_object, {LS_COMPLETION_ITEM}.insert_text_mode_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_text_edit := text_edit_in_object (a_object, {LS_COMPLETION_ITEM}.text_edit_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_text_edit_text := string_in_object (a_object, {LS_COMPLETION_ITEM}.text_edit_text_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_additional_text_edits := text_edit_list_in_object (a_object, {LS_COMPLETION_ITEM}.additional_text_edits_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_commit_characters := string_list_in_object (a_object, {LS_COMPLETION_ITEM}.commit_characters_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_command := command_in_object (a_object, {LS_COMPLETION_ITEM}.command_name, True)
+					if attached last_error as l_last_error and a_field_name /= Void then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_data := a_object.value ({LS_COMPLETION_ITEM}.data_name)
+				end
+				if last_error = Void then
+					create Result.make (l_label)
+					Result.set_label_details (l_label_details)
+					Result.set_kind (l_kind)
+					Result.set_tags (l_tags)
+					Result.set_detail (l_detail)
+					Result.set_documentation (l_documentation)
+					Result.set_deprecated (l_deprecated)
+					Result.set_preselect (l_preselect)
+					Result.set_sort_text (l_sort_text)
+					Result.set_filter_text (l_filter_text)
+					Result.set_insert_text (l_insert_text)
+					Result.set_insert_text_format (l_insert_text_format)
+					Result.set_insert_text_mode (l_insert_text_mode)
+					Result.set_text_edit (l_text_edit)
+					Result.set_text_edit_text (l_text_edit_text)
+					Result.set_additional_text_edits (l_additional_text_edits)
+					Result.set_commit_characters (l_commit_characters)
+					Result.set_command (l_command)
+					Result.set_data (l_data)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM
+			-- Completion item stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM} l_value as l_completion_item then
+				Result := l_completion_item
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_CAPABILITIES
+			-- Convert `a_object` to a completion item capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_snippet_support: detachable LS_BOOLEAN
+			l_commit_characters_support: detachable LS_BOOLEAN
+			l_documentation_format: detachable LS_MARKUP_KIND_LIST
+			l_deprecated_support: detachable LS_BOOLEAN
+			l_preselect_support: detachable LS_BOOLEAN
+			l_tag_support: detachable LS_COMPLETION_ITEM_TAG_SET
+			l_insert_replace_support: detachable LS_BOOLEAN
+			l_resolve_support: detachable LS_RESOLVE_CAPABILITIES
+			l_insert_text_mode_support: detachable LS_INSERT_TEXT_MODE_SET
+			l_label_details_support: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_snippet_support := boolean_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.snippet_support_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_commit_characters_support := boolean_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.commit_characters_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_documentation_format := markup_kind_list_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.documentation_format_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_deprecated_support := boolean_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.deprecated_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_preselect_support := boolean_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.preselect_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_tag_support := completion_item_tag_set_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.tag_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_insert_replace_support := boolean_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.insert_replace_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_resolve_support := resolve_capabilities_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.resolve_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_insert_text_mode_support := insert_text_mode_set_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.insert_text_mode_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_label_details_support := boolean_in_object (a_object, {LS_COMPLETION_ITEM_CAPABILITIES}.label_details_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_snippet_support, l_commit_characters_support, l_documentation_format,
+					l_deprecated_support, l_preselect_support, l_tag_support, l_insert_replace_support,
+					l_resolve_support, l_insert_text_mode_support, l_label_details_support)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_CAPABILITIES
+			-- Completion item capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_CAPABILITIES} l_value as l_completion_item_capabilities then
+				Result := l_completion_item_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_defaults_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_DEFAULTS
+			-- Convert `a_object` to a completion item defaults.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_commit_characters: detachable LS_STRING_LIST
+			l_edit_range: detachable LS_STRING
+			l_insert_text_format: detachable LS_INSERT_TEXT_FORMAT
+			l_insert_text_mode: detachable LS_INSERT_TEXT_MODE
+			l_data: detachable LS_ANY
+		do
+			last_error := Void
+			l_commit_characters := string_list_in_object (a_object, {LS_COMPLETION_ITEM_DEFAULTS}.commit_characters_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_edit_range := string_in_object (a_object, {LS_COMPLETION_ITEM_DEFAULTS}.edit_range_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_insert_text_format := insert_text_format_in_object (a_object, {LS_COMPLETION_ITEM_DEFAULTS}.insert_text_format_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_insert_text_mode := insert_text_mode_in_object (a_object, {LS_COMPLETION_ITEM_DEFAULTS}.insert_text_mode_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_data := a_object.value ({LS_COMPLETION_ITEM_DEFAULTS}.data_name)
+			end
+			if last_error = Void then
+				create Result.make (l_commit_characters, l_edit_range, l_insert_text_format, l_insert_text_mode, l_data)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_defaults_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_DEFAULTS
+			-- Completion item defaults stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_DEFAULTS} l_value as l_completion_item_defaults then
+				Result := l_completion_item_defaults
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_defaults_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_kind_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_KIND
+			-- Convert `a_any` to a completion item kind.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_COMPLETION_ITEM_KIND} a_any as l_completion_item_kind then
+				Result := l_completion_item_kind
+			elseif attached {LS_NUMBER} a_any as l_number and then l_number.is_integer then
+				Result := l_number.to_integer
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_kind_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_KIND
+			-- Completion item kind stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := completion_item_kind_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_kind_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_KIND_LIST
+			-- Convert `a_array` to completion item kind list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if attached completion_item_kind_from_any (a_array.value (i), i.out) as l_symbol_kind then
+					Result.put_last (l_symbol_kind)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_kind_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_KIND_LIST
+			-- Completion item kind list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_KIND_LIST} l_value as l_completion_item_kind_list then
+				Result := l_completion_item_kind_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_kind_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_kind_set_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_KIND_SET
+			-- Convert `a_object` to a completion item kind set.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value_set: detachable LS_COMPLETION_ITEM_KIND_LIST
+		do
+			last_error := Void
+			l_value_set := completion_item_kind_list_in_object (a_object, {LS_COMPLETION_ITEM_KIND_SET}.value_set_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_value_set)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_kind_set_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_KIND_SET
+			-- Completion item kind set stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_KIND_SET} l_value as l_completion_item_kind_set then
+				Result := l_completion_item_kind_set
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_kind_set_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_label_details_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_LABEL_DETAILS
+			-- Convert `a_object` to a completion item label details.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_detail: detachable LS_STRING
+			l_description: detachable LS_STRING
+		do
+			last_error := Void
+			l_detail := string_in_object (a_object, {LS_COMPLETION_ITEM_LABEL_DETAILS}.detail_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_description := string_in_object (a_object, {LS_COMPLETION_ITEM_LABEL_DETAILS}.description_name, True)
+				if attached last_error as l_last_error and a_field_name /= Void then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_detail, l_description)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_label_details_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_LABEL_DETAILS
+			-- Completion item label details stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_LABEL_DETAILS} l_value as l_completion_item_label_details then
+				Result := l_completion_item_label_details
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_label_details_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_LIST
+			-- Convert `a_array` to completion item list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if not attached {LS_OBJECT} a_array.value (i) as l_object then
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				elseif attached completion_item_from_object (l_object, i.out) as l_completion_item then
+					Result.put_last (l_completion_item)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_LIST
+			-- Completion item list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_LIST} l_value as l_completion_item_list then
+				Result := l_completion_item_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_OPTIONS
+			-- Convert `a_object` to a completion item options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_label_details_support: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_label_details_support := boolean_in_object (a_object, {LS_COMPLETION_ITEM_OPTIONS}.label_details_support_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_label_details_support)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_OPTIONS
+			-- Completion item options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_OPTIONS} l_value as l_completion_item_options then
+				Result := l_completion_item_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_tag_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_TAG
+			-- Convert `a_any` to a completion item tag.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_COMPLETION_ITEM_TAG} a_any as l_completion_item_tag then
+				Result := l_completion_item_tag
+			elseif attached {LS_NUMBER} a_any as l_number and then l_number.is_integer then
+				Result := l_number.to_integer
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_tag_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_TAG
+			-- Completion item tag stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := completion_item_tag_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_tag_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_TAG_LIST
+			-- Convert `a_array` to completion item tag list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if attached completion_item_tag_from_any (a_array.value (i), i.out) as l_completion_item_tag then
+					Result.put_last (l_completion_item_tag)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_tag_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_TAG_LIST
+			-- Completion item tag list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_TAG_LIST} l_value as l_completion_item_tag_list then
+				Result := l_completion_item_tag_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_tag_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_item_tag_set_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_ITEM_TAG_SET
+			-- Convert `a_object` to a completion item tag set.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if not attached completion_item_tag_list_in_object (a_object, {LS_COMPLETION_ITEM_TAG_SET}.value_set_name, False) as l_value_set then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_COMPLETION_ITEM_TAG_SET}.value_set_name + ": missing field"
+				end
+			else
+				create Result.make (l_value_set)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_item_tag_set_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_ITEM_TAG_SET
+			-- Completion item tag set stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_ITEM_TAG_SET} l_value as l_completion_item_tag_set then
+				Result := l_completion_item_tag_set
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_item_tag_set_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_list_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_LIST
+			-- Convert `a_object` to a completion list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_item_defaults: detachable LS_COMPLETION_ITEM_DEFAULTS
+		do
+			last_error := Void
+			if not attached boolean_in_object (a_object, {LS_COMPLETION_LIST}.is_incomplete_name, False) as l_is_incomplete then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_COMPLETION_LIST}.is_incomplete_name + ": missing field"
+				end
+			elseif not attached completion_item_list_in_object (a_object, {LS_COMPLETION_LIST}.items_name, False) as l_items then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_COMPLETION_LIST}.items_name + ": missing field"
+				end
+			else
+				l_item_defaults := completion_item_defaults_in_object (a_object, {LS_COMPLETION_LIST}.item_defaults_name, True)
+				if attached last_error as l_last_error and a_field_name /= Void then
+					last_error := a_field_name + "." + l_last_error
+				else
+					create Result.make (l_is_incomplete, l_item_defaults, l_items)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_LIST
+			-- Completion list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_LIST} l_value as l_completion_list then
+				Result := l_completion_list
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_list_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_list_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_LIST_CAPABILITIES
+			-- Convert `a_object` to a completion list capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_item_defaults: detachable LS_STRING_LIST
+		do
+			last_error := Void
+			l_item_defaults := string_list_in_object (a_object, {LS_COMPLETION_LIST_CAPABILITIES}.item_defaults_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_item_defaults)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_list_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_LIST_CAPABILITIES
+			-- Completion list capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_LIST_CAPABILITIES} l_value as l_completion_list_capabilities then
+				Result := l_completion_list_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_list_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_OPTIONS
+			-- Convert `a_object` to a completion options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_trigger_characters: detachable LS_STRING_LIST
+			l_all_commit_characters: detachable LS_STRING_LIST
+			l_resolve_provider: detachable LS_BOOLEAN
+			l_completion_item: detachable LS_COMPLETION_ITEM_OPTIONS
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_trigger_characters := string_list_in_object (a_object, {LS_COMPLETION_OPTIONS}.trigger_characters_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_all_commit_characters := string_list_in_object (a_object, {LS_COMPLETION_OPTIONS}.all_commit_characters_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_resolve_provider := boolean_in_object (a_object, {LS_COMPLETION_OPTIONS}.resolve_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_completion_item := completion_item_options_in_object (a_object, {LS_COMPLETION_OPTIONS}.completion_item_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_work_done_progress := boolean_in_object (a_object, {LS_COMPLETION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_trigger_characters, l_all_commit_characters, l_resolve_provider, l_completion_item, l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_OPTIONS
+			-- Completion options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_OPTIONS} l_value as l_completion_options then
+				Result := l_completion_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMPLETION_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a completion registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_trigger_characters: detachable LS_STRING_LIST
+			l_all_commit_characters: detachable LS_STRING_LIST
+			l_resolve_provider: detachable LS_BOOLEAN
+			l_completion_item: detachable LS_COMPLETION_ITEM_OPTIONS
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_DECLARATION_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_DECLARATION_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_trigger_characters := string_list_in_object (a_object, {LS_COMPLETION_REGISTRATION_OPTIONS}.trigger_characters_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_all_commit_characters := string_list_in_object (a_object, {LS_COMPLETION_REGISTRATION_OPTIONS}.all_commit_characters_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_resolve_provider := boolean_in_object (a_object, {LS_COMPLETION_REGISTRATION_OPTIONS}.resolve_provider_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_completion_item := completion_item_options_in_object (a_object, {LS_COMPLETION_REGISTRATION_OPTIONS}.completion_item_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_work_done_progress := boolean_in_object (a_object, {LS_COMPLETION_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					create Result.make (l_trigger_characters, l_all_commit_characters, l_resolve_provider, l_completion_item, l_document_selector, l_work_done_progress)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_REGISTRATION_OPTIONS
+			-- Completion registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_COMPLETION_REGISTRATION_OPTIONS} l_value as l_completion_registration_options then
+				Result := l_completion_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := completion_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_COMPLETION_RESULT
+			-- Convert `a_any` to a completion result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_COMPLETION_RESULT} a_any as l_completion_result then
+				Result := l_completion_result
+			elseif attached {LS_OBJECT} a_any as l_object and then attached completion_list_from_object (l_object, a_field_name) as l_completion_list then
+				Result := l_completion_list
+			elseif attached {LS_ARRAY} a_any as l_array and then attached completion_item_list_from_array (l_array, a_field_name) as l_completion_item_list then
+				Result := l_completion_item_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_RESULT
+			-- Completion result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := completion_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	completion_trigger_kind_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_COMPLETION_TRIGGER_KIND
+			-- Convert `a_any` to a completion ittriggerem kind.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_COMPLETION_TRIGGER_KIND} a_any as l_completion_trigger_kind then
+				Result := l_completion_trigger_kind
+			elseif attached {LS_NUMBER} a_any as l_number and then l_number.is_integer then
+				Result := l_number.to_integer
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	completion_trigger_kind_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMPLETION_TRIGGER_KIND
+			-- Completion trigger kind stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := completion_trigger_kind_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	configuration_capabilities_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_CONFIGURATION_CAPABILITIES
 			-- Convert `a_any` to a configuration capabilities.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -692,47 +2824,37 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
-	command_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_COMMAND
-			-- Convert `a_object` to a command.
+	declaration_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DECLARATION_CAPABILITIES
+			-- Convert `a_object` to a declaration capabilities.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
 			-- Set `last_error` in case of error.
 		require
 			a_object_not_void: a_object /= Void
 			a_field_name_not_void: a_field_name /= Void
 		local
-			l_value: detachable LS_ANY
-			l_arguments: detachable LS_ARRAY
+			l_dynamic_registration: detachable LS_BOOLEAN
+			l_link_support: detachable LS_BOOLEAN
 		do
 			last_error := Void
-			if not attached string_in_object (a_object, {LS_COMMAND}.title_name, False) as l_title then
+			l_dynamic_registration := boolean_in_object (a_object, {LS_DECLARATION_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_link_support := boolean_in_object (a_object, {LS_DECLARATION_CAPABILITIES}.link_support_name, True)
 				if attached last_error as l_last_error then
 					last_error := a_field_name + "." + l_last_error
-				else
-					last_error := a_field_name + "." + {LS_COMMAND}.title_name + ": missing field"
 				end
-			elseif not attached string_in_object (a_object, {LS_COMMAND}.command_name, False) as l_command then
-				if attached last_error as l_last_error then
-					last_error := a_field_name + "." + l_last_error
-				else
-					last_error := a_field_name + "." + {LS_COMMAND}.command_name + ": missing field"
-				end
-			else
-				l_value := a_object.value ({LS_COMMAND}.arguments_name)
-				if attached {LS_ARRAY} l_value as l_array then
-					l_arguments := l_array
-				elseif l_value /= Void then
-					last_error := a_field_name + "." + {LS_COMMAND}.arguments_name + ": invalid type"
-				end
-				if last_error = Void then
-					create Result.make (l_title, l_command, l_arguments)
-				end
+			end
+			if last_error = Void then
+				create Result.make (l_dynamic_registration, l_link_support)
 			end
 		ensure
 			error_or_success: Result /= Void xor last_error /= Void
 		end
 
-	command_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_COMMAND
-			-- Command stored in field `a_field_name` of `a_object`.
+	declaration_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DECLARATION_CAPABILITIES
+			-- Declaration capabilities stored in field `a_field_name` of `a_object`.
 			-- `a_optional` means that that it is valid if there is no
 			-- such field in `a_object`. Return Void in that case.
 			-- Set `last_error` in case of error.
@@ -748,12 +2870,172 @@ feature -- Access
 				if not a_optional then
 					last_error := a_field_name + ": missing field"
 				end
-			elseif attached {LS_COMMAND} l_value as l_command then
-				Result := l_command
+			elseif attached {LS_DECLARATION_CAPABILITIES} l_value as l_declaration_capabilities then
+				Result := l_declaration_capabilities
 			elseif not attached {LS_OBJECT} l_value as l_object then
 				last_error := a_field_name + ": invalid type"
 			else
-				Result := command_from_object (l_object, a_field_name)
+				Result := declaration_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	declaration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DECLARATION_OPTIONS
+			-- Convert `a_object` to a declaration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_work_done_progress := boolean_in_object (a_object, {LS_DECLARATION_OPTIONS}.work_done_progress_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	declaration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DECLARATION_OPTIONS
+			-- Declaration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DECLARATION_OPTIONS} l_value as l_declaration_options then
+				Result := l_declaration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := declaration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	declaration_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DECLARATION_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a declaration registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+			l_id: detachable LS_STRING
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_DECLARATION_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_DECLARATION_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_work_done_progress := boolean_in_object (a_object, {LS_DECLARATION_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_id := string_in_object (a_object, {LS_DECLARATION_REGISTRATION_OPTIONS}.id_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					create Result.make (l_document_selector, l_work_done_progress, l_id)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	declaration_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DECLARATION_REGISTRATION_OPTIONS
+			-- Declaration registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DECLARATION_REGISTRATION_OPTIONS} l_value as l_declaration_registration_options then
+				Result := l_declaration_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := declaration_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	declaration_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_DECLARATION_RESULT
+			-- Convert `a_any` to adeclaration result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_DECLARATION_RESULT} a_any as l_declaration_result then
+				Result := l_declaration_result
+			elseif attached {LS_OBJECT} a_any as l_object and then attached location_from_object (l_object, a_field_name) as l_location then
+				Result := l_location
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_list_from_array (l_array, a_field_name) as l_location_list then
+				Result := l_location_list
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_link_list_from_array (l_array, a_field_name) as l_location_link_list then
+				Result := l_location_link_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	declaration_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DECLARATION_RESULT
+			-- Declaration result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := declaration_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -920,6 +3202,50 @@ feature -- Access
 				last_error := a_field_name + ": invalid type"
 			else
 				Result := definition_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	definition_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_DEFINITION_RESULT
+			-- Convert `a_any` to a definition result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_DEFINITION_RESULT} a_any as l_definition_result then
+				Result := l_definition_result
+			elseif attached {LS_OBJECT} a_any as l_object and then attached location_from_object (l_object, a_field_name) as l_location then
+				Result := l_location
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_list_from_array (l_array, a_field_name) as l_location_list then
+				Result := l_location_list
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_link_list_from_array (l_array, a_field_name) as l_location_link_list then
+				Result := l_location_link_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	definition_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DEFINITION_RESULT
+			-- Definition result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := definition_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -1438,6 +3764,56 @@ feature -- Access
 				last_error := a_field_name + ": invalid type"
 			else
 				Result := diagnostic_tag_set_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	did_change_configuration_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DID_CHANGE_CONFIGURATION_CAPABILITIES
+			-- Convert `a_object` to a did change configuration capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_DID_CHANGE_CONFIGURATION_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_dynamic_registration)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	did_change_configuration_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DID_CHANGE_CONFIGURATION_CAPABILITIES
+			-- Did change configuration capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DID_CHANGE_CONFIGURATION_CAPABILITIES} l_value as l_did_change_configuration_capabilities then
+				Result := l_did_change_configuration_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := did_change_configuration_capabilities_from_object (l_object, a_field_name)
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -1965,6 +4341,366 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	document_highlight_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DOCUMENT_HIGHLIGHT
+			-- Convert `a_object` to a document highlight.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_kind: detachable LS_DOCUMENT_HIGHLIGHT_KIND
+		do
+			last_error := Void
+			if not attached range_in_object (a_object, {LS_DOCUMENT_HIGHLIGHT}.range_name, False) as l_range then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_DOCUMENT_HIGHLIGHT}.range_name + ": missing field"
+				end
+			else
+				l_kind := document_highlight_kind_in_object (a_object, {LS_DOCUMENT_HIGHLIGHT}.kind_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					create Result.make_with_kind (l_range, l_kind)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_highlight_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_HIGHLIGHT
+			-- Document highlight stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DOCUMENT_HIGHLIGHT} l_value as l_document_highlight then
+				Result := l_document_highlight
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := document_highlight_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	document_highlight_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DOCUMENT_HIGHLIGHT_CAPABILITIES
+			-- Convert `a_object` to a document highlight capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_DOCUMENT_HIGHLIGHT_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_dynamic_registration)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_highlight_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_HIGHLIGHT_CAPABILITIES
+			-- Document highlight capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DOCUMENT_HIGHLIGHT_CAPABILITIES} l_value as l_document_highlight_capabilities then
+				Result := l_document_highlight_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := document_highlight_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	document_highlight_kind_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_DOCUMENT_HIGHLIGHT_KIND
+			-- Convert `a_any` to a document highlight kind.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_DOCUMENT_HIGHLIGHT_KIND} a_any as l_document_highlight_kind then
+				Result := l_document_highlight_kind
+			elseif attached {LS_NUMBER} a_any as l_number and then l_number.is_integer then
+				Result := l_number.to_integer
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_highlight_kind_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_HIGHLIGHT_KIND
+			-- Document highlight kind stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := document_highlight_kind_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	document_highlight_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_DOCUMENT_HIGHLIGHT_LIST
+			-- Convert `a_array` to document highlight list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if not attached {LS_OBJECT} a_array.value (i) as l_object then
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				elseif attached document_highlight_from_object (l_object, i.out) as l_document_highlight then
+					Result.put_last (l_document_highlight)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_highlight_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_HIGHLIGHT_LIST
+			-- Document highlight list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DOCUMENT_HIGHLIGHT_LIST} l_value as l_document_highlight_list then
+				Result := l_document_highlight_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := document_highlight_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	document_highlight_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DOCUMENT_HIGHLIGHT_OPTIONS
+			-- Convert `a_object` to a document highlight options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_work_done_progress := boolean_in_object (a_object, {LS_DOCUMENT_HIGHLIGHT_OPTIONS}.work_done_progress_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_highlight_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_HIGHLIGHT_OPTIONS
+			-- Document highlight options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DOCUMENT_HIGHLIGHT_OPTIONS} l_value as l_document_highlight_options then
+				Result := l_document_highlight_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := document_highlight_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	document_highlight_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_DOCUMENT_HIGHLIGHT_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a document highlight registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_DOCUMENT_HIGHLIGHT_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_DOCUMENT_HIGHLIGHT_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_work_done_progress := boolean_in_object (a_object, {LS_DOCUMENT_HIGHLIGHT_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					create Result.make (l_document_selector, l_work_done_progress)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_highlight_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_HIGHLIGHT_REGISTRATION_OPTIONS
+			-- Document highlight registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_DOCUMENT_HIGHLIGHT_REGISTRATION_OPTIONS} l_value as l_document_highlight_registration_options then
+				Result := l_document_highlight_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := document_highlight_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	document_highlight_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_DOCUMENT_HIGHLIGHT_RESULT
+			-- Convert `a_any` to a document highlight result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_DOCUMENT_HIGHLIGHT_RESULT} a_any as l_document_highlight_result then
+				Result := l_document_highlight_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached document_highlight_list_from_array (l_array, a_field_name) as l_document_highlight_list then
+				Result := l_document_highlight_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_highlight_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_HIGHLIGHT_RESULT
+			-- Document highlight result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := document_highlight_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	document_selector_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_DOCUMENT_SELECTOR
 			-- Convert `a_array` to a document selector.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -2404,6 +5140,48 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	document_symbol_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_DOCUMENT_SYMBOL_RESULT
+			-- Convert `a_any` to a document symbol result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_DOCUMENT_SYMBOL_RESULT} a_any as l_document_symbol_result then
+				Result := l_document_symbol_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached document_symbol_list_from_array (l_array, a_field_name) as l_document_symbol_list then
+				Result := l_document_symbol_list
+			elseif attached {LS_ARRAY} a_any as l_array and then attached symbol_information_list_from_array (l_array, a_field_name) as l_symbol_information_list then
+				Result := l_symbol_information_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	document_symbol_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_DOCUMENT_SYMBOL_RESULT
+			-- Document symbol result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := document_symbol_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	document_uri_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_DOCUMENT_URI
 			-- Convert `a_any` to a document URI.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -2436,6 +5214,104 @@ feature -- Access
 				Result := document_uri_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	edit_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_EDIT
+			-- Convert `a_object` to a edit.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached text_edit_from_object (a_object, a_field_name) as l_text_edit then
+				Result := l_text_edit
+			elseif attached insert_replace_edit_from_object (a_object, a_field_name) as l_insert_replace_edit then
+				Result := l_insert_replace_edit
+			elseif last_error = Void then
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	edit_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_EDIT
+			-- Edit stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_EDIT} l_value as l_edit then
+				Result := l_edit
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := edit_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	edit_range_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_EDIT_RANGE
+			-- Convert `a_object` to a edit range.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached range_from_object (a_object, a_field_name) as l_range then
+				Result := l_range
+			elseif attached insert_replace_ranges_from_object (a_object, a_field_name) as l_insert_replace_ranges then
+				Result := l_insert_replace_ranges
+			elseif last_error = Void then
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	edit_range_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_EDIT_RANGE
+			-- Edit range stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_EDIT_RANGE} l_value as l_edit_range then
+				Result := l_edit_range
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := edit_range_from_object (l_object, a_field_name)
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -2769,6 +5645,64 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	hover_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_HOVER
+			-- Convert `a_object` to a hover.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_range: detachable LS_RANGE
+		do
+			last_error := Void
+			if not attached string_contents_in_object (a_object, {LS_HOVER}.contents_name, False) as l_contents then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_HOVER}.contents_name + ": missing field"
+				end
+			else
+				l_range := range_in_object (a_object, {LS_HOVER}.range_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					create Result.make_with_range (l_contents, l_range)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	hover_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_HOVER
+			-- Hover stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_HOVER} l_value as l_hover then
+				Result := l_hover
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := hover_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	hover_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_HOVER_CAPABILITIES
 			-- Convert `a_object` to a hover capabilities.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -2935,30 +5869,21 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
-	hover_result_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_HOVER_RESULT
-			-- Convert `a_object` to a hover result.
+	hover_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_HOVER_RESULT
+			-- Convert `a_any` to a hover result.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
 			-- Set `last_error` in case of error.
 		require
-			a_object_not_void: a_object /= Void
+			a_any_not_void: a_any /= Void
 			a_field_name_not_void: a_field_name /= Void
-		local
-			l_range: detachable LS_RANGE
 		do
 			last_error := Void
-			if not attached string_content_in_object (a_object, {LS_HOVER_RESULT}.contents_name, False) as l_contents then
-				if attached last_error as l_last_error then
-					last_error := a_field_name + "." + l_last_error
-				else
-					last_error := a_field_name + "." + {LS_HOVER_RESULT}.contents_name + ": missing field"
-				end
+			if attached {LS_HOVER_RESULT} a_any as l_hover_result then
+				Result := l_hover_result
+			elseif attached {LS_OBJECT} a_any as l_object and then attached hover_from_object (l_object, a_field_name) as l_hover then
+				Result := l_hover
 			else
-				l_range := range_in_object (a_object, {LS_HOVER_RESULT}.range_name, True)
-				if attached last_error as l_last_error then
-					last_error := a_field_name + "." + l_last_error
-				else
-					create Result.make_with_range (l_contents, l_range)
-				end
+				last_error := a_field_name + ": invalid type"
 			end
 		ensure
 			error_or_success: Result /= Void xor last_error /= Void
@@ -2966,6 +5891,55 @@ feature -- Access
 
 	hover_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_HOVER_RESULT
 			-- Hover result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := hover_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	implementation_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_IMPLEMENTATION_CAPABILITIES
+			-- Convert `a_object` to a implementation capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+			l_link_support: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_IMPLEMENTATION_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_link_support := boolean_in_object (a_object, {LS_IMPLEMENTATION_CAPABILITIES}.link_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_dynamic_registration, l_link_support)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	implementation_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_IMPLEMENTATION_CAPABILITIES
+			-- Implementation capabilities stored in field `a_field_name` of `a_object`.
 			-- `a_optional` means that that it is valid if there is no
 			-- such field in `a_object`. Return Void in that case.
 			-- Set `last_error` in case of error.
@@ -2981,12 +5955,172 @@ feature -- Access
 				if not a_optional then
 					last_error := a_field_name + ": missing field"
 				end
-			elseif attached {LS_HOVER_RESULT} l_value as l_hover_result then
-				Result := l_hover_result
+			elseif attached {LS_IMPLEMENTATION_CAPABILITIES} l_value as l_implementation_capabilities then
+				Result := l_implementation_capabilities
 			elseif not attached {LS_OBJECT} l_value as l_object then
 				last_error := a_field_name + ": invalid type"
 			else
-				Result := hover_result_from_object (l_object, a_field_name)
+				Result := implementation_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	implementation_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_IMPLEMENTATION_OPTIONS
+			-- Convert `a_object` to a implementation options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_work_done_progress := boolean_in_object (a_object, {LS_IMPLEMENTATION_OPTIONS}.work_done_progress_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	implementation_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_IMPLEMENTATION_OPTIONS
+			-- Implementation options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_IMPLEMENTATION_OPTIONS} l_value as l_implementation_options then
+				Result := l_implementation_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := implementation_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	implementation_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_IMPLEMENTATION_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a implementation registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+			l_id: detachable LS_STRING
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_IMPLEMENTATION_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_IMPLEMENTATION_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_work_done_progress := boolean_in_object (a_object, {LS_IMPLEMENTATION_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_id := string_in_object (a_object, {LS_IMPLEMENTATION_REGISTRATION_OPTIONS}.id_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					create Result.make (l_document_selector, l_work_done_progress, l_id)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	implementation_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_IMPLEMENTATION_REGISTRATION_OPTIONS
+			-- Implementation registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_IMPLEMENTATION_REGISTRATION_OPTIONS} l_value as l_implementation_registration_options then
+				Result := l_implementation_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := implementation_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	implementation_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_IMPLEMENTATION_RESULT
+			-- Convert `a_any` to a implementation result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_IMPLEMENTATION_RESULT} a_any as l_implementation_result then
+				Result := l_implementation_result
+			elseif attached {LS_OBJECT} a_any as l_object and then attached location_from_object (l_object, a_field_name) as l_location then
+				Result := l_location
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_list_from_array (l_array, a_field_name) as l_location_list then
+				Result := l_location_list
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_link_list_from_array (l_array, a_field_name) as l_location_link_list then
+				Result := l_location_link_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	implementation_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_IMPLEMENTATION_RESULT
+			-- Implementation result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := implementation_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -3089,6 +6223,318 @@ feature -- Access
 				last_error := a_field_name + ": invalid type"
 			else
 				Result := initialize_result_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	insert_replace_edit_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_INSERT_REPLACE_EDIT
+			-- Convert `a_object` to a insert replace edit.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if not attached string_in_object (a_object, {LS_INSERT_REPLACE_EDIT}.new_text_name, False) as l_new_text then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_INSERT_REPLACE_EDIT}.new_text_name + ": missing field"
+				end
+			elseif not attached range_in_object (a_object, {LS_INSERT_REPLACE_EDIT}.insert_name, False) as l_insert then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_INSERT_REPLACE_EDIT}.insert_name + ": missing field"
+				end
+			elseif not attached range_in_object (a_object, {LS_INSERT_REPLACE_EDIT}.replace_name, False) as l_replace then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_INSERT_REPLACE_EDIT}.replace_name + ": missing field"
+				end
+			else
+				create Result.make (l_new_text, l_insert, l_replace)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	insert_replace_edit_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_INSERT_REPLACE_EDIT
+			-- Insert replace edit stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_INSERT_REPLACE_EDIT} l_value as l_insert_replace_edit then
+				Result := l_insert_replace_edit
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := insert_replace_edit_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	insert_replace_ranges_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_INSERT_REPLACE_RANGES
+			-- Convert `a_object` to a insert replace ranges.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if not attached range_in_object (a_object, {LS_INSERT_REPLACE_RANGES}.insert_name, False) as l_insert then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_INSERT_REPLACE_RANGES}.insert_name + ": missing field"
+				end
+			elseif not attached range_in_object (a_object, {LS_INSERT_REPLACE_RANGES}.replace_name, False) as l_replace then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_INSERT_REPLACE_RANGES}.replace_name + ": missing field"
+				end
+			else
+				create Result.make (l_insert, l_replace)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	insert_replace_ranges_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_INSERT_REPLACE_RANGES
+			-- Insert replace ranges stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_INSERT_REPLACE_RANGES} l_value as l_insert_replace_ranges then
+				Result := l_insert_replace_ranges
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := insert_replace_ranges_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	insert_text_format_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_INSERT_TEXT_FORMAT
+			-- Convert `a_any` to a insert text format.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_INSERT_TEXT_FORMAT} a_any as l_insert_text_format then
+				Result := l_insert_text_format
+			elseif attached {LS_NUMBER} a_any as l_number and then l_number.is_integer then
+				Result := l_number.to_integer
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	insert_text_format_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_INSERT_TEXT_FORMAT
+			-- Insert text format stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := insert_text_format_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	insert_text_mode_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_INSERT_TEXT_MODE
+			-- Convert `a_any` to a insert text mode.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_INSERT_TEXT_MODE} a_any as l_insert_text_mode then
+				Result := l_insert_text_mode
+			elseif attached {LS_NUMBER} a_any as l_number and then l_number.is_integer then
+				Result := l_number.to_integer
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	insert_text_mode_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_INSERT_TEXT_MODE
+			-- Insert text mode stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := insert_text_mode_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	insert_text_mode_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_INSERT_TEXT_MODE_LIST
+			-- Convert `a_array` to insert text mode list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if attached insert_text_mode_from_any (a_array.value (i), i.out) as l_insert_text_mode then
+					Result.put_last (l_insert_text_mode)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	insert_text_mode_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_INSERT_TEXT_MODE_LIST
+			-- Insert text mode list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_INSERT_TEXT_MODE_LIST} l_value as l_insert_text_mode_list then
+				Result := l_insert_text_mode_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := insert_text_mode_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	insert_text_mode_set_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_INSERT_TEXT_MODE_SET
+			-- Convert `a_object` to a insert text mode set.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if not attached insert_text_mode_list_in_object (a_object, {LS_INSERT_TEXT_MODE_SET}.value_set_name, False) as l_value_set then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_INSERT_TEXT_MODE_SET}.value_set_name + ": missing field"
+				end
+			else
+				create Result.make (l_value_set)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	insert_text_mode_set_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_INSERT_TEXT_MODE_SET
+			-- Insert text mode set stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_INSERT_TEXT_MODE_SET} l_value as l_insert_text_mode_set then
+				Result := l_insert_text_mode_set
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := insert_text_mode_set_from_object (l_object, a_field_name)
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -3723,6 +7169,86 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	optional_call_hierarchy_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_CALL_HIERARCHY_OPTIONS
+			-- Convert `a_any` to an optional call hierarchy options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_OPTIONAL_CALL_HIERARCHY_OPTIONS} a_any as l_optional_call_hierarchy_options then
+				Result := l_optional_call_hierarchy_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached call_hierarchy_options_from_object (l_object, a_field_name) as l_call_hierarchy_options then
+				Result := l_call_hierarchy_options
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_call_hierarchy_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_CALL_HIERARCHY_OPTIONS
+			-- Optional call hierarchy options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := optional_call_hierarchy_options_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	optional_declaration_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_DECLARATION_OPTIONS
+			-- Convert `a_any` to an optional declaration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_OPTIONAL_DECLARATION_OPTIONS} a_any as l_optional_declaration_options then
+				Result := l_optional_declaration_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached declaration_options_from_object (l_object, a_field_name) as l_declaration_options then
+				Result := l_declaration_options
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_declaration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_DECLARATION_OPTIONS
+			-- Optional declaration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := optional_declaration_options_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	optional_definition_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_DEFINITION_OPTIONS
 			-- Convert `a_any` to an optional definition options.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -3763,50 +7289,6 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
-	optional_definition_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_DEFINITION_RESULT
-			-- Convert `a_any` to an optional definition result.
-			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
-			-- Set `last_error` in case of error.
-		require
-			a_any_not_void: a_any /= Void
-			a_field_name_not_void: a_field_name /= Void
-		do
-			last_error := Void
-			if attached {LS_OPTIONAL_DEFINITION_RESULT} a_any as l_optional_definition_result then
-				Result := l_optional_definition_result
-			elseif attached {LS_OBJECT} a_any as l_object and then attached location_from_object (l_object, a_field_name) as l_location then
-				Result := l_location
-			elseif attached {LS_ARRAY} a_any as l_array and then attached location_list_from_array (l_array, a_field_name) as l_location_list then
-				Result := l_location_list
-			elseif attached {LS_ARRAY} a_any as l_array and then attached location_link_list_from_array (l_array, a_field_name) as l_location_link_list then
-				Result := l_location_link_list
-			else
-				last_error := a_field_name + ": invalid type"
-			end
-		ensure
-			error_or_success: Result /= Void xor last_error /= Void
-		end
-
-	optional_definition_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_DEFINITION_RESULT
-			-- Optional definition result stored in field `a_field_name` of `a_object`.
-			-- `a_optional` means that that it is valid if there is no
-			-- such field in `a_object`. Return Void in that case.
-			-- Set `last_error` in case of error.
-		require
-			a_object_not_void: a_object /= Void
-			a_field_name_not_void: a_field_name /= Void
-		do
-			last_error := Void
-			if attached a_object.value (a_field_name) as l_value then
-				Result := optional_definition_result_from_any (l_value, a_field_name)
-			elseif not a_optional then
-				last_error := a_field_name + ": missing field"
-			end
-		ensure
-			error: last_error /= Void implies Result = Void
-			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
-		end
-
 	optional_did_save_text_document_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_DID_SAVE_TEXT_DOCUMENT_OPTIONS
 			-- Convert `a_any` to an optional did save text document options.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -3839,6 +7321,46 @@ feature -- Access
 			last_error := Void
 			if attached a_object.value (a_field_name) as l_value then
 				Result := optional_did_save_text_document_options_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	optional_document_highlight_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_DOCUMENT_HIGHLIGHT_OPTIONS
+			-- Convert `a_any` to an optional document highlight options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_OPTIONAL_DOCUMENT_HIGHLIGHT_OPTIONS} a_any as l_optional_document_highlight_options then
+				Result := l_optional_document_highlight_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached document_highlight_options_from_object (l_object, a_field_name) as l_document_highlight_options then
+				Result := l_document_highlight_options
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_document_highlight_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_DOCUMENT_HIGHLIGHT_OPTIONS
+			-- Optional documen _highlight options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := optional_document_highlight_options_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
 			end
@@ -3927,48 +7449,6 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
-	optional_document_symbol_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_DOCUMENT_SYMBOL_RESULT
-			-- Convert `a_any` to an optional document symbol result.
-			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
-			-- Set `last_error` in case of error.
-		require
-			a_any_not_void: a_any /= Void
-			a_field_name_not_void: a_field_name /= Void
-		do
-			last_error := Void
-			if attached {LS_OPTIONAL_DOCUMENT_SYMBOL_RESULT} a_any as l_optional_document_symbol_result then
-				Result := l_optional_document_symbol_result
-			elseif attached {LS_ARRAY} a_any as l_array and then attached document_symbol_list_from_array (l_array, a_field_name) as l_document_symbol_list then
-				Result := l_document_symbol_list
-			elseif attached {LS_ARRAY} a_any as l_array and then attached symbol_information_list_from_array (l_array, a_field_name) as l_symbol_information_list then
-				Result := l_symbol_information_list
-			else
-				last_error := a_field_name + ": invalid type"
-			end
-		ensure
-			error_or_success: Result /= Void xor last_error /= Void
-		end
-
-	optional_document_symbol_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_DOCUMENT_SYMBOL_RESULT
-			-- Optional document symbol result stored in field `a_field_name` of `a_object`.
-			-- `a_optional` means that that it is valid if there is no
-			-- such field in `a_object`. Return Void in that case.
-			-- Set `last_error` in case of error.
-		require
-			a_object_not_void: a_object /= Void
-			a_field_name_not_void: a_field_name /= Void
-		do
-			last_error := Void
-			if attached a_object.value (a_field_name) as l_value then
-				Result := optional_document_symbol_result_from_any (l_value, a_field_name)
-			elseif not a_optional then
-				last_error := a_field_name + ": missing field"
-			end
-		ensure
-			error: last_error /= Void implies Result = Void
-			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
-		end
-
 	optional_document_uri_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_DOCUMENT_URI
 			-- Convert `a_any` to an optional document URI.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -4047,8 +7527,8 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
-	optional_hover_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_HOVER_RESULT
-			-- Convert `a_any` to an optional hover result.
+	optional_implementation_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_IMPLEMENTATION_OPTIONS
+			-- Convert `a_any` to an optional implementation options.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
 			-- Set `last_error` in case of error.
 		require
@@ -4056,10 +7536,10 @@ feature -- Access
 			a_field_name_not_void: a_field_name /= Void
 		do
 			last_error := Void
-			if attached {LS_OPTIONAL_HOVER_RESULT} a_any as l_optional_hover_result then
-				Result := l_optional_hover_result
-			elseif attached {LS_OBJECT} a_any as l_object and then attached hover_result_from_object (l_object, a_field_name) as l_hover_result then
-				Result := l_hover_result
+			if attached {LS_OPTIONAL_IMPLEMENTATION_OPTIONS} a_any as l_optional_implementation_options then
+				Result := l_optional_implementation_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached implementation_options_from_object (l_object, a_field_name) as l_implementation_options then
+				Result := l_implementation_options
 			else
 				last_error := a_field_name + ": invalid type"
 			end
@@ -4067,8 +7547,8 @@ feature -- Access
 			error_or_success: Result /= Void xor last_error /= Void
 		end
 
-	optional_hover_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_HOVER_RESULT
-			-- Optional hover result stored in field `a_field_name` of `a_object`.
+	optional_implementation_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_IMPLEMENTATION_OPTIONS
+			-- Optional implementation options stored in field `a_field_name` of `a_object`.
 			-- `a_optional` means that that it is valid if there is no
 			-- such field in `a_object`. Return Void in that case.
 			-- Set `last_error` in case of error.
@@ -4078,7 +7558,7 @@ feature -- Access
 		do
 			last_error := Void
 			if attached a_object.value (a_field_name) as l_value then
-				Result := optional_hover_result_from_any (l_value, a_field_name)
+				Result := optional_implementation_options_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
 			end
@@ -4127,6 +7607,104 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	optional_range_location_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_OPTIONAL_RANGE_LOCATION
+			-- Convert `a_object` to an optional range location.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_range: detachable LS_RANGE
+		do
+			last_error := Void
+			if not attached document_uri_in_object (a_object, {LS_OPTIONAL_RANGE_LOCATION}.uri_name, False) as l_uri then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_OPTIONAL_RANGE_LOCATION}.uri_name + ": missing field"
+				end
+			else
+				l_range := range_in_object (a_object, {LS_OPTIONAL_RANGE_LOCATION}.range_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					create Result.make (l_uri, l_range)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_range_location_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_RANGE_LOCATION
+			-- Optional range location stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_OPTIONAL_RANGE_LOCATION} l_value as l_optional_range_location then
+				Result := l_optional_range_location
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := optional_range_location_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	optional_selection_range_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_SELECTION_RANGE_OPTIONS
+			-- Convert `a_any` to an optional selection range options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_OPTIONAL_SELECTION_RANGE_OPTIONS} a_any as l_optional_selection_range_options then
+				Result := l_optional_selection_range_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached selection_range_options_from_object (l_object, a_field_name) as l_selection_range_options then
+				Result := l_selection_range_options
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_selection_range_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_SELECTION_RANGE_OPTIONS
+			-- Optional selection range options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := optional_selection_range_options_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	optional_string_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_STRING
 			-- Convert `a_any` to an optional string.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -4157,6 +7735,86 @@ feature -- Access
 			last_error := Void
 			if attached a_object.value (a_field_name) as l_value then
 				Result := optional_string_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	optional_type_definition_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_TYPE_DEFINITION_OPTIONS
+			-- Convert `a_any` to an optional type definition options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_OPTIONAL_TYPE_DEFINITION_OPTIONS} a_any as l_optional_type_definition_options then
+				Result := l_optional_type_definition_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached type_definition_options_from_object (l_object, a_field_name) as l_type_definition_options then
+				Result := l_type_definition_options
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_type_definition_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_TYPE_DEFINITION_OPTIONS
+			-- Optional type definition options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := optional_type_definition_options_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	optional_type_hierarchy_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_TYPE_HIERARCHY_OPTIONS
+			-- Convert `a_any` to an optional type hierarchy options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_OPTIONAL_TYPE_HIERARCHY_OPTIONS} a_any as l_optional_type_hierarchy_options then
+				Result := l_optional_type_hierarchy_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached type_hierarchy_options_from_object (l_object, a_field_name) as l_type_hierarchy_options then
+				Result := l_type_hierarchy_options
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_type_hierarchy_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_TYPE_HIERARCHY_OPTIONS
+			-- Optional type hierarchy options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := optional_type_hierarchy_options_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
 			end
@@ -4262,46 +7920,6 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
-	optional_will_save_wait_until_text_document_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_RESULT
-			-- Convert `a_any` to an optional will save wait until text document result.
-			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
-			-- Set `last_error` in case of error.
-		require
-			a_any_not_void: a_any /= Void
-			a_field_name_not_void: a_field_name /= Void
-		do
-			last_error := Void
-			if attached {LS_OPTIONAL_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_RESULT} a_any as l_optional_will_save_wait_until_text_document_result then
-				Result := l_optional_will_save_wait_until_text_document_result
-			elseif attached {LS_ARRAY} a_any as l_array and then attached text_edit_list_from_array (l_array, a_field_name) as l_text_edit_list then
-				Result := l_text_edit_list
-			else
-				last_error := a_field_name + ": invalid type"
-			end
-		ensure
-			error_or_success: Result /= Void xor last_error /= Void
-		end
-
-	optional_will_save_wait_until_text_document_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_RESULT
-			-- Optional will save wait until text document result stored in field `a_field_name` of `a_object`.
-			-- `a_optional` means that that it is valid if there is no
-			-- such field in `a_object`. Return Void in that case.
-			-- Set `last_error` in case of error.
-		require
-			a_object_not_void: a_object /= Void
-			a_field_name_not_void: a_field_name /= Void
-		do
-			last_error := Void
-			if attached a_object.value (a_field_name) as l_value then
-				Result := optional_will_save_wait_until_text_document_result_from_any (l_value, a_field_name)
-			elseif not a_optional then
-				last_error := a_field_name + ": missing field"
-			end
-		ensure
-			error: last_error /= Void implies Result = Void
-			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
-		end
-
 	optional_workspace_folder_list_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_WORKSPACE_FOLDER_LIST
 			-- Convert `a_any` to an optional workspace folder list.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -4334,6 +7952,46 @@ feature -- Access
 			last_error := Void
 			if attached a_object.value (a_field_name) as l_value then
 				Result := optional_workspace_folder_list_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	optional_workspace_symbol_options_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_OPTIONAL_WORKSPACE_SYMBOL_OPTIONS
+			-- Convert `a_any` to an optional workspace symbol options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_OPTIONAL_WORKSPACE_SYMBOL_OPTIONS} a_any as l_optional_workspace_symbol_options then
+				Result := l_optional_workspace_symbol_options
+			elseif attached {LS_OBJECT} a_any as l_object and then attached workspace_symbol_options_from_object (l_object, a_field_name) as l_workspace_symbol_options then
+				Result := l_workspace_symbol_options
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	optional_workspace_symbol_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_OPTIONAL_WORKSPACE_SYMBOL_OPTIONS
+			-- Optional workspace symbol options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := optional_workspace_symbol_options_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
 			end
@@ -4469,6 +8127,70 @@ feature -- Access
 				Result := position_encoding_kind_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	position_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_POSITION_LIST
+			-- Convert `a_array` to position list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if not attached {LS_OBJECT} a_array.value (i) as l_object then
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				elseif attached position_from_object (l_object, i.out) as l_position then
+					Result.put_last (l_position)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	position_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_POSITION_LIST
+			-- Position list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_POSITION_LIST} l_value as l_position_list then
+				Result := l_position_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := position_list_from_array (l_array, a_field_name)
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -4645,6 +8367,70 @@ feature -- Access
 				last_error := a_field_name + ": invalid type"
 			else
 				Result := range_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	range_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_RANGE_LIST
+			-- Convert `a_array` to range list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if not attached {LS_OBJECT} a_array.value (i) as l_object then
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				elseif attached range_from_object (l_object, i.out) as l_range then
+					Result.put_last (l_range)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	range_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_RANGE_LIST
+			-- Range list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_RANGE_LIST} l_value as l_range_list then
+				Result := l_range_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := range_list_from_array (l_array, a_field_name)
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -4932,6 +8718,57 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	resolve_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_RESOLVE_CAPABILITIES
+			-- Convert `a_object` to a resolve capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if not attached string_list_in_object (a_object, {LS_RESOLVE_CAPABILITIES}.properties_name, False) as l_properties then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_RESOLVE_CAPABILITIES}.properties_name + ": missing field"
+				end
+			else
+				create Result.make (l_properties)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	resolve_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_RESOLVE_CAPABILITIES
+			-- Resolve capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_RESOLVE_CAPABILITIES} l_value as l_resolve_capabilities then
+				Result := l_resolve_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := resolve_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	response_id_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_RESPONSE_ID
 			-- Convert `a_any` to a response id.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -4972,6 +8809,334 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	selection_range_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_SELECTION_RANGE
+			-- Convert `a_object` to a selection range.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_parent: detachable LS_SELECTION_RANGE
+		do
+			last_error := Void
+			if not attached range_in_object (a_object, {LS_SELECTION_RANGE}.range_name, False) as l_range then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_SELECTION_RANGE}.range_name + ": missing field"
+				end
+			else
+				l_parent := selection_range_in_object (a_object, {LS_SELECTION_RANGE}.parent_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					create Result.make_with_parent (l_range, l_parent)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	selection_range_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_SELECTION_RANGE
+			-- Selection range stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_SELECTION_RANGE} l_value as l_selection_range then
+				Result := l_selection_range
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := selection_range_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	selection_range_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_SELECTION_RANGE_CAPABILITIES
+			-- Convert `a_object` to a selection range capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_SELECTION_RANGE_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_dynamic_registration)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	selection_range_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_SELECTION_RANGE_CAPABILITIES
+			-- Selection range capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_SELECTION_RANGE_CAPABILITIES} l_value as l_selection_range_capabilities then
+				Result := l_selection_range_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := selection_range_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	selection_range_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_SELECTION_RANGE_LIST
+			-- Convert `a_array` to selection range list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if not attached {LS_OBJECT} a_array.value (i) as l_object then
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				elseif attached selection_range_from_object (l_object, i.out) as l_range then
+					Result.put_last (l_range)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	selection_range_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_SELECTION_RANGE_LIST
+			-- Selection range list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_SELECTION_RANGE_LIST} l_value as l_selection_range_list then
+				Result := l_selection_range_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := selection_range_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	selection_range_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_SELECTION_RANGE_OPTIONS
+			-- Convert `a_object` to a selection range options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_work_done_progress := boolean_in_object (a_object, {LS_SELECTION_RANGE_OPTIONS}.work_done_progress_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	selection_range_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_SELECTION_RANGE_OPTIONS
+			-- Selection range options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_SELECTION_RANGE_OPTIONS} l_value as l_selection_range_options then
+				Result := l_selection_range_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := selection_range_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	selection_range_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_SELECTION_RANGE_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a selection range registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+			l_id: detachable LS_STRING
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_SELECTION_RANGE_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_SELECTION_RANGE_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_work_done_progress := boolean_in_object (a_object, {LS_SELECTION_RANGE_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_id := string_in_object (a_object, {LS_SELECTION_RANGE_REGISTRATION_OPTIONS}.id_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					create Result.make (l_document_selector, l_work_done_progress, l_id)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	selection_range_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_SELECTION_RANGE_REGISTRATION_OPTIONS
+			-- Selection range registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_SELECTION_RANGE_REGISTRATION_OPTIONS} l_value as l_selection_range_registration_options then
+				Result := l_selection_range_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := selection_range_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	selection_range_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_SELECTION_RANGE_RESULT
+			-- Convert `a_any` to a selection range result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_SELECTION_RANGE_RESULT} a_any as l_selection_range_result then
+				Result := l_selection_range_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached selection_range_list_from_array (l_array, a_field_name) as l_selection_range_list then
+				Result := l_selection_range_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	selection_range_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_SELECTION_RANGE_RESULT
+			-- Selection range result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := selection_range_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	server_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_SERVER_CAPABILITIES
 			-- Convert `a_object` to a server capabilities.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -4981,9 +9146,18 @@ feature -- Access
 			a_field_name_not_void: a_field_name /= Void
 		local
 			l_text_document_sync: detachable LS_TEXT_DOCUMENT_SYNC_GENERAL_OPTIONS
+			l_completion_provider: detachable LS_COMPLETION_OPTIONS
 			l_hover_provider: detachable LS_OPTIONAL_HOVER_OPTIONS
+			l_declaration_provider: detachable LS_OPTIONAL_DECLARATION_OPTIONS
 			l_definition_provider: detachable LS_OPTIONAL_DEFINITION_OPTIONS
+			l_type_definition_provider: detachable LS_OPTIONAL_TYPE_DEFINITION_OPTIONS
+			l_implementation_provider: detachable LS_OPTIONAL_IMPLEMENTATION_OPTIONS
+			l_document_highlight_provider: detachable LS_OPTIONAL_DOCUMENT_HIGHLIGHT_OPTIONS
 			l_document_symbol_provider: detachable LS_OPTIONAL_DOCUMENT_SYMBOL_OPTIONS
+			l_selection_range_provider: detachable LS_OPTIONAL_SELECTION_RANGE_OPTIONS
+			l_call_hierarchy_provider: detachable LS_OPTIONAL_CALL_HIERARCHY_OPTIONS
+			l_type_hierarchy_provider: detachable LS_OPTIONAL_TYPE_HIERARCHY_OPTIONS
+			l_workspace_symbol_provider: detachable LS_OPTIONAL_WORKSPACE_SYMBOL_OPTIONS
 		do
 			last_error := Void
 			l_text_document_sync := text_document_sync_general_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.text_document_sync_name, True)
@@ -4991,7 +9165,19 @@ feature -- Access
 				last_error := a_field_name + "." + l_last_error
 			end
 			if last_error = Void then
+				l_completion_provider := completion_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.completion_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
 				l_hover_provider := optional_hover_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.hover_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_declaration_provider := optional_declaration_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.declaration_provider_name, True)
 				if attached last_error as l_last_error then
 					last_error := a_field_name + "." + l_last_error
 				end
@@ -5003,7 +9189,49 @@ feature -- Access
 				end
 			end
 			if last_error = Void then
+				l_type_definition_provider := optional_type_definition_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.type_definition_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_implementation_provider := optional_implementation_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.implementation_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_document_highlight_provider := optional_document_highlight_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.document_highlight_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
 				l_document_symbol_provider := optional_document_symbol_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.document_symbol_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_selection_range_provider := optional_selection_range_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.selection_range_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_call_hierarchy_provider := optional_call_hierarchy_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.call_hierarchy_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_type_hierarchy_provider := optional_type_hierarchy_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.type_hierarchy_provider_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_workspace_symbol_provider := optional_workspace_symbol_options_in_object (a_object, {LS_SERVER_CAPABILITIES}.workspace_symbol_provider_name, True)
 				if attached last_error as l_last_error then
 					last_error := a_field_name + "." + l_last_error
 				end
@@ -5011,9 +9239,18 @@ feature -- Access
 			if last_error = Void then
 				create Result.make
 				Result.set_text_document_sync (l_text_document_sync)
+				Result.set_completion_provider (l_completion_provider)
 				Result.set_hover_provider (l_hover_provider)
+				Result.set_declaration_provider (l_declaration_provider)
 				Result.set_definition_provider (l_definition_provider)
+				Result.set_type_definition_provider (l_type_definition_provider)
+				Result.set_implementation_provider (l_implementation_provider)
+				Result.set_document_highlight_provider (l_document_highlight_provider)
 				Result.set_document_symbol_provider (l_document_symbol_provider)
+				Result.set_selection_range_provider (l_selection_range_provider)
+				Result.set_call_hierarchy_provider (l_call_hierarchy_provider)
+				Result.set_type_hierarchy_provider (l_type_hierarchy_provider)
+				Result.set_workspace_symbol_provider (l_workspace_symbol_provider)
 			end
 		ensure
 			error_or_success: Result /= Void xor last_error /= Void
@@ -5097,14 +9334,10 @@ feature -- Access
 			last_error := Void
 			if attached {LS_STRING_CONTENT} a_any as l_string_content then
 				Result := l_string_content
-			elseif attached {LS_ARRAY} a_any as l_array and then attached marked_string_list_from_array (l_array, a_field_name) as l_marked_string_list then
-				Result := l_marked_string_list
 			elseif not attached {LS_OBJECT} a_any as l_object then
 				last_error := a_field_name + ": invalid type"
 			elseif attached markup_content_from_object (l_object, a_field_name) as l_markup_content then
 				Result := l_markup_content
-			elseif attached code_block_from_object (l_object, a_field_name) as l_code_block then
-				Result := l_code_block
 			else
 				last_error := a_field_name + ": invalid type"
 			end
@@ -5126,6 +9359,113 @@ feature -- Access
 				Result := string_content_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	string_contents_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_STRING_CONTENTS
+			-- Convert `a_any` to a string contents.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_STRING_CONTENTS} a_any as l_string_contents then
+				Result := l_string_contents
+			elseif attached {LS_ARRAY} a_any as l_array and then attached marked_string_list_from_array (l_array, a_field_name) as l_marked_string_list then
+				Result := l_marked_string_list
+			elseif not attached {LS_OBJECT} a_any as l_object then
+				last_error := a_field_name + ": invalid type"
+			elseif attached markup_content_from_object (l_object, a_field_name) as l_markup_content then
+				Result := l_markup_content
+			elseif attached code_block_from_object (l_object, a_field_name) as l_code_block then
+				Result := l_code_block
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	string_contents_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_STRING_CONTENTS
+			-- String contents stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := string_contents_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	string_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_STRING_LIST
+			-- Convert `a_array` to string list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if attached string_from_any (a_array.value (i), i.out) as l_string then
+					Result.put_last (l_string)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	string_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_STRING_LIST
+			-- String list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_STRING_LIST} l_value as l_string_list then
+				Result := l_string_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := string_list_from_array (l_array, a_field_name)
 			end
 		ensure
 			error: last_error /= Void implies Result = Void
@@ -5593,15 +9933,29 @@ feature -- Access
 			a_field_name_not_void: a_field_name /= Void
 		local
 			l_synchronization: detachable LS_TEXT_DOCUMENT_SYNC_CAPABILITIES
+			l_completion: detachable LS_COMPLETION_CAPABILITIES
 			l_hover: detachable LS_HOVER_CAPABILITIES
+			l_declaration: detachable LS_DECLARATION_CAPABILITIES
 			l_definition: detachable LS_DEFINITION_CAPABILITIES
+			l_type_definition: detachable LS_TYPE_DEFINITION_CAPABILITIES
+			l_implementation: detachable LS_IMPLEMENTATION_CAPABILITIES
+			l_document_highlight: detachable LS_DOCUMENT_HIGHLIGHT_CAPABILITIES
 			l_document_symbol: detachable LS_DOCUMENT_SYMBOL_CAPABILITIES
 			l_publish_diagnostics: detachable LS_PUBLISH_DIAGNOSTICS_CAPABILITIES
+			l_selection_range: detachable LS_SELECTION_RANGE_CAPABILITIES
+			l_call_hierarchy: detachable LS_CALL_HIERARCHY_CAPABILITIES
+			l_type_hierarchy: detachable LS_TYPE_HIERARCHY_CAPABILITIES
 		do
 			last_error := Void
 			l_synchronization := text_document_sync_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.synchronization_name, True)
 			if attached last_error as l_last_error then
 				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_completion := completion_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.completion_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
 			end
 			if last_error = Void then
 				l_hover := hover_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.hover_name, True)
@@ -5610,7 +9964,31 @@ feature -- Access
 				end
 			end
 			if last_error = Void then
+				l_declaration := declaration_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.declaration_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
 				l_definition := definition_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.definition_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_type_definition := type_definition_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.type_definition_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_implementation := implementation_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.implementation_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_document_highlight := document_highlight_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.document_highlight_name, True)
 				if attached last_error as l_last_error then
 					last_error := a_field_name + "." + l_last_error
 				end
@@ -5628,12 +10006,38 @@ feature -- Access
 				end
 			end
 			if last_error = Void then
+				l_selection_range := selection_range_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.selection_range_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_call_hierarchy := call_hierarchy_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.call_hierarchy_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_type_hierarchy := type_hierarchy_capabilities_in_object (a_object, {LS_TEXT_DOCUMENT_CAPABILITIES}.type_hierarchy_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
 				create Result.make
 				Result.set_synchronization (l_synchronization)
+				Result.set_completion (l_completion)
 				Result.set_hover (l_hover)
+				Result.set_declaration (l_declaration)
 				Result.set_definition (l_definition)
+				Result.set_type_definition (l_type_definition)
+				Result.set_implementation (l_implementation)
+				Result.set_document_highlight (l_document_highlight)
 				Result.set_document_symbol (l_document_symbol)
 				Result.set_publish_diagnostics (l_publish_diagnostics)
+				Result.set_selection_range (l_selection_range)
+				Result.set_call_hierarchy (l_call_hierarchy)
+				Result.set_type_hierarchy (l_type_hierarchy)
 			end
 		ensure
 			error_or_success: Result /= Void xor last_error /= Void
@@ -6375,7 +10779,7 @@ feature -- Access
 		end
 
 	text_edit_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TEXT_EDIT
-			-- Text edit item stored in field `a_field_name` of `a_object`.
+			-- Text edit stored in field `a_field_name` of `a_object`.
 			-- `a_optional` means that that it is valid if there is no
 			-- such field in `a_object`. Return Void in that case.
 			-- Set `last_error` in case of error.
@@ -6500,6 +10904,672 @@ feature -- Access
 			last_error := Void
 			if attached a_object.value (a_field_name) as l_value then
 				Result := trace_value_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_definition_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_TYPE_DEFINITION_CAPABILITIES
+			-- Convert `a_object` to a type definition capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+			l_link_support: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_TYPE_DEFINITION_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_link_support := boolean_in_object (a_object, {LS_TYPE_DEFINITION_CAPABILITIES}.link_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_dynamic_registration, l_link_support)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_definition_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_DEFINITION_CAPABILITIES
+			-- Type definition capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_DEFINITION_CAPABILITIES} l_value as l_type_definition_capabilities then
+				Result := l_type_definition_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_definition_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_definition_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_TYPE_DEFINITION_OPTIONS
+			-- Convert `a_object` to a type definition options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_work_done_progress := boolean_in_object (a_object, {LS_TYPE_DEFINITION_OPTIONS}.work_done_progress_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_definition_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_DEFINITION_OPTIONS
+			-- Type definition options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_DEFINITION_OPTIONS} l_value as l_type_definition_options then
+				Result := l_type_definition_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_definition_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_definition_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_TYPE_DEFINITION_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a type definition registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+			l_id: detachable LS_STRING
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_TYPE_DEFINITION_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_TYPE_DEFINITION_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_work_done_progress := boolean_in_object (a_object, {LS_TYPE_DEFINITION_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_id := string_in_object (a_object, {LS_TYPE_DEFINITION_REGISTRATION_OPTIONS}.id_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					create Result.make (l_document_selector, l_work_done_progress, l_id)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_definition_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_DEFINITION_REGISTRATION_OPTIONS
+			-- Type definition registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_DEFINITION_REGISTRATION_OPTIONS} l_value as l_type_definition_registration_options then
+				Result := l_type_definition_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_definition_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_definition_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_TYPE_DEFINITION_RESULT
+			-- Convert `a_any` to a type definition result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_TYPE_DEFINITION_RESULT} a_any as l_type_definition_result then
+				Result := l_type_definition_result
+			elseif attached {LS_OBJECT} a_any as l_object and then attached location_from_object (l_object, a_field_name) as l_location then
+				Result := l_location
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_list_from_array (l_array, a_field_name) as l_location_list then
+				Result := l_location_list
+			elseif attached {LS_ARRAY} a_any as l_array and then attached location_link_list_from_array (l_array, a_field_name) as l_location_link_list then
+				Result := l_location_link_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_definition_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_DEFINITION_RESULT
+			-- Type definition result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := type_definition_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_CAPABILITIES
+			-- Convert `a_object` to a type hierarchy capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_TYPE_HIERARCHY_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_dynamic_registration)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_CAPABILITIES
+			-- Type hierarchy capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_HIERARCHY_CAPABILITIES} l_value as l_type_hierarchy_capabilities then
+				Result := l_type_hierarchy_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_hierarchy_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_item_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_ITEM
+			-- Convert `a_object` to a type hierarchy item.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_tags: detachable LS_SYMBOL_TAG_LIST
+			l_detail: detachable LS_STRING
+			l_data: detachable LS_ANY
+		do
+			last_error := Void
+			if not attached string_in_object (a_object, {LS_TYPE_HIERARCHY_ITEM}.name_name, False) as l_name then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_TYPE_HIERARCHY_ITEM}.name_name + ": missing field"
+				end
+			elseif not attached symbol_kind_in_object (a_object, {LS_TYPE_HIERARCHY_ITEM}.kind_name, False) as l_kind then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_TYPE_HIERARCHY_ITEM}.kind_name + ": missing field"
+				end
+			elseif not attached document_uri_in_object (a_object, {LS_TYPE_HIERARCHY_ITEM}.uri_name, False) as l_uri then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_TYPE_HIERARCHY_ITEM}.uri_name + ": missing field"
+				end
+			elseif not attached range_in_object (a_object, {LS_TYPE_HIERARCHY_ITEM}.range_name, False) as l_range then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_TYPE_HIERARCHY_ITEM}.range_name + ": missing field"
+				end
+			elseif not attached range_in_object (a_object, {LS_TYPE_HIERARCHY_ITEM}.selection_range_name, False) as l_selection_range then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_TYPE_HIERARCHY_ITEM}.selection_range_name + ": missing field"
+				end
+			else
+				l_tags := symbol_tag_list_in_object (a_object, {LS_TYPE_HIERARCHY_ITEM}.tags_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_detail := string_in_object (a_object, {LS_TYPE_HIERARCHY_ITEM}.detail_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_data := a_object.value ({LS_TYPE_HIERARCHY_ITEM}.data_name)
+				end
+				if last_error = Void then
+					create Result.make (l_name, l_kind, l_tags, l_detail, l_uri, l_range, l_selection_range, l_data)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_item_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_ITEM
+			-- Type hierarchy item stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_HIERARCHY_ITEM} l_value as l_type_hierarchy_item then
+				Result := l_type_hierarchy_item
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_hierarchy_item_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_item_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_ITEM_LIST
+			-- Convert `a_array` to type hierarchy item list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			if not attached {LS_OBJECT} a_array.value (1) as l_first_object then
+				last_error := a_field_name + ".1: invalid type"
+			else
+				nb := a_array.count
+				create Result.make_with_capacity (nb)
+				from i := 1 until i > nb loop
+					if not attached {LS_OBJECT} a_array.value (i) as l_object then
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					elseif attached type_hierarchy_item_from_object (l_object, i.out) as l_type_hierarchy_item then
+						Result.put_last (l_type_hierarchy_item)
+						i := i + 1
+					elseif attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+						i := nb + 1 -- Jump out of the loop.
+					else
+						last_error := a_field_name + "." + i.out + ": invalid type"
+						i := nb + 1 -- Jump out of the loop.
+					end
+				end
+				if last_error /= Void then
+					Result := Void
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_item_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_ITEM_LIST
+			-- Type hierarchy_ tem list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_HIERARCHY_ITEM_LIST} l_value as l_type_hierarchy_item_list then
+				Result := l_type_hierarchy_item_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_hierarchy_item_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_OPTIONS
+			-- Convert `a_object` to a type hierarchy options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_work_done_progress := boolean_in_object (a_object, {LS_TYPE_HIERARCHY_OPTIONS}.work_done_progress_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			else
+				create Result.make (l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_OPTIONS
+			-- Type hierarchy options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_HIERARCHY_OPTIONS} l_value as l_type_hierarchy_options then
+				Result := l_type_hierarchy_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_hierarchy_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_prepare_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_PREPARE_RESULT
+			-- Convert `a_any` to a type hierarchy prepare result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_TYPE_HIERARCHY_PREPARE_RESULT} a_any as l_type_hierarchy_prepare_result then
+				Result := l_type_hierarchy_prepare_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached type_hierarchy_item_list_from_array (l_array, a_field_name) as l_type_hierarchy_item_list then
+				Result := l_type_hierarchy_item_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_prepare_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_PREPARE_RESULT
+			-- Type hierarchy prepare result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := type_hierarchy_prepare_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a type hierarchy registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_work_done_progress: detachable LS_BOOLEAN
+			l_id: detachable LS_STRING
+		do
+			last_error := Void
+			if not attached optional_document_selector_in_object (a_object, {LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS}.document_selector_name, False) as l_document_selector then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS}.document_selector_name + ": missing field"
+				end
+			else
+				l_work_done_progress := boolean_in_object (a_object, {LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_id := string_in_object (a_object, {LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS}.id_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					create Result.make (l_document_selector, l_work_done_progress, l_id)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS
+			-- Type hierarchy registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_TYPE_HIERARCHY_REGISTRATION_OPTIONS} l_value as l_type_hierarchy_registration_options then
+				Result := l_type_hierarchy_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := type_hierarchy_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_subtypes_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_SUBTYPES_RESULT
+			-- Convert `a_any` to a type hierarchy subtypes result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_TYPE_HIERARCHY_SUBTYPES_RESULT} a_any as l_type_hierarchy_subtypes_result then
+				Result := l_type_hierarchy_subtypes_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached type_hierarchy_item_list_from_array (l_array, a_field_name) as l_type_hierarchy_item_list then
+				Result := l_type_hierarchy_item_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_subtypes_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_SUBTYPES_RESULT
+			-- Type hierarchy subtypes result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := type_hierarchy_subtypes_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	type_hierarchy_supertypes_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_TYPE_HIERARCHY_SUPERTYPES_RESULT
+			-- Convert `a_any` to a type hierarchy supertypes result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_TYPE_HIERARCHY_SUPERTYPES_RESULT} a_any as l_type_hierarchy_supertypes_result then
+				Result := l_type_hierarchy_supertypes_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached type_hierarchy_item_list_from_array (l_array, a_field_name) as l_type_hierarchy_item_list then
+				Result := l_type_hierarchy_item_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	type_hierarchy_supertypes_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_TYPE_HIERARCHY_SUPERTYPES_RESULT
+			-- Type hierarchy supertypes result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := type_hierarchy_supertypes_result_from_any (l_value, a_field_name)
 			elseif not a_optional then
 				last_error := a_field_name + ": missing field"
 			end
@@ -6906,6 +11976,46 @@ feature -- Access
 			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
 		end
 
+	will_save_wait_until_text_document_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_RESULT
+			-- Convert `a_any` to a will save wait until text document result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_RESULT} a_any as l_will_save_wait_until_text_document_result then
+				Result := l_will_save_wait_until_text_document_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached text_edit_list_from_array (l_array, a_field_name) as l_text_edit_list then
+				Result := l_text_edit_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	will_save_wait_until_text_document_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_WILL_SAVE_WAIT_UNTIL_TEXT_DOCUMENT_RESULT
+			-- Will save wait until text document result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := will_save_wait_until_text_document_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
 	workspace_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_WORKSPACE_CAPABILITIES
 			-- Convert `a_object` to a workspace capabilities.
 			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
@@ -6914,16 +12024,40 @@ feature -- Access
 			a_object_not_void: a_object /= Void
 			a_field_name_not_void: a_field_name /= Void
 		local
+			l_did_change_configuration: detachable LS_DID_CHANGE_CONFIGURATION_CAPABILITIES
 			l_did_change_watched_files: detachable LS_DID_CHANGE_WATCHED_FILES_CAPABILITIES
+			l_symbol: detachable LS_WORKSPACE_SYMBOL_CAPABILITIES
+			l_configuration: detachable LS_CONFIGURATION_CAPABILITIES
 		do
 			last_error := Void
-			l_did_change_watched_files := did_change_watched_files_capabilities_in_object (a_object, {LS_WORKSPACE_CAPABILITIES}.did_change_watched_files_name, True)
+			l_did_change_configuration := did_change_configuration_capabilities_in_object (a_object, {LS_WORKSPACE_CAPABILITIES}.did_change_configuration_name, True)
 			if attached last_error as l_last_error then
 				last_error := a_field_name + "." + l_last_error
 			end
 			if last_error = Void then
+				l_did_change_watched_files := did_change_watched_files_capabilities_in_object (a_object, {LS_WORKSPACE_CAPABILITIES}.did_change_watched_files_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_symbol := workspace_symbol_capabilities_in_object (a_object, {LS_WORKSPACE_CAPABILITIES}.symbol_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_configuration := configuration_capabilities_in_object (a_object, {LS_WORKSPACE_CAPABILITIES}.configuration_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
 				create Result.make
+				Result.set_did_change_configuration (l_did_change_configuration)
 				Result.set_did_change_watched_files (l_did_change_watched_files)
+				Result.set_symbol (l_symbol)
+				Result.set_configuration (l_configuration)
 			end
 		ensure
 			error_or_success: Result /= Void xor last_error /= Void
@@ -7077,6 +12211,382 @@ feature -- Access
 				last_error := a_field_name + ": invalid type"
 			else
 				Result := workspace_folder_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	workspace_symbol_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_WORKSPACE_SYMBOL
+			-- Convert `a_object` to a workspace symbol.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_tags: detachable LS_SYMBOL_TAG_LIST
+			l_container_name: detachable LS_STRING
+			l_data: detachable LS_ANY
+		do
+			last_error := Void
+			if not attached string_in_object (a_object, {LS_WORKSPACE_SYMBOL}.name_name, False) as l_name then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_WORKSPACE_SYMBOL}.name_name + ": missing field"
+				end
+			elseif not attached symbol_kind_in_object (a_object, {LS_WORKSPACE_SYMBOL}.kind_name, False) as l_kind then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_WORKSPACE_SYMBOL}.kind_name + ": missing field"
+				end
+			elseif not attached optional_range_location_in_object (a_object, {LS_WORKSPACE_SYMBOL}.location_name, False) as l_location then
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				else
+					last_error := a_field_name + "." + {LS_WORKSPACE_SYMBOL}.location_name + ": missing field"
+				end
+			else
+				l_tags := symbol_tag_list_in_object (a_object, {LS_WORKSPACE_SYMBOL}.tags_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+				if last_error = Void then
+					l_container_name := string_in_object (a_object, {LS_WORKSPACE_SYMBOL}.container_name_name, True)
+					if attached last_error as l_last_error then
+						last_error := a_field_name + "." + l_last_error
+					end
+				end
+				if last_error = Void then
+					l_data := a_object.value ({LS_WORKSPACE_SYMBOL}.data_name)
+				end
+				if last_error = Void then
+					create Result.make (l_name, l_kind, l_tags, l_container_name, l_location, l_data)
+				end
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	workspace_symbol_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_WORKSPACE_SYMBOL
+			-- Workspace symbol stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_WORKSPACE_SYMBOL} l_value as l_workspace_symbol then
+				Result := l_workspace_symbol
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := workspace_symbol_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	workspace_symbol_capabilities_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_WORKSPACE_SYMBOL_CAPABILITIES
+			-- Convert `a_object` to a workspace symbol capabilities.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_dynamic_registration: detachable LS_BOOLEAN
+			l_symbol_kind: detachable LS_SYMBOL_KIND_SET
+			l_tag_support: detachable LS_SYMBOL_TAG_SET
+			l_resolve_support: detachable LS_RESOLVE_CAPABILITIES
+		do
+			last_error := Void
+			l_dynamic_registration := boolean_in_object (a_object, {LS_WORKSPACE_SYMBOL_CAPABILITIES}.dynamic_registration_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_symbol_kind := symbol_kind_set_in_object (a_object, {LS_WORKSPACE_SYMBOL_CAPABILITIES}.symbol_kind_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_tag_support := symbol_tag_set_in_object (a_object, {LS_WORKSPACE_SYMBOL_CAPABILITIES}.tag_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				l_resolve_support := resolve_capabilities_in_object (a_object, {LS_WORKSPACE_SYMBOL_CAPABILITIES}.resolve_support_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_dynamic_registration, l_symbol_kind, l_tag_support, l_resolve_support)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	workspace_symbol_capabilities_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_WORKSPACE_SYMBOL_CAPABILITIES
+			-- Workspace symbol capabilities stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_WORKSPACE_SYMBOL_CAPABILITIES} l_value as l_workspace_symbol_capabilities then
+				Result := l_workspace_symbol_capabilities
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := workspace_symbol_capabilities_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	workspace_symbol_list_from_array (a_array: LS_ARRAY; a_field_name: STRING_8): detachable LS_WORKSPACE_SYMBOL_LIST
+			-- Convert `a_array` to workspace symbol list.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_array /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			i, nb: INTEGER
+		do
+			last_error := Void
+			nb := a_array.count
+			create Result.make_with_capacity (nb)
+			from i := 1 until i > nb loop
+				if not attached {LS_OBJECT} a_array.value (i) as l_object then
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				elseif attached workspace_symbol_from_object (l_object, i.out) as l_workspace_symbol then
+					Result.put_last (l_workspace_symbol)
+					i := i + 1
+				elseif attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+					i := nb + 1 -- Jump out of the loop.
+				else
+					last_error := a_field_name + "." + i.out + ": invalid type"
+					i := nb + 1 -- Jump out of the loop.
+				end
+			end
+			if last_error /= Void then
+				Result := Void
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	workspace_symbol_list_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_WORKSPACE_SYMBOL_LIST
+			-- Workspace symbol list stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_WORKSPACE_SYMBOL_LIST} l_value as l_workspace_symbol_list then
+				Result := l_workspace_symbol_list
+			elseif not attached {LS_ARRAY} l_value as l_array then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := workspace_symbol_list_from_array (l_array, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	workspace_symbol_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_WORKSPACE_SYMBOL_OPTIONS
+			-- Convert `a_object` to a workspace symbol options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_resolve_provider: detachable LS_BOOLEAN
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_resolve_provider := boolean_in_object (a_object, {LS_WORKSPACE_SYMBOL_OPTIONS}.resolve_provider_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_work_done_progress := boolean_in_object (a_object, {LS_WORKSPACE_SYMBOL_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_resolve_provider, l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	workspace_symbol_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_WORKSPACE_SYMBOL_OPTIONS
+			-- Workspace symbol options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_WORKSPACE_SYMBOL_OPTIONS} l_value as l_workspace_symbol_options then
+				Result := l_workspace_symbol_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := workspace_symbol_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	workspace_symbol_registration_options_from_object (a_object: LS_OBJECT; a_field_name: STRING_8): detachable LS_WORKSPACE_SYMBOL_REGISTRATION_OPTIONS
+			-- Convert `a_object` to a workspace symbol registration options.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_resolve_provider: detachable LS_BOOLEAN
+			l_work_done_progress: detachable LS_BOOLEAN
+		do
+			last_error := Void
+			l_resolve_provider := boolean_in_object (a_object, {LS_WORKSPACE_SYMBOL_REGISTRATION_OPTIONS}.resolve_provider_name, True)
+			if attached last_error as l_last_error then
+				last_error := a_field_name + "." + l_last_error
+			end
+			if last_error = Void then
+				l_work_done_progress := boolean_in_object (a_object, {LS_WORKSPACE_SYMBOL_REGISTRATION_OPTIONS}.work_done_progress_name, True)
+				if attached last_error as l_last_error then
+					last_error := a_field_name + "." + l_last_error
+				end
+			end
+			if last_error = Void then
+				create Result.make (l_resolve_provider, l_work_done_progress)
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	workspace_symbol_registration_options_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_WORKSPACE_SYMBOL_REGISTRATION_OPTIONS
+			-- Workspace symbol registration options stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		local
+			l_value: detachable LS_ANY
+		do
+			last_error := Void
+			l_value := a_object.value (a_field_name)
+			if l_value = Void then
+				if not a_optional then
+					last_error := a_field_name + ": missing field"
+				end
+			elseif attached {LS_WORKSPACE_SYMBOL_REGISTRATION_OPTIONS} l_value as l_workspace_symbol_registration_options then
+				Result := l_workspace_symbol_registration_options
+			elseif not attached {LS_OBJECT} l_value as l_object then
+				last_error := a_field_name + ": invalid type"
+			else
+				Result := workspace_symbol_registration_options_from_object (l_object, a_field_name)
+			end
+		ensure
+			error: last_error /= Void implies Result = Void
+			not_optional: not a_optional implies (Result /= Void xor last_error /= Void)
+		end
+
+	workspace_symbol_result_from_any (a_any: LS_ANY; a_field_name: STRING_8): detachable LS_WORKSPACE_SYMBOL_RESULT
+			-- Convert `a_any` to a workspace symbol result.
+			-- `a_field_name` is the name of the field containing `a_object` in the enclosing object.
+			-- Set `last_error` in case of error.
+		require
+			a_any_not_void: a_any /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached {LS_WORKSPACE_SYMBOL_RESULT} a_any as l_workspace_symbol_result then
+				Result := l_workspace_symbol_result
+			elseif attached {LS_ARRAY} a_any as l_array and then attached workspace_symbol_list_from_array (l_array, a_field_name) as l_workspace_symbol_list then
+				Result := l_workspace_symbol_list
+			elseif attached {LS_ARRAY} a_any as l_array and then attached symbol_information_list_from_array (l_array, a_field_name) as l_symbol_information_list then
+				Result := l_symbol_information_list
+			else
+				last_error := a_field_name + ": invalid type"
+			end
+		ensure
+			error_or_success: Result /= Void xor last_error /= Void
+		end
+
+	workspace_symbol_result_in_object (a_object: LS_OBJECT; a_field_name: STRING_8; a_optional: BOOLEAN): detachable LS_WORKSPACE_SYMBOL_RESULT
+			-- Workspace symbol result stored in field `a_field_name` of `a_object`.
+			-- `a_optional` means that that it is valid if there is no
+			-- such field in `a_object`. Return Void in that case.
+			-- Set `last_error` in case of error.
+		require
+			a_object_not_void: a_object /= Void
+			a_field_name_not_void: a_field_name /= Void
+		do
+			last_error := Void
+			if attached a_object.value (a_field_name) as l_value then
+				Result := workspace_symbol_result_from_any (l_value, a_field_name)
+			elseif not a_optional then
+				last_error := a_field_name + ": missing field"
 			end
 		ensure
 			error: last_error /= Void implies Result = Void

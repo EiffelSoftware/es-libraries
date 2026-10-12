@@ -4,7 +4,7 @@
 		"C functions used to access garbage collector facilities"
 
 	system: "Gobo Eiffel Compiler"
-	copyright: "Copyright (c) 2007-2024, Eric Bezault and others"
+	copyright: "Copyright (c) 2007-2026, Eric Bezault and others"
 	license: "MIT License"
 */
 
@@ -366,19 +366,30 @@ extern void GE_boehm_dispose_once_per_object_data(void* data, void* disp); /* Ca
  */
 
 /* Access object through hector. */
-#define eif_access(obj) (obj)
+#ifdef GE_USE_BOEHM_GC
+#define eif_access(obj) (*(EIF_REFERENCE*)(obj))
+#else
+#define eif_access(obj) (EIF_REFERENCE)(obj)
+#endif
+
 /* Freeze memory address. */
-#define eif_freeze(obj) (obj)
-/* The C side adopts an object. */
-#define eif_adopt(obj) (obj)
+#define eif_freeze(obj) eif_access(obj)
+
 /* The C side protects an object. */
-#define eif_protect(obj) (obj)
+extern EIF_OBJECT eif_protect(EIF_REFERENCE object);
+
+/* The C side adopts an object. */
+#define eif_adopt(obj) eif_protect(eif_access(obj))
+
 /* The C side weans adopted object. */
 extern EIF_REFERENCE eif_wean(EIF_OBJECT object);
+
 /* Forget a frozen memory address. */
 #define eif_unfreeze(obj)
+
 /* Always frozen since they do not move. */
 #define eif_frozen(obj) 1
+
 /* Always frozen since they do not move. */
 #define spfrozen(obj) 1
 

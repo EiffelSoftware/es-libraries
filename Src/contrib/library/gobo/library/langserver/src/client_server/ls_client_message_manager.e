@@ -5,7 +5,7 @@
 		"LSP message managers on the client side"
 
 	library: "Gobo Eiffel Language Server Protocol Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class LS_CLIENT_MESSAGE_MANAGER
@@ -81,7 +81,7 @@ feature -- Access
 			-- @deprecated in favour of `workspaceFolders`
 		do
 			if attached {LS_WORKSPACE_FOLDER_LIST} workspace_folders as l_workspace_folders and then l_workspace_folders.count > 0 then
-				Result := l_workspace_folders.workspace_folder (1).uri.to_string
+				Result := l_workspace_folders.value (1).uri.to_string
 			else
 				Result := {LS_NULL}.null
 			end
@@ -316,6 +316,14 @@ feature {NONE} -- Implementation
 				end
 				l_text_document_capabilities.set_synchronization (l_text_document_sync_capabilities)
 			end
+			completion_request_handler.build_client_capabilities
+			if attached completion_request_handler.client_capabilities as l_completion_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_completion (l_completion_capabilities)
+			end
 			hover_request_handler.build_client_capabilities
 			if attached hover_request_handler.client_capabilities as l_hover_capabilities then
 				if l_text_document_capabilities = Void then
@@ -324,6 +332,14 @@ feature {NONE} -- Implementation
 				end
 				l_text_document_capabilities.set_hover (l_hover_capabilities)
 			end
+			declaration_request_handler.build_client_capabilities
+			if attached declaration_request_handler.client_capabilities as l_declaration_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_declaration (l_declaration_capabilities)
+			end
 			definition_request_handler.build_client_capabilities
 			if attached definition_request_handler.client_capabilities as l_definition_capabilities then
 				if l_text_document_capabilities = Void then
@@ -331,6 +347,30 @@ feature {NONE} -- Implementation
 					Result.set_text_document (l_text_document_capabilities)
 				end
 				l_text_document_capabilities.set_definition (l_definition_capabilities)
+			end
+			type_definition_request_handler.build_client_capabilities
+			if attached type_definition_request_handler.client_capabilities as l_type_definition_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_type_definition (l_type_definition_capabilities)
+			end
+			implementation_request_handler.build_client_capabilities
+			if attached implementation_request_handler.client_capabilities as l_implementation_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_implementation (l_implementation_capabilities)
+			end
+			document_highlight_request_handler.build_client_capabilities
+			if attached document_highlight_request_handler.client_capabilities as l_document_highlight_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_document_highlight (l_document_highlight_capabilities)
 			end
 			document_symbol_request_handler.build_client_capabilities
 			if attached document_symbol_request_handler.client_capabilities as l_document_symbol_capabilities then
@@ -348,6 +388,38 @@ feature {NONE} -- Implementation
 				end
 				l_text_document_capabilities.set_publish_diagnostics (l_publish_diagnostics_capabilities)
 			end
+			selection_range_request_handler.build_client_capabilities
+			if attached selection_range_request_handler.client_capabilities as l_selection_range_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_selection_range (l_selection_range_capabilities)
+			end
+			call_hierarchy_prepare_request_handler.build_client_capabilities
+			if attached call_hierarchy_prepare_request_handler.client_capabilities as l_call_hierarchy_prepare_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_call_hierarchy (l_call_hierarchy_prepare_capabilities)
+			end
+			type_hierarchy_prepare_request_handler.build_client_capabilities
+			if attached type_hierarchy_prepare_request_handler.client_capabilities as l_type_hierarchy_prepare_capabilities then
+				if l_text_document_capabilities = Void then
+					create l_text_document_capabilities.make
+					Result.set_text_document (l_text_document_capabilities)
+				end
+				l_text_document_capabilities.set_type_hierarchy (l_type_hierarchy_prepare_capabilities)
+			end
+			did_change_configuration_notification_handler.build_client_capabilities
+			if attached did_change_configuration_notification_handler.client_capabilities as l_did_change_configuration_capabilities then
+				if l_workspace_capabilities = Void then
+					create l_workspace_capabilities.make
+					Result.set_workspace (l_workspace_capabilities)
+				end
+				l_workspace_capabilities.set_did_change_configuration (l_did_change_configuration_capabilities)
+			end
 			did_change_watched_files_notification_handler.build_client_capabilities
 			if attached did_change_watched_files_notification_handler.client_capabilities as l_did_change_watched_files_capabilities then
 				if l_workspace_capabilities = Void then
@@ -355,6 +427,14 @@ feature {NONE} -- Implementation
 					Result.set_workspace (l_workspace_capabilities)
 				end
 				l_workspace_capabilities.set_did_change_watched_files (l_did_change_watched_files_capabilities)
+			end
+			workspace_symbol_request_handler.build_client_capabilities
+			if attached workspace_symbol_request_handler.client_capabilities as l_workspace_symbol_capabilities then
+				if l_workspace_capabilities = Void then
+					create l_workspace_capabilities.make
+					Result.set_workspace (l_workspace_capabilities)
+				end
+				l_workspace_capabilities.set_symbol (l_workspace_symbol_capabilities)
 			end
 			configuration_request_handler.build_client_capabilities
 			if attached configuration_request_handler.client_capabilities as l_configuration_capabilities then

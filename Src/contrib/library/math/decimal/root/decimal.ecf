@@ -11,8 +11,7 @@
 		<library name="espec" location="$ISE_LIBRARY\contrib\library\testing\framework\espec\library\espec.ecf"/>
 		<cluster name="root" location=".\">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

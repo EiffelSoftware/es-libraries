@@ -12,8 +12,7 @@
 		<cluster name="tests" location=".\" recursive="true">
 			<file_rule>
 				<exclude>/.hg$</exclude>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 			<visible class="TEST" feature="make_2"/>

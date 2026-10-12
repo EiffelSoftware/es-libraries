@@ -4,7 +4,7 @@
 
 		"Gobo Eiffel Compiler"
 
-	copyright: "Copyright (c) 2005-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2005-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class GEC
@@ -12,10 +12,10 @@ class GEC
 inherit
 
 	GEC_VERSION
+	ET_GOBO_CLI
 
 	KL_SHARED_EXCEPTIONS
 	KL_SHARED_ARGUMENTS
-	KL_SHARED_EXECUTION_ENVIRONMENT
 	KL_SHARED_STANDARD_FILES
 	KL_SHARED_OPERATING_SYSTEM
 	KL_SHARED_FILE_SYSTEM
@@ -92,7 +92,13 @@ feature -- Execution
 			parse_arguments (a_args)
 			if exit_code = 0 and then not version_flag.was_found then
 				a_filename := input_filename
-				if file_system.has_extension (a_filename, file_system.eiffel_extension) then
+				if file_system.extension (a_filename).is_empty then
+					a_filename := a_filename + file_system.ecf_extension
+				end
+				if is_init then
+					initialize_system (a_filename)
+				end
+				if exit_code = 0 and file_system.has_extension (a_filename, file_system.eiffel_extension) then
 					create a_file.make (a_filename)
 					a_file.open_read
 					if a_file.is_open_read then
@@ -105,8 +111,7 @@ feature -- Execution
 						report_cannot_read_error (a_filename)
 						exit_code := 1
 					end
-					a_filename := file_system.nested_pathname ("${GOBO}", <<"library", "common", "config", "ecf", "default.ecf">>)
-					a_filename := Execution_environment.interpreted_string (a_filename)
+					a_filename := default_ecf_filename
 				end
 				if exit_code = 0 then
 					create a_file.make (a_filename)
@@ -116,13 +121,18 @@ feature -- Execution
 						parse_ecf_file (a_file)
 						a_file.close
 						if attached last_system as l_last_system then
-							process_system (l_last_system)
-							debug ("stop")
-								std.output.put_line ("Press Enter...")
-								std.input.read_character
+							if is_compile or (is_run and need_to_compile_system_before_run (l_last_system)) then
+								process_system (l_last_system)
+								debug ("stop")
+									std.output.put_line ("Press Enter...")
+									std.input.read_character
+								end
+								if exit_code = 0 and error_handler.has_fatal_error then
+									exit_code := 2
+								end
 							end
-							if exit_code = 0 and error_handler.has_fatal_error then
-								exit_code := 2
+							if exit_code = 0 and is_run then
+								run_system (l_last_system)
 							end
 						else
 							exit_code := 3
@@ -179,7 +189,7 @@ feature {NONE} -- Eiffel config file parsing
 			create l_parser.make (l_system_processor)
 			l_time_stamp := a_file.time_stamp
 			l_parser.parse_file (a_file, a_file.name, l_time_stamp, l_cluster)
-			if not l_parser.syntax_error then
+			if not l_parser.has_syntax_error then
 				create l_classes.make (1)
 				l_system.classes_do_if_recursive (agent l_classes.force_last, agent {ET_CLASS}.is_parsed)
 				if l_classes.is_empty then
@@ -299,26 +309,36 @@ feature {NONE} -- Processing
 				l_system_processor.set_flat_mode (True)
 				l_system_processor.set_flat_dbc_mode (True)
 			end
-			create l_system.make (a_system, l_system_processor)
-			if is_gelint or l_thread_count > 1 or l_system_processor.benchmark_shown or l_system_processor.nested_benchmark_shown then
-				l_system.set_full_class_checking (True)
-			end
-			l_system.set_catcall_error_mode (catcall_error_mode)
-			l_system.set_catcall_warning_mode (catcall_warning_mode)
-			l_system.set_new_instance_types (new_instance_types)
-			create {ET_DYNAMIC_PUSH_TYPE_SET_BUILDER} l_builder.make (l_system, l_system_processor)
-			l_system.set_dynamic_type_set_builder (l_builder)
-			l_system.compile (l_system_processor)
-			if l_system.has_fatal_error or error_handler.has_fatal_error then
-				exit_code := 1
-			elseif not attached a_system.root_type as l_root_type then
-				-- Do nothing.
-			elseif l_root_type.same_named_type (a_system.none_type, tokens.unknown_class, tokens.unknown_class) then
-				-- Do nothing.
+			if a_system.root_type_name = Void and not (catcall_error_mode or catcall_warning_mode) then
+					-- Stop compilation after Degree 3.
+				l_system_processor.compile (a_system)
 			else
-				compile_degree_minus_3 (l_system, l_system_processor)
-				if exit_code = 0 and not no_c_compile then
-					compile_c_code (a_system, l_system_processor)
+				create l_system.make (a_system, l_system_processor)
+				if is_gelint or l_thread_count > 1 or l_system_processor.benchmark_shown or l_system_processor.nested_benchmark_shown then
+					l_system.set_full_class_checking (True)
+				end
+				l_system.set_catcall_error_mode (catcall_error_mode)
+				l_system.set_catcall_warning_mode (catcall_warning_mode)
+				l_system.set_new_instance_types (new_instance_types)
+				if a_system.root_type_name = Void then
+						-- Use the same builder as `gelint`.
+					create {ET_DYNAMIC_PULL_TYPE_SET_BUILDER} l_builder.make (l_system, l_system_processor)
+				else
+					create {ET_DYNAMIC_PUSH_TYPE_SET_BUILDER} l_builder.make (l_system, l_system_processor)
+				end
+				l_system.set_dynamic_type_set_builder (l_builder)
+				l_system.compile (l_system_processor)
+				if l_system.has_fatal_error or error_handler.has_fatal_error then
+					exit_code := 1
+				elseif not attached a_system.root_type as l_root_type then
+					-- Do nothing.
+				elseif l_root_type.same_named_type (a_system.none_type, tokens.unknown_class, tokens.unknown_class) then
+					-- Do nothing.
+				else
+					compile_degree_minus_3 (l_system, l_system_processor)
+					if exit_code = 0 and not no_c_compile then
+						compile_c_code (a_system, l_system_processor)
+					end
 				end
 			end
 			l_system_processor.record_end_time (dt_total, "Total Time")
@@ -351,12 +371,8 @@ feature {NONE} -- Processing
 			l_current_system := a_system.current_system
 			if attached l_current_system.executable_name as l_name then
 				l_system_name := l_name
-			elseif attached l_current_system.system_name as l_name then
-				l_system_name := l_name
-			elseif attached l_current_system.root_type as l_root_type then
-				l_system_name := l_root_type.base_class.lower_name
 			else
-				l_system_name := "unknown"
+				l_system_name := l_current_system.system_name 
 			end
 			l_generator.generate (l_system_name)
 			if is_metrics and not is_silent then
@@ -438,6 +454,283 @@ feature {NONE} -- Processing
 			a_system_processor.record_end_time (dt1, "%RDegree -4")
 		end
 
+	run_system (a_system: ET_SYSTEM)
+			-- Run Eiffel system `a_system'.
+		require
+			a_system_not_void: a_system /= Void
+		local
+			l_system_name: STRING
+			l_executable_filename: STRING
+			l_command: KL_SHELL_COMMAND
+		do
+			if not attached a_system.root_type_name as l_root_type_name then
+				report_cannot_run_no_root_type
+				exit_code := 5
+			elseif l_root_type_name.same_class_name (a_system.none_type.base_class.name) then
+				report_cannot_run_root_type_none
+				exit_code := 5
+			else
+				if attached a_system.executable_name as l_name then
+					l_system_name := l_name
+				else
+					l_system_name := a_system.system_name
+				end
+				l_executable_filename := l_system_name + file_system.exe_extension
+				l_executable_filename := file_system.absolute_pathname (l_executable_filename)
+				if file_system.file_exists (l_executable_filename) then
+					create l_command.make (l_executable_filename)
+					l_command.execute
+					exit_code := l_command.exit_code
+				else
+					report_cannot_run_missing_executable (l_executable_filename)
+					exit_code := 5
+				end
+			end
+		end
+
+	need_to_compile_system_before_run (a_system: ET_SYSTEM): BOOLEAN
+			-- Should Eiffel system `a_system' be compiled before executing it?
+		require
+			a_system_not_void: a_system /= Void
+		local
+			l_system_name: STRING
+			l_executable_name: STRING
+		do
+			if not attached a_system.root_type_name as l_root_type_name then
+				Result := False
+			elseif l_root_type_name.same_class_name (a_system.none_type.base_class.name) then
+				Result := False
+			else
+				if attached a_system.executable_name as l_name then
+					l_system_name := l_name
+				else
+					l_system_name := a_system.system_name
+				end
+				l_executable_name := l_system_name + file_system.exe_extension
+				l_executable_name := file_system.absolute_pathname (l_executable_name)
+				if not file_system.file_exists (l_executable_name) then
+					Result := True
+				end
+			end
+		end
+
+	initialize_system (a_input_filename: STRING)
+			-- Initialize Eiffel system: create ECF/Eiffel files if missing.
+		require
+			a_input_filename_not_void: a_input_filename /= Void
+		local
+			l_eiffel_filename: detachable STRING
+			l_ecf_filename: detachable STRING
+			l_input_file: KL_TEXT_INPUT_FILE
+			l_class_name: STRING
+			l_executable_name: STRING
+			l_override_settings: like override_settings
+			l_old_override_root_type: like override_root_type
+			l_old_override_root_creation: like override_root_creation
+			l_old_override_root_cluster_pathname: like override_root_cluster_pathname
+		do
+			l_old_override_root_type := override_root_type
+			l_old_override_root_creation := override_root_creation
+			l_old_override_root_cluster_pathname := override_root_cluster_pathname
+			if file_system.has_extension (a_input_filename, file_system.eiffel_extension) then
+				l_eiffel_filename := a_input_filename
+				l_ecf_filename := a_input_filename.twin
+				l_ecf_filename.remove_tail (file_system.eiffel_extension.count)
+				l_ecf_filename.append_string (file_system.ecf_extension)
+				if file_system.file_exists (l_ecf_filename) then
+					l_ecf_filename := Void
+					if file_system.file_exists (l_eiffel_filename) then
+						l_eiffel_filename := Void
+						report_cannot_init_file_already_exists (a_input_filename)
+						exit_code := 6
+					end
+				end
+			elseif file_system.file_exists (a_input_filename) then
+				report_cannot_init_file_already_exists (a_input_filename)
+				exit_code := 6
+			else
+				l_ecf_filename := a_input_filename
+				l_eiffel_filename := a_input_filename.twin
+				l_eiffel_filename.remove_tail (file_system.extension (a_input_filename).count)
+				l_eiffel_filename.append_string (file_system.eiffel_extension)
+			end
+			if l_eiffel_filename /= Void then
+				if not file_system.file_exists (l_eiffel_filename) then
+					l_class_name := file_system.basename (l_eiffel_filename).twin
+					l_class_name.remove_tail (file_system.eiffel_extension.count)
+					l_class_name.to_upper
+					create override_root_type.make (l_class_name)
+					override_root_creation := tokens.make_feature_name
+					l_executable_name := l_class_name.as_lower
+					l_override_settings := override_settings
+					if l_override_settings = Void then
+						create l_override_settings.make
+						override_settings := l_override_settings
+					end
+					l_override_settings.set_primary_value ({ET_ECF_SETTING_NAMES}.executable_name_setting_name, l_executable_name)
+					generate_eiffel_file (l_eiffel_filename, l_class_name)
+				elseif l_ecf_filename /= Void then
+					create l_input_file.make (l_eiffel_filename)
+					l_input_file.open_read
+					if l_input_file.is_open_read then
+						parse_eiffel_file (l_input_file)
+						l_input_file.close
+						if override_root_type = Void then
+							exit_code := 6
+						end
+					else
+						report_cannot_read_error (l_eiffel_filename)
+						exit_code := 6
+					end
+				end
+			end
+			if l_ecf_filename /= Void then
+				generate_ecf_file (l_ecf_filename)
+			end
+			override_root_type := l_old_override_root_type
+			override_root_creation := l_old_override_root_creation
+			override_root_cluster_pathname := l_old_override_root_cluster_pathname
+		end
+
+	generate_eiffel_file (a_eiffel_filename, a_class_name: STRING)
+			-- Generate simple Eiffel file in file `a_eiffel_filename`.
+		require
+			a_eiffel_filename_not_void: a_eiffel_filename /= Void
+			a_class_name_not_void: a_class_name /= Void
+		local
+			l_output_file: KL_TEXT_OUTPUT_FILE
+			l_class_text: STRING
+			l_name: STRING
+		do
+			l_class_text := "[
+class HELLO_WORLD
+
+create
+
+	make
+
+feature
+
+	make
+		do
+			print ("Hello world!%N")
+		end
+
+end
+
+]"
+			l_class_text.replace_substring_all ("HELLO_WORLD", a_class_name)
+			if a_class_name.starts_with ("HELLO_") then
+				l_name := a_class_name.tail (a_class_name.count - 6)
+			else
+				l_name := a_class_name
+			end
+			l_name := l_name.as_lower
+			l_class_text.replace_substring_all ("world", l_name)
+			create l_output_file.make (a_eiffel_filename)
+			l_output_file.recursive_open_write
+			if l_output_file.is_open_write then
+				l_output_file.put_string (l_class_text)
+				l_output_file.close
+			else
+				report_cannot_write_error (a_eiffel_filename)
+				exit_code := 6
+			end
+		end
+
+	generate_ecf_file (a_ecf_filename: STRING)
+			-- Generate ECF file in file `a_ecf_filename`, based on the default ECF file.
+			-- Use `override_*` elements to customize the result.
+		require
+			a_ecf_filename_not_void: a_ecf_filename /= Void
+		local
+			l_default_ecf_filename: STRING
+			l_input_file: KL_TEXT_INPUT_FILE
+			l_ecf_parser: ET_ECF_SYSTEM_CONFIG_PARSER
+			l_ecf_error_handler: ET_ECF_ERROR_HANDLER
+			l_name: STRING
+			l_printer: ET_ECF_PRINTER
+			l_output_file: KL_TEXT_OUTPUT_FILE
+			l_clusters: ET_ECF_CLUSTERS
+			l_root_cluster: ET_ECF_CLUSTER
+			l_unknown_system: ET_ECF_SYSTEM
+			l_root: ET_ECF_ROOT_CLASS
+		do
+			l_default_ecf_filename := default_ecf_filename
+			create l_input_file.make (l_default_ecf_filename)
+			l_input_file.open_read
+			if l_input_file.is_open_read then
+				if is_silent then
+					create l_ecf_error_handler.make_null
+				else
+					create l_ecf_error_handler.make_standard
+				end
+				create l_ecf_parser.make (l_ecf_error_handler)
+				l_ecf_parser.set_ise_version (ise_version)
+				l_ecf_parser.parse_file (l_input_file)
+				l_input_file.close
+				if l_ecf_error_handler.has_error then
+						-- Error already reported.
+					exit_code := 6
+				elseif not attached l_ecf_parser.last_system_config as l_last_config then
+						-- Error already reported.
+					exit_code := 6
+				elseif not attached l_last_config.target_with_name (Void) as l_target then
+						-- Error already reported.
+					exit_code := 6
+				else
+					if attached override_root_type as l_override_root_type then
+						l_name := l_override_root_type.lower_name
+						l_last_config.set_name (l_name)
+						if attached target_name as l_target_name then
+							l_target.set_name (l_target_name)
+						else
+							l_target.set_name (l_name)
+						end
+						l_clusters := l_target.clusters
+						if l_clusters = Void then
+							create l_clusters.make_empty
+							l_target.set_clusters (l_clusters)
+						end
+						create l_unknown_system.make (l_last_config.name, l_last_config.filename)
+						create l_root_cluster.make (l_name,  "./", l_unknown_system, l_target)
+						l_clusters.put_last (l_root_cluster)
+						create l_root.make (l_override_root_type)
+						if attached {ET_IDENTIFIER} override_root_creation as l_override_root_creation then
+							l_root.set_creation_procedure_name (l_override_root_creation)
+						end
+						l_target.set_root (l_root)
+					end
+					if attached override_settings as l_override_settings then
+						l_target.override_settings (l_override_settings)
+					end
+					if attached override_capabilities as l_override_capabilities then
+						l_target.override_capabilities (l_override_capabilities)
+					end
+					if attached override_variables as l_override_variables then
+						l_target.override_variables (l_override_variables)
+					end
+					create l_output_file.make (a_ecf_filename)
+					l_output_file.recursive_open_write
+					if l_output_file.is_open_write then
+						create l_printer.make (l_output_file)
+						if attached l_last_config.ecf_version as l_ecf_version then
+							l_printer.set_ecf_version (l_ecf_version)
+						end
+						l_last_config.process (l_printer)
+						l_printer.set_null_file
+						l_output_file.close
+					else
+						report_cannot_write_error (a_ecf_filename)
+						exit_code := 6
+					end
+				end
+			else
+				report_cannot_read_error (l_default_ecf_filename)
+				exit_code := 6
+			end
+		end
+
 feature -- Arguments
 
 	input_filename: STRING
@@ -469,6 +762,24 @@ feature -- Arguments
 
 	override_root_cluster_pathname: detachable STRING
 			-- Pathname of cluster containing `override_root_type'
+
+	is_compile: BOOLEAN
+			-- Should the Eiffel system be compiled?
+		do
+			Result := compile_flag.was_found or not (run_flag.was_found or init_flag.was_found)
+		end
+
+	is_run: BOOLEAN
+			-- Should the Eiffel system be executed?
+		do
+			Result := run_flag.was_found 
+		end
+
+	is_init: BOOLEAN
+			-- Should the Eiffel system be initialized?
+		do
+			Result := init_flag.was_found 
+		end
 
 	is_finalize: BOOLEAN
 			-- Compilation with optimizations turned on?
@@ -554,17 +865,13 @@ feature -- Arguments
 
 	thread_count: INTEGER
 			-- Number of threads to be used
+		local
+			l_option_value: detachable INTEGER_REF
 		do
-			Result := {EXECUTION_ENVIRONMENT}.available_cpu_count.as_integer_32 - 3
 			if thread_option.was_found then
-				Result := thread_option.parameter
-				if Result <= 0 then
-					Result := {EXECUTION_ENVIRONMENT}.available_cpu_count.as_integer_32 + Result
-				end
+				l_option_value := thread_option.parameter
 			end
-			if Result < 1 or not {PLATFORM}.is_thread_capable then
-				Result := 1
-			end
+			Result := thread_count_from_cli_value (l_option_value)
 		ensure
 			thread_count_not_negative: Result >= 1
 		end
@@ -601,6 +908,15 @@ feature -- Arguments
 		end
 
 feature -- Argument parsing
+
+	init_flag: AP_FLAG
+			-- Flag for '--init'
+
+	compile_flag: AP_FLAG
+			-- Flag for '--compile'
+
+	run_flag: AP_FLAG
+			-- Flag for '--run'
 
 	target_option: AP_STRING_OPTION
 			-- Option for '--target=<target_name>'
@@ -674,6 +990,18 @@ feature -- Argument parsing
 			create a_parser.make
 			a_parser.set_application_description ("Gobo Eiffel Compiler, translate Eiffel programs into executables.")
 			a_parser.set_parameters_description ("eiffel_filename|ecf_filename")
+				-- compile.
+			create compile_flag.make_with_long_form ("compile")
+			compile_flag.set_description ("Compile Eiffel system. (default: true unless --init or --run is specified)")
+			a_parser.options.force_last (compile_flag)
+				-- run.
+			create run_flag.make_with_long_form ("run")
+			run_flag.set_description ("Run Eiffel system. Do not compile unless executable not found.")
+			a_parser.options.force_last (run_flag)
+				-- init.
+			create init_flag.make_with_long_form ("init")
+			init_flag.set_description ("Initialize Eiffel system: create ECF and Eiffel root class files if missing.")
+			a_parser.options.force_last (init_flag)
 				-- target.
 			create target_option.make_with_long_form ("target")
 			target_option.set_description ("Name of target to be used in ECF file. (default: last target in ECF file)")
@@ -866,105 +1194,29 @@ feature -- Argument parsing
 
 	set_override_settings (a_option: like setting_option; a_parser: AP_PARSER)
 			-- Set `override_settings' with information passed in `a_option'.
-			-- Report usage message and exit in case of invalid input.
 		require
 			a_option_not_void: a_option /= Void
 			a_parser_not_void: a_parser /= Void
-		local
-			l_override_settings: detachable ET_ECF_SETTINGS
-			l_gobo_cli_setting_variable_value: detachable STRING
-			l_gobo_default_setting_variable_value: detachable STRING
-			l_splitter: ST_SPLITTER
 		do
-			if attached Execution_environment.variable_value (gobo_default_setting_variable_name) as l_variable_value and then not l_variable_value.is_empty then
-				l_gobo_default_setting_variable_value := l_variable_value
-			end
-			if attached Execution_environment.variable_value (gobo_cli_setting_variable_name) as l_variable_value and then not l_variable_value.is_empty then
-				l_gobo_cli_setting_variable_value := l_variable_value
-			end
-			if not a_option.parameters.is_empty or is_finalize or l_gobo_default_setting_variable_value /= Void or l_gobo_cli_setting_variable_value /= Void then
-				create l_override_settings.make
-				if l_gobo_default_setting_variable_value /= Void then
-					create l_splitter.make_with_separators (", ")
-					l_override_settings.set_primary_values_from_definitions (l_splitter.split (l_gobo_default_setting_variable_value))
-				end
-				l_override_settings.set_primary_values_from_definitions (a_option.parameters)
-				if l_gobo_cli_setting_variable_value /= Void then
-					create l_splitter.make_with_separators (", ")
-					l_override_settings.set_primary_values_from_definitions (l_splitter.split (l_gobo_cli_setting_variable_value))
-				end
-				if is_finalize then
-					l_override_settings.set_primary_value ({ET_ECF_SETTING_NAMES}.finalize_setting_name, {ET_ECF_SETTING_NAMES}.true_setting_value)
-				end
-			end
-			override_settings := l_override_settings
+			override_settings := settings_from_cli_value (a_option.parameters, is_finalize)
 		end
 
 	set_override_capabilities (a_option: like capability_option; a_parser: AP_PARSER)
 			-- Set `override_capabilities' with information passed in `a_option'.
-			-- Report usage message and exit in case of invalid input.
 		require
 			a_option_not_void: a_option /= Void
 			a_parser_not_void: a_parser /= Void
-		local
-			l_override_capabilities: detachable ET_ECF_CAPABILITIES
-			l_gobo_cli_capability_variable_value: detachable STRING
-			l_gobo_default_capability_variable_value: detachable STRING
-			l_splitter: ST_SPLITTER
 		do
-			if attached Execution_environment.variable_value (gobo_default_capability_variable_name) as l_variable_value and then not l_variable_value.is_empty then
-				l_gobo_default_capability_variable_value := l_variable_value
-			end
-			if attached Execution_environment.variable_value (gobo_cli_capability_variable_name) as l_variable_value and then not l_variable_value.is_empty then
-				l_gobo_cli_capability_variable_value := l_variable_value
-			end
-			if not a_option.parameters.is_empty or l_gobo_default_capability_variable_value /= Void or l_gobo_cli_capability_variable_value /= Void then
-				create l_override_capabilities.make
-				if l_gobo_default_capability_variable_value /= Void then
-					create l_splitter.make_with_separators (", ")
-					l_override_capabilities.set_primary_use_values_from_definitions (l_splitter.split (l_gobo_default_capability_variable_value))
-				end
-				l_override_capabilities.set_primary_use_values_from_definitions (a_option.parameters)
-				if l_gobo_cli_capability_variable_value /= Void then
-					create l_splitter.make_with_separators (", ")
-					l_override_capabilities.set_primary_use_values_from_definitions (l_splitter.split (l_gobo_cli_capability_variable_value))
-				end
-			end
-			override_capabilities := l_override_capabilities
+			override_capabilities := capabilities_from_cli_value (a_option.parameters)
 		end
 
 	set_override_variables (a_option: like variable_option; a_parser: AP_PARSER)
 			-- Set `override_variables' with information passed in `a_option'.
-			-- Report usage message and exit in case of invalid input.
 		require
 			a_option_not_void: a_option /= Void
 			a_parser_not_void: a_parser /= Void
-		local
-			l_override_variables: ET_ECF_VARIABLES
-			l_definition: STRING
-			l_index: INTEGER
 		do
-			create l_override_variables.make
-			l_override_variables.set_primary_value ("GOBO_EIFFEL", "ge")
-			Execution_environment.set_variable_value ("GOBO_EIFFEL", "ge")
-			if not a_option.parameters.is_empty then
-				across a_option.parameters as i_variable loop
-					if attached i_variable as l_variable then
-						l_definition := l_variable
-						if l_definition.count > 0 then
-							l_index := l_definition.index_of ('=', 1)
-							if l_index = 0 then
-								l_override_variables.set_primary_value (l_definition, "")
-							elseif l_index = l_definition.count then
-								l_override_variables.set_primary_value (l_definition.substring (1, l_index - 1), "")
-							elseif l_index /= 1 then
-								l_override_variables.set_primary_value (l_definition.substring (1, l_index - 1), l_definition.substring (l_index + 1, l_definition.count))
-							end
-						end
-					end
-				end
-			end
-			override_variables := l_override_variables
+			override_variables := variables_from_cli_value (a_option.parameters, True, False)
 		end
 
 	set_split_size (a_option: like split_size_option; a_parser: AP_PARSER)
@@ -1026,26 +1278,6 @@ feature -- Argument parsing
 
 feature {NONE} -- Environment variables
 
-	gobo_cli_setting_variable_name: STRING = "GOBO_CLI_SETTING"
-			-- Environment variable name to specify settings
-			-- as if they were specified with the command-line
-			-- argument '--setting'.
-
-	gobo_default_setting_variable_name: STRING = "GOBO_DEFAULT_SETTING"
-			-- Environment variable name to specify settings
-			-- which are not overridden with the command-line
-			-- argument '--setting'.
-
-	gobo_cli_capability_variable_name: STRING = "GOBO_CLI_CAPABILITY"
-			-- Environment variable name to specify capabilities
-			-- as if they were specified with the command-line
-			-- argument '--capability'.
-
-	gobo_default_capability_variable_name: STRING = "GOBO_DEFAULT_CAPABILITY"
-			-- Environment variable name to specify capabilities
-			-- which are not overridden with the command-line
-			-- argument '--capability'.
-
 	gobo_cli_gc_variable_name: STRING = "GOBO_CLI_GC"
 			-- Environment variable name to specify the GC to
 			-- be used as if it was specified with the command-line
@@ -1071,6 +1303,62 @@ feature -- Error handling
 		do
 			create an_error.make (a_filename)
 			error_handler.report_error (an_error)
+		end
+
+	report_cannot_write_error (a_filename: STRING)
+			-- Report that `a_filename' cannot be
+			-- opened in write mode.
+		require
+			a_filename_not_void: a_filename /= Void
+		local
+			l_error: UT_CANNOT_WRITE_TO_FILE_ERROR
+		do
+			create l_error.make (a_filename)
+			error_handler.report_error (l_error)
+		end
+
+	report_cannot_run_no_root_type
+			-- Report that an Eiffel system with no root type
+			-- cannot be executed.
+		local
+			l_error: UT_MESSAGE
+		do
+			create l_error.make ("No Eiffel system executable to be run: no root type.")
+			error_handler.report_error (l_error)
+		end
+
+	report_cannot_run_root_type_none
+			-- Report that an Eiffel system with root type 'NONE"
+			-- cannot be executed.
+		local
+			l_error: UT_MESSAGE
+		do
+			create l_error.make ("No Eiffel system executable to be run: root type 'NONE'.")
+			error_handler.report_error (l_error)
+		end
+
+	report_cannot_run_missing_executable (a_executable_filename: STRING)
+			-- Report that an Eiffel system with missing executable
+			-- `a_executable_filename` cannot be executed.
+		require
+			a_executable_filename_not_void: a_executable_filename /= Void
+		local
+			l_error: UT_MESSAGE
+		do
+			create l_error.make ("No Eiffel system executable to be run: file '" + a_executable_filename + "' does not exist.")
+			error_handler.report_error (l_error)
+		end
+
+	report_cannot_init_file_already_exists (a_filename: STRING)
+			-- Report that the Eiffel system cannot be initialized
+			-- because file `a_filename` already exists.
+		require
+			a_filename_not_void: a_filename /= Void
+		local
+			l_error: UT_MESSAGE
+		do
+			create l_error.make ("Eiffel system initialization: file '" + a_filename + "' already exists.")
+			error_handler.report_error (l_error)
 		end
 
 	report_version_number
@@ -1129,10 +1417,24 @@ feature -- C generation
 	c_folder: STRING = ".gobo"
 			-- Folder containing then generated C files
 
+feature {NONE} -- Constants
+
+	default_ecf_filename: STRING
+			-- Name of default ECF file
+		do
+			Result := file_system.nested_pathname ("${GOBO}", <<"library", "common", "config", "ecf", "default.ecf">>)
+			Result := Execution_environment.interpreted_string (Result)
+		ensure
+			default_ecf_filename_not_void: Result /= Void
+		end
+
 invariant
 
 	error_handler_not_void: error_handler /= Void
 	input_filename_not_void: input_filename /= Void
+	init_flag_not_void: init_flag /= Void
+	compile_flag_not_void: compile_flag /= Void
+	run_flag_not_void: run_flag /= Void
 	ise_version_not_void: ise_version /= Void
 	target_option_not_void: target_option /= Void
 	setting_option_not_void: setting_option /= Void

@@ -1,11 +1,11 @@
 The integration of Gobo Eiffel into the EiffelStudio delivery required a few changes:
 
-See the diff with the branch 25.10 of the Gobo Eiffel project (https://github.com/gobo-eiffel/gobo.git)
+See the diff with the branch 26.09 of the Gobo Eiffel project (https://github.com/gobo-eiffel/gobo.git)
 
-diff --git a/library/kernel/src/library.ecf b/library/kernel/src/library.ecf
-index 3d613b96a..265ea48fc 100644
---- a/library/kernel/src/library.ecf
-+++ b/library/kernel/src/library.ecf
+diff --git a/Src/contrib/library/gobo/library/kernel/src/library.ecf b/Src/contrib/library/gobo/library/kernel/src/library.ecf
+index 3d613b96ac0..265ea48fcf9 100644
+--- a/Src/contrib/library/gobo/library/kernel/src/library.ecf
++++ b/Src/contrib/library/gobo/library/kernel/src/library.ecf
 @@ -21,6 +21,7 @@
  			<exclude>/EIFGENs$</exclude>
  		</file_rule>
@@ -14,23 +14,10 @@ index 3d613b96a..265ea48fc 100644
  		<library name="free_elks" location="${GOBO_LIBRARY}/library/free_elks/library_${GOBO_EIFFEL}.ecf" readonly="true"/>
  		<library name="time" location="${ISE_LIBRARY}/library/time/time.ecf" readonly="true">
  			<condition>
-diff --git a/library/lexical/src/skeleton/yy_scanner_skeleton.e b/library/lexical/src/skeleton/yy_scanner_skeleton.e
-index e0469441a..266e7b2cc 100644
---- a/library/lexical/src/skeleton/yy_scanner_skeleton.e
-+++ b/library/lexical/src/skeleton/yy_scanner_skeleton.e
-@@ -205,7 +205,7 @@ feature -- Access
- 			-- the input buffer.)
- 			--
- 			-- Note that `unicode_text' does not contain surrogate
--			-- or invalid Unicode characters, the the resulting
-+			-- or invalid Unicode characters, therefore the resulting
- 			-- string is valid UTF-8.
- 		do
- 			if e < s then
-diff --git a/library/math/src/decimal/ma_decimal.e b/library/math/src/decimal/ma_decimal.e
-index c654ac2a6..239e52f9e 100644
---- a/library/math/src/decimal/ma_decimal.e
-+++ b/library/math/src/decimal/ma_decimal.e
+diff --git a/Src/contrib/library/gobo/library/math/src/decimal/ma_decimal.e b/Src/contrib/library/gobo/library/math/src/decimal/ma_decimal.e
+index c654ac2a6f4..239e52f9e17 100644
+--- a/Src/contrib/library/gobo/library/math/src/decimal/ma_decimal.e
++++ b/Src/contrib/library/gobo/library/math/src/decimal/ma_decimal.e
 @@ -16,9 +16,9 @@ inherit
  		rename
  			plus as binary_plus alias "+",

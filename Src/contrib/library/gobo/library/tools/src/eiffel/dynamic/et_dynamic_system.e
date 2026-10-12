@@ -5,7 +5,7 @@
 		"Eiffel dynamic systems at run-time"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2004-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2004-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_DYNAMIC_SYSTEM
@@ -421,13 +421,13 @@ feature -- Types
 					-- Add the new dynamic type and keep track
 					-- of its associated index.
 				if full_class_checking then
-					l_base_class.process (system_processor.implementation_checker)
-					if not l_base_class.implementation_checked or else l_base_class.has_implementation_error then
+					l_base_class.process (system_processor.attached_attribute_initialization_checker)
+					if not l_base_class.attached_attribute_initialization_checked_successfully then
 						set_fatal_error
 					end
 				else
 					l_base_class.process (system_processor.interface_checker)
-					if not l_base_class.interface_checked or else l_base_class.has_interface_error then
+					if not l_base_class.interface_checked_successfully then
 						set_fatal_error
 					end
 				end
@@ -709,6 +709,13 @@ feature {NONE} -- Types
 				if attached l_type.meta_type as l_meta_type then
 					Result := l_meta_type
 				else
+					if l_type.base_class.is_type_class then
+						if attached l_type.base_type.actual_parameters as l_foo and then l_foo.count = 1 then
+							if l_foo.type (1).base_class (l_any).is_type_class then
+								do_nothing
+							end
+						end
+					end
 					create Result.make (a_base_type, l_base_class)
 					register_dynamic_type (Result)
 					l_type.set_meta_type (Result)
@@ -936,11 +943,13 @@ feature {NONE} -- Types
 				elseif l_base_class.is_typed_pointer_class then
 					initialize_typed_pointer_type (l_type)
 				elseif l_base_class.is_procedure_class then
-					initialize_procedure_type (l_type)
+					initialize_routine_type (l_type)
 				elseif l_base_class.is_function_class then
-					initialize_function_type (l_type)
+					initialize_routine_type (l_type)
 				elseif l_base_class.is_predicate_class then
-					initialize_predicate_type (l_type)
+					initialize_routine_type (l_type)
+				elseif l_base_class.is_once then
+					initialize_once_type (l_type)
 				end
 				propagate_type_of_type_result_type (l_type)
 				propagate_alive_conforming_descendants (l_type)
@@ -1001,24 +1010,27 @@ feature {NONE} -- Types
 			end
 		end
 
-	initialize_procedure_type (a_type: ET_DYNAMIC_PRIMARY_TYPE)
-			-- Initialize "PROCEDURE" type `a_type'.
+	initialize_routine_type (a_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- Initialize "ROUTINE" type `a_type'.
 		require
 			a_type_not_void: a_type /= Void
-			is_procedure_type: a_type.base_class.is_procedure_class
+			is_routine_type: a_type.base_class.is_procedure_class or a_type.base_class.is_function_class or a_type.base_class.is_predicate_class
+		local
+			l_closed_operands: detachable ET_DYNAMIC_FEATURE
 		do
 				-- Make attribute 'rout_disp' alive at the first position
-				-- in the attribute list of the "PROCEDURE" type.
+				-- in the attribute list of the "ROUTINE" type.
 			if attached routine_rout_disp_feature as l_routine_rout_disp_feature then
 				if attached a_type.seeded_dynamic_query (l_routine_rout_disp_feature.first_seed, Current) as l_dynamic_feature then
 					a_type.set_attribute_position (l_dynamic_feature, 1)
 				end
 			end
 				-- Make attribute 'closed_operands' alive at the second position
-				-- in the attribute list of the "PROCEDURE" type.
+				-- in the attribute list of the "ROUTINE" type.
 			if attached routine_closed_operands_feature as l_routine_closed_operands_feature then
-				if attached a_type.seeded_dynamic_query (l_routine_closed_operands_feature.first_seed, Current) as l_dynamic_type then
-					a_type.set_attribute_position (l_dynamic_type, 2)
+				if attached a_type.seeded_dynamic_query (l_routine_closed_operands_feature.first_seed, Current) as l_dynamic_feature then
+					a_type.set_attribute_position (l_dynamic_feature, 2)
+					l_closed_operands := l_dynamic_feature
 				end
 			end
 				-- Make feature 'set_rout_disp_final' alive.
@@ -1027,71 +1039,30 @@ feature {NONE} -- Types
 					if attached a_type.seeded_dynamic_procedure (l_routine_set_rout_disp_final_feature.first_seed, Current) as l_dynamic_feature then
 						l_dynamic_feature.set_regular (True)
 						l_agent_type.set_set_rout_disp_final_feature (l_dynamic_feature)
+						if l_closed_operands /= Void and then attached l_closed_operands.result_type_set as l_closed_operands_type_set then
+							dynamic_type_set_builder.propagate_builtin_actual_argument_dynamic_types (l_closed_operands_type_set, 4, l_dynamic_feature)
+						else
+								-- Internal error: missing closed_operands dynamic type set.
+							set_fatal_error
+							error_handler.report_giaaa_error
+						end
 					end
 				end
 			end
 		end
 
-	initialize_function_type (a_type: ET_DYNAMIC_PRIMARY_TYPE)
-			-- Initialize "FUNCTION" type `a_type'.
+	initialize_once_type (a_type: ET_DYNAMIC_PRIMARY_TYPE)
+			-- Initialize type `a_type' whose base class is a once class.
 		require
 			a_type_not_void: a_type /= Void
-			is_function_type: a_type.base_class.is_function_class
+			is_once_type: a_type.base_class.is_once
+		local
+			l_index_attribute: ET_ATTRIBUTE
 		do
-				-- Make attribute 'rout_disp' alive at the first position
-				-- in the attribute list of the "FUNCTION" type.
-			if attached routine_rout_disp_feature as l_routine_rout_disp_feature then
-				if attached a_type.seeded_dynamic_query (l_routine_rout_disp_feature.first_seed, Current) as l_dynamic_feature then
-					a_type.set_attribute_position (l_dynamic_feature, 1)
-				end
-			end
-				-- Make attribute 'closed_operands' alive at the second position
-				-- in the attribute list of the "FUNCTION" type.
-			if attached routine_closed_operands_feature as l_routine_closed_operands_feature then
-				if attached a_type.seeded_dynamic_query (l_routine_closed_operands_feature.first_seed, Current) as l_dynamic_feature then
-					a_type.set_attribute_position (l_dynamic_feature, 2)
-				end
-			end
-				-- Make feature 'set_rout_disp_final' alive.
-			if attached {ET_DYNAMIC_ROUTINE_TYPE} a_type as l_agent_type then
-				if attached routine_set_rout_disp_final_feature as l_routine_set_rout_disp_final_feature then
-					if attached a_type.seeded_dynamic_procedure (l_routine_set_rout_disp_final_feature.first_seed, Current) as l_dynamic_feature then
-						l_dynamic_feature.set_regular (True)
-						l_agent_type.set_set_rout_disp_final_feature (l_dynamic_feature)
-					end
-				end
-			end
-		end
-
-	initialize_predicate_type (a_type: ET_DYNAMIC_PRIMARY_TYPE)
-			-- Initialize "PREDICATE" type `a_type'.
-		require
-			a_type_not_void: a_type /= Void
-			is_predicate_type: a_type.base_class.is_predicate_class
-		do
-				-- Make attribute 'rout_disp' alive at the first position
-				-- in the attribute list of the "PREDICATE" type.
-			if attached routine_rout_disp_feature as l_routine_rout_disp_feature then
-				if attached a_type.seeded_dynamic_query (l_routine_rout_disp_feature.first_seed, Current) as l_dynamic_feature then
-					a_type.set_attribute_position (l_dynamic_feature, 1)
-				end
-			end
-				-- Make attribute 'closed_operands' alive at the second position
-				-- in the attribute list of the "PREDICATE" type.
-			if attached routine_closed_operands_feature as l_routine_closed_operands_feature then
-				if attached a_type.seeded_dynamic_query (l_routine_closed_operands_feature.first_seed, Current) as l_dynamic_feature then
-					a_type.set_attribute_position (l_dynamic_feature, 2)
-				end
-			end
-				-- Make feature 'set_rout_disp_final' alive.
-			if attached {ET_DYNAMIC_ROUTINE_TYPE} a_type as l_agent_type then
-				if attached routine_set_rout_disp_final_feature as l_routine_set_rout_disp_final_feature then
-					if attached a_type.seeded_dynamic_procedure (l_routine_set_rout_disp_final_feature.first_seed, Current) as l_dynamic_feature then
-						l_dynamic_feature.set_regular (True)
-						l_agent_type.set_set_rout_disp_final_feature (l_dynamic_feature)
-					end
-				end
-			end
+			create l_index_attribute.make (tokens.index_pseudo_feature_name, natural_32_type.base_type, a_type.base_class)
+				-- Make pseudo attribute '_index' alive at the first
+				-- position in the attribute list of `a_type`.
+			a_type.set_attribute_position (a_type.dynamic_query (l_index_attribute, Current), 1)
 		end
 
 	propagate_type_of_type_result_type (a_type: ET_DYNAMIC_TYPE)
@@ -1101,7 +1072,10 @@ feature {NONE} -- Types
 			a_type_not_void: a_type /= Void
 		do
 			if attached ise_runtime_new_type_instance_of_feature as l_ise_runtime_new_type_instance_of_feature then
-				if not in_create_meta_type then
+				if a_type.base_class.is_type_class then
+					dynamic_type_set_builder.mark_type_alive (type_none_type)
+					dynamic_type_set_builder.propagate_type_of_type_result_type (type_none_type, l_ise_runtime_new_type_instance_of_feature)
+				elseif not in_create_meta_type then
 					create_meta_type (a_type)
 					if attached a_type.meta_type as l_meta_type then
 						dynamic_type_set_builder.mark_type_alive (l_meta_type)
@@ -2265,6 +2239,12 @@ feature {NONE} -- Compilation
 							l_dynamic_feature := ise_exception_manager_type.dynamic_procedure (l_procedure, Current)
 							l_dynamic_feature.set_regular (True)
 							ise_exception_manager_once_raise_feature := l_dynamic_feature
+							if
+								attached ise_exception_manager_last_exception_feature as l_ise_exception_manager_last_exception_feature and then
+								attached l_ise_exception_manager_last_exception_feature.result_type_set as l_result_type_set
+							then
+								dynamic_type_set_builder.propagate_builtin_actual_argument_dynamic_types (l_result_type_set, 1, l_dynamic_feature)
+							end
 						end
 							-- Check feature 'set_exception_data' of class "ISE_EXCEPTION_MANAGER".
 						if not attached l_class.named_procedure (tokens.set_exception_data_feature_name) as l_procedure then

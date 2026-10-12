@@ -4,7 +4,7 @@
 		<root class="TEST" feature="make"/>
 		<file_rule>
 			<exclude>/.git$</exclude>
-			<exclude>/.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option warning="true">

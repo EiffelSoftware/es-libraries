@@ -11,6 +11,9 @@
 			<exclude>/\.git$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
+		<option warning="warning">
+			<assertions precondition="true" check="false" invariant="false" loop="false" postcondition="false" supplier_precondition="false"/>
+		</option>
 		<setting name="console_application" value="true"/>
 		<library name="free_elks" location="${GOBO_LIBRARY}/library/free_elks/library_${GOBO_EIFFEL}.ecf" readonly="true"/>
 		<library name="argument" location="${GOBO_LIBRARY}/library/argument/library.ecf" readonly="true"/>
@@ -30,5 +33,45 @@
 		<library name="tools" location="${GOBO_LIBRARY}/library/tools/library.ecf" readonly="true"/>
 		<library name="test" location="${GOBO_LIBRARY}/library/test/library.ecf" readonly="true"/>
 		<library name="utility" location="${GOBO_LIBRARY}/library/utility/library.ecf" readonly="true"/>
+		<library name="ise_time" location="${ISE_EIFFEL}/library/time/time.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
+		<library name="ise_decimal" location="${ISE_EIFFEL}\contrib\library\math\decimal\decimal\decimal.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
+		<library name="ise_encoder" location="${ISE_EIFFEL}\contrib\library\web\framework\ewf\text\encoder\encoder.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
+		<library name="ise_encoding" location="${ISE_EIFFEL}\library\encoding\encoding.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
+		<library name="ise_json" location="${ISE_EIFFEL}\contrib\library\text\parser\json\library\json.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
+		<library name="ise_logging" location="${ISE_EIFFEL}\library\runtime\logging\logging.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
+		<library name="base_extension" location="${ISE_EIFFEL}\library\base_extension\base_extension.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
+		<library name="testing" location="${ISE_EIFFEL}\library\testing\testing.ecf" readonly="true">
+			<condition>
+				<custom name="ISE_EIFFEL" excluded_value="^$" match="regexp"/>
+			</condition>
+		</library>
 	</target>
 </system>

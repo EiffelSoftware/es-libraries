@@ -5,7 +5,7 @@
 		"Eiffel system processors"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2017-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2017-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_SYSTEM_PROCESSOR
@@ -31,11 +31,14 @@ feature {NONE} -- Initialization
 			create {ET_EIFFEL_PREPARSER} eiffel_preparser.make (current)
 			create {ET_MASTER_CLASS_CHECKER} master_class_checker.make (Current)
 			create {ET_EIFFEL_PARSER} eiffel_parser.make (Current)
+			create {ET_UNUSED_LOCAL_VARIABLE_CHECKER} unused_local_variable_checker.make (Current)
 			create {ET_PROVIDER_CHECKER} provider_checker.make (Current)
 			create {ET_ANCESTOR_BUILDER} ancestor_builder.make (Current)
 			create {ET_FEATURE_FLATTENER} feature_flattener.make (Current)
 			create {ET_INTERFACE_CHECKER} interface_checker.make (Current)
 			create {ET_IMPLEMENTATION_CHECKER} implementation_checker.make (Current)
+			create {ET_ATTACHED_ATTRIBUTE_INITIALIZATION_CHECKER} attached_attribute_initialization_checker.make (Current)
+			unused_local_variable_check_enabled := True
 			error_handler := tokens.standard_error_handler
 		end
 
@@ -50,11 +53,13 @@ feature {NONE} -- Initialization
 			eiffel_preparser := l_null_processor
 			master_class_checker := l_null_processor
 			eiffel_parser := l_null_processor
+			unused_local_variable_checker := l_null_processor
 			provider_checker := l_null_processor
 			ancestor_builder := l_null_processor
 			feature_flattener := l_null_processor
 			interface_checker := l_null_processor
 			implementation_checker := l_null_processor
+			attached_attribute_initialization_checker := l_null_processor
 			error_handler := tokens.null_error_handler
 			create {ET_DOTNET_ASSEMBLY_CLASSIC_CONSUMER} dotnet_assembly_consumer.make (Current)
 			set_default_keyword_usage_only
@@ -64,6 +69,15 @@ feature {NONE} -- Initialization
 		end
 
 feature -- Status report
+
+	is_fault_tolerant: BOOLEAN
+			-- Are classes checked (although without reporting
+			-- errors) in the current compilation stage even
+			-- when errors have been detected in one of the
+			-- previous stages?
+			-- (Useful in order to decorate the AST with useful
+			-- information such as the seed of the feature in
+			-- call instructions.)
 
 	benchmark_shown: BOOLEAN
 			-- Should benchmark be shown for each Degree?
@@ -84,6 +98,25 @@ feature -- Status report
 		end
 
 feature -- Status setting
+
+	set_fault_tolerant_only (b: BOOLEAN)
+			-- Set `is_fault_tolerant' to `b'.
+			-- Contrary to `set_fault_tolerant', do not set it
+			-- in other system processors in case of a multiprocessor.
+		do
+			is_fault_tolerant := b
+		ensure
+			fault_tolerant_set: is_fault_tolerant = b
+		end
+
+	set_fault_tolerant (b: BOOLEAN)
+			-- Set `is_fault_tolerant' to `b' in current system processor
+			-- and all other system processors in case of a multiprocessor.
+		do
+			set_fault_tolerant_only (b)
+		ensure
+			fault_tolerant_set: is_fault_tolerant = b
+		end
 
 	set_benchmark_shown_only (b: BOOLEAN)
 			-- Set `benchmark_shown' to `b'.
@@ -163,6 +196,9 @@ feature -- Parser status report
 	use_reference_keyword: BOOLEAN
 			-- Should 'reference' be considered as
 			-- a keyword (otherwise identifier)?
+
+	unused_local_variable_check_enabled: BOOLEAN
+			-- Should unused local variables be checked?
 
 	providers_enabled: BOOLEAN
 			-- Should providers be built when parsing a class?
@@ -315,6 +351,25 @@ feature -- Parser status setting
 			-- and all other system processors in case of a multiprocessor.
 		do
 			set_default_keyword_usage_only
+		end
+
+	set_unused_local_variable_check_enabled_only (b: BOOLEAN)
+			-- Set `unused_local_variable_check_enabled' to `b'.
+			-- Contrary to `set_unused_local_variables_check_enabled', do not set it
+			-- in other system processors in case of a multiprocessor.
+		do
+			unused_local_variable_check_enabled := b
+		ensure
+			unused_local_variable_check_enabled_set: unused_local_variable_check_enabled = b
+		end
+
+	set_unused_local_variable_check_enabled (b: BOOLEAN)
+			-- Set `unused_local_variable_check_enabled' to `b' in current system processor
+			-- and all other system processors in case of a multiprocessor.
+		do
+			set_unused_local_variable_check_enabled_only (b)
+		ensure
+			unused_local_variables_check_enabled_set: unused_local_variable_check_enabled = b
 		end
 
 	set_providers_enabled_only (b: BOOLEAN)
@@ -751,6 +806,9 @@ feature -- Access
 	master_class_checker: ET_AST_PROCESSOR
 			-- Master class checker
 
+	unused_local_variable_checker: ET_AST_PROCESSOR
+			-- Unused local variable checker
+
 	provider_checker: ET_AST_PROCESSOR
 			-- Provider checker
 
@@ -765,6 +823,9 @@ feature -- Access
 
 	implementation_checker: ET_AST_PROCESSOR
 			-- Implementation checker
+
+	attached_attribute_initialization_checker: ET_AST_PROCESSOR
+			-- Attached attribute initialization checker
 
 	error_handler: ET_ERROR_HANDLER
 			-- Error handler
@@ -834,6 +895,16 @@ feature -- Setting
 			master_class_checker_set: master_class_checker = a_master_class_checker
 		end
 
+	set_unused_local_variable_checker (a_unused_local_variable_checker: like unused_local_variable_checker)
+			-- Set `unused_local_variable_checker' to `a_unused_local_variable_checker'.
+		require
+			a_unused_local_variable_checker_not_void: a_unused_local_variable_checker /= Void
+		do
+			unused_local_variable_checker := a_unused_local_variable_checker
+		ensure
+			unused_local_variable_checker_set: unused_local_variable_checker = a_unused_local_variable_checker
+		end
+
 	set_provider_checker (a_provider_checker: like provider_checker)
 			-- Set `provider_checker' to `a_provider_checker'.
 		require
@@ -882,6 +953,16 @@ feature -- Setting
 			implementation_checker := a_checker
 		ensure
 			implementation_checker_set: implementation_checker = a_checker
+		end
+
+	set_attached_attribute_initialization_checker (a_checker: like attached_attribute_initialization_checker)
+			-- Set `attached_attribute_initialization_checker' to `a_checker'.
+		require
+			a_checker_not_void: a_checker /= Void
+		do
+			attached_attribute_initialization_checker := a_checker
+		ensure
+			attached_attribute_initialization_checker_set: attached_attribute_initialization_checker = a_checker
 		end
 
 	set_error_handler_only (a_handler: like error_handler)
@@ -974,6 +1055,7 @@ feature -- Processing
 			create l_classes.make (a_system.class_count_recursive)
 			a_system.classes_do_recursive (agent l_classes.force_last)
 			compile_classes (l_classes)
+			set_root_type (a_system)
 			check_root_type (a_system)
 		end
 
@@ -1000,7 +1082,7 @@ feature -- Processing
 			-- Compile marked all classes in `a_classes'.
 			--
 			-- Note that parsing these classes may mark other classes. Process these
-			-- other classes as well until no more marked classes are not processed.
+			-- other classes as well until no more marked classes are processed.
 			-- Remove unmarked classes from `a_classes' when no more marked classes
 			-- need to be parsed.
 
@@ -1039,7 +1121,7 @@ feature -- Processing
 			--
 			-- `a_marked_only' indicates that only classes which are marked will be processed.
 			-- Note that parsing these classes may mark other classes. Process these
-			-- other classes as well until no more marked classes are not processed.
+			-- other classes as well until no more marked classes are processed.
 			-- Remove unmarked classes from `a_classes' when no more marked classes
 			-- need to be parsed.
 			--
@@ -1054,6 +1136,7 @@ feature -- Processing
 		do
 			dt1 := benchmark_start_time
 			compile_degree_5_2 (a_classes, a_marked_only)
+			check_unused_local_variables (a_classes)
 			check_provider_validity (a_classes)
 			record_end_time (dt1, "Degree 5")
 		ensure
@@ -1136,6 +1219,8 @@ feature -- Processing
 			dt1 := benchmark_start_time
 			check_implementation_validity (a_classes)
 			set_implementation_internal_error (a_classes)
+			check_attached_attribute_initialization_validity (a_classes)
+			set_attached_attribute_initialization_internal_error (a_classes)
 			record_end_time (dt1, "Degree 3")
 			report_degree_3_metrics (a_classes)
 		end
@@ -1248,6 +1333,37 @@ feature -- Processing
 					l_done := processed_class_count = 0
 				end
 				reset_processed_class_count
+			end
+		end
+
+	check_unused_local_variables (a_classes: DS_ARRAYED_LIST [ET_CLASS])
+			-- Check unused local variables in `a_classes' which have been parsed.
+			--
+			-- Note that this operation will be interrupted if a stop request
+			-- is received, i.e. `stop_request' starts returning True. No
+			-- interruption if `stop_request' is Void.
+		require
+			a_classes_not_void: a_classes /= Void
+			no_void_class: not a_classes.has_void
+		local
+			i, nb: INTEGER
+			l_class: ET_CLASS
+			l_unused_local_variable_checker: like unused_local_variable_checker
+		do
+			if unused_local_variable_check_enabled then
+				l_unused_local_variable_checker := unused_local_variable_checker
+				from
+					i := 1
+					nb := a_classes.count
+				until
+					i > nb or stop_requested
+				loop
+					l_class := a_classes.item (i)
+					if l_class.is_parsed then
+						l_class.process (unused_local_variable_checker)
+					end
+					i := i + 1
+				end
 			end
 		end
 
@@ -1456,6 +1572,69 @@ feature -- Processing
 			ancestor_builder := l_ancestor_builder
 			feature_flattener := l_feature_flattener
 			interface_checker := l_interface_checker
+		end
+
+	check_attached_attribute_initialization_validity (a_classes: DS_ARRAYED_LIST [ET_CLASS])
+			-- Check that all attached attributes have been initialized 
+			-- at the end of all creation procedures of `a_classes`.
+			--
+			-- Note that this operation will be interrupted if a stop request
+			-- is received, i.e. `stop_request' starts returning True. No
+			-- interruption if `stop_request' is Void.
+		require
+			a_classes_not_void: a_classes /= Void
+			no_void_class: not a_classes.has_void
+		local
+			i, nb: INTEGER
+			l_class: ET_CLASS
+			l_done: BOOLEAN
+			l_eiffel_parser: like eiffel_parser
+			l_ancestor_builder: like ancestor_builder
+			l_feature_flattener: like feature_flattener
+			l_interface_checker: like interface_checker
+			l_implementation_checker: like implementation_checker
+			l_attached_attribute_initialization_checker: like attached_attribute_initialization_checker
+		do
+			l_eiffel_parser := eiffel_parser
+			eiffel_parser := tokens.null_ast_processor
+			l_ancestor_builder := ancestor_builder
+			ancestor_builder := tokens.null_ast_processor
+			l_feature_flattener := feature_flattener
+			feature_flattener := tokens.null_ast_processor
+			l_interface_checker := interface_checker
+			interface_checker := tokens.null_ast_processor
+			l_implementation_checker := implementation_checker
+			implementation_checker := tokens.null_ast_processor
+			l_attached_attribute_initialization_checker := attached_attribute_initialization_checker
+			reset_total_processed_class_count
+			from
+				nb := a_classes.count
+			until
+				l_done
+			loop
+				from i := 1 until i > nb loop
+					if stop_requested then
+							-- Jump out of the loops.
+						l_done := True
+						i := nb
+					else
+						l_class :=  a_classes.item (i)
+						if l_class.implementation_checked and then not l_class.attached_attribute_initialization_checked then
+							l_class.process (l_attached_attribute_initialization_checker)
+						end
+					end
+					i := i + 1
+				end
+				if not l_done then
+					l_done := processed_class_count = 0
+				end
+				reset_processed_class_count
+			end
+			eiffel_parser := l_eiffel_parser
+			ancestor_builder := l_ancestor_builder
+			feature_flattener := l_feature_flattener
+			interface_checker := l_interface_checker
+			implementation_checker := l_implementation_checker
 		end
 
 	check_master_class_validity (a_system: ET_SYSTEM)
@@ -2134,6 +2313,37 @@ feature {NONE} -- Implementation
 			all_implementation_checked: not {PLATFORM}.is_thread_capable and then not stop_requested implies a_classes.for_all (agent {ET_CLASS}.implementation_checked)
 		end
 
+	set_attached_attribute_initialization_internal_error (a_classes: DS_ARRAYED_LIST [ET_CLASS])
+			-- Set attached attribute initialization error to all classes of `a_classes' for which
+			-- the attached attribute initialization has not been checked.
+			-- Report an internal error.
+			-- Do nothing if current system processor was stopped.
+		require
+			a_classes_not_void: a_classes /= Void
+			no_void_class: not a_classes.has_void
+		local
+			i, nb: INTEGER
+			l_class: ET_CLASS
+		do
+			if not stop_requested then
+				from
+					i := 1
+					nb := a_classes.count
+				until
+					i > nb
+				loop
+					l_class := a_classes.item (i)
+					if not l_class.attached_attribute_initialization_checked then
+						l_class.set_attached_attribute_initialization_error
+						error_handler.report_giaaa_error
+					end
+					i := i + 1
+				end
+			end
+		ensure
+			all_attached_attribute_initialization_checked: not {PLATFORM}.is_thread_capable and then not stop_requested implies a_classes.for_all (agent {ET_CLASS}.attached_attribute_initialization_checked)
+		end
+
 invariant
 
 	ast_factory_not_void: ast_factory /= Void
@@ -2141,11 +2351,13 @@ invariant
 	eiffel_parser_not_void: eiffel_parser /= Void
 	dotnet_assembly_consumer_not_void: dotnet_assembly_consumer /= Void
 	master_class_checker_not_void: master_class_checker /= Void
+	unused_local_variable_checker_not_void: unused_local_variable_checker /= Void
 	provider_checker_not_void: provider_checker /= Void
 	ancestor_builder_not_void: ancestor_builder /= Void
 	feature_flattener_not_void: feature_flattener /= Void
 	interface_checker_not_void: interface_checker /= Void
 	implementation_checker_not_void: implementation_checker /= Void
+	attached_attribute_initialization_checker_not_void: attached_attribute_initialization_checker /= Void
 	error_handler_not_void: error_handler /= Void
 	processed_class_count_stack_not_void: processed_class_count_stack /= Void
 	processed_class_count_not_negative: processed_class_count >= 0

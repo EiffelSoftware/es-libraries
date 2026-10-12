@@ -5,7 +5,7 @@
 		"LSP message managers on the server side"
 
 	library: "Gobo Eiffel Language Server Protocol Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class LS_SERVER_MESSAGE_MANAGER
@@ -46,7 +46,91 @@ feature {LS_SERVER_INITIALIZE_REQUEST_HANDLER} -- Setting
 			workspace_folders_set: workspace_folders = a_workspace_folders
 		end
 
-feature -- Handling 'textDocument/hover' requests
+feature -- Handling 'textDocument/prepareCallHierarchy' requests
+
+	on_call_hierarchy_prepare_request (a_request: LS_CALL_HIERARCHY_PREPARE_REQUEST; a_response: LS_CALL_HIERARCHY_PREPARE_RESPONSE)
+			-- Handle 'textDocument/prepareCallHierarchy' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `call_hierarchy_prepare_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			call_hierarchy_prepare_request_supported: call_hierarchy_prepare_request_handler.generating_type.conforms_to ({detachable LS_SERVER_CALL_HIERARCHY_PREPARE_REQUEST_HANDLER})
+		do
+		end
+
+	on_call_hierarchy_incoming_calls_request (a_request: LS_CALL_HIERARCHY_INCOMING_CALLS_REQUEST; a_response: LS_CALL_HIERARCHY_INCOMING_CALLS_RESPONSE)
+			-- Handle 'callHierarchy/incomingCalls' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `call_hierarchy_incoming_calls_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			call_hierarchy_incoming_calls_request_supported: call_hierarchy_incoming_calls_request_handler.generating_type.conforms_to ({detachable LS_SERVER_CALL_HIERARCHY_INCOMING_CALLS_REQUEST_HANDLER})
+		do
+		end
+
+	on_call_hierarchy_outgoing_calls_request (a_request: LS_CALL_HIERARCHY_OUTGOING_CALLS_REQUEST; a_response: LS_CALL_HIERARCHY_OUTGOING_CALLS_RESPONSE)
+			-- Handle 'callHierarchy/incomingCalls' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `call_hierarchy_outgoing_calls_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			call_hierarchy_outgoing_calls_request_supported: call_hierarchy_outgoing_calls_request_handler.generating_type.conforms_to ({detachable LS_SERVER_CALL_HIERARCHY_OUTGOING_CALLS_REQUEST_HANDLER})
+		do
+		end
+
+feature -- Handling 'textDocument/completion' requests
+
+	on_completion_request (a_request: LS_COMPLETION_REQUEST; a_response: LS_COMPLETION_RESPONSE)
+			-- Handle 'textDocument/completion' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `completion_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			completion_request_supported: completion_request_handler.generating_type.conforms_to ({detachable LS_SERVER_COMPLETION_REQUEST_HANDLER})
+		do
+		end
+
+	on_completion_item_resolve_request (a_request: LS_COMPLETION_ITEM_RESOLVE_REQUEST; a_response: LS_COMPLETION_ITEM_RESOLVE_RESPONSE)
+			-- Handle 'completionItem/resolve' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `completion_item_resolve_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			completion_item_resolve_request_supported: completion_item_resolve_request_handler.generating_type.conforms_to ({detachable LS_SERVER_COMPLETION_ITEM_RESOLVE_REQUEST_HANDLER})
+		do
+		end
+
+feature -- Handling 'textDocument/declaration' requests
+
+	on_declaration_request (a_request: LS_DECLARATION_REQUEST; a_response: LS_DECLARATION_RESPONSE)
+			-- Handle 'textDocument/declaration' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `declaration_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			declaration_request_supported: declaration_request_handler.generating_type.conforms_to ({detachable LS_SERVER_DECLARATION_REQUEST_HANDLER})
+		do
+		end
+
+feature -- Handling 'textDocument/definition' requests
 
 	on_definition_request (a_request: LS_DEFINITION_REQUEST; a_response: LS_DEFINITION_RESPONSE)
 			-- Handle 'textDocument/definition' request `a_request`.
@@ -117,6 +201,21 @@ feature -- Handling 'textDocument/didSave' notifications
 		do
 		end
 
+feature -- Handling 'textDocument/documentHighlight' requests
+
+	on_document_highlight_request (a_request: LS_DOCUMENT_HIGHLIGHT_REQUEST; a_response: LS_DOCUMENT_HIGHLIGHT_RESPONSE)
+			-- Handle 'textDocument/documentHighlight' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `document_highlight_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			document_highlight_request_supported: document_highlight_request_handler.generating_type.conforms_to ({detachable LS_SERVER_DOCUMENT_HIGHLIGHT_REQUEST_HANDLER})
+		do
+		end
+
 feature -- Handling 'textDocument/documentSymbol' requests
 
 	on_document_symbol_request (a_request: LS_DOCUMENT_SYMBOL_REQUEST; a_response: LS_DOCUMENT_SYMBOL_RESPONSE)
@@ -177,6 +276,92 @@ feature -- Handling 'textDocument/hover' requests
 			a_request_not_void: a_request /= Void
 			a_response_not_void: a_response /= Void
 			hover_request_supported: hover_request_handler.generating_type.conforms_to ({detachable LS_SERVER_HOVER_REQUEST_HANDLER})
+		do
+		end
+
+feature -- Handling 'textDocument/implementation' requests
+
+	on_implementation_request (a_request: LS_IMPLEMENTATION_REQUEST; a_response: LS_IMPLEMENTATION_RESPONSE)
+			-- Handle 'textDocument/implementation' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `implementation_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			implementation_request_supported: implementation_request_handler.generating_type.conforms_to ({detachable LS_SERVER_IMPLEMENTATION_REQUEST_HANDLER})
+		do
+		end
+
+feature -- Handling 'textDocument/selectionRange' requests
+
+	on_selection_range_request (a_request: LS_SELECTION_RANGE_REQUEST; a_response: LS_SELECTION_RANGE_RESPONSE)
+			-- Handle 'textDocument/selectionRange' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `selection_range_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			selection_range_request_supported: selection_range_request_handler.generating_type.conforms_to ({detachable LS_SERVER_SELECTION_RANGE_REQUEST_HANDLER})
+		do
+		end
+
+feature -- Handling 'textDocument/typeDefinition' requests
+
+	on_type_definition_request (a_request: LS_TYPE_DEFINITION_REQUEST; a_response: LS_TYPE_DEFINITION_RESPONSE)
+			-- Handle 'textDocument/typeDefinition' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `type_definition_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			type_definition_request_supported: type_definition_request_handler.generating_type.conforms_to ({detachable LS_SERVER_TYPE_DEFINITION_REQUEST_HANDLER})
+		do
+		end
+
+feature -- Handling 'textDocument/prepareTypeHierarchy' requests
+
+	on_type_hierarchy_prepare_request (a_request: LS_TYPE_HIERARCHY_PREPARE_REQUEST; a_response: LS_TYPE_HIERARCHY_PREPARE_RESPONSE)
+			-- Handle 'textDocument/prepareTypeHierarchy' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `type_hierarchy_prepare_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			type_hierarchy_prepare_request_supported: type_hierarchy_prepare_request_handler.generating_type.conforms_to ({detachable LS_SERVER_TYPE_HIERARCHY_PREPARE_REQUEST_HANDLER})
+		do
+		end
+
+	on_type_hierarchy_subtypes_request (a_request: LS_TYPE_HIERARCHY_SUBTYPES_REQUEST; a_response: LS_TYPE_HIERARCHY_SUBTYPES_RESPONSE)
+			-- Handle 'typeHierarchy/subtypes' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `type_hierarchy_subtypes_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			type_hierarchy_subtypes_request_supported: type_hierarchy_subtypes_request_handler.generating_type.conforms_to ({detachable LS_SERVER_TYPE_HIERARCHY_SUBTYPES_REQUEST_HANDLER})
+		do
+		end
+
+	on_type_hierarchy_supertypes_request (a_request: LS_TYPE_HIERARCHY_SUPERTYPES_REQUEST; a_response: LS_TYPE_HIERARCHY_SUPERTYPES_RESPONSE)
+			-- Handle 'typeHierarchy/supertypes' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `type_hierarchy_supertypes_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			type_hierarchy_supertypes_request_supported: type_hierarchy_supertypes_request_handler.generating_type.conforms_to ({detachable LS_SERVER_TYPE_HIERARCHY_SUPERTYPES_REQUEST_HANDLER})
 		do
 		end
 
@@ -267,15 +452,59 @@ feature -- Handling 'workspace/configuration' requests
 			create Result.make
 		end
 
+feature -- Handling 'workspace/didChangeConfiguration' notifications
+
+	on_did_change_configuration_notification (a_notification: LS_DID_CHANGE_CONFIGURATION_NOTIFICATION)
+			-- Handle 'workspace/didChangeConfiguration' notification `a_notification`.
+			-- Actions to be executed when watched files are changed.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `did_change_configuration_notification_handler` accordingly as per the precondition.)
+		require
+			a_notification_not_void: a_notification /= Void
+			did_change_configuration_notification_supported: did_change_configuration_notification_handler.generating_type.conforms_to ({detachable LS_SERVER_DID_CHANGE_CONFIGURATION_NOTIFICATION_HANDLER})
+		do
+		end
+
+	register_did_change_configuration_options (a_id: LS_STRING)
+			-- Register options for 'workspace/didChangeConfiguration' notifications.
+		require
+			a_id_not_void: a_id /= Void
+			dynamic_registration_supported: did_change_configuration_notification_handler.is_dynamic_registration_supported
+			is_initialized: is_initialized
+			not_is_shutdown: not is_shutdown
+		local
+			l_registrations: LS_REGISTRATION_LIST
+			l_registration: LS_REGISTRATION
+		do
+			create l_registration.make (a_id, {LS_DID_CHANGE_CONFIGURATION_NOTIFICATION}.method, Void)
+			create l_registrations.make_with_capacity (1)
+			l_registrations.put_last (l_registration)
+			send_register_capability_request (l_registrations)
+		end
+
+	on_did_change_configuration_options_registered (a_registration: LS_REGISTRATION; a_response: LS_RESPONSE)
+			-- Action to be executed when the client registered options
+			-- for 'workspace/didChangeConfiguration' notifications.
+			--
+			-- (To be redefined in servers.)
+		require
+			a_registration_not_void: a_registration /= Void
+			a_response_not_void: a_response /= Void
+		do
+		end
+
 feature -- Handling 'workspace/didChangeWatchedFiles' notifications
 
 	on_did_change_watched_files_notification (a_notification: LS_DID_CHANGE_WATCHED_FILES_NOTIFICATION)
 			-- Handle 'workspace/didChangeWatchedFiles' notification `a_notification`.
 			-- Actions to be executed when watched files are changed.
 			--
-			-- (To be redefined in servers.)
+			-- (To be redefined in servers.
+			-- Redefine `did_change_watched_files_notification_handler` accordingly as per the precondition.)
 		require
 			a_notification_not_void: a_notification /= Void
+			did_change_watched_files_notification_supported: did_change_watched_files_notification_handler.generating_type.conforms_to ({detachable LS_SERVER_DID_CHANGE_WATCHED_FILES_NOTIFICATION_HANDLER})
 		do
 		end
 
@@ -324,6 +553,34 @@ feature -- Handling 'workspace/didChangeWatchedFiles' notifications
 			a_options_not_void: a_options /= Void
 			a_registration_not_void: a_registration /= Void
 			a_response_not_void: a_response /= Void
+		do
+		end
+
+feature -- Handling 'workspace/symbol' requests
+
+	on_workspace_symbol_request (a_request: LS_WORKSPACE_SYMBOL_REQUEST; a_response: LS_WORKSPACE_SYMBOL_RESPONSE)
+			-- Handle 'workspace/symbol' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `workspace_symbol_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			workspace_symbol_request_supported: workspace_symbol_request_handler.generating_type.conforms_to ({detachable LS_SERVER_WORKSPACE_SYMBOL_REQUEST_HANDLER})
+		do
+		end
+
+	on_workspace_symbol_resolve_request (a_request: LS_WORKSPACE_SYMBOL_RESOLVE_REQUEST; a_response: LS_WORKSPACE_SYMBOL_RESOLVE_RESPONSE)
+			-- Handle 'workspaceSymbol/resolve' request `a_request`.
+			-- Build `a_response` accordingly.
+			--
+			-- (To be redefined in servers.
+			-- Redefine `workspace_symbol_resolve_request_handler` accordingly as per the precondition.)
+		require
+			a_request_not_void: a_request /= Void
+			a_response_not_void: a_response /= Void
+			workspace_symbol_resolve_request_supported: completion_item_resolve_request_handler.generating_type.conforms_to ({detachable LS_SERVER_WORKSPACE_SYMBOL_RESOLVE_REQUEST_HANDLER})
 		do
 		end
 

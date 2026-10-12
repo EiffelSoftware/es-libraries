@@ -5,7 +5,7 @@
 		"Eiffel type checkers"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2003-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2003-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_TYPE_CHECKER
@@ -129,6 +129,7 @@ feature -- Validity checking
 			old_context: ET_TYPE_CONTEXT
 			old_class: ET_CLASS
 			old_class_impl: ET_CLASS
+			l_has_interface_error: BOOLEAN
 		do
 			has_fatal_error := False
 			old_context := current_context
@@ -140,7 +141,8 @@ feature -- Validity checking
 			an_actuals := a_type.actual_parameters
 			a_type_class := a_type.base_class
 			a_type_class.process (system_processor.interface_checker)
-			if not a_type_class.interface_checked or else a_type_class.has_interface_error then
+			l_has_interface_error := not a_type_class.interface_checked_successfully
+			if l_has_interface_error and not system_processor.is_fault_tolerant then
 				set_fatal_error
 			elseif attached {ET_TUPLE_TYPE} a_type as l_tuple_type then
 					-- This covers the case where we have:
@@ -332,6 +334,9 @@ feature -- Validity checking
 					end
 				end
 			end
+			if l_has_interface_error then
+				set_fatal_error
+			end
 			current_class_impl := old_class_impl
 			current_class := old_class
 			current_context := old_context
@@ -443,6 +448,8 @@ feature {NONE} -- Validity checking
 			a_class: ET_CLASS
 			had_error: BOOLEAN
 			l_conforms: BOOLEAN
+			l_default_create_seed: INTEGER
+			l_client_class: ET_CLASS
 		do
 			has_fatal_error := False
 			a_class := a_type.base_class
@@ -479,43 +486,25 @@ feature {NONE} -- Validity checking
 						-- Error should already have been
 						-- reported somewhere else.
 					set_fatal_error
-				elseif not a_class.is_generic then
-					if a_type.is_generic then
-						set_fatal_error
-						if class_interface_error_only then
-							-- Do not report this error.
-						elseif current_class = current_class_impl then
-							error_handler.report_vtug1a_error (current_class, a_type)
-						else
--- TODO: this error should have already been reported when processing `current_class_impl'.
-							error_handler.report_vtug1a_error (current_class_impl, a_type)
-						end
-					end
 				else
-					if current_class = current_class_impl then
-						a_type.resolve_unfolded_tuple_actual_parameters_1 (current_universe)
-					end
-					l_actuals := a_type.actual_parameters
-					if not a_type.is_generic then
-						set_fatal_error
-						if class_interface_error_only then
-							-- Do not report this error.
-						elseif current_class = current_class_impl then
-							error_handler.report_vtug2a_error (current_class, a_type)
-						else
+					if not a_class.is_generic then
+						if a_type.is_generic then
+							set_fatal_error
+							if class_interface_error_only then
+								-- Do not report this error.
+							elseif current_class = current_class_impl then
+								error_handler.report_vtug1a_error (current_class, a_type)
+							else
 -- TODO: this error should have already been reported when processing `current_class_impl'.
-							error_handler.report_vtug2a_error (current_class_impl, a_type)
+								error_handler.report_vtug1a_error (current_class_impl, a_type)
+							end
 						end
-					elseif not attached a_class.formal_parameters as a_formals then
-							-- Internal error: `a_class' is generic.
-						set_fatal_error
-						error_handler.report_giaaa_error
-					elseif l_actuals = Void then
-							-- Internal error: `a_type' is generic.
-						set_fatal_error
-						error_handler.report_giaaa_error
 					else
-						if l_actuals.count /= a_formals.count then
+						if current_class = current_class_impl then
+							a_type.resolve_unfolded_tuple_actual_parameters_1 (current_universe)
+						end
+						l_actuals := a_type.actual_parameters
+						if not a_type.is_generic then
 							set_fatal_error
 							if class_interface_error_only then
 								-- Do not report this error.
@@ -525,124 +514,166 @@ feature {NONE} -- Validity checking
 -- TODO: this error should have already been reported when processing `current_class_impl'.
 								error_handler.report_vtug2a_error (current_class_impl, a_type)
 							end
+						elseif not attached a_class.formal_parameters as a_formals then
+								-- Internal error: `a_class' is generic.
+							set_fatal_error
+							error_handler.report_giaaa_error
+						elseif l_actuals = Void then
+								-- Internal error: `a_type' is generic.
+							set_fatal_error
+							error_handler.report_giaaa_error
 						else
-							nb := l_actuals.count
-								-- We need to process all actual parameters (and hence finish performing
-								-- all Tuple-type-unfolding) before trying to run the second phase of
-								-- Tuple-type-unfolding. Indeed, we might have a case like
-								-- that:
-								--
-								--  class AA [G -> TUPLE [H], H]
-								--
-								--  a: AA [TUPLE [PROCEDURE [TUPLE [BB]]], PROCEDURE [BB]]
-								--
-								-- This should be resolved as:
-								--
-								--  a: AA [TUPLE [PROCEDURE [TUPLE [BB]]], PROCEDURE [TUPLE [BB]]]
-								--
-								-- But if we had not processed the second actual parameter of AA beforehand,
-								-- we would have ended up with this erroneously resolved type:
-								--
-								--  a: AA [TUPLE [TUPLE [PROCEDURE [TUPLE [BB]]]], PROCEDURE [TUPLE [BB]]]
-								--
-								-- which is not valid. Hence the two loops below.
-							from i := 1 until i > nb loop
-								an_actual := l_actuals.type (i)
-								had_error := has_fatal_error
-								an_actual.process (Current)
-								reset_fatal_error (has_fatal_error or had_error)
-								i := i + 1
+							if l_actuals.count /= a_formals.count then
+								set_fatal_error
+								if class_interface_error_only then
+									-- Do not report this error.
+								elseif current_class = current_class_impl then
+									error_handler.report_vtug2a_error (current_class, a_type)
+								else
+-- TODO: this error should have already been reported when processing `current_class_impl'.
+									error_handler.report_vtug2a_error (current_class_impl, a_type)
+								end
+							else
+								nb := l_actuals.count
+									-- We need to process all actual parameters (and hence finish performing
+									-- all Tuple-type-unfolding) before trying to run the second phase of
+									-- Tuple-type-unfolding. Indeed, we might have a case like
+									-- that:
+									--
+									--  class AA [G -> TUPLE [H], H]
+									--
+									--  a: AA [TUPLE [PROCEDURE [TUPLE [BB]]], PROCEDURE [BB]]
+									--
+									-- This should be resolved as:
+									--
+									--  a: AA [TUPLE [PROCEDURE [TUPLE [BB]]], PROCEDURE [TUPLE [BB]]]
+									--
+									-- But if we had not processed the second actual parameter of AA beforehand,
+									-- we would have ended up with this erroneously resolved type:
+									--
+									--  a: AA [TUPLE [TUPLE [PROCEDURE [TUPLE [BB]]]], PROCEDURE [TUPLE [BB]]]
+									--
+									-- which is not valid. Hence the two loops below.
+								from i := 1 until i > nb loop
+									an_actual := l_actuals.type (i)
+									had_error := has_fatal_error
+									an_actual.process (Current)
+									reset_fatal_error (has_fatal_error or had_error)
+									i := i + 1
+								end
+								from i := 1 until i > nb loop
+									an_actual := l_actuals.type (i)
+									a_formal := a_formals.formal_parameter (i)
+									if a_formal.is_expanded then
+										if not an_actual.is_type_expanded (current_context) then
+											set_fatal_error
+											if class_interface_error_only then
+												-- Do not report this error.
+											else
+												error_handler.report_gvtcg5b_error (current_class, current_class_impl, a_type, an_actual, a_formal)
+											end
+										end
+									elseif a_formal.is_reference then
+										if not an_actual.is_type_reference (current_context) then
+											set_fatal_error
+											if class_interface_error_only then
+												-- Do not report this error.
+											else
+												error_handler.report_gvtcg5a_error (current_class, current_class_impl, a_type, an_actual, a_formal)
+											end
+										end
+									end
+									a_constraint := a_formal.constraint
+									if a_constraint = Void then
+										a_constraint := current_system.detachable_separate_any_type
+									end
+										-- If we have:
+										--
+										--   class A [G, H -> LIST [G]] ...
+										--   class X feature foo: A [ANY, LIST [STRING]] ...
+										--
+										-- we need to check that "LIST [STRING]" conforms to
+										-- "LIST [ANY]", not just "LIST [G]".
+										-- Likewise if we have:
+										--
+										--   class A [G -> LIST [G]] ...
+										--   class X feature foo: A [LIST [FOO]] ...
+										--
+										-- we need to check that "LIST [FOO]" conforms to
+										-- "LIST [LIST [FOO]]", not just "LIST [G]".
+									constraint_context.set (a_type, current_context.root_context)
+									l_conforms := an_actual.conforms_to_constraint (a_constraint, constraint_context, current_context, system_processor)
+									if not l_conforms then
+										if current_class = current_class_impl and then a_class.tuple_constraint_position = i then
+											a_type.resolve_unfolded_tuple_actual_parameters_2 (current_context, constraint_context, system_processor)
+											if attached a_type.actual_parameters as l_actual_parameters and then l_actual_parameters /= l_actuals then
+												l_actuals := l_actual_parameters
+												an_actual := l_actuals.type (i)
+												l_conforms := an_actual.conforms_to_constraint (a_constraint, constraint_context, current_context, system_processor)
+											end
+										end
+									end
+									constraint_context.reset (tokens.unknown_class)
+									if not l_conforms then
+											-- The actual parameter does not conform to the
+											-- constraint of its corresponding formal parameter.
+											--
+											-- Note that it is possible that the actual parameter conforms
+											-- to the constraint in `current_class_impl' but not in `current_class'.
+											-- Here is an example:
+											--
+											--   class A
+											--   feature
+											--       y: Y [like Current, X [A]]
+											--   end
+											--
+											--   class B
+											--   inherit
+											--       A
+											--   end
+											--
+											--   class X
+											--   end
+											--
+											--   class Y [G, H -> X [G]]
+											--   end
+											--
+											-- In class B the actual generic parameter 'X [A]' does not conform
+											-- to its constraint 'X [like Current]'.
+										set_fatal_error
+										if class_interface_error_only then
+											-- Do not report this error.
+										elseif an_actual.named_type_has_class_with_ancestors_not_built_successfully (current_context) then
+											-- An error has already been reported about the classes
+											-- involved into this conformance check.
+										else
+											error_handler.report_vtcg3a_error (current_class, current_class_impl, a_type, an_actual, a_constraint)
+										end
+									end
+									i := i + 1
+								end
 							end
-							from i := 1 until i > nb loop
-								an_actual := l_actuals.type (i)
-								a_formal := a_formals.formal_parameter (i)
-								if a_formal.is_expanded then
-									if not an_actual.is_type_expanded (current_context) then
-										set_fatal_error
-										if class_interface_error_only then
-											-- Do not report this error.
-										else
-											error_handler.report_gvtcg5b_error (current_class, current_class_impl, a_type, an_actual, a_formal)
-										end
-									end
-								elseif a_formal.is_reference then
-									if not an_actual.is_type_reference (current_context) then
-										set_fatal_error
-										if class_interface_error_only then
-											-- Do not report this error.
-										else
-											error_handler.report_gvtcg5a_error (current_class, current_class_impl, a_type, an_actual, a_formal)
-										end
-									end
-								end
-								a_constraint := a_formal.constraint
-								if a_constraint = Void then
-									a_constraint := current_system.detachable_separate_any_type
-								end
-									-- If we have:
-									--
-									--   class A [G, H -> LIST [G]] ...
-									--   class X feature foo: A [ANY, LIST [STRING]] ...
-									--
-									-- we need to check that "LIST [STRING]" conforms to
-									-- "LIST [ANY]", not just "LIST [G]".
-									-- Likewise if we have:
-									--
-									--   class A [G -> LIST [G]] ...
-									--   class X feature foo: A [LIST [FOO]] ...
-									--
-									-- we need to check that "LIST [FOO]" conforms to
-									-- "LIST [LIST [FOO]]", not just "LIST [G]".
-								constraint_context.set (a_type, current_context.root_context)
-								l_conforms := an_actual.conforms_to_constraint (a_constraint, constraint_context, current_context, system_processor)
-								if not l_conforms then
-									if current_class = current_class_impl and then a_class.tuple_constraint_position = i then
-										a_type.resolve_unfolded_tuple_actual_parameters_2 (current_context, constraint_context, system_processor)
-										if attached a_type.actual_parameters as l_actual_parameters and then l_actual_parameters /= l_actuals then
-											l_actuals := l_actual_parameters
-											an_actual := l_actuals.type (i)
-											l_conforms := an_actual.conforms_to_constraint (a_constraint, constraint_context, current_context, system_processor)
-										end
-									end
-								end
-								constraint_context.reset (tokens.unknown_class)
-								if not l_conforms then
-										-- The actual parameter does not conform to the
-										-- constraint of its corresponding formal parameter.
-										--
-										-- Note that it is possible that the actual parameter conforms
-										-- to the constraint in `current_class_impl' but not in `current_class'.
-										-- Here is an example:
-										--
-										--   class A
-										--   feature
-										--       y: Y [like Current, X [A]]
-										--   end
-										--
-										--   class B
-										--   inherit
-										--       A
-										--   end
-										--
-										--   class X
-										--   end
-										--
-										--   class Y [G, H -> X [G]]
-										--   end
-										--
-										-- In class B the actual generic parameter 'X [A]' does not conform
-										-- to its constraint 'X [like Current]'.
-									set_fatal_error
-									if class_interface_error_only then
-										-- Do not report this error.
-									elseif an_actual.named_type_has_class_with_ancestors_not_built_successfully (current_context) then
-										-- An error has already been reported about the classes
-										-- involved into this conformance check.
-									else
-										error_handler.report_vtcg3a_error (current_class, current_class_impl, a_type, an_actual, a_constraint)
-									end
-								end
-								i := i + 1
+						end
+					end
+					if a_type.is_expanded then
+						l_default_create_seed := current_system.default_create_seed
+						l_client_class := if current_class.is_root then a_class.current_system.any_type.base_class else current_class end
+						if l_default_create_seed = 0 then
+							-- 'default_create' not supported.
+						elseif not attached a_class.seeded_procedure (l_default_create_seed) as l_default_create then
+								-- Internal error: 'default_create' is declared in 'ANY'.
+								-- so all classes should have a version of this procedure.
+							set_fatal_error
+							error_handler.report_giaaa_error
+						elseif not l_default_create.is_creation_exported_to (l_client_class, a_class, system_processor) then
+							set_fatal_error
+							if class_interface_error_only then
+								-- Do not report this error.
+							elseif current_class = current_class_impl then
+								error_handler.report_vtec2a_error (current_class, a_type)
+							else
+-- TODO: this error should have already been reported when processing `current_class_impl'.
+								error_handler.report_vtec2a_error (current_class_impl, a_type)
 							end
 						end
 					end

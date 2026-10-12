@@ -3,9 +3,8 @@
 	<target name="collection_json">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
-			<exclude>/\.svn$</exclude>
 		</file_rule>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json.ecf"/>

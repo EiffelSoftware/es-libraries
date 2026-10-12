@@ -5,12 +5,12 @@
 
 		"ECF Pretty-Printer"
 
-	tool: "Gobo Eiffel Compiler"
+	tool: "Gobo Eiffel Doc"
 	copyright: "Copyright (c) 2018-2025, Eric Bezault and others"
 	license: "MIT License"
 -->
 
-<chapter xmlns="https://www.gobosoft.com/eiffel/gobo/documentation" id="gedoc/ecf_pretty_printer">
+<chapter xmlns="http://gobo-eiffel.gobosoft.com/documentation" id="gedoc/ecf_pretty_printer">
 <chapterinfo>
 	<copyright>
 		<year>2018-2025</year>

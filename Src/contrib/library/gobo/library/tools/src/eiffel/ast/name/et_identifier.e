@@ -55,6 +55,7 @@ inherit
 		redefine
 			is_instance_free,
 			is_never_void,
+			add_formal_arguments,
 			add_separate_arguments
 		end
 
@@ -68,6 +69,7 @@ inherit
 		redefine
 			is_instance_free,
 			is_never_void,
+			add_formal_arguments,
 			add_separate_arguments
 		end
 
@@ -81,6 +83,7 @@ inherit
 		redefine
 			is_instance_free,
 			is_never_void,
+			add_formal_arguments,
 			add_separate_arguments
 		end
 
@@ -110,6 +113,7 @@ inherit
 		redefine
 			is_instance_free,
 			is_never_void,
+			add_formal_arguments,
 			add_separate_arguments
 		end
 
@@ -123,6 +127,7 @@ inherit
 		redefine
 			is_instance_free,
 			is_never_void,
+			add_formal_arguments,
 			add_separate_arguments
 		end
 
@@ -194,7 +199,7 @@ feature -- Initialization
 			-- Reset identifier as it was just after it was last parsed.
 		do
 			index := 0
-			if not is_local and not is_argument and not is_object_test_local and not is_iteration_item and not is_inline_separate_argument then
+			if not is_local and not is_argument and not is_object_test_local and not is_inline_separate_argument then
 				seed := 0
 				if is_tuple_label then
 					set_feature_name (True)
@@ -622,6 +627,21 @@ feature -- Conversion
 			-- Current name viewed as an expression
 		do
 			Result := Current
+		end
+
+feature -- Formal arguments
+
+	add_formal_arguments (a_list: DS_ARRAYED_LIST_2 [detachable ET_IDENTIFIER, BOOLEAN])
+			-- Add to `a_list' all formal arguments appearing in current expression
+			-- and (recursively) in its subexpressions: set the boolean to true
+			-- if the formal argument name at the index corresponding to its seed
+			-- is not Void.
+		do
+			if is_argument then
+				if (seed >= 1 and seed <= a_list.count) and then a_list.item_1 (seed) /= Void then
+					a_list.replace_2 (True, seed)
+				end
+			end
 		end
 
 feature -- SCOOP

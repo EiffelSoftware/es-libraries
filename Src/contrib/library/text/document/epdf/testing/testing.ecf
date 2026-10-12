@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="epdf_tests" uuid="CA39BEB7-2209-417A-B1DC-196067376834">
+	<description>Test suite for the ePDF library (run from the library root folder, so that testing/pdf is found).</description>
+	<target name="epdf_tests">
+		<root class="TEST_RUNNER" feature="make"/>
+		<file_rule>
+			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+		</file_rule>
+		<option debug="true" warning="warning">
+			<debug name="epdf" enabled="false"/>
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<setting name="total_order_on_reals" value="true"/>
+		<setting name="dead_code_removal" value="feature"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<library name="crypto" location="$ISE_LIBRARY\unstable\library\text\encryption\crypto\crypto.ecf"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<library name="epdf" location="..\epdf.ecf" readonly="false">
+			<option>
+				<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+			</option>
+		</library>
+		<cluster name="tests" location=".\" recursive="true">
+			<file_rule>
+				<exclude>/other$</exclude>
+			</file_rule>
+		</cluster>
+		<!--
+		-->
+	</target>
+	<target name="epdf_other_tests" extends="epdf_tests">
+		<root class="TEST_OTHER_RUNNER" feature="make"/>
+		<cluster name="other_tests" location=".\other" recursive="true"/>
+	</target>
+</system>

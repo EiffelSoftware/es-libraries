@@ -5,7 +5,7 @@
 		<file_rule>
 			<exclude>/EIFGENs$</exclude>
 			<exclude>/\.git$</exclude>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/oauth_20_dropbox_api.e</exclude>
 		</file_rule>
 		<option warning="true">

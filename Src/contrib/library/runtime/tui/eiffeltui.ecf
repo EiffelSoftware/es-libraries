@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd"
+        name="eiffeltui"
+        uuid="E1FFE170-0001-4000-8000-000000000001"
+        library_target="eiffeltui">
+
+	<target name="eiffeltui">
+		<description>EiffelTUI core library target</description>
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/\.git$</exclude>
+			<exclude>/\.svn$</exclude>
+		</file_rule>
+		<option warning="warning" syntax="standard" manifest_array_type="mismatch_warning">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<setting name="total_order_on_reals" value="true"/>
+		<setting name="dead_code_removal" value="feature"/>
+		<capability>
+			<concurrency support="thread"/>
+			<void_safety support="all"/>
+		</capability>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>
+		<cluster name="eiffeltui" location=".\library\" recursive="true">
+			<file_rule>
+				<exclude>/platform$</exclude>
+			</file_rule>
+		</cluster>
+		<cluster name="eiffeltui_windows" location=".\library\platform\windows\">
+			<description>Win32 console driver; TERMINAL_DRIVER inherits WIN32_CONSOLE_DRIVER</description>
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</cluster>
+		<cluster name="eiffeltui_posix" location=".\library\platform\posix\">
+			<description>POSIX tty driver; TERMINAL_DRIVER inherits POSIX_CONSOLE_DRIVER</description>
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</cluster>
+	</target>
+
+	<target name="eiffeltui_demo" extends="eiffeltui">
+		<description>EiffelTUI Phase 1 Hello World Demo</description>
+		<root class="HELLO_TUI" feature="make"/>
+		<setting name="executable_name" value="hello_tui"/>
+		<cluster name="demo" location=".\demo\" recursive="true"/>
+	</target>
+
+	<target name="eiffeltui_tests" extends="eiffeltui">
+		<description>EiffelTUI Autotest Suite</description>
+		<root class="TEST_APP" feature="make"/>
+		<setting name="executable_name" value="eiffeltui_tests"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<cluster name="tests" location=".\tests\" recursive="true">
+			<option>
+				<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+			</option>
+			<file_rule>
+				<exclude>/platform$</exclude>
+			</file_rule>
+		</cluster>
+		<cluster name="tests_windows" location=".\tests\platform\windows\">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</cluster>
+		<cluster name="tests_posix" location=".\tests\platform\posix\">
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</cluster>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="eiffeltui_examples" extends="eiffeltui">
+		<description>EiffelTUI Examples Suite &amp; Runner</description>
+		<root class="EXAMPLE_RUNNER" feature="make"/>
+		<setting name="executable_name" value="example_runner"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_hello_world" extends="eiffeltui">
+		<description>EiffelTUI Example: Hello World</description>
+		<root class="EXAMPLE_HELLO_WORLD" feature="make"/>
+		<setting name="executable_name" value="example_hello_world"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_minimal" extends="eiffeltui">
+		<description>EiffelTUI Example: Minimal</description>
+		<root class="EXAMPLE_MINIMAL" feature="make"/>
+		<setting name="executable_name" value="example_minimal"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_colors_rgb" extends="eiffeltui">
+		<description>EiffelTUI Example: Colors RGB</description>
+		<root class="EXAMPLE_COLORS_RGB" feature="make"/>
+		<setting name="executable_name" value="example_colors_rgb"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_color_explorer" extends="eiffeltui">
+		<description>EiffelTUI Example: Color Explorer</description>
+		<root class="EXAMPLE_COLOR_EXPLORER" feature="make"/>
+		<setting name="executable_name" value="example_color_explorer"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_modifiers" extends="eiffeltui">
+		<description>EiffelTUI Example: Modifiers</description>
+		<root class="EXAMPLE_MODIFIERS" feature="make"/>
+		<setting name="executable_name" value="example_modifiers"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_popup" extends="eiffeltui">
+		<description>EiffelTUI Example: Popup</description>
+		<root class="EXAMPLE_POPUP" feature="make"/>
+		<setting name="executable_name" value="example_popup"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_inline" extends="eiffeltui">
+		<description>EiffelTUI Example: Inline Viewport</description>
+		<root class="EXAMPLE_INLINE" feature="make"/>
+		<setting name="executable_name" value="example_inline"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_todo_list" extends="eiffeltui">
+		<description>EiffelTUI Example: Todo List</description>
+		<root class="EXAMPLE_TODO_LIST" feature="make"/>
+		<setting name="executable_name" value="example_todo_list"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_user_input" extends="eiffeltui">
+		<description>EiffelTUI Example: User Input</description>
+		<root class="EXAMPLE_USER_INPUT" feature="make"/>
+		<setting name="executable_name" value="example_user_input"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_input_form" extends="eiffeltui">
+		<description>EiffelTUI Example: Input Form</description>
+		<root class="EXAMPLE_INPUT_FORM" feature="make"/>
+		<setting name="executable_name" value="example_input_form"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_table" extends="eiffeltui">
+		<description>EiffelTUI Example: Table</description>
+		<root class="EXAMPLE_TABLE" feature="make"/>
+		<setting name="executable_name" value="example_table"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_scrollbar" extends="eiffeltui">
+		<description>EiffelTUI Example: Scrollbar</description>
+		<root class="EXAMPLE_SCROLLBAR" feature="make"/>
+		<setting name="executable_name" value="example_scrollbar"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_gauge" extends="eiffeltui">
+		<description>EiffelTUI Example: Gauge</description>
+		<root class="EXAMPLE_GAUGE" feature="make"/>
+		<setting name="executable_name" value="example_gauge"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_calendar_explorer" extends="eiffeltui">
+		<description>EiffelTUI Example: Calendar Explorer</description>
+		<root class="EXAMPLE_CALENDAR_EXPLORER" feature="make"/>
+		<setting name="executable_name" value="example_calendar_explorer"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_flex" extends="eiffeltui">
+		<description>EiffelTUI Example: Flex &amp; Alignment</description>
+		<root class="EXAMPLE_FLEX" feature="make"/>
+		<setting name="executable_name" value="example_flex"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_constraints" extends="eiffeltui">
+		<description>EiffelTUI Example: Layout Constraints</description>
+		<root class="EXAMPLE_CONSTRAINTS" feature="make"/>
+		<setting name="executable_name" value="example_constraints"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_constraint_explorer" extends="eiffeltui">
+		<description>EiffelTUI Example: Interactive Constraint Explorer</description>
+		<root class="EXAMPLE_CONSTRAINT_EXPLORER" feature="make"/>
+		<setting name="executable_name" value="example_constraint_explorer"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_canvas" extends="eiffeltui">
+		<description>EiffelTUI Example: Canvas Shapes &amp; Markers</description>
+		<root class="EXAMPLE_CANVAS" feature="make"/>
+		<setting name="executable_name" value="example_canvas"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_chart" extends="eiffeltui">
+		<description>EiffelTUI Example: Multi-Signal Realtime Chart</description>
+		<root class="EXAMPLE_CHART" feature="make"/>
+		<setting name="executable_name" value="example_chart"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_weather" extends="eiffeltui">
+		<description>EiffelTUI Example: Weather Dashboard</description>
+		<root class="EXAMPLE_WEATHER" feature="make"/>
+		<setting name="executable_name" value="example_weather"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_mouse_drawing" extends="eiffeltui">
+		<description>EiffelTUI Example: Mouse Capture &amp; Freehand Drawing</description>
+		<root class="EXAMPLE_MOUSE_DRAWING" feature="make"/>
+		<setting name="executable_name" value="example_mouse_drawing"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_demo" extends="eiffeltui">
+		<description>EiffelTUI Example: Flagship Operations Dashboard (Demo 1)</description>
+		<root class="EXAMPLE_DEMO" feature="make"/>
+		<setting name="executable_name" value="example_demo"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_demo2" extends="eiffeltui">
+		<description>EiffelTUI Example: Premier Showcase Dashboard (Demo 2)</description>
+		<root class="EXAMPLE_DEMO2" feature="make"/>
+		<setting name="executable_name" value="example_demo2"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_panic" extends="eiffeltui">
+		<description>EiffelTUI Example: Panic &amp; Exception Recovery</description>
+		<root class="EXAMPLE_PANIC" feature="make"/>
+		<setting name="executable_name" value="example_panic"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_custom_widget" extends="eiffeltui">
+		<description>EiffelTUI Example: Custom Beveled Button Widget</description>
+		<root class="EXAMPLE_CUSTOM_WIDGET" feature="make"/>
+		<setting name="executable_name" value="example_custom_widget"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_widget_container" extends="eiffeltui">
+		<description>EiffelTUI Example: Heterogeneous Widget Container</description>
+		<root class="EXAMPLE_WIDGET_CONTAINER" feature="make"/>
+		<setting name="executable_name" value="example_widget_container"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_advanced_widget" extends="eiffeltui">
+		<description>EiffelTUI Example: Advanced Widget Lifecycle &amp; State Separation</description>
+		<root class="EXAMPLE_ADVANCED_WIDGET" feature="make"/>
+		<setting name="executable_name" value="example_advanced_widget"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_hyperlink" extends="eiffeltui">
+		<description>EiffelTUI Example: OSC 8 Terminal Hyperlinks</description>
+		<root class="EXAMPLE_HYPERLINK" feature="make"/>
+		<setting name="executable_name" value="example_hyperlink"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_release_header" extends="eiffeltui">
+		<description>EiffelTUI Example: Release Announcement Banner</description>
+		<root class="EXAMPLE_RELEASE_HEADER" feature="make"/>
+		<setting name="executable_name" value="example_release_header"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_volatility_surface" extends="eiffeltui">
+		<description>EiffelTUI Example: 3D Volatility Surface Projection</description>
+		<root class="EXAMPLE_VOLATILITY_SURFACE" feature="make"/>
+		<setting name="executable_name" value="example_volatility_surface"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_logging" extends="eiffeltui">
+		<description>EiffelTUI Example: Structured File Logging &amp; Tracing</description>
+		<root class="EXAMPLE_LOGGING" feature="make"/>
+		<setting name="executable_name" value="example_logging"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_async_github" extends="eiffeltui">
+		<description>EiffelTUI Example: Async GitHub PR Monitor</description>
+		<root class="EXAMPLE_ASYNC_GITHUB" feature="make"/>
+		<setting name="executable_name" value="example_async_github"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+</system>

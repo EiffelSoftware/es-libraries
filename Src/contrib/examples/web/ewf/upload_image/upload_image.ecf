@@ -4,7 +4,7 @@
 		<file_rule>
 			<exclude>/EIFGENs$</exclude>
 			<exclude>/\.git$</exclude>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<option debug="true" warning="true">
 			<debug name="standalone" enabled="true"/>

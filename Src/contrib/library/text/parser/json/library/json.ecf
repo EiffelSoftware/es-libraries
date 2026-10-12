@@ -4,8 +4,7 @@
 	<target name="json">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option namespace="EJSON.Library"/>

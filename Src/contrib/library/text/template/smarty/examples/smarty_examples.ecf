@@ -3,9 +3,8 @@
 	<target name="smarty_examples">
 		<file_rule>
 			<exclude>/.git$</exclude>
-			<exclude>/.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/.tpl$</exclude>
-			<exclude>/CVS$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option warning="true">

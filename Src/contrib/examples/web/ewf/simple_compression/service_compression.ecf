@@ -16,8 +16,7 @@
 		<library name="wsf_compression" location="..\..\..\..\library\web\framework\ewf\wsf\wsf_compression.ecf" readonly="false"/>
 		<cluster name="service_compression" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

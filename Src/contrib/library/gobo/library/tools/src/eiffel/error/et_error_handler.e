@@ -5,7 +5,7 @@
 		"Eiffel error handlers"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 1999-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 1999-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_ERROR_HANDLER
@@ -175,10 +175,13 @@ feature -- Compilation report
 					info_file.put_line (a_class.upper_name)
 				elseif a_processor = a_system_processor.implementation_checker then
 					if a_system_processor.flat_mode then
-						info_file.put_string ("Degree 3 (flat) class ")
+						info_file.put_string ("Degree 3.1 (flat) class ")
 					else
-						info_file.put_string ("Degree 3 class ")
+						info_file.put_string ("Degree 3.1 class ")
 					end
+					info_file.put_line (a_class.upper_name)
+				elseif a_processor = a_system_processor.attached_attribute_initialization_checker then
+					info_file.put_string ("Degree 3.2 class ")
 					info_file.put_line (a_class.upper_name)
 				end
 				mutex.unlock
@@ -384,7 +387,7 @@ feature -- Universe errors
 		end
 
 	report_vsci0c_error (a_universe: ET_UNIVERSE; a_current_class: ET_MASTER_CLASS; a_class1, a_class2: ET_NAMED_CLASS)
-			-- Report VSCI error:  class `a_class1' appearing in a .NET assembly
+			-- Report VSCI error: class `a_class1' appearing in a .NET assembly
 			-- cannot be overridden by `a_class2' corresponding to `a_current_class'
 			-- in `a_universe'.
 			--
@@ -496,202 +499,37 @@ feature -- .NET assembly error status
 
 feature -- Syntax errors
 
-	report_syntax_error (a_filename: STRING; p: ET_POSITION)
+	report_syntax_error (a_filename: STRING; a_position: ET_POSITION; a_ast_node: detachable ET_AST_NODE; a_message: STRING)
 			-- Report a syntax error.
 		require
 			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
+			a_position_not_void: a_position /= Void
+			a_message_not_void: a_message /= Void
 		local
 			an_error: ET_SYNTAX_ERROR
 		do
 			mutex.lock
-			create an_error.make (a_filename, p)
+			create an_error.make_error (a_filename, a_position, a_ast_node, a_message)
 			report_info (an_error)
 			add_separator_if_console (info_file)
 			set_has_eiffel_error (True)
 			mutex.unlock
 		end
 
-	report_SCAC_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing ASCII code in special character
-			-- specification %/code/ in character constant.
-			-- (SCAC: Syntax Character Ascii Code)
+	report_syntax_warning (a_filename: STRING; a_position: ET_POSITION; a_ast_node: detachable ET_AST_NODE; a_message: STRING)
+			-- Report a syntax warning.
 		require
 			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SCAS_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing character / at end of special character
-			-- specification %/code/ in character constant.
-			-- (SCAS: Syntax Character Ascii-code Slash)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SCCU_error (a_filename: STRING; p: ET_POSITION)
-			-- Special character specification %l where l is a letter
-			-- code should be in upper-case in character constant.
-			-- (SSCU: Syntax Character special-Character Upper-case)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SCEQ_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing quote at end of character constant.
-			-- (SCEQ: Syntax Character End Quote)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SCQQ_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing character between quotes in character constant.
-			-- (SCQQ: Syntax Character Quote Quote)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SCSC_error (a_filename: STRING; p: ET_POSITION)
-			-- Invalid special character %l in character constant.
-			-- (SCSC: Syntax Character Special Character)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SIFU_error (a_filename: STRING; p: ET_POSITION)
-			-- An underscore may not be the first character
-			-- of an integer constant. (ETL2 p.420)
-			-- (SIFU: Syntax Integer First Underscore)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SILU_error (a_filename: STRING; p: ET_POSITION)
-			-- An underscore may not be the last character
-			-- of an integer constant. (ECMA p.157)
-			-- (SILU: Syntax Integer Last Underscore)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSAC_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing ASCII code in special character
-			-- specification %/code/ in manifest string.
-			-- (SSAC: Syntax String Ascii Code)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSAO_error (a_filename: STRING; p: ET_POSITION)
-			-- ASCII code too big in special character
-			-- specification %/code/ in manifest string.
-			-- (SSAO: Syntax String Ascii-code Overflow)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSAS_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing character / at end of special character
-			-- specification %/code/ in manifest string.
-			-- (SSAS: Syntax String Ascii-code Slash)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSCU_error (a_filename: STRING; p: ET_POSITION)
-			-- Special character specification %l where l is a letter
-			-- code should be in upper-case in manifest strings.
-			-- (SSCU: Syntax String special-Character Upper-case)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSEL_error (a_filename: STRING; p: ET_POSITION)
-			-- Empty line in middle of multi-line manifest string.
-			-- (SSEL: Syntax String Empty Line)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
+			a_position_not_void: a_position /= Void
+			a_message_not_void: a_message /= Void
 		local
-			--an_error: ET_SSEL_ERROR
+			an_error: ET_SYNTAX_ERROR
 		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSEQ_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing double quote at end of manifest string.
-			-- (SSEQ: Syntax String End double-Quote)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSNL_error (a_filename: STRING; p: ET_POSITION)
-			-- Invalid new-line in middle of manifest string.
-			-- (SSNL: Syntax String New-Line)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSNP_error (a_filename: STRING; p: ET_POSITION)
-			-- Missing character % at beginning of
-			-- line in multi-line manifest string.
-			-- (SSNP: Syntax String New-line Percent)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
-		end
-
-	report_SSSC_error (a_filename: STRING; p: ET_POSITION)
-			-- Invalid special character %l in manifest strings.
-			-- (SSSC: Syntax String Special Character)
-		require
-			a_filename_not_void: a_filename /= Void
-			p_not_void: p /= Void
-		do
-			report_syntax_error (a_filename, p)
+			mutex.lock
+			create an_error.make_warning (a_filename, a_position, a_ast_node, a_message)
+			report_info (an_error)
+			add_separator_if_console (info_file)
+			mutex.unlock
 		end
 
 feature -- System errors
@@ -1085,7 +923,7 @@ feature -- Validity errors
 
 	report_v1se2ga_error (a_class: ET_CLASS; arg: ET_INLINE_SEPARATE_ARGUMENT; a_feature: ET_FEATURE)
 			-- Report V1SE-2G error: argument `arg' of an inline separate instruction
-		 	-- has the same name as `a_feature' in `a_class'.
+			-- has the same name as `a_feature' in `a_class'.
 			--
 			-- Not in ECMA-367-2.
 			-- SCOOP.
@@ -1126,7 +964,7 @@ feature -- Validity errors
 
 	report_v1se2gc_error (a_class: ET_CLASS; arg: ET_INLINE_SEPARATE_ARGUMENT; a_local: ET_LOCAL_VARIABLE)
 			-- Report V1SE-2G error: argument `arg' of an nline separate instruction
-		 	-- has the same name as local variable `a_local' of an enclosing
+			-- has the same name as local variable `a_local' of an enclosing
 			-- feature or inline agent.
 			--
 			-- Not in ECMA-367-2.
@@ -1209,7 +1047,7 @@ feature -- Validity errors
 
 	report_v1se3ga_error (a_class, a_class_impl: ET_CLASS; arg: ET_INLINE_SEPARATE_ARGUMENT; a_type: ET_NAMED_TYPE)
 			-- Report V1SE-3G error: the type of the argument `arg'
-			-- of an inline separate instruction in `a_class_impl' and view from
+			-- of an inline separate instruction in `a_class_impl' and viewed from
 			-- one of its descendants `a_class' (possibly itself)
 			-- is not separate.
 			--
@@ -1780,7 +1618,7 @@ feature -- Validity errors
 			end
 		end
 
-	report_vdpr4a_error (a_class: ET_CLASS; a_precursor: ET_PRECURSOR_KEYWORD; a_feature: ET_FEATURE; a_parent: ET_CLASS)
+	report_vdpr4a_error (a_class: ET_CLASS; a_precursor: ET_PRECURSOR_CALL; a_feature: ET_FEATURE; a_parent: ET_CLASS)
 			-- Report VDPR-4A error: the number of actual arguments in
 			-- the precursor call `a_precursor' appearing in `a_class' is
 			-- not the same as the number of formal arguments of `a_feature'
@@ -1802,7 +1640,7 @@ feature -- Validity errors
 			end
 		end
 
-	report_vdpr4b_error (a_class, a_class_impl: ET_CLASS; a_precursor: ET_PRECURSOR_KEYWORD; a_feature: ET_FEATURE; a_parent: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	report_vdpr4b_error (a_class, a_class_impl: ET_CLASS; a_precursor: ET_PRECURSOR_CALL; a_feature: ET_FEATURE; a_parent: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
 			-- Report VDPR-4B error: the `arg'-th actual argument in the precursor
 			-- call `a_precursor' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the corresponding
@@ -2403,8 +2241,9 @@ feature -- Validity errors
 	report_veen0a_error (a_class: ET_CLASS; an_identifier: ET_IDENTIFIER; a_feature: ET_FEATURE)
 			-- Report VEEN error: `an_identifier', appearing in `a_feature'
 			-- of `a_class', is not the final name of a feature in `a_class'
-			-- nor the name of a local variable or a formal argument of
-			-- `a_feature'.
+			-- nor the name of an object-test local, of an iteration
+			-- item, of an inline separate argument, of a local variable or
+			-- of a formal argument of `a_feature'.
 			--
 			-- ETL2: p.276
 			-- ETR: p.61
@@ -2425,8 +2264,9 @@ feature -- Validity errors
 	report_veen0b_error (a_class: ET_CLASS; an_identifier: ET_IDENTIFIER; an_agent: ET_INLINE_AGENT)
 			-- Report VEEN error: `an_identifier', appearing in inline
 			-- agent `an_agent' in `a_class', is not the final name of a feature
-			-- in `a_class' nor the name of a local variable or a formal argument of
-			-- `an_agent'.
+			-- in `a_class' nor the name of an object-test local, of an iteration
+			-- item, of an inline separate argument, of a local variable or
+			-- of a formal argument of `an_agent'.
 			--
 			-- ETL2: p.276
 			-- ETR: p.61
@@ -2579,6 +2419,25 @@ feature -- Validity errors
 			if reportable_veen2_error (a_class) then
 				create an_error.make_veen2g (a_class, a_result, an_agent)
 				report_validity_error (an_error)
+			end
+		end
+
+	report_veen2h_error (a_class: ET_CLASS; a_result: ET_RESULT; an_agent: ET_INLINE_AGENT)
+			-- Report VEEN-2 error: `a_result' appears in the precondition
+			-- of inline agent `an_agent' in `a_class'.
+			--
+			-- ETL2: p.276
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_result_not_void: a_result /= Void
+			an_agent_not_void: an_agent /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_veen2_error (a_class) then
+				create l_error.make_veen2h (a_class, a_result, an_agent)
+				report_validity_error (l_error)
 			end
 		end
 
@@ -2828,9 +2687,176 @@ feature -- Validity errors
 			end
 		end
 
+	report_vevi0f_error (a_class, a_class_impl: ET_CLASS; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Report VEVI error: the attribute 'a_attribute' of class `a_class`,
+			-- declared of attached type, is not initialized at the end of the creation
+			-- procedure `a_creation_procedure' declared in class `a_class_impl'
+			-- (possibly `a_class` itself).
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vevi_error (a_class) then
+				create l_error.make_vevi0f (a_class, a_class_impl, a_creation_procedure, a_attribute)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vevi0g_error (a_class, a_class_impl: ET_CLASS; a_creation_procedure: ET_PROCEDURE; a_attributes: DS_ARRAYED_LIST [ET_ATTRIBUTE])
+			-- Report VEVI error: the attributes 'a_attributes' of class `a_class`,
+			-- declared of attached type, are not initialized at the end of the creation
+			-- procedure `a_creation_procedure' declared in class `a_class_impl'
+			-- (possibly `a_class` itself).
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attributes_not_void: a_attributes /= Void
+			no_void_attribute: not a_attributes.has_void
+			two_or_more_attributes: a_attributes.count >= 2
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vevi_error (a_class) then
+				create l_error.make_vevi0g (a_class, a_class_impl, a_creation_procedure, a_attributes)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vevi0h_error (a_class, a_class_impl: ET_CLASS; a_current: ET_CURRENT; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Report VEVI error: 'Current', written in `a_class_impl`, is used
+			-- before the attribute 'a_attribute' of one of its descendants `a_class'
+			-- (possibly itself), declared of attached type, is initialized by
+			-- `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_current_not_void: a_current /= Void
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vevi_error (a_class) then
+				create l_error.make_vevi0h (a_class, a_class_impl, a_current, a_creation_procedure, a_attribute)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vevi0i_error (a_class, a_class_impl: ET_CLASS; a_current: ET_CURRENT; a_creation_procedure: ET_PROCEDURE; a_attributes: DS_ARRAYED_LIST [ET_ATTRIBUTE])
+			-- Report VEVI error: 'Current', written in `a_class_impl`, is used
+			-- before the attributes 'a_attributes' of one of its descendants `a_class'
+			-- (possibly itself), declared of attached type, are initialized by
+			-- `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_current_not_void: a_current /= Void
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attributes_not_void: a_attributes /= Void
+			no_void_attribute: not a_attributes.has_void
+			two_or_more_attributes: a_attributes.count >= 2
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vevi_error (a_class) then
+				create l_error.make_vevi0i (a_class, a_class_impl, a_current, a_creation_procedure, a_attributes)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vevi0j_error (a_class, a_class_impl: ET_CLASS; a_agent: ET_AGENT; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Report VEVI error: the implicit target 'Current' of `a_agent`,
+			-- written in `a_class_impl`, is used before the attribute 'a_attribute'
+			-- of one of its descendants `a_class' (possibly itself), declared of
+			-- attached type, is initialized by `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_agent_not_void: a_agent /= Void
+			a_agent_not_qualified: not a_agent.is_qualified_call
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vevi_error (a_class) then
+				create l_error.make_vevi0j (a_class, a_class_impl, a_agent, a_creation_procedure, a_attribute)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vevi0k_error (a_class, a_class_impl: ET_CLASS; a_agent: ET_AGENT; a_creation_procedure: ET_PROCEDURE; a_attributes: DS_ARRAYED_LIST [ET_ATTRIBUTE])
+			-- Report VEVI error: the implicit target 'Current' of `a_agent`,
+			-- written in `a_class_impl`, is used before the attributes 'a_attributes'
+			-- of one of its descendants `a_class' (possibly itself), declared of
+			-- attached type, are initialized by `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_agent_not_void: a_agent /= Void
+			a_agent_not_qualified: not a_agent.is_qualified_call
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attributes_not_void: a_attributes /= Void
+			no_void_attribute: not a_attributes.has_void
+			two_or_more_attributes: a_attributes.count >= 2
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vevi_error (a_class) then
+				create l_error.make_vevi0k (a_class, a_class_impl, a_agent, a_creation_procedure, a_attributes)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vevi0l_error (a_class, a_class_impl: ET_CLASS; a_call_name: ET_CALL_NAME; a_creation_procedure: ET_PROCEDURE; a_attribute: ET_ATTRIBUTE)
+			-- Report VEVI error: 'a_call_name', written in `a_class_impl`, is the
+			-- name of an attribute 'a_attribute' of one of its descendants `a_class'
+			-- (possibly itself), declared of attached type, used before being initialized
+			-- by `a_creation_procedure`.
+			--
+			-- ECMA-367-2: p.105
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_call_name_not_void: a_call_name /= Void
+			a_creation_procedure_not_void: a_creation_procedure /= Void
+			a_attribute_not_void: a_attribute /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vevi_error (a_class) then
+				create l_error.make_vevi0l (a_class, a_class_impl, a_call_name, a_creation_procedure, a_attribute)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_vfac1a_error (a_class: ET_CLASS; an_assigner: ET_FEATURE_NAME; a_query: ET_QUERY)
 			-- Report VFAC-1 error: `a_query' has an assigner `an_assigner'
-			-- but there is not feature with that name in `a_class'.
+			-- but there is no feature with that name in `a_class'.
 			--
 			-- ECMA 367-2: p.41
 		require
@@ -4151,29 +4177,6 @@ feature -- Validity errors
 			end
 		end
 
-	report_vgcc6a_error (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
-			-- Report VGCC-6 error: creation procedure name
-			-- `cp' is the final name of a once-procedure in `a_class'.
-			--
-			-- ETL2: p.286
-			-- ETL3 (4.82-00-00): p.432 (VGCC-4)
-		require
-			a_class_not_void: a_class /= Void
-			a_class_preparsed: a_class.is_preparsed
-			cp_not_void: cp /= Void
-			f_not_void: f /= Void
-			f_name: f.name.same_feature_name (cp)
-			f_procedure: f.is_procedure
-			f_once: f.is_once
-		local
-			an_error: ET_VALIDITY_ERROR
-		do
-			if reportable_vgcc6_error (a_class) then
-				create an_error.make_vgcc6a (a_class, cp, f)
-				report_validity_error (an_error)
-			end
-		end
-
 	report_vgcc6b_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS)
 			-- Report VGCC-6 error: the feature name `a_name', appearing
 			-- in a creation expression in `a_class', is not a procedure.
@@ -4374,6 +4377,24 @@ feature -- Validity errors
 			if reportable_vgcp3_error (a_class) then
 				create an_error.make_vgcp3c (a_class, f1, f2)
 				report_validity_error (an_error)
+			end
+		end
+
+	report_vgfg3ga_error (a_class: ET_CLASS; a_formal_parameters: ET_FORMAL_PARAMETER_LIST)
+			-- Report VGFG-3G error: `a_class` is a once class, but it is generic.
+			--
+			-- Not in ECMA-367-2.
+			-- Once classes.
+		require
+			a_class_not_void: a_class /= Void
+			a_formal_parameters_not_void: a_formal_parameters /= Void
+			a_formal_parameters_definition: a_class.formal_parameters = a_formal_parameters
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vgfg3g_error (a_class) then
+				create l_error.make_vgfg3ga (a_class, a_formal_parameters)
+				report_validity_error (l_error)
 			end
 		end
 
@@ -5016,6 +5037,7 @@ feature -- Validity errors
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
 			a_name_not_void: a_name /= Void
+			a_name_is_argument: a_name.is_argument
 			a_feature_not_void: a_feature /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
@@ -5035,6 +5057,7 @@ feature -- Validity errors
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
 			a_name_not_void: a_name /= Void
+			a_name_is_argument: a_name.is_argument
 			an_agent_not_void: an_agent /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
@@ -5045,10 +5068,67 @@ feature -- Validity errors
 			end
 		end
 
+	report_vjaw0d_error (a_class: ET_CLASS; a_name: ET_IDENTIFIER)
+			-- Report VJAW error: `a_name' is supposed to be a Writable but
+			-- it is an object-test local.
+			--
+			-- Only in ISE Eiffel.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_name_is_object_test_local: a_name.is_object_test_local
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vjaw_error (a_class) then
+				create l_error.make_vjaw0d (a_class, a_name)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vjaw0e_error (a_class: ET_CLASS; a_name: ET_IDENTIFIER)
+			-- Report VJAW error: `a_name' is supposed to be a Writable but
+			-- it is an iteration item.
+			--
+			-- Only in ISE Eiffel.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_name_is_iteration_item: a_name.is_iteration_item
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vjaw_error (a_class) then
+				create l_error.make_vjaw0e (a_class, a_name)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vjaw0f_error (a_class: ET_CLASS; a_name: ET_IDENTIFIER)
+			-- Report VJAW error: `a_name' is supposed to be a Writable but
+			-- it is an inline separate argument.
+			--
+			-- Only in ISE Eiffel.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_name_is_inline_separate_argument: a_name.is_inline_separate_argument
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vjaw_error (a_class) then
+				create l_error.make_vjaw0f (a_class, a_name)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_vjrv0a_error (a_class, a_class_impl: ET_CLASS; a_target: ET_WRITABLE; a_target_type: ET_NAMED_TYPE)
 			-- Report VJRV error: the type `a_target_type' of the target
 			-- `a_target' of an assignment attempt appearing in `a_class_impl'
-			-- and viewed from one of its descedants `a_class' (possibly itself)
+			-- and viewed from one of its descendants `a_class' (possibly itself)
 			-- is not a reference type.
 			--
 			-- ETL2: p. 332
@@ -5065,6 +5145,230 @@ feature -- Validity errors
 			if reportable_vjrv_error (a_class) then
 				create an_error.make_vjrv0a (a_class, a_class_impl, a_target, a_target_type)
 				report_validity_error (an_error)
+			end
+		end
+
+	report_vkcc4a_error (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Report VKCC-4 error: creation procedure name
+			-- `cp' is the final name of a once-procedure in `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_once: f.is_once
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc4_error (a_class) then
+				create l_error.make_vkcc4a (a_class, cp, f)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc4b_error (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Report VKCC-4 error: creation procedure `a_default_create`
+			-- is a once-procedure in `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_once: a_default_create.is_once
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc4_error (a_class) then
+				create l_error.make_vkcc4b (a_class, a_default_create)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc4c_error (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Report VKCC-4 error: creation procedure name
+			-- `cp' is not the final name of a once-procedure in
+			-- once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_not_once: not f.is_once
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc4_error (a_class) then
+				create l_error.make_vkcc4c (a_class, cp, f)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc4d_error (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Report VKCC-4 error: creation procedure `a_default_create`
+			-- is not a once-procedure in once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_not_once: not a_default_create.is_once
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc4_error (a_class) then
+				create l_error.make_vkcc4d (a_class, a_default_create)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc4e_error (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Report VKCC-4 error: creation procedure name
+			-- `cp' is the final name of a once-per-object procedure
+			-- in once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_once_per_object: f.is_once_per_object
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc4_error (a_class) then
+				create l_error.make_vkcc4e (a_class, cp, f)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc4f_error (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Report VKCC-4 error: creation procedure `a_default_create`
+			-- is a once-per_object procedure in once class `a_class'.
+			--
+			-- ETL2: p.286
+			-- ECMA 367-2: 8.20.6 p.109 (VGCC-4)
+			-- ECMA 367-3 (working version 115), 8.23.6 page 219.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_once_per_object: a_default_create.is_once_per_object
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc4_error (a_class) then
+				create l_error.make_vkcc4f (a_class, a_default_create)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc6ga_error (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- CReport VKCC-6G error: creation procedure name
+			-- `cp' is the final name of a class procedure
+			-- in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+			f_class_procedure: f.has_static_mark
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc6g_error (a_class) then
+				create l_error.make_vkcc6ga (a_class, cp, f)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc6gb_error (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Report VKCC-6G error: creation procedure `a_default_create`
+			-- is a class procedure in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+			a_default_create_class_procedure: a_default_create.has_static_mark
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc6g_error (a_class) then
+				create l_error.make_vkcc6gb (a_class, a_default_create)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc7ga_error (a_class: ET_CLASS; cp: ET_FEATURE_NAME; f: ET_FEATURE)
+			-- Report VKCC-7G error: creation procedure name
+			-- `cp' is not the final name of a procedure
+			-- declared or redeclared in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			cp_not_void: cp /= Void
+			f_not_void: f /= Void
+			f_name: f.name.same_feature_name (cp)
+			f_procedure: f.is_procedure
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc7g_error (a_class) then
+				create l_error.make_vkcc7ga (a_class, cp, f)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkcc7gb_error (a_class: ET_CLASS; a_default_create: ET_FEATURE)
+			-- Report VKCC-7G error: creation procedure `a_default_create`
+			-- is a procedure declared or redeclared in once class `a_class'.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_default_create_not_void: a_default_create /= Void
+			a_default_create_procedure: a_default_create.is_procedure
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkcc7g_error (a_class) then
+				create l_error.make_vkcc7gb (a_class, a_default_create)
+				report_validity_error (l_error)
 			end
 		end
 
@@ -5187,6 +5491,33 @@ feature -- Validity errors
 			end
 		end
 
+	report_vkex5ga_error (a_class, a_class_impl: ET_CLASS; a_creation_expression: ET_CREATION_EXPRESSION;
+		a_once_procedure: ET_PROCEDURE; a_creation_type: ET_TYPE)
+			-- Report VKEX-5G error: the creation type `a_creation_type` of the
+			-- creation expression `a_creation_expression` declared in `a_class_impl'
+			-- and viewed from one of its descendants `a_class' (possibly itself),
+			-- with the once-per-process creation procedure `a_once_procedure`,
+			-- is a reference type but is not separate.
+			--
+			-- Not in ECMA-367-2.
+			-- SCOOP and once classes.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_expression_not_void: a_creation_expression /= Void
+			a_once_procedure_not_void: a_once_procedure /= Void
+			once_per_process: a_once_procedure.is_once_per_process
+			a_creation_type_not_void: a_creation_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkex5g_error (a_class) then
+				create l_error.make_vkex5ga (a_class, a_class_impl, a_creation_expression, a_once_procedure, a_creation_type)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_vkin5ga_error (a_class, a_class_imp: ET_CLASS; a_region: ET_CREATION_REGION)
 			-- Report VKIN-5G error: creation region `a_region' appearing in
 			-- a creation instruction in `a_class' is not '<NONE>'.
@@ -5200,6 +5531,33 @@ feature -- Validity errors
 		do
 			if reportable_vkin5g_error (a_class) then
 				create l_error.make_vkin5ga (a_class, a_class_imp, a_region)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vkin6ga_error (a_class, a_class_impl: ET_CLASS; a_creation_instruction: ET_CREATION_INSTRUCTION;
+		a_once_procedure: ET_PROCEDURE; a_creation_type: ET_TYPE)
+			-- Report VKIN-6G error: the creation type `a_creation_type` of the
+			-- creation instruction `a_creation_instruction` declared in `a_class_impl'
+			-- and viewed from one of its descendants `a_class' (possibly itself),
+			-- with the once-per-process creation procedure `a_once_procedure`,
+			-- is a reference type but is not separate.
+			--
+			-- Not in ECMA-367-2.
+			-- SCOOP and once classes.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_creation_instruction_not_void: a_creation_instruction /= Void
+			a_once_procedure_not_void: a_once_procedure /= Void
+			once_per_process: a_once_procedure.is_once_per_process
+			a_creation_type_not_void: a_creation_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vkin6g_error (a_class) then
+				create l_error.make_vkin6ga (a_class, a_class_impl, a_creation_instruction, a_once_procedure, a_creation_type)
 				report_validity_error (l_error)
 			end
 		end
@@ -5477,6 +5835,47 @@ feature -- Validity errors
 			end
 		end
 
+	report_voin0a_error (a_class, a_class_impl: ET_CLASS; a_range: ET_CHOICE)
+			-- Report VOIN error: the inspect range `a_range' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is empty.
+			--
+			-- ECMA 367-2: p.98
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_range_not_void: a_range /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_voin_error (a_class) then
+				create l_error.make_voin0a (a_class, a_class_impl, a_range)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_voin0b_error (a_class, a_class_impl: ET_CLASS; a_range: ET_CHOICE)
+			-- Report VOIN error: one of the bounds of the inspect
+			-- range `a_range' in `a_class_impl' and viewed from one of
+			-- its descendants `a_class' (possibly itself) is a Unique
+			-- attribute but not the other.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_range_not_void: a_range /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_voin_error (a_class) then
+				create l_error.make_voin0b (a_class, a_class_impl, a_range)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_voit1a_error (a_class, a_class_impl: ET_CLASS; an_expression: ET_EXPRESSION; a_type: ET_NAMED_TYPE)
 			-- Report VOIT-1 error: the type `a_type' of the iterable expression
 			-- `an_expression' appearing in `a_class_impl' and viewed from one of its
@@ -5596,6 +5995,26 @@ feature -- Validity errors
 			end
 		end
 
+	report_voit2f_error (a_class: ET_CLASS; a_iteration_component: ET_ITERATION_COMPONENT; a_inline_separate_argument: ET_INLINE_SEPARATE_ARGUMENT)
+			-- Report VOIT-2 error: `a_iteration_component' appears in the scope
+			-- of the inline separate argument of `a_inline_separate_argument'
+			-- with the same name.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_iteration_component_not_void: a_iteration_component /= Void
+			a_inline_separate_argument_not_void: a_inline_separate_argument /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_voit2_error (a_class) then
+				create l_error.make_voit2f (a_class, a_iteration_component, a_inline_separate_argument)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_voit3a_error (a_class: ET_CLASS; a_iteration_cursor: ET_ITERATION_CURSOR)
 			-- Create a new VUOT-3 error: the name appearing in `a_iteration_cursor`
 			-- is not the name of an iteration item.
@@ -5679,6 +6098,227 @@ feature -- Validity errors
 			end
 		end
 
+	report_vomb3a_error (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Report VOMB-3 error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) appears twice in inspect choices.
+			--
+			-- ECMA 367-2: p.98
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb3_error (a_class) then
+				create l_error.make_vomb3a (a_class, a_class_impl, a_constant)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb3b_error (a_class, a_class_impl: ET_CLASS; a_range: ET_CHOICE_RANGE)
+			-- Report VOMB-3 error: the inspect range `a_range' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) contains a value which appears twice in
+			-- inspect choices.
+			--
+			-- ECMA 367-2: p.98
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_range_not_void: a_range /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb3_error (a_class) then
+				create l_error.make_vomb3b (a_class, a_class_impl, a_range)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb4a_error (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT; a_constant_type, a_value_type: ET_NAMED_TYPE)
+			-- Report VOMB-4 error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_constant_type' which is not a
+			-- 'TYPE' type.
+			--
+			-- ECMA-367-3-115, 8.22.13 page 214.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+			a_constant_type_not_void: a_constant_type /= Void
+			a_value_type_not_void: a_value_type /= Void
+			a_value_type_once_base_class: a_value_type.base_class (a_class).is_type_class
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb4_error (a_class) then
+				create l_error.make_vomb4a (a_class, a_class_impl, a_constant, a_constant_type, a_value_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb4b_error (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT; a_constant_type: ET_TYPE; a_value_type: ET_NAMED_TYPE)
+			-- Report VOMB-4 error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type 'TYPE [`a_constant_type']' which
+			-- where `a_constant_type' is not a standalone type.
+			--
+			-- ECMA-367-3-115, 8.22.13 page 214.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+			a_constant_type_not_void: a_constant_type /= Void
+			a_value_type_not_void: a_value_type /= Void
+			a_value_type_once_base_class: a_value_type.base_class (a_class).is_type_class
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb4_error (a_class) then
+				create l_error.make_vomb4b (a_class, a_class_impl, a_constant, a_constant_type, a_value_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb6ga_error (a_class, a_class_impl: ET_CLASS; a_expression: ET_EXPRESSION; a_type: ET_NAMED_TYPE)
+			-- Report VOMB-6G error: the inspect expression `a_expression'
+			-- in `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_type' which is not attached.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_expression_not_void: a_expression /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb6g_error (a_class) then
+				create l_error.make_vomb6ga (a_class, a_class_impl, a_expression, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb7ga_error (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT; a_constant_type, a_value_type: ET_NAMED_TYPE)
+			-- Report VOMB-7G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_constant_type' whose base class
+			-- is not the same as the base class (a once class) of the type
+			-- `a_value_type' of the inspect expression.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+			a_constant_type_not_void: a_constant_type /= Void
+			a_value_type_not_void: a_value_type /= Void
+			a_value_type_once_base_class: a_value_type.base_class (a_class).is_once
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb7g_error (a_class) then
+				create l_error.make_vomb7ga (a_class, a_class_impl, a_constant, a_constant_type, a_value_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb8ga_error (a_class, a_class_impl: ET_CLASS; a_expression: ET_EXPRESSION; a_type: ET_NAMED_TYPE)
+			-- Report VOMB-8G error: the inspect expression `a_expression'
+			-- in `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is of type `a_type' which is separate but
+			-- not controlled.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_expression_not_void: a_expression /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb8g_error (a_class) then
+				create l_error.make_vomb8ga (a_class, a_class_impl, a_expression, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb9ga_error (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Report VOMB-9G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is a positive integer constant, but other inspect
+			-- constants are Unique attributes.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb9g_error (a_class) then
+				create l_error.make_vomb9ga (a_class, a_class_impl, a_constant)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb9gb_error (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Report VOMB-9G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is a Unique attribute, but other inspect constants
+			-- are positive integer constants.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb9g_error (a_class) then
+				create l_error.make_vomb9gb (a_class, a_class_impl, a_constant)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vomb9gc_error (a_class, a_class_impl: ET_CLASS; a_constant: ET_CHOICE_CONSTANT)
+			-- Report VOMB-9G error: the inspect constant `a_constant' in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) is a Unique attribute which is not declared
+			-- (or redeclared) in the same class as the other Unique attributes
+			-- appearing in the same inspect choices.
+			--
+			-- Not in ECMA.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			a_constant_not_void: a_constant /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vomb9g_error (a_class) then
+				create l_error.make_vomb9gc (a_class, a_class_impl, a_constant)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_vpca1a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
 			-- Report VPCA-1 error: `a_name', appearing in an unqualified
 			-- call agent in `a_class', is not the final name of a feature
@@ -5745,7 +6385,7 @@ feature -- Validity errors
 			end
 		end
 
-	report_vpca3a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS)
+	report_vpca3a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; a_agent: ET_CALL_AGENT)
 			-- Report VPCA-3 error: the number of actual arguments in
 			-- the qualified call agent `a_name' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in
@@ -5758,16 +6398,17 @@ feature -- Validity errors
 			a_name_not_void: a_name /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_not_void: a_target /= Void
+			a_agent_not_void: a_agent /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vpca3_error (a_class) then
-				create an_error.make_vpca3a (a_class, a_name, a_feature, a_target)
+				create an_error.make_vpca3a (a_class, a_name, a_feature, a_target, a_agent)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vpca3b_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE)
+	report_vpca3b_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_agent: ET_CALL_AGENT)
 			-- Report VPCA-3 error: the number of actual arguments in
 			-- the unqualified call agent `a_name' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in `a_class'.
@@ -5778,16 +6419,36 @@ feature -- Validity errors
 			a_class_preparsed: a_class.is_preparsed
 			a_name_not_void: a_name /= Void
 			a_feature_not_void: a_feature /= Void
+			a_agent_not_void: a_agent /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vpca3_error (a_class) then
-				create an_error.make_vpca3b (a_class, a_name, a_feature)
+				create an_error.make_vpca3b (a_class, a_name, a_feature, a_agent)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vpca4a_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	report_vpca3c_error (a_class: ET_CLASS; a_agent: ET_INLINE_AGENT)
+			-- Report VPCA-3 error: the number of actual arguments in
+			-- the inline agent `a_agent' appearing in `a_class' is not the
+			-- same as the number of formal arguments.
+			--
+			-- ETL3 (4.82-00-00): p.581
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_agent_not_void: a_agent /= Void
+		local
+			an_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vpca3_error (a_class) then
+				create an_error.make_vpca3c (a_class, a_agent)
+				report_validity_error (an_error)
+			end
+		end
+
+	report_vpca4a_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
 			-- Report VPCA-4 error: the `arg'-th actual argument in the qualified
 			-- call agent `a_name' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the
@@ -5805,16 +6466,17 @@ feature -- Validity errors
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vpca4_error (a_class) then
-				create an_error.make_vpca4a (a_class, a_class_impl, a_name, a_feature, a_target, arg, an_actual, a_formal)
+				create an_error.make_vpca4a (a_class, a_class_impl, a_name, a_feature, a_target, arg, an_actual, a_formal, a_agent)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vpca4b_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	report_vpca4b_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
 			-- Report VPCA-4 error: the `arg'-th actual argument in the unqualified
 			-- call agent `a_name' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the corresponding
@@ -5831,16 +6493,42 @@ feature -- Validity errors
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vpca4_error (a_class) then
-				create an_error.make_vpca4b (a_class, a_class_impl, a_name, a_feature, arg, an_actual, a_formal)
+				create an_error.make_vpca4b (a_class, a_class_impl, a_name, a_feature, arg, an_actual, a_formal, a_agent)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vpca5a_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	report_vpca4c_error (a_class, a_class_impl: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_INLINE_AGENT)
+			-- Report VPCA-4 error: the `arg'-th actual argument in the inline agent
+			-- `a_agent' appearing in `a_class_impl' and viewed from one of its
+			-- descendants `a_class' (possibly itself) does not conform to the corresponding
+			-- formal argument.
+			--
+			-- ETL3 (4.82-00-00): p.581
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			an_actual_not_void: an_actual /= Void
+			an_actual_named_type: an_actual.is_named_type
+			a_formal_not_void: a_formal /= Void
+			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
+		local
+			an_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vpca4_error (a_class) then
+				create an_error.make_vpca4c (a_class, a_class_impl, arg, an_actual, a_formal, a_agent)
+				report_validity_error (an_error)
+			end
+		end
+
+	report_vpca5a_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
 			-- Report VPCA-5 error: the type specified for the `arg'-th actual
 			-- argument in the qualified call agent `a_name' appearing in
 			-- `a_class_impl' and viewed from one of its descendants `a_class'
@@ -5859,17 +6547,18 @@ feature -- Validity errors
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vpca5_error (a_class) then
-				create an_error.make_vpca5a (a_class, a_class_impl, a_name, a_feature, a_target, arg, an_actual, a_formal)
+				create an_error.make_vpca5a (a_class, a_class_impl, a_name, a_feature, a_target, arg, an_actual, a_formal, a_agent)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vpca5b_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
-			-- Report VPCA-5 error: the type speciified for the `arg'-th actual
+	report_vpca5b_error (a_class, a_class_impl: ET_CLASS; a_name: ET_FEATURE_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_CALL_AGENT)
+			-- Report VPCA-5 error: the type specified for the `arg'-th actual
 			-- argument in the unqualified call agent `a_name' appearing in
 			-- `a_class_impl' and viewed from one of its descendants `a_class'
 			-- (possibly itself) does not conform to the corresponding formal
@@ -5886,11 +6575,38 @@ feature -- Validity errors
 			an_actual_named_type: an_actual.is_named_type
 			a_formal_not_void: a_formal /= Void
 			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vpca5_error (a_class) then
-				create an_error.make_vpca5b (a_class, a_class_impl, a_name, a_feature, arg, an_actual, a_formal)
+				create an_error.make_vpca5b (a_class, a_class_impl, a_name, a_feature, arg, an_actual, a_formal, a_agent)
+				report_validity_error (an_error)
+			end
+		end
+
+	report_vpca5c_error (a_class, a_class_impl: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE; a_agent: ET_INLINE_AGENT)
+			-- Report VPCA-5 error: the type specified for the `arg'-th actual
+			-- argument in the inline agent `a_agent' appearing in
+			-- `a_class_impl' and viewed from one of its descendants `a_class'
+			-- (possibly itself) does not conform to the corresponding formal
+			-- argument.
+			--
+			-- ETL3 (4.82-00-00): p.581
+		require
+			a_class_not_void: a_class /= Void
+			a_class_impl_not_void: a_class_impl /= Void
+			a_class_impl_preparsed: a_class_impl.is_preparsed
+			an_actual_not_void: an_actual /= Void
+			an_actual_named_type: an_actual.is_named_type
+			a_formal_not_void: a_formal /= Void
+			a_formal_named_type: a_formal.is_named_type
+			a_agent_not_void: a_agent /= Void
+		local
+			an_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vpca5_error (a_class) then
+				create an_error.make_vpca5c (a_class, a_class_impl, arg, an_actual, a_formal, a_agent)
 				report_validity_error (an_error)
 			end
 		end
@@ -6726,12 +7442,12 @@ feature -- Validity errors
 		end
 
 	report_vtcg3a_error (a_class, a_class_impl: ET_CLASS; a_type: ET_CLASS_TYPE; an_actual: ET_TYPE; a_constraint: ET_CONSTRAINT)
-			-- Report VTCG-3 error: actual generic paramater `an_actual'
+			-- Report VTCG-3 error: actual generic parameter `an_actual'
 			-- of `a_type' appearing in `a_class_impl' and viewed from one of
-			-- its decendants `a_class' (possibly itself) does not conform to
+			-- its descendants `a_class' (possibly itself) does not conform to
 			-- constraint `a_constraint'.
 			--
-			-- Note that it is possible that the actual paramater conforms
+			-- Note that it is possible that the actual parameter conforms
 			-- to the constraint in `a_class_impl' but not in `a_class'.
 			-- Here is an example:
 			--
@@ -6835,6 +7551,25 @@ feature -- Validity errors
 			end
 		end
 
+	report_vtec2a_error (a_class: ET_CLASS; a_type: ET_CLASS_TYPE)
+			-- Report VTEC error: `a_type', which appears in source code of
+			-- `a_class', is an expanded, but its base class does not export
+			-- 'default_create' as creation procedure to `a_class`.
+			--
+			-- ETL2: p.209
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vtec2_error (a_class) then
+				create l_error.make_vtec2a (a_class, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_vtug1a_error (a_class: ET_CLASS; a_type: ET_CLASS_TYPE)
 			-- Report VTUG-1 error: `a_type', which appears in
 			-- source code of `a_class', has actual generic parameters
@@ -6875,9 +7610,9 @@ feature -- Validity errors
 			end
 		end
 
-	report_vuar1a_error (a_class: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS)
+	report_vuar1a_error (a_class: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; a_target: ET_CLASS)
 			-- Report VUAR-1 error: the number of actual arguments in
-			-- the qualified call `a_name' appearing in `a_class' is not the
+			-- the qualified call `a_call' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in
 			-- class `a_target'.
 			--
@@ -6885,34 +7620,34 @@ feature -- Validity errors
 		require
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_not_void: a_target /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vuar1_error (a_class) then
-				create an_error.make_vuar1a (a_class, a_name, a_feature, a_target)
+				create an_error.make_vuar1a (a_class, a_call, a_feature, a_target)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vuar1b_error (a_class: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE)
+	report_vuar1b_error (a_class: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE)
 			-- Report VUAR-1 error: the number of actual arguments in
-			-- the unqualified call `a_name' appearing in `a_class' is not the
+			-- the unqualified call `a_call' appearing in `a_class' is not the
 			-- same as the number of formal arguments of `a_feature' in `a_class'.
 			--
 			-- ETL2: p.369
 		require
 			a_class_not_void: a_class /= Void
 			a_class_preparsed: a_class.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 		local
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vuar1_error (a_class) then
-				create an_error.make_vuar1b (a_class, a_name, a_feature)
+				create an_error.make_vuar1b (a_class, a_call, a_feature)
 				report_validity_error (an_error)
 			end
 		end
@@ -6933,7 +7668,7 @@ feature -- Validity errors
 			end
 		end
 
-	report_vuar2a_error (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	report_vuar2a_error (a_class, a_class_impl: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; a_target: ET_CLASS; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
 			-- Report VUAR-2 error: the `arg'-th actual argument in the qualified
 			-- call `a_name' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the
@@ -6944,7 +7679,7 @@ feature -- Validity errors
 			a_class_not_void: a_class /= Void
 			a_class_impl_not_void: a_class_impl /= Void
 			a_class_impl_preparsed: a_class_impl.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_not_void: a_target /= Void
 			an_actual_not_void: an_actual /= Void
@@ -6955,14 +7690,14 @@ feature -- Validity errors
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vuar2_error (a_class) then
-				create an_error.make_vuar2a (a_class, a_class_impl, a_name, a_feature, a_target, arg, an_actual, a_formal)
+				create an_error.make_vuar2a (a_class, a_class_impl, a_call, a_feature, a_target, arg, an_actual, a_formal)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vuar2b_error (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
+	report_vuar2b_error (a_class, a_class_impl: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; arg: INTEGER; an_actual, a_formal: ET_NAMED_TYPE)
 			-- Report VUAR-2 error: the `arg'-th actual argument in the unqualified
-			-- call `a_name' appearing in `a_class_impl' and viewed from one of its
+			-- call `a_call' appearing in `a_class_impl' and viewed from one of its
 			-- descendants `a_class' (possibly itself) does not conform to the
 			-- corresponding formal argument of `a_feature' in `a_class'.
 			--
@@ -6971,7 +7706,7 @@ feature -- Validity errors
 			a_class_not_void: a_class /= Void
 			a_class_impl_not_void: a_class_impl /= Void
 			a_class_impl_preparsed: a_class_impl.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			an_actual_not_void: an_actual /= Void
 			an_actual_named_type: an_actual.is_named_type
@@ -6981,13 +7716,13 @@ feature -- Validity errors
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vuar2_error (a_class) then
-				create an_error.make_vuar2b (a_class, a_class_impl, a_name, a_feature, arg, an_actual, a_formal)
+				create an_error.make_vuar2b (a_class, a_class_impl, a_call, a_feature, arg, an_actual, a_formal)
 				report_validity_error (an_error)
 			end
 		end
 
-	report_vuar3ga_error (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_feature: ET_FEATURE; a_target_class: ET_CLASS; arg: INTEGER; an_actual_type, a_formal_type: ET_NAMED_TYPE)
-			-- Report VUAR-3G error: the `arg'-th actual argument of the separate call `a_name', appearing
+	report_vuar3ga_error (a_class, a_class_impl: ET_CLASS; a_call: ET_CALL_WITH_ACTUAL_ARGUMENTS; a_feature: ET_FEATURE; a_target_class: ET_CLASS; arg: INTEGER; an_actual_type, a_formal_type: ET_NAMED_TYPE)
+			-- Report VUAR-3G error: the `arg'-th actual argument of the separate call `a_call', appearing
 			-- in `a_class_impl' and viewed from one of its descendants `a_class' (possibly itself), has a
 			-- reference type, but the type of the formal argument of feature `a_feature' in class `a_target_class'
 			-- is not separate.
@@ -6998,7 +7733,7 @@ feature -- Validity errors
 			a_class_not_void: a_class /= Void
 			a_class_impl_not_void: a_class_impl /= Void
 			a_class_impl_preparsed: a_class_impl.is_preparsed
-			a_name_not_void: a_name /= Void
+			a_call_not_void: a_call /= Void
 			a_feature_not_void: a_feature /= Void
 			a_target_class_not_void: a_target_class /= Void
 			an_actual_type_not_void: an_actual_type /= Void
@@ -7009,7 +7744,7 @@ feature -- Validity errors
 			an_error: ET_VALIDITY_ERROR
 		do
 			if reportable_vuar3g_error (a_class) then
-				create an_error.make_vuar3ga (a_class, a_class_impl, a_name, a_feature, a_target_class, arg, an_actual_type, a_formal_type)
+				create an_error.make_vuar3ga (a_class, a_class_impl, a_call, a_feature, a_target_class, arg, an_actual_type, a_formal_type)
 				report_validity_error (an_error)
 			end
 		end
@@ -7127,7 +7862,7 @@ feature -- Validity errors
 
 	report_vucr0e_error (a_class, a_class_impl: ET_CLASS; a_name: ET_CALL_NAME; a_attribute: ET_FEATURE)
 			-- Report VUCR error: the access to the address of `a_name' written in `a_class_impl'
-			-- if the access to the address of attribute `a_attribute' from a static feature
+			-- is the access to the address of attribute `a_attribute' from a static feature
 			-- when viewed from `a_class'.
 			--
 			-- Only in ISE Eiffel
@@ -8110,6 +8845,447 @@ feature -- Validity errors
 			end
 		end
 
+	report_vycp1a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Report VYCP-1 error: `a_name', appearing in a conversion
+			-- procedure of `a_class', is not the final name of a feature
+			-- in `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp1_error (a_class) then
+				create l_error.make_vycp1a (a_class, a_name)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp1b_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Report VYCP-1 error: `a_name', appearing in a conversion
+			-- procedure of `a_class', is not the final name of a creation
+			-- procedurein `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp1_error (a_class) then
+				create l_error.make_vycp1b (a_class, a_name)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp2a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCP-2 error: `a_type`, which is a type appearing
+			-- in a conversion query of `a_class' named `a_name`, conforms to 
+			-- `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp2_error (a_class) then
+				create l_error.make_vycp2a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp3a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCP-3 error: `a_class` is a conforming ancestor
+			-- of the base class of `a_type`, which is a type appearing in a
+			-- conversion procedure of `a_class' named `a_name`.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp3_error (a_class) then
+				create l_error.make_vycp3a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp4a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type1, a_type2: ET_TYPE)
+			-- Report VYCP-4 error: `a_type1`, which is a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, has the same
+			-- base class as `a_type2` also appearing a conversion procedure of
+			-- `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type1_not_void: a_type1 /= Void
+			a_type2_not_void: a_type2 /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp4_error (a_class) then
+				create l_error.make_vycp4a (a_class, a_name, a_type1, a_type2)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp5a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCP-5 error: the base class of `a_type`, which is
+			-- a type appearing in a conversion procedure of `a_class' named `a_name`,
+			-- has a conversion query with a convert type whose base class is `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp5_error (a_class) then
+				create l_error.make_vycp5a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp6a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_procedure: ET_PROCEDURE)
+			-- Report VYCP-6 error: `a_procedure`, whose name appears in
+			-- a conversion procedure of `a_class' named `a_name`, has not
+			-- exactly one argument.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_procedure_not_void: a_procedure /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp6_error (a_class) then
+				create l_error.make_vycp6a (a_class, a_name, a_procedure)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp7a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE; a_argument_type: ET_NAMED_TYPE)
+			-- Report VYCP-7 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, does not conform
+			-- to its argument.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+			a_argument_type_not_void: a_argument_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp7_error (a_class) then
+				create l_error.make_vycp7a (a_class, a_name, a_type, a_argument_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp8a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCP-8 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, contains
+			-- anchored types.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp8_error (a_class) then
+				create l_error.make_vycp8a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp8b_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCP-8 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, is a formal generic
+			-- parameter of `a_class`.
+			--
+			-- ECMA-367-3-115,8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp8_error (a_class) then
+				create l_error.make_vycp8b (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycp9a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCP-9 error: `a_type`, which is  a type appearing in
+			-- a conversion procedure of `a_class' named `a_name`, is not attached.
+			--
+			-- ECMA-367-3-115, 8.18.7 page 181.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycp9_error (a_class) then
+				create l_error.make_vycp9a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq1a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Report VYCQ-1 error: `a_name', appearing in a conversion
+			-- query of `a_class', is not the final name of a feature
+			-- in `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq1_error (a_class) then
+				create l_error.make_vycq1a (a_class, a_name)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq1b_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME)
+			-- Report VYCQ-1 error: `a_name', appearing in a conversion
+			-- query of `a_class', is not the final name of a query
+			-- in `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq1_error (a_class) then
+				create l_error.make_vycq1b (a_class, a_name)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq2a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCQ-2 error: `a_class` conforms to `a_type`, which is
+			-- a type appearing in a conversion query of `a_class' named `a_name`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq2_error (a_class) then
+				create l_error.make_vycq2a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq3a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCQ-3 error: the base class of `a_type`, which is
+			-- a type appearing in a conversion procedure of `a_class' named
+			-- `a_name`, is a conforming ancestor of `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq3_error (a_class) then
+				create l_error.make_vycq3a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq4a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type1, a_type2: ET_TYPE)
+			-- Report VYCQ-4 error: `a_type1`, which is a type appearing in
+			-- a conversion query of `a_class' named `a_name`, has the same
+			-- base class as `a_type2` also appearing a conversion query of
+			-- `a_class'.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type1_not_void: a_type1 /= Void
+			a_type2_not_void: a_type2 /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq4_error (a_class) then
+				create l_error.make_vycq4a (a_class, a_name, a_type1, a_type2)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq5a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCQ-5 error: the base class of `a_type`, which is
+			-- a type appearing in a conversion query of `a_class' named `a_name`,
+			-- has a conversion procedure with a convert type whose base class
+			-- is `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq5_error (a_class) then
+				create l_error.make_vycq5a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq6a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_query: ET_QUERY)
+			-- Report VYCQ-6 error: `a_query`, whose name appears in
+			-- a conversion query of `a_class' named `a_name`, has one
+			-- or more arguments.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_query_not_void: a_query /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq6_error (a_class) then
+				create l_error.make_vycq6a (a_class, a_name, a_query)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq7a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE; a_query_type: ET_NAMED_TYPE)
+			-- Report VYCQ-7 error: the type `a_query_type` of the query
+			-- whose name appears in a conversion query of `a_class' named
+			-- `a_name`, does not conform to `a_type` listed in this
+			-- conversion query.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+			a_query_type_not_void: a_query_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq7_error (a_class) then
+				create l_error.make_vycq7a (a_class, a_name, a_type, a_query_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq8a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCQ-8 error: `a_type`, which is  a type appearing in
+			-- a conversion query of `a_class' named `a_name`, contains
+			-- anchored types.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq8_error (a_class) then
+				create l_error.make_vycq8a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq8b_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCQ-8 error: `a_type`, which is  a type appearing in
+			-- a conversion query of `a_class' named `a_name`, is a formal generic
+			-- parameter of `a_class`.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq8_error (a_class) then
+				create l_error.make_vycq8b (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
+	report_vycq9a_error (a_class: ET_CLASS; a_name: ET_FEATURE_NAME; a_type: ET_TYPE)
+			-- Report VYCQ-9 error: `a_type`, which is  a type appearing in
+			-- a conversion query of `a_class' named `a_name`, is not attached.
+			--
+			-- ECMA-367-3-115, 8.18.8 page 182.
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_name_not_void: a_name /= Void
+			a_type_not_void: a_type /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_vycq9_error (a_class) then
+				create l_error.make_vycq9a (a_class, a_name, a_type)
+				report_validity_error (l_error)
+			end
+		end
+
 	report_gvagp0a_error (a_class: ET_CLASS; anc1, anc2: ET_BASE_TYPE)
 			-- Report GVAGP error: `anc1' and `anc2' are two ancestors
 			-- of `a_class' with the same base class but different generic
@@ -8385,7 +9561,7 @@ feature -- Validity errors
 		end
 
 	report_gvtcg5a_error (a_class, a_class_impl: ET_CLASS; a_type: ET_CLASS_TYPE; an_actual: ET_TYPE; a_formal: ET_FORMAL_PARAMETER)
-			-- Report GVTCG-5 error: actual generic paramater `an_actual' of `a_type' in
+			-- Report GVTCG-5 error: actual generic parameter `an_actual' of `a_type' in
 			-- `a_class_impl' and viewed from one of its descendants `a_class' is not a
 			-- reference type but the corresponding formal parameter `a_formal' is marked
 			-- as reference.
@@ -8408,7 +9584,7 @@ feature -- Validity errors
 		end
 
 	report_gvtcg5b_error (a_class, a_class_impl: ET_CLASS; a_type: ET_CLASS_TYPE; an_actual: ET_TYPE; a_formal: ET_FORMAL_PARAMETER)
-			-- Report GVTCG-5 error: actual generic paramater `an_actual' of `a_type' in
+			-- Report GVTCG-5 error: actual generic parameter `an_actual' of `a_type' in
 			-- `a_class_impl' and viewed from one of its descendants `a_class' is not a
 			-- expanded type but the corresponding formal parameter `a_formal' is marked
 			-- as expanded.
@@ -9638,6 +10814,16 @@ feature -- Validity error status
 			Result := True
 		end
 
+	reportable_vgfg3g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VGFG-3G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
 	reportable_vggc1_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a VGGC-1 error be reported when it
 			-- appears in `a_class'?
@@ -9768,6 +10954,36 @@ feature -- Validity error status
 			Result := True
 		end
 
+	reportable_vkcc4_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VKCC-4 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vkcc6g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VKCC-6G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vkcc7g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VKCC-7G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
 	reportable_vkcn1_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a VKCN-1 error be reported when it
 			-- appears in `a_class'?
@@ -9798,8 +11014,28 @@ feature -- Validity error status
 			Result := True
 		end
 
+	reportable_vkex5g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VKEX-5G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
 	reportable_vkin5g_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a VKIN-5G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vkin6g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VKIN-6G error be reported when it
 			-- appears in `a_class'?
 		require
 			a_class_not_void: a_class /= Void
@@ -9898,6 +11134,16 @@ feature -- Validity error status
 			Result := True
 		end
 
+	reportable_voin_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VOIN error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
 	reportable_voit1_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a VOIT-1 error be reported when it
 			-- appears in `a_class'?
@@ -9940,6 +11186,66 @@ feature -- Validity error status
 
 	reportable_vomb2_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a VOMB-2 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vomb3_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VOMB-3 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vomb4_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VOMB-4 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vomb6g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VOMB-6G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vomb7g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VOMB-7G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vomb8g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VOMB-8G error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vomb9g_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VOMB-9G error be reported when it
 			-- appears in `a_class'?
 		require
 			a_class_not_void: a_class /= Void
@@ -10198,6 +11504,15 @@ feature -- Validity error status
 			Result := True
 		end
 
+	reportable_vtec2_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VTEC-2 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end 
 	reportable_vtug1_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a VTUG-1 error be reported when it
 			-- appears in `a_class'?
@@ -10468,6 +11783,186 @@ feature -- Validity error status
 			Result := True
 		end
 
+	reportable_vycp1_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-1 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp2_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-2 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp3_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-3 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp4_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-4 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp5_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-5 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp6_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-6 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp7_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-7 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp8_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-8 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycp9_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCP-9 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq1_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-1 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq2_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-2 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq3_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-3 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq4_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-4 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq5_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-5 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq6_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-6 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq7_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-7 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq8_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-8 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+	reportable_vycq9_error (a_class: ET_CLASS): BOOLEAN
+			-- Can a VYCQ-9 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
 	reportable_gvagp_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a GVAGP error be reported when it
 			-- appears in `a_class'?
@@ -10710,6 +12205,94 @@ feature -- Validity error status
 
 	reportable_gvwmc2_error (a_class: ET_CLASS): BOOLEAN
 			-- Can a GVWMC-2 error be reported when it
+			-- appears in `a_class'?
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+		do
+			Result := True
+		end
+
+feature -- Warnings
+
+	report_eiffel_warning (a_error: ET_VALIDITY_ERROR)
+			-- Report Eiffel warning.
+		require
+			a_error_not_void: a_error /= Void
+		do
+			if
+				(is_ise and a_error.ise_reported) or
+				(is_ge and a_error.ge_reported)
+			then
+				mutex.lock
+				report_info (a_error)
+				add_separator_if_console (info_file)
+				mutex.unlock
+			end
+		end
+
+	report_gwulv0a_warning (a_class: ET_CLASS; a_local_variable: ET_LOCAL_VARIABLE; a_feature: ET_FEATURE)
+			-- Report GWULV warning: local variable `a_local_variable' is not used
+			-- in feature `a_feature` of class `a_class'.
+			--
+			-- Not in ECMA-367-2
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_local_variable_not_void: a_local_variable /= Void
+			a_feature_not_void: a_feature /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_wuloc_warning (a_class) then
+				create l_error.make_gwulv0a (a_class, a_local_variable, a_feature)
+				report_eiffel_warning (l_error)
+			end
+		end
+
+	report_gwulv0b_warning (a_class: ET_CLASS; a_local_variable: ET_LOCAL_VARIABLE; a_feature: ET_FEATURE; a_inline_agent: ET_INLINE_AGENT)
+			-- Report GWULV warning: local variable `a_local_variable' is not used
+			-- in inline agent `a_inline_agent` of feature `a_feature` in class `a_class'.
+			--
+			-- Not in ECMA-367-2
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_local_variable_not_void: a_local_variable /= Void
+			a_feature_not_void: a_feature /= Void
+			a_inline_agent_not_void: a_inline_agent /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_wuloc_warning (a_class) then
+				create l_error.make_gwulv0b (a_class, a_local_variable, a_feature, a_inline_agent)
+				report_eiffel_warning (l_error)
+			end
+		end
+
+	report_gwulv0c_warning (a_class: ET_CLASS; a_local_variable: ET_LOCAL_VARIABLE; a_inline_agent: ET_INLINE_AGENT)
+			-- Report GWULV warning: local variable `a_local_variable' is not used
+			-- in inline agent `a_inline_agent` in the invariant of class `a_class'.
+			--
+			-- Not in ECMA-367-2
+		require
+			a_class_not_void: a_class /= Void
+			a_class_preparsed: a_class.is_preparsed
+			a_local_variable_not_void: a_local_variable /= Void
+			a_inline_agent_not_void: a_inline_agent /= Void
+		local
+			l_error: ET_VALIDITY_ERROR
+		do
+			if reportable_wuloc_warning (a_class) then
+				create l_error.make_gwulv0c (a_class, a_local_variable, a_inline_agent)
+				report_eiffel_warning (l_error)
+			end
+		end
+
+feature -- Warning status
+
+	reportable_wuloc_warning (a_class: ET_CLASS): BOOLEAN
+			-- Can a WULOC warning be reported when it
 			-- appears in `a_class'?
 		require
 			a_class_not_void: a_class /= Void

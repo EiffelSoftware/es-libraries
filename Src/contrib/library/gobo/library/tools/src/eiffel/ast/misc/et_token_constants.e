@@ -5,7 +5,7 @@
 		"Eiffel token and symbol constants"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2004-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2004-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_TOKEN_CONSTANTS
@@ -158,6 +158,15 @@ feature -- Class names
 		ensure
 			instance_free: class
 			function_class_name_not_void: Result /= Void
+		end
+
+	identified_controller_class_name: ET_CLASS_NAME
+			-- "IDENTIFIED_CONTROLLER" class name
+		once
+			create {ET_IDENTIFIER} Result.make (capitalized_identified_controller_name)
+		ensure
+			instance_free: class
+			identified_controller_class_name_not_void: Result /= Void
 		end
 
 	identified_routines_class_name: ET_CLASS_NAME
@@ -1433,6 +1442,15 @@ feature -- Feature names
 			extend_feature_name_not_void: Result /= Void
 		end
 
+	extend_object_id_stack_feature_name: ET_FEATURE_NAME
+			-- 'extend_object_id_stack' feature name
+		once
+			create {ET_IDENTIFIER} Result.make (extend_object_id_stack_name)
+		ensure
+			instance_free: class
+			extend_object_id_stack_feature_name_not_void: Result /= Void
+		end
+
 	fast_call_feature_name: ET_FEATURE_NAME
 			-- 'fast_call' feature name
 		once
@@ -1791,6 +1809,15 @@ feature -- Feature names
 		ensure
 			instance_free: class
 			in_assertion_feature_name_not_void: Result /= Void
+		end
+
+	index_pseudo_feature_name: ET_FEATURE_NAME
+			-- '_index' feature name
+		once
+			create {ET_IDENTIFIER} Result.make (index_pseudo_name)
+		ensure
+			instance_free: class
+			index_pseudo_feature_name_not_void: Result /= Void
 		end
 
 	init_exception_manager_feature_name: ET_FEATURE_NAME
@@ -2592,6 +2619,15 @@ feature -- Feature names
 		ensure
 			instance_free: class
 			object_comparison_feature_name_not_void: Result /= Void
+		end
+
+	object_id_stack_size_feature_name: ET_FEATURE_NAME
+			-- 'obobject_id_stack_size' feature name
+		once
+			create {ET_IDENTIFIER} Result.make (object_id_stack_size_name)
+		ensure
+			instance_free: class
+			object_id_stack_size_feature_name_not_void: Result /= Void
 		end
 
 	object_size_feature_name: ET_FEATURE_NAME
@@ -4747,6 +4783,15 @@ feature -- Keywords
 			keyword_not_void: Result /= Void
 		end
 
+	interface_keyword: ET_KEYWORD
+			-- 'interface' keyword
+		once
+			create Result.make_interface
+		ensure
+			instance_free: class
+			keyword_not_void: Result /= Void
+		end
+
 	invariant_keyword: ET_INVARIANT_KEYWORD
 			-- 'invariant' keyword
 		once
@@ -5062,6 +5107,7 @@ feature -- Keyword and symbol names
 	capitalized_exception_manager_factory_name: STRING = "EXCEPTION_MANAGER_FACTORY"
 	capitalized_file_name: STRING = "FILE"
 	capitalized_function_name: STRING = "FUNCTION"
+	capitalized_identified_controller_name: STRING = "IDENTIFIED_CONTROLLER"
 	capitalized_identified_routines_name: STRING = "IDENTIFIED_ROUTINES"
 	capitalized_immutable_string_8_name: STRING = "IMMUTABLE_STRING_8"
 	capitalized_immutable_string_32_name: STRING = "IMMUTABLE_STRING_32"
@@ -5345,6 +5391,9 @@ feature -- Keyword and symbol names
 	extend_name: STRING = "extend"
 			-- Name of Eiffel feature 'extend'
 
+	extend_object_id_stack_name: STRING = "extend_object_id_stack"
+			-- Name of Eiffel feature 'extend_object_id_stack'
+
 	fast_call_name: STRING = "fast_call"
 			-- Name of Eiffel feature 'fast_call'
 
@@ -5464,6 +5513,9 @@ feature -- Keyword and symbol names
 
 	in_assertion_name: STRING = "in_assertion"
 			-- Name of Eiffel feature 'in_assertion'
+
+	index_pseudo_name: STRING = "_index"
+			-- Name of Eiffel pseudo feature '_index'
 
 	init_exception_manager_name: STRING = "init_exception_manager"
 			-- Name of Eiffel feature 'init_exception_manager'
@@ -5728,6 +5780,9 @@ feature -- Keyword and symbol names
 
 	object_comparison_name: STRING = "object_comparison"
 			-- Name of Eiffel feature 'object_comparison'
+
+	object_id_stack_size_name: STRING = "object_id_stack_size"
+			-- Name of Eiffel feature 'object_id_stack_size'
 
 	object_size_name: STRING = "object_size"
 			-- Name of Eiffel feature 'object_size'
@@ -6116,6 +6171,7 @@ feature -- Keyword and symbol names
 	indexing_keyword_name: STRING = "indexing"
 	inherit_keyword_name: STRING = "inherit"
 	inspect_keyword_name: STRING = "inspect"
+	interface_keyword_name: STRING = "interface"
 	invariant_keyword_name: STRING = "invariant"
 	is_keyword_name: STRING = "is"
 	like_keyword_name: STRING = "like"
@@ -6210,7 +6266,7 @@ feature -- Keyword and symbol names
 	xor_symbol_name: STRING once Result := {UC_UTF8_ROUTINES}.string_to_utf8 ({STRING_32} "⊻") end
 			-- Eiffel symbol names
 
-	unknown_name: STRING = "***unknown_name***"
+	unknown_name: STRING = "*unknown*"
 			-- Unknown name
 
 feature -- Keyword and symbol names (used for compatibility with 5.6.0610, to be removed later)
@@ -6448,7 +6504,7 @@ feature -- System
 	unknown_system: ET_SYSTEM
 			-- Shared unknown Eiffel system
 		once
-			create Result.make ("*unknown*")
+			create Result.make (unknown_name)
 		ensure
 			instance_free: class
 			unknown_system_not_void: Result /= Void
@@ -6457,7 +6513,7 @@ feature -- System
 	unknown_library: ET_LIBRARY
 			-- Shared unknown Eiffel class library
 		once
-			create Result.make ("*unknown*", unknown_system)
+			create Result.make (unknown_name, unknown_system)
 		ensure
 			instance_free: class
 			unknown_library_not_void: Result /= Void
@@ -6466,10 +6522,31 @@ feature -- System
 	unknown_dotnet_assembly: ET_DOTNET_ASSEMBLY
 			-- Shared unknown .NET assembly
 		once
-			create Result.make ("*unknown*", Void, unknown_system)
+			create Result.make (unknown_name, Void, unknown_system)
 		ensure
 			instance_free: class
 			unknown_dotnet_assembly_not_void: Result /= Void
+		end
+
+	unknown_feature: ET_FEATURE
+			-- Shared unknown feature "*unknown*";
+		once
+			Result := unknown_procedure
+		ensure
+			instance_free: class
+			unknown_feature_not_void: Result /= Void
+		end
+
+	unknown_procedure: ET_PROCEDURE
+			-- Shared unknown procedure "*unknown*";
+		local
+			l_name: ET_IDENTIFIER
+		once
+			create l_name.make (unknown_name)
+			create {ET_DO_PROCEDURE} Result.make (l_name, Void, unknown_class)
+		ensure
+			instance_free: class
+			unknown_procedure_not_void: Result /= Void
 		end
 
 	standard_error_handler: ET_ERROR_HANDLER
@@ -6499,6 +6576,18 @@ feature -- System
 		ensure
 			instance_free: class
 			default_ast_factory_not_void: Result /= Void
+		end
+
+	decorated_ast_factory: ET_DECORATED_AST_FACTORY
+			-- Shared Eiffel decorated AST factory
+		once
+			create Result.make
+		ensure
+			instance_free: class
+			decorated_ast_factory_not_void: Result /= Void
+			do_not_keep_breaks: not Result.keep_all_breaks
+			do_not_keep_comments: not Result.keep_all_comments
+			do_not_keep_header_comments: not Result.keep_header_comments
 		end
 
 	empty_actual_parameters: ET_ACTUAL_PARAMETER_LIST

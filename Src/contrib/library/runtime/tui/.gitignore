@@ -1,0 +1,8 @@
+EIFGENs/
+*.exe
+*.obj
+*.lib
+*.pdb
+*.ilk
+*.rc
+docker/_build/

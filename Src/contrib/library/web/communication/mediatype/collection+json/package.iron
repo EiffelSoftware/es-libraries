@@ -1,6 +1,7 @@
 package collection+json
 
 project
+	collection+json = "library/collection+json.ecf"
 
 note
 	title: Eiffel Collection+JSON

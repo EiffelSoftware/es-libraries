@@ -5,7 +5,7 @@
 		"Eiffel dynamic type set builders"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2004-2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2004-2026, Eric Bezault and others"
 	license: "MIT License"
 
 deferred class ET_DYNAMIC_TYPE_SET_BUILDER
@@ -129,6 +129,13 @@ feature -- Generation
 					if l_seed > 0 then
 						if attached a_type.seeded_dynamic_query (l_seed, current_dynamic_system) as l_feature then
 							l_feature.set_regular (True)
+						end
+					end
+						-- Make sure that feature 'default_create' is alive for expanded types.
+					l_seed := current_system.default_create_seed
+					if l_seed > 0 then
+						if attached a_type.seeded_dynamic_procedure (l_seed, current_dynamic_system) as l_feature then
+							l_feature.set_creation (True)
 						end
 					end
 				else
@@ -270,15 +277,14 @@ feature {ET_DYNAMIC_SYSTEM} -- Generation
 		require
 			a_type_not_void: a_type /= Void
 			a_type_is_alive: a_type.is_alive
+		local
+			l_cursor: DS_HASH_TABLE_CURSOR [like new_dynamic_type_set, ET_DYNAMIC_TYPE]
 		do
 			if attached alive_conforming_descendants_per_type as l_alive_conforming_descendants then
-				from
-					l_alive_conforming_descendants.start
-				until
-					l_alive_conforming_descendants.after
-				loop
-					l_alive_conforming_descendants.item_for_iteration.put_type_from_type_set (a_type, a_type, current_dynamic_system)
-					l_alive_conforming_descendants.forth
+				l_cursor := l_alive_conforming_descendants.new_cursor
+				from l_cursor.start until l_cursor.after loop
+					l_cursor.item.put_type_from_type_set (a_type, a_type, current_dynamic_system)
+					l_cursor.forth
 				end
 			end
 		end

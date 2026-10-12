@@ -5,14 +5,19 @@
 		"Browsable names of object test locals"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 2025, Eric Bezault and others"
+	copyright: "Copyright (c) 2025-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_BROWSABLE_OBJECT_TEST_LOCAL_NAME
 
 inherit
 
-	ET_BROWSABLE_NAME
+	ET_BROWSABLE_UNQUALIFIED_NAME
+		rename
+			make as make_browsable_unqualified_name
+		redefine
+			name
+		end
 
 create
 
@@ -20,24 +25,23 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_name: like name; a_type: like type; a_object_test: like object_test; a_class: like current_class)
+	make (a_name: like name; a_type: like type; a_closure: like current_closure; a_class: like current_class)
 			-- Create a new browsable object test local name.
 		require
 			a_name_not_void: a_name /= Void
 			a_name_is_object_test_local: a_name.is_object_test_local
 			a_type_not_void: a_type /= Void
-			a_object_test_not_void: a_object_test /= Void
 			a_class_not_void: a_class /= Void
 		do
 			name := a_name
 			type := a_type
-			object_test := a_object_test
+			current_closure := a_closure
 			current_class := a_class
 		ensure
 			name_set: name = a_name
 			type_set: type = a_type
-			object_test_not_void: object_test = a_object_test
-			current_class_not_void: current_class = a_class
+			current_closure_set: current_closure = a_closure
+			current_class_set: current_class = a_class
 		end
 
 feature -- Access
@@ -48,8 +52,26 @@ feature -- Access
 	type: ET_TYPE
 			-- Type of `name`
 
-	object_test: ET_NAMED_OBJECT_TEST
-			-- Object test
+	object_test: detachable ET_NAMED_OBJECT_TEST
+			-- Object test, if any
+		local
+			l_seed: INTEGER
+		do
+			if attached current_closure as l_closure and then attached l_closure.object_tests as l_object_tests then
+				l_seed := name.seed
+				if l_seed >= 1 and l_seed <= l_object_tests.count then
+					Result := l_object_tests.object_test (l_seed)
+				end
+			end
+		end
+
+	type_base_class: ET_CLASS
+			-- Base class of the type of the browsable name, if any
+		do
+			Result := type.base_class (current_class)
+		ensure then
+			type_base_class_not_void: Result /= Void
+		end
 
 feature -- Output
 
@@ -64,17 +86,17 @@ feature -- Output
 			type.named_type (current_class).append_canonical_with_leading_type_mark_to_string (a_string)
 		end
 
-	definition_ast_node: detachable TUPLE [ast_node: ET_AST_NODE; class_impl: ET_CLASS]
-			-- AST node, and its implementation class, where
-			-- the current browsable name is defined
+feature -- Processing
+
+	process (a_processor: ET_BROWSABLE_NAME_PROCESSOR)
+			-- Process current name.
 		do
-			Result := [object_test.name, current_class]
+			a_processor.process_object_test_local_name (Current)
 		end
 
 invariant
 
 	name_is_object_test_local: name.is_object_test_local
 	type_not_void: type /= Void
-	object_test_not_void: object_test /= Void
 
 end

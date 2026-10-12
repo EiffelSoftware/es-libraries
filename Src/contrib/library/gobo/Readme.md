@@ -1,3 +1,15 @@
+<div align="center"><center>
+
+<table border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td nowrap><img src="https://www.gobosoft.com/image/gobo_logo.gif" alt="Gobo Logo"
+        align="middle" width="370" height="146"></td>
+    </tr>
+</table>
+</center></div>
+
+<hr size="1">
+
 [![GitHub Actions](https://github.com/gobo-eiffel/gobo/actions/workflows/github-ci.yml/badge.svg)](https://github.com/gobo-eiffel/gobo/actions/workflows/github-ci.yml)
 [![GitLab CI/CD](https://gitlab.com/ebezault/gobo/badges/master/pipeline.svg?key_text=GitLab+CI/CD&key_width=85)](https://gitlab.com/ebezault/gobo/-/pipelines)
 [![Azure Pipelines](https://dev.azure.com/ericb0733/gobo/_apis/build/status/gobo?branchName=master)](https://dev.azure.com/ericb0733/gobo/_build?definitionId=1&branchName=master)
@@ -6,21 +18,23 @@
 
 One of the main concerns of the *Gobo Eiffel Project* is to provide
 the Eiffel community with Eiffel tools and libraries that are
-[free](License.md) and [portable](./library/common/doc/portability/index.html)
+[free](./LICENSE.txt) and [portable](./library/common/doc/portability/index.html)
 across various Eiffel compilers available on the market.
 That way, you can still use your favorite Eiffel compiler while taking
 advantage of the goodies included in *Gobo Eiffel*.
 
 The software included in this package is copyrighted freeware distributed
 under the terms and conditions of the MIT License as specified in
-[License](License.md) file.
+[License](./LICENSE.txt) file.
 *Gobo Eiffel* is a multi-developer open-source project whose development
 is hosted at
 [Github](http://github.com/gobo-eiffel/gobo)
 while the official site (for stable releases) is located at
 [gobosoft.com](https://www.gobosoft.com). This package also contains files
 from the [Boehm GC](https://github.com/ivmai/bdwgc) project which is also
-released under a MIT-style [license](https://github.com/bdwgc/bdwgc/blob/master/LICENSE), and is bundled with the [Zig toolchain](https://ziglang.org/) which is also released under a MIT-style [license](https://github.com/ziglang/zig/blob/master/LICENSE).
+released under a MIT-style [license](https://github.com/bdwgc/bdwgc/blob/master/LICENSE),
+and is bundled with the [Zig toolchain](https://ziglang.org/) which is also
+released under a MIT-style [license](https://github.com/ziglang/zig/blob/master/LICENSE).
 
 *Gobo Eiffel* already consists of nineteen Eiffel libraries:
 
@@ -51,7 +65,7 @@ and thirteen utilities:
 * [Gobo Eiffel C Compilation](./tool/gecc/doc/index.html) (gecc)
 * [Gobo Eiffel Cop](./tool/gecop/doc/index.html) (gecop)
 * [Gobo Eiffel Doc](./tool/gedoc/doc/index.html) (gedoc)
-* [Gobo Eiffel Image](./tool/image/doc/index.html) (geimage)
+* [Gobo Eiffel Image](./tool/geimage/doc/index.html) (geimage)
 * Gobo Eiffel Language Server (gelsp)
 * [Gobo Eiffel Lex](./tool/gelex/doc/index.html) (gelex)
 * [Gobo Eiffel Lint](./tool/gelint/doc/index.html) (gelint)
@@ -67,8 +81,8 @@ library classes provided in this package.
 
 The supported Eiffel compilers, in alphabetical order, are:
 
-* Gobo Eiffel Compiler (gec) 25.12.04
-* ISE Eiffel 25.02.9.8732 (Classic and .NET)
+* Gobo Eiffel Compiler (gec) 26.09.03
+* ISE Eiffel 25.12.9.8922 (Classic and .NET)
 
 For more details about the supported Eiffel compilers, please see the file
 [Release notes](./Release_notes.md).
@@ -135,18 +149,18 @@ To install this package, please follow the instructions below:
   executable should be at the root of this directory), and run the command:
   ```sh
     $GOBO/.cicd/patch_zig.ps1 $GOBO/tool/gec/backend/c/zig
-  ``` 
+  ```
 * To build the tools (e.g. `gec`, `geyacc`, ...), execute the script:
   ```sh
     $GOBO/bin/install.sh <c_compiler>
   ```
-	where `<c_compiler>` is `zig` (if installed above) or a C compiler
+  where `<c_compiler>` is `zig` (if installed above) or a C compiler
   installed on your computer (for example use `gcc` for GNU C compiler).
 
 ## Feedback
 
 A list of the known defects along with eventual bug fixes or
-workarounds is available in the 
+workarounds is available in the
 [issue tracker](https://github.com/gobo-eiffel/gobo/issues)
 on GitHub (an older
 [bug tracker](https://sourceforge.net/tracker/?atid=381937&amp;group_id=24591&amp;func=browse)
@@ -168,7 +182,8 @@ A [nightly build](https://github.com/gobo-eiffel/gobo/releases/tag/nightly)
 with bug fixes and features under development is available on GitHub, next to the other
 [releases](https://github.com/gobo-eiffel/gobo/releases).
 The official releases are also available on
-[SourceForge](https://sourceforge.net/projects/gobo-eiffel/files/gobo-eiffel/) for those of you who prefer to use this mirror.
+[SourceForge](https://sourceforge.net/projects/gobo-eiffel/files/gobo-eiffel/)
+for those of you who prefer to use this mirror.
 
 Although the license allows you to do pretty much whatever you want
 with this software, we would be grateful to get your feedback,
@@ -185,6 +200,6 @@ are available to help you make the first steps.
 
 ## Authors
 
-Copyright (c) 1997-2025, Eric Bezault and others<br>
+Copyright (c) 1997-2026, Eric Bezault and others<br>
 mailto:[ericb@gobosoft.com](mailto:ericb@gobosoft.com)<br>
 https:[//www.gobosoft.com](https://www.gobosoft.com)

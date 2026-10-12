@@ -3,7 +3,7 @@
 	<target name="test_svn" extends="svn" extends_location="../../svn.ecf">
 		<root class="TEST_SVN" feature="make"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option warning="true">

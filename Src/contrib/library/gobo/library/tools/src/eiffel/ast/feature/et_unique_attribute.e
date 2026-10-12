@@ -5,7 +5,7 @@
 		"Eiffel unique attributes"
 
 	library: "Gobo Eiffel Tools Library"
-	copyright: "Copyright (c) 1999-2024, Eric Bezault and others"
+	copyright: "Copyright (c) 1999-2026, Eric Bezault and others"
 	license: "MIT License"
 
 class ET_UNIQUE_ATTRIBUTE
@@ -33,12 +33,15 @@ feature {NONE} -- Initialization
 			a_class_not_void: a_class /= Void
 		do
 			extended_name := a_name
+			if attached {ET_IDENTIFIER} a_name.feature_name as l_identifier then
+				l_identifier.set_feature_name (True)
+			end
 			hash_code := name.hash_code
 			declared_type := a_type
 			is_keyword := tokens.is_keyword
 			unique_keyword := tokens.unique_keyword
 			clients := tokens.empty_clients
-			create constant.make ("1", 1, False)
+			create constant.make (a_class)
 			implementation_class := a_class
 			implementation_feature := Current
 		ensure
@@ -99,7 +102,7 @@ feature -- Access
 	unique_keyword: ET_KEYWORD
 			-- 'unique' keyword
 
-	constant: ET_REGULAR_INTEGER_CONSTANT
+	constant: ET_UNIQUE_CONSTANT
 			-- Constant value
 
 	header_break: detachable ET_BREAK
