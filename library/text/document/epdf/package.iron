@@ -1,0 +1,24 @@
+package epdf
+
+project
+	epdf = "epdf.ecf"
+	epdf_tests = "testing/testing.ecf"
+	pdf_processor = "example/example.ecf"
+
+note
+	title: ePDF
+	description: "[
+		Library to read, create, modify and encrypt PDF documents (ISO 32000-1:2008).
+		Supports xref tables and xref streams, object streams, linearized files,
+		incremental updates, standard fonts and TrueType fonts, image XObjects,
+		Flate/LZW/ASCII85/ASCIIHex/DCT filters, and the Standard security handler
+		(RC4, AES-128 and AES-256 encryption, permissions).
+	]"
+	tags: pdf, document, parser, generator, encryption, aes
+	category: contrib
+	license: Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)
+	copyright: 2025-2026 Eiffel Software and others
+	link[license]: http://www.eiffel.com/licensing/forum.txt
+	maps: /com.eiffel/contrib/library/text/document/epdf
+
+end

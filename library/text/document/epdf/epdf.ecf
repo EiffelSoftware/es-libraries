@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="epdf" uuid="8B9E4A7C-5D3F-11EF-8A2B-0242AC120002" library_target="epdf">
+	<description>ePDF: read, create, modify and encrypt PDF documents (ISO 32000-1:2008)</description>
+	<target name="epdf">
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+		</file_rule>
+		<option warning="warning" namespace="EPDF.Library">
+		</option>
+		<external_include location="$ECF_CONFIG_PATH/spec/include"/>
+		<external_linker_flag value="bcrypt.lib">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_linker_flag>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf" readonly="true"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf" readonly="true"/>
+		<library name="c_library_zlib" location="$ISE_LIBRARY\C_library\zlib\clibs_zlib.ecf" readonly="true"/>
+		<library name="crypto" location="$ISE_LIBRARY\unstable\library\text\encryption\crypto\crypto.ecf" readonly="true"/>
+		<cluster name="epdf" location=".\src\" recursive="true"/>
+	</target>
+</system>
