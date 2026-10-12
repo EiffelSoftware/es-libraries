@@ -262,11 +262,33 @@ MYSQL *eif_mysql_connect_ex(const char *user, const char *pass, const char *host
 		mysql_options(res1, MYSQL_READ_DEFAULT_GROUP, read_default_group);
 	}
 	if (has_ssl_enforce) {
+#ifdef MYSQL_OPT_SSL_ENFORCE
 		mysql_options(res1, MYSQL_OPT_SSL_ENFORCE, &ssl_enforce);
+#endif
+	}
+
+#ifdef MYSQL_OPT_SSL_MODE
+	{
+		unsigned int ssl_mode = SSL_MODE_PREFERRED;
+		if (has_ssl_verify_server_cert && ssl_verify_server_cert) {
+			ssl_mode = SSL_MODE_VERIFY_IDENTITY;
+		} else if (has_ssl_enforce && ssl_enforce) {
+			ssl_mode = SSL_MODE_REQUIRED;
+		}
+		mysql_options(res1, MYSQL_OPT_SSL_MODE, &ssl_mode);
+	}
+#else
+	if (has_ssl_enforce) {
+#ifdef MYSQL_OPT_SSL_ENFORCE
+		mysql_options(res1, MYSQL_OPT_SSL_ENFORCE, &ssl_enforce);
+#endif
 	}
 	if (has_ssl_verify_server_cert) {
+#ifdef MYSQL_OPT_SSL_VERIFY_SERVER_CERT
 		mysql_options(res1, MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_verify_server_cert);
+#endif
 	}
+#endif
 
 	res2 = mysql_real_connect(res1, host, user, pass, base, port,
 		(const char *) 0, CLIENT_REMEMBER_OPTIONS | CLIENT_MULTI_RESULTS);
