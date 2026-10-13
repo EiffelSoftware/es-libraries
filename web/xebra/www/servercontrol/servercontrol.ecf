@@ -25,6 +25,7 @@
 		<cluster name="xebrawebapp" location=".\" recursive="true">
 			<file_rule>
 				<exclude>/\..*$</exclude>
+				<include>/\.generated</include>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>
