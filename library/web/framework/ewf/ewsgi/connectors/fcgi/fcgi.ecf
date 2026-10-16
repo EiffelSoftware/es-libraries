@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-20-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-20-0 http://www.eiffel.com/developers/xml/configuration-1-20-0.xsd" name="connector_fcgi" uuid="7E3B5C1A-4F2D-4C8E-9A61-2D5B8F0C3E71" library_target="connector_fcgi">
+	<target name="connector_fcgi">
+		<description>FastCGI connector in pure Eiffel (no C libfcgi dependency).</description>
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/\.git$</exclude>
+			<exclude>/\..*$</exclude>
+		</file_rule>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="encoder" location="..\..\..\text\encoder\encoder.ecf"/>
+		<library name="ewsgi" location="..\..\ewsgi.ecf" readonly="false"/>
+		<library name="http" location="..\..\..\..\..\..\network\protocol\http\http.ecf"/>
+		<library name="httpd" location="..\..\..\httpd\httpd.ecf" readonly="false"/>
+		<library name="net" location="$ISE_LIBRARY\library\net\net.ecf"/>
+		<cluster name="src" location=".\src\">
+			<cluster name="protocol" location="$|protocol\"/>
+			<cluster name="implementation" location="$|implementation\" hidden="true"/>
+			<cluster name="platform_unix" location="$|platform\unix\">
+				<condition>
+					<platform excluded_value="windows"/>
+				</condition>
+			</cluster>
+			<cluster name="platform_windows" location="$|platform\windows\">
+				<condition>
+					<platform value="windows"/>
+				</condition>
+			</cluster>
+		</cluster>
+	</target>
+</system>
