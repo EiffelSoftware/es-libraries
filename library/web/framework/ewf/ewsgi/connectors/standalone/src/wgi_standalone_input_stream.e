@@ -12,6 +12,9 @@ class
 
 inherit
 	WGI_INPUT_STREAM
+		redefine
+			append_to_string
+		end
 
 create
 	make
@@ -51,15 +54,37 @@ feature -- Input
 		end
 
 	read_string (nb: INTEGER)
+			-- Read the next `nb' characters and make the result available in `last_string'.
+			-- Note: a single socket read may return less than requested,
+			-- so keep reading until `nb' characters are read, or the peer closed, or an error occurred.
 		local
 			src: like source
+			l_done: BOOLEAN
 		do
 			src := source
 			last_string.wipe_out
-			if src.readable and not src.was_error then
-				src.read_stream_noexception (nb)
-				last_string.append_string (src.last_string)
+			from
+			until
+				l_done or last_string.count >= nb or not src.readable or src.was_error
+			loop
+				src.read_stream_noexception ((nb - last_string.count).min (max_socket_read_size))
+				if src.last_string.is_empty then
+						-- Peer closed the connection, or error.
+					l_done := True
+				else
+					last_string.append_string (src.last_string)
+				end
 			end
+		end
+
+	append_to_string (a_string: STRING; nb: INTEGER)
+			-- <Precursor>
+			-- Read by blocks, rather than character by character.
+		do
+			read_string (nb)
+			a_string.append (last_string)
+			last_appended_count := last_string.count
+			last_string.wipe_out
 		end
 
 feature -- Access
@@ -73,6 +98,11 @@ feature -- Access
 
 	last_character: CHARACTER_8
 			-- Last item read
+
+feature {NONE} -- Implementation
+
+	max_socket_read_size: INTEGER = 65_536
+			-- Maximum number of bytes requested by a single socket read.
 
 feature -- Status report
 
