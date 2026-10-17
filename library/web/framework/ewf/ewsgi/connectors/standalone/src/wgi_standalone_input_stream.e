@@ -36,6 +36,47 @@ feature {WGI_STANDALONE_CONNECTOR, WGI_SERVICE, WGI_STANDALONE_CONNECTOR_EXPORTE
 
 	source: HTTPD_STREAM_SOCKET
 
+feature {WGI_STANDALONE_CONNECTOR, WGI_HTTPD_REQUEST_HANDLER} -- Expect 100-continue
+
+	set_continue_response_pending (a_output: like continue_response_output)
+			-- The client sent "Expect: 100-continue", and waits for "100 Continue"
+			-- before sending the request body.
+			-- The interim response will be sent on `a_output' at the first read,
+			-- unless the response was already started.
+		do
+			continue_response_output := a_output
+			is_continue_response_pending := True
+		ensure
+			is_continue_response_pending: is_continue_response_pending
+		end
+
+feature -- Status report: Expect 100-continue
+
+	is_continue_response_pending: BOOLEAN
+			-- Is the "100 Continue" interim response expected by the client, and not yet sent?
+			-- If True, the client may not have sent the request body.
+
+feature {NONE} -- Expect 100-continue
+
+	continue_response_output: detachable WGI_STANDALONE_OUTPUT_STREAM
+			-- Output stream used to send the "100 Continue" interim response.
+
+	send_continue_response_if_pending
+			-- Send the "100 Continue" interim response if pending,
+			-- and if the final response was not yet started.
+		do
+			if is_continue_response_pending then
+				is_continue_response_pending := False
+				if
+					attached continue_response_output as o and then
+					not o.has_written and then
+					source.is_open_write
+				then
+					source.put_string_8_noexception ({HTTP_CONSTANTS}.http_version_1_1 + " 100 Continue%R%N%R%N")
+				end
+			end
+		end
+
 feature -- Input
 
 	read_character
@@ -44,6 +85,7 @@ feature -- Input
 		local
 			src: like source
 		do
+			send_continue_response_if_pending
 			src := source
 			if src.readable and not src.was_error then
 				src.read_character_noexception
@@ -61,6 +103,7 @@ feature -- Input
 			src: like source
 			l_done: BOOLEAN
 		do
+			send_continue_response_if_pending
 			src := source
 			last_string.wipe_out
 			from
