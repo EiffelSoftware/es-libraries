@@ -10,7 +10,8 @@ class
 inherit
 	WGI_INPUT_STREAM
 		redefine
-			last_character_available
+			last_character_available,
+			append_to_string
 		end
 
 create
@@ -77,43 +78,40 @@ feature -- Input
 			--| trailer
 			--| CRLF
 		local
-			i: like index
+			n: INTEGER
+			l_done: BOOLEAN
 		do
 			last_string.wipe_out
-			if is_trailer_reached then
-				-- trailer already reached, no more data
-				check input.end_of_input end
-			else
-				if last_chunk_size = 0 then
+			from
+				l_done := is_trailer_reached
+			until
+				l_done or last_string.count >= nb
+			loop
+				if index < chunk_upper then
+						-- Remaining data in current chunk: copy as much as possible at once.
+					n := (nb - last_string.count).min (chunk_upper - index)
+					last_string.append_substring (last_chunk_data, chunk_index (index + 1), chunk_index (index + n))
+					index := index + n
+				elseif input.end_of_input then
+					l_done := True
+				else
 					read_chunk_block
-				end
-				from
-					index := index + 1
-					i := index
-				until
-					i - index + 1 = nb or last_chunk_size = 0
-				loop
-					if i + nb - 1 <= chunk_upper then
-						last_string.append (last_chunk_data.substring (chunk_index (i), chunk_index (i) + nb - 1))
-						i := i + nb - 1
-					else
-						-- Need to read new chunk
-						-- first get all available data from current chunk
-						if i > chunk_upper then
-							last_string.append (last_chunk_data.substring (i - chunk_lower + 1, chunk_index (chunk_upper)))
-							i := chunk_upper
-						end
-						-- then continue
-						read_chunk_block
-						i := i + 1
-						check i = chunk_lower end
+					if last_chunk_size = 0 then
+							-- Last chunk.
+						read_trailer_and_crlf
+						l_done := True
 					end
 				end
-				if last_chunk_size = 0 then
-					read_trailer_and_crlf
-				end
-				index := i
 			end
+		end
+
+	append_to_string (a_string: STRING; nb: INTEGER)
+			-- <Precursor>
+			-- Read by blocks, rather than character by character.
+		do
+			read_string (nb)
+			a_string.append (last_string)
+			last_appended_count := last_string.count
 		end
 
 feature -- Access
