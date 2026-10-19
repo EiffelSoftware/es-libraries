@@ -121,7 +121,7 @@ feature -- Access
 			not_result_is_empty: not Result.is_empty
 		end
 
-	copyright_year: STRING = "2024"
+	copyright_year: STRING = "2026"
 			-- Copyright year.
 
 feature -- Access
@@ -570,6 +570,48 @@ feature {NONE} -- Helpers
 			-- Shared access to an instance of {ENVIRONMENT_ACCESS}.
 		once
 			create Result
+		end
+
+	executable_path_from_path_variable (a_name: READABLE_STRING_GENERAL): detachable PATH
+			-- Absolute path of executable `a_name' found in one of the directories
+			-- listed in the PATH environment variable, if any.
+		require
+			a_name_not_empty: not a_name.is_empty
+		local
+			fut: FILE_UTILITIES
+			l_sep: CHARACTER_32
+			l_name: STRING_32
+			p: PATH
+		do
+			if attached get_environment_32 ("PATH") as l_path_var then
+				if {PLATFORM}.is_windows then
+					l_sep := ';'
+				else
+					l_sep := ':'
+				end
+				l_name := a_name.to_string_32
+				if
+					not executable_suffix.is_empty and then
+					not l_name.as_lower.ends_with_general (executable_suffix)
+				then
+					l_name.append_string_general (executable_suffix)
+				end
+				across
+					l_path_var.split (l_sep) as d
+				until
+					Result /= Void
+				loop
+					if not d.is_empty then
+						create p.make_from_string (d)
+						p := p.extended (l_name)
+						if fut.file_path_exists (p) then
+							Result := p.absolute_path
+						end
+					end
+				end
+			end
+		ensure
+			absolute_result: attached Result as r implies r.is_absolute
 		end
 
 feature -- IL environment
@@ -1883,7 +1925,18 @@ feature -- Files (commands)
 					-- We have to launch ourself to perform a compilation that would make sense
 					-- but only if we are the `ec' application, not if we are something else.
 				create l_args
-				create Result.make_from_string (l_args.command_name)
+				create p.make_from_string (l_args.command_name)
+				if p.is_absolute then
+					Result := p
+				elseif not p.is_simple then
+						-- Relative path such as "./ec" or "bin/ec".
+					Result := p.absolute_path
+				elseif attached executable_path_from_path_variable (p.name) as l_found then
+						-- Command was found via the PATH environment variable.
+					Result := l_found
+				else
+					Result := bin_path.extended (ec_name + executable_suffix)
+				end
 			else
 				l_ec_name := ec_name
 				create p.make_from_string (l_ec_name)
@@ -2649,7 +2702,7 @@ feature {NONE} -- Helper
 		end
 
 note
-	copyright: "Copyright (c) 1984-2025, Eiffel Software"
+	copyright: "Copyright (c) 1984-2026, Eiffel Software"
 	license:   "GPL version 2 (see http://www.eiffel.com/licensing/gpl.txt)"
 	licensing_options: "http://www.eiffel.com/licensing"
 	copying: "[
