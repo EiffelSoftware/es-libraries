@@ -111,6 +111,15 @@ feature -- Access
 			end
 		end
 
+	set_accept_state
+			-- Set the SSL Socket to work in server mode, without performing the handshake now.
+			-- The handshake is performed implicitly by the first `read' or `write'.
+			--| Useful to avoid blocking the caller (for instance the accepting processor)
+			--| on the client network round trips.
+		do
+			c_ssl_set_accept_state (ptr)
+		end
+
 	free
 			-- Free the underlying SSL Structure.
 		do
@@ -133,6 +142,58 @@ feature -- Access
 			-- Get ssl context from the current ssl structure pointer
 		do
 			Result := c_ssl_get_ctx (ptr)
+		end
+
+feature -- Settings
+
+	set_options (a_options: INTEGER_64)
+			-- Add the options `a_options' (bitmask) to this SSL structure only (not to its context).
+		note
+			EIS: "name=SSL_set_options", "src=https://www.openssl.org/docs/man1.1.1/man3/SSL_set_options.html", "protocol=uri"
+		local
+			l_options: INTEGER_64
+		do
+			l_options := c_ssl_set_options (ptr, a_options)
+		end
+
+	clear_options (a_options: INTEGER_64)
+			-- Clear the options `a_options' (bitmask) from this SSL structure only (not from its context).
+		local
+			l_options: INTEGER_64
+		do
+			l_options := c_ssl_clear_options (ptr, a_options)
+		end
+
+	set_min_proto_version (a_version: NATURAL)
+			-- Set the minimum protocol version of this SSL structure to `a_version'.
+		require
+			is_valid_version: {SSL_PROTOCOL}.is_valid_protocol (a_version)
+		local
+			l_res: INTEGER_64
+		do
+			l_res := c_ssl_set_min_proto_version (ptr, a_version)
+		end
+
+	set_max_proto_version (a_version: NATURAL)
+			-- Set the maximum protocol version of this SSL structure to `a_version'.
+		require
+			is_valid_version: {SSL_PROTOCOL}.is_valid_protocol (a_version)
+		local
+			l_res: INTEGER_64
+		do
+			l_res := c_ssl_set_max_proto_version (ptr, a_version)
+		end
+
+	min_proto_version: NATURAL
+			-- Configured minimum version or 0 for auto-configuration of lowest protocol.
+		do
+			Result := c_ssl_get_min_proto_version (ptr)
+		end
+
+	max_proto_version: NATURAL
+			-- Configured maximum version or 0 for auto-configuration of highest protocol.
+		do
+			Result := c_ssl_get_max_proto_version (ptr)
 		end
 
 feature -- Input
@@ -266,15 +327,71 @@ feature {NONE} -- Externals
 	c_ssl_accept (an_ssl_ptr: POINTER): INTEGER
 			-- External call to SSL_accept
 		external
-			"C use %"eif_openssl.h%""
+			"C blocking use %"eif_openssl.h%""
 		alias
 			"SSL_accept"
+		end
+
+	c_ssl_set_options (a_ssl: POINTER; a_options: INTEGER_64): INTEGER_64
+			-- External call to SSL_set_options(SSL *ssl, long options).
+		external
+			"C inline use %"eif_openssl.h%""
+		alias
+			"return SSL_set_options((SSL *)$a_ssl, (long)$a_options);"
+		end
+
+	c_ssl_clear_options (a_ssl: POINTER; a_options: INTEGER_64): INTEGER_64
+			-- External call to SSL_clear_options(SSL *ssl, long options).
+		external
+			"C inline use %"eif_openssl.h%""
+		alias
+			"return SSL_clear_options((SSL *)$a_ssl, (long)$a_options);"
+		end
+
+	c_ssl_set_min_proto_version (a_ssl: POINTER; a_version: NATURAL): INTEGER_64
+			-- External call to SSL_set_min_proto_version(SSL *ssl, int version).
+		external
+			"C inline use %"eif_openssl.h%""
+		alias
+			"return SSL_set_min_proto_version((SSL *)$a_ssl, (int) $a_version);"
+		end
+
+	c_ssl_set_max_proto_version (a_ssl: POINTER; a_version: NATURAL): INTEGER_64
+			-- External call to SSL_set_max_proto_version(SSL *ssl, int version).
+		external
+			"C inline use %"eif_openssl.h%""
+		alias
+			"return SSL_set_max_proto_version((SSL *)$a_ssl, (int) $a_version);"
+		end
+
+	c_ssl_get_min_proto_version (a_ssl: POINTER): NATURAL
+			-- External call to SSL_get_min_proto_version(SSL *ssl).
+		external
+			"C inline use %"eif_openssl.h%""
+		alias
+			"return (EIF_NATURAL) SSL_get_min_proto_version((SSL *)$a_ssl);"
+		end
+
+	c_ssl_get_max_proto_version (a_ssl: POINTER): NATURAL
+			-- External call to SSL_get_max_proto_version(SSL *ssl).
+		external
+			"C inline use %"eif_openssl.h%""
+		alias
+			"return (EIF_NATURAL) SSL_get_max_proto_version((SSL *)$a_ssl);"
+		end
+
+	c_ssl_set_accept_state (an_ssl_ptr: POINTER)
+			-- External call to SSL_set_accept_state
+		external
+			"C use %"eif_openssl.h%""
+		alias
+			"SSL_set_accept_state"
 		end
 
 	c_ssl_connect (an_ssl_ptr: POINTER): INTEGER
 			-- External call to SSL_connect
 		external
-			"C use %"eif_openssl.h%""
+			"C blocking use %"eif_openssl.h%""
 		alias
 			"SSL_connect"
 		end
@@ -298,7 +415,7 @@ feature {NONE} -- Externals
 	c_ssl_read (an_ssl_ptr: POINTER; buffer: POINTER; nb_bytes: INTEGER): INTEGER
 			-- External call to SSL_read
 		external
-			"C use %"eif_openssl.h%""
+			"C blocking use %"eif_openssl.h%""
 		alias
 			"SSL_read"
 		end
@@ -314,7 +431,7 @@ feature {NONE} -- Externals
 	c_ssl_shutdown (an_ssl_ptr: POINTER)
 			-- External call to SSL_shutdown
 		external
-			"C use %"eif_openssl.h%""
+			"C blocking use %"eif_openssl.h%""
 		alias
 			"SSL_shutdown"
 		end
@@ -322,7 +439,7 @@ feature {NONE} -- Externals
 	c_ssl_write (an_ssl_ptr: POINTER; buffer: POINTER; nb_bytes: INTEGER): INTEGER
 			-- External call to SSL_write
 		external
-			"C use %"eif_openssl.h%""
+			"C blocking use %"eif_openssl.h%""
 		alias
 			"SSL_write"
 		end

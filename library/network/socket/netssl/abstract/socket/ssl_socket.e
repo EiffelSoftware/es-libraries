@@ -37,6 +37,7 @@ feature -- SSL
 			end
 
 			context := l_context
+			apply_context_settings (l_context)
 			l_context.create_ssl
 
 				-- Server name indication is only used by TLS protocol.
@@ -115,6 +116,27 @@ feature -- SSL
 			end
 		end
 
+	initialize_server_ssl_with_context (a_retained_context_pointer: POINTER)
+			-- Initialize the server SSL stuff for an accepted socket,
+			-- sharing the SSL_CTX `a_retained_context_pointer' (usually owned by the listening socket),
+			-- see `{SSL_CONTEXT}.retained_context_pointer'. Current takes ownership of that reference.
+			-- The TLS handshake is not performed now, but on the first read or write,
+			-- thus the caller (i.e the accepting processor) is never blocked by the client network round trips.
+		require
+			a_retained_context_pointer_set: a_retained_context_pointer /= default_pointer
+		local
+			l_context: like context
+		do
+			create l_context.make_from_retained_context_pointer (a_retained_context_pointer)
+			context := l_context
+			has_shared_context := True
+			l_context.create_ssl
+			if attached l_context.last_ssl as l_ssl then
+				l_ssl.set_fd (descriptor)
+				l_ssl.set_accept_state
+			end
+		end
+
 	server_context, get_server_context: SSL_CONTEXT
 			--Server SSL context.
 		do
@@ -138,11 +160,21 @@ feature -- SSL
 	set_options (a_options: INTEGER_64)
 			-- adds the options `a_options' set via bitmask in options to ctx.
 			-- Options already set before are not cleared!
+			-- On a listening socket, or a client socket not yet connected, this applies to the SSL context created later
+			-- (i.e the shared server context, or the client context).
 		note
 			EIS: "name=CTX_set_options", "src=https://www.openssl.org/docs/man1.1.0/ssl/SSL_CTX_set_options.html", "protocol=uri"
 		do
 			if attached context as l_context then
-				l_context.set_options (a_options)
+				if has_shared_context then
+					if attached l_context.last_ssl as l_ssl then
+						l_ssl.set_options (a_options)
+					end
+				else
+					l_context.set_options (a_options)
+				end
+			else
+				add_context_setting (agent {SSL_CONTEXT}.set_options (a_options))
 			end
 		end
 
@@ -152,7 +184,15 @@ feature -- SSL
 			EIS: "name=CTX_set_options", "src=https://www.openssl.org/docs/man1.1.0/ssl/SSL_CTX_set_options.html", "protocol=uri"
 		do
 			if attached context as l_context then
-				l_context.clear_options (a_options)
+				if has_shared_context then
+					if attached l_context.last_ssl as l_ssl then
+						l_ssl.clear_options (a_options)
+					end
+				else
+					l_context.clear_options (a_options)
+				end
+			else
+				add_context_setting (agent {SSL_CONTEXT}.clear_options (a_options))
 			end
 		end
 
@@ -164,7 +204,15 @@ feature -- SSL
 			is_valid_version: {SSL_PROTOCOL}.is_valid_protocol (a_version)
 		do
 			if attached context as l_context then
-				l_context.set_max_proto_version (a_version)
+				if has_shared_context then
+					if attached l_context.last_ssl as l_ssl then
+						l_ssl.set_max_proto_version (a_version)
+					end
+				else
+					l_context.set_max_proto_version (a_version)
+				end
+			else
+				add_context_setting (agent {SSL_CONTEXT}.set_max_proto_version (a_version))
 			end
 		end
 
@@ -176,7 +224,15 @@ feature -- SSL
 			is_valid_version: {SSL_PROTOCOL}.is_valid_protocol (a_version)
 		do
 			if attached context as l_context then
-				l_context.set_min_proto_version (a_version)
+				if has_shared_context then
+					if attached l_context.last_ssl as l_ssl then
+						l_ssl.set_min_proto_version (a_version)
+					end
+				else
+					l_context.set_min_proto_version (a_version)
+				end
+			else
+				add_context_setting (agent {SSL_CONTEXT}.set_min_proto_version (a_version))
 			end
 		end
 
@@ -198,7 +254,13 @@ feature -- Status report
 			-- Configured version or 0 for auto-configuration of highest protocol.
 		do
 			if attached context as l_context then
-				Result := l_context.max_proto_version
+				if has_shared_context and attached l_context.last_ssl as l_ssl then
+					Result := l_ssl.max_proto_version
+				else
+					Result := l_context.max_proto_version
+				end
+			elseif attached shared_server_context as l_shared_context then
+				Result := l_shared_context.max_proto_version
 			end
 		end
 
@@ -206,12 +268,20 @@ feature -- Status report
 			-- Configured version or 0 for auto-configuration of lowest protocol.
 		do
 			if attached context as l_context then
-				Result := l_context.min_proto_version
+				if has_shared_context and attached l_context.last_ssl as l_ssl then
+					Result := l_ssl.min_proto_version
+				else
+					Result := l_context.min_proto_version
+				end
+			elseif attached shared_server_context as l_shared_context then
+				Result := l_shared_context.min_proto_version
 			end
 		end
 
 	protocol_version: INTEGER
 			-- protocol version used for the connection.
+			-- Note: for a socket accepted with a shared server context, the TLS handshake happens
+			-- on the first read or write, so the negotiated version is only known after that.
 		do
 			if
 				attached context as l_context and then
@@ -261,12 +331,14 @@ feature -- Change Element
 	unset_certificate_x509_string
 			-- Unset `certificate_x509_string'.
 		do
+			release_shared_server_context
 			certificate_x509_string := Void
 		end
 
 	set_certificate_x509_string (a_x509: STRING_8)
 			-- X09 certificate manifest string.
 		do
+			release_shared_server_context
 			certificate_x509_string := a_x509
 		ensure
 			certificate_x509_string_set: attached certificate_x509_string as l_509 implies l_509.same_string (a_x509)
@@ -275,12 +347,14 @@ feature -- Change Element
 	unset_private_rsa_key_string
 			-- Unset `private_rsa_key_string'.
 		do
+			release_shared_server_context
 			private_rsa_key_string := Void
 		end
 
 	set_private_rsa_key_string ( a_rsa_key: STRING_8)
 			-- rsa key manifest string.
 		do
+			release_shared_server_context
 			private_rsa_key_string := a_rsa_key
 		ensure
 			private_rsa_key_string_set: attached private_rsa_key_string as l_rsa_key implies l_rsa_key.same_string (a_rsa_key)
@@ -288,23 +362,27 @@ feature -- Change Element
 
 	unset_certificate_file
 		do
+			release_shared_server_context
 			certificate_file_path := Void
 		end
 
 	set_certificate_file_path (a_path: PATH)
 			-- Set `certificate_file_path' to `a_path'
 		do
+			release_shared_server_context
 			certificate_file_path := a_path
 		end
 
 	unset_key_file
 		do
+			release_shared_server_context
 			key_file_path := Void
 		end
 
 	set_key_file_path (a_path: PATH)
 			-- Set `key_file_path' to `a_path'
 		do
+			release_shared_server_context
 			key_file_path := a_path
 		end
 
@@ -331,6 +409,106 @@ feature -- Client Server Name Indication
 			server_name_set: attached server_name as l_server_name implies l_server_name.same_string (a_server_name)
 		end
 
+
+feature -- Shared server context
+
+	shared_server_context: detachable SSL_CONTEXT
+			-- SSL context of a listening socket, shared by all the sockets it accepts.
+			-- Built once, from the certificate, the private key and `tls_protocol',
+			-- by `prepare_shared_server_context'.
+			--| The SSL_CTX is reference counted, thread safe, and passed as a POINTER to the accepted sockets,
+			--| so no lock passing is involved between SCOOP processors.
+
+	prepare_shared_server_context
+			-- Build `shared_server_context' if not yet built (or if `tls_protocol' changed),
+			-- loading the certificate and private key once.
+			-- Remains Void if no certificate and private key are set.
+		local
+			l_context: detachable SSL_CONTEXT
+		do
+			if shared_server_context /= Void and shared_server_context_tls_protocol /= tls_protocol then
+				release_shared_server_context
+			end
+			if shared_server_context = Void then
+				if
+					attached certificate_x509_string as l_certificate and then
+					attached private_rsa_key_string as l_key
+				then
+					l_context := get_server_context
+					l_context.use_certificate (l_certificate.to_string_8)
+					l_context.use_private_key (l_key.to_string_8)
+				elseif
+					attached certificate_file_path as l_certificate_path and then
+					attached key_file_path as l_key_path
+				then
+					l_context := get_server_context
+					l_context.use_certificate_file (l_certificate_path)
+					l_context.use_private_key_file (l_key_path)
+				end
+				if l_context /= Void then
+					apply_context_settings (l_context)
+					shared_server_context := l_context
+					shared_server_context_tls_protocol := tls_protocol
+				end
+			end
+		rescue
+			if l_context /= Void and then l_context /= shared_server_context then
+				l_context.free
+			end
+		end
+
+feature {NONE} -- Shared server context
+
+	release_shared_server_context
+			-- Release the reference to `shared_server_context' owned by Current.
+			--| The already accepted sockets keep their own reference, so they are not impacted.
+		do
+			if attached shared_server_context as l_context then
+				l_context.free
+				shared_server_context := Void
+			end
+		end
+
+	shared_server_context_tls_protocol: NATURAL
+			-- `tls_protocol' used to build `shared_server_context'.
+
+	has_shared_context: BOOLEAN
+			-- Is `context' sharing its SSL_CTX with other sockets?
+			-- (i.e accepted socket, see `initialize_server_ssl_with_context').
+			-- If so, the settings are applied to the SSL structure, and not to the shared SSL_CTX.
+
+	context_settings: detachable ARRAYED_LIST [PROCEDURE [SSL_CONTEXT]]
+			-- Settings requested before the SSL context exists,
+			-- applied to the client context, or to the `shared_server_context'.
+
+	add_context_setting (a_setting: PROCEDURE [SSL_CONTEXT])
+			-- Record `a_setting' to be applied to the SSL context created later,
+			-- and apply it now to the `shared_server_context' if any.
+		local
+			l_settings: like context_settings
+		do
+			l_settings := context_settings
+			if l_settings = Void then
+				create l_settings.make (1)
+				context_settings := l_settings
+			end
+			l_settings.force (a_setting)
+			if attached shared_server_context as l_context then
+				a_setting.call ([l_context])
+			end
+		end
+
+	apply_context_settings (a_context: SSL_CONTEXT)
+			-- Apply recorded `context_settings' to `a_context'.
+		do
+			if attached context_settings as l_settings then
+				across
+					l_settings as ic
+				loop
+					ic.item.call ([a_context])
+				end
+			end
+		end
 
 feature {NONE} -- Implementation
 

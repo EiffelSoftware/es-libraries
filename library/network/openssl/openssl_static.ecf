@@ -31,28 +31,7 @@
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="clibs_openssl" location="$ISE_LIBRARY\C_library\openssl\clibs_openssl.ecf"/>
 		<library name="crypto" location="$ISE_LIBRARY\unstable\library\text\encryption\crypto\crypto.ecf"/>
-		<cluster name="ssl" location="src\" recursive="true">
-			<file_rule>
-				<exclude>/mt$</exclude>
-				<exclude>/none$</exclude>
-				<exclude>/scoop$</exclude>
-			</file_rule>
-			<cluster name="scoop" location="$|scoop\" recursive="true">
-				<condition>
-					<concurrency value="scoop"/>
-				</condition>
-			</cluster>
-			<cluster name="mt" location="$|mt\" recursive="true">
-				<condition>
-					<concurrency value="thread"/>
-				</condition>
-			</cluster>
-			<cluster name="none" location="$|scoop\" recursive="true">
-				<condition>
-					<concurrency value="none"/>
-				</condition>
-			</cluster>
-		</cluster>
+		<cluster name="ssl" location="src\" recursive="true"/>
 		<cluster name="support" location="support\" recursive="true" hidden="true"/>
 	</target>
 	<target name="openssl_tests" extends="openssl">
