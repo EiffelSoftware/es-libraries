@@ -433,32 +433,52 @@ feature {NONE} -- Externals
 
 	c_ssl_ctx_use_certificate(a_ctx_ptr, a_cert_buffer: POINTER ): INTEGER
 			-- Call external c_ssl_ctx_use_certificate.
+			--| SSL_CTX_use_certificate takes its own reference on the certificate,
+			--| so the BIO and the X509 are released here.
 		external
 			"C inline use %"eif_openssl.h%""
 		alias
 			"{
 				X509 *cert = NULL;
 				BIO *cbio;
+				int res = 0;
 			
 				cbio = BIO_new_mem_buf((void*)(const char *)$a_cert_buffer, -1);
-				cert = PEM_read_bio_X509(cbio, NULL, 0, NULL);
-				return (EIF_INTEGER_32) SSL_CTX_use_certificate((SSL_CTX *)$a_ctx_ptr, cert);
+				if (cbio != NULL) {
+					cert = PEM_read_bio_X509(cbio, NULL, 0, NULL);
+					if (cert != NULL) {
+						res = SSL_CTX_use_certificate((SSL_CTX *)$a_ctx_ptr, cert);
+						X509_free(cert);
+					}
+					BIO_free(cbio);
+				}
+				return (EIF_INTEGER_32) res;
 			}"
 		end
 
 
 	c_ssl_ctx_use_rsaprivatekey	(a_ctx_ptr, a_key_buffer: POINTER): INTEGER
 			-- Call external c_ssl_ctx_use_rsaprivatekey
+			--| SSL_CTX_use_RSAPrivateKey takes its own reference on the key,
+			--| so the BIO and the RSA are released here.
 		external
 			"C inline use %"eif_openssl.h%""
 		alias
 		 "{
 			BIO *kbio;
 			RSA *rsa = NULL;
+			int res = 0;
 	
 			kbio = BIO_new_mem_buf((void*)(const char *)$a_key_buffer, -1);
-			rsa = PEM_read_bio_RSAPrivateKey(kbio, NULL, 0, NULL);
-			return (EIF_INTEGER_32) SSL_CTX_use_RSAPrivateKey((SSL_CTX *)$a_ctx_ptr, rsa);
+			if (kbio != NULL) {
+				rsa = PEM_read_bio_RSAPrivateKey(kbio, NULL, 0, NULL);
+				if (rsa != NULL) {
+					res = SSL_CTX_use_RSAPrivateKey((SSL_CTX *)$a_ctx_ptr, rsa);
+					RSA_free(rsa);
+				}
+				BIO_free(kbio);
+			}
+			return (EIF_INTEGER_32) res;
 		  }"
 		end
 
