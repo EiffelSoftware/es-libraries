@@ -456,9 +456,18 @@ feature {NONE} -- Cursor tracking
 
 	output_scanner: ANSI_TEXT_SCANNER
 			-- Escape sequence scanner used by cursor tracking (state persists across writes)
-		attribute
-			create Result.make
+		do
+			if attached internal_output_scanner as l_output_scanner then
+				Result := l_output_scanner
+			else
+				create Result.make
+				internal_output_scanner := Result
+			end
 		end
+
+	internal_output_scanner: detachable ANSI_TEXT_SCANNER
+			-- Storage of `output_scanner`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 feature {NONE} -- Constants
 

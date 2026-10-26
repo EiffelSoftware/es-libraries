@@ -205,9 +205,18 @@ feature {NONE} -- Input claim
 
 	own_input_claim: CONSOLE_INPUT_CLAIM
 			-- Claim of this driver object, the default `input_claim`
-		attribute
-			create Result.make
+		do
+			if attached internal_own_input_claim as l_own_input_claim then
+				Result := l_own_input_claim
+			else
+				create Result.make
+				internal_own_input_claim := Result
+			end
 		end
+
+	internal_own_input_claim: detachable CONSOLE_INPUT_CLAIM
+			-- Storage of `own_input_claim`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 feature -- Constants
 
