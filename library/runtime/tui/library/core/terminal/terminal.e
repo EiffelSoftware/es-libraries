@@ -175,6 +175,22 @@ feature -- Drawing
 			height_matches: height = target_height
 		end
 
+	invalidate
+			-- Forget what the screen shows and clear it, so that the next `draw` repaints every
+			-- cell (e.g. after another program has used the terminal).
+		do
+			create previous_buffer.make (previous_buffer.width, previous_buffer.height)
+			diff_engine.discard_pool
+			if viewport.is_inline then
+				clear_viewport_rows
+			else
+				backend.clear_screen
+			end
+		ensure
+			width_unchanged: width = old width
+			height_unchanged: height = old height
+		end
+
 feature -- Inline viewport
 
 	setup_inline_viewport
