@@ -125,7 +125,12 @@ feature -- Input
 					ext.set_count (return_val)
 					last_string := ext.substring (1, return_val)
 				else
-					socket_error := "Peer error [0x" + return_val.to_hex_string + "]"
+					if l_ssl.was_error then
+							-- For instance, the deferred TLS handshake failed.
+						socket_error := l_ssl.ssl_error
+					else
+						socket_error := "Peer error [0x" + return_val.to_hex_string + "]"
+					end
 					last_string.wipe_out
 				end
 			else
@@ -155,6 +160,10 @@ feature -- Input
 					end
 				end
 				bytes_read := l_read
+				if l_ssl.was_error then
+						-- For instance, the deferred TLS handshake failed.
+					socket_error := l_ssl.ssl_error
+				end
 			else
 				check has_context: False end
 			end

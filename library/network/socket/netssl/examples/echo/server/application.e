@@ -146,7 +146,13 @@ feature {NONE} -- Implementation
 				-- It's here just to demonstrate the usage of the `read_line_until' routine
 			client_socket.read_line_until (10)
 			message := client_socket.last_string
-			if message /= Void then
+			if client_socket.was_error then
+					-- Failed TLS handshake, closed connection, or message too long.
+				io.put_string ("Error: " + client_socket.error)
+				io.put_new_line
+				Result := True
+				client_socket.close
+			elseif message /= Void then
 				if message.ends_with ("%R") then
 					message.keep_head (message.count-1)
 				end
