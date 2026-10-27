@@ -171,6 +171,13 @@ feature -- Destroy
 				-- and this could cause trouble.
 			if is_input_data_fully_read then
 				do_nothing
+			elseif
+				input_data_read_length = 0 and then
+				attached http_expect as l_expect and then l_expect.is_case_insensitive_equal ("100-continue")
+			then
+					-- The server never sent "100 Continue" and did not read anything,
+					-- so the client may never send the body: do not wait for it.
+				do_nothing
 			else
 				read_remaining_input_data
 			end
@@ -356,7 +363,8 @@ feature -- Access: Input
 				until
 					l_step = 0 or l_input.end_of_input
 				loop
-					if l_total + l_step > l_length then
+						-- With chunked input, the Content-Length is meaningless: read until end of input.
+					if not is_chunked_input and then l_total + l_step > l_length then
 						l_step := l_length - l_total
 					end
 					l_input.append_to_string (s, l_step)
@@ -391,28 +399,44 @@ feature -- Access: Input
 			l_length, l_total, nb, l_step: INTEGER
 		do
 			l_total := input_data_read_length.to_integer_32
-			l_length := content_length_value.to_integer_32
-			if l_length > l_total then
-				l_input := input
+			l_input := input
+			if is_chunked_input then
+					-- Content-Length is meaningless, read until the end of the chunked input.
 				from
 					l_step := 8_192
-					create s.make (l_step.min (l_length))
+					create s.make (l_step)
 				until
-					l_step = 0 or l_input.end_of_input
+					l_input.end_of_input
 				loop
-					if l_total + l_step > l_length then
-						l_step := l_length - l_total
-					end
-					if l_step > 0 then
-						nb := l_input.read_to_string (s, 1, l_step)
-						l_total := l_total + nb
-						s.wipe_out
-						if nb < l_step then
-							l_step := 0
-						end
-					end
+					l_input.append_to_string (s, l_step)
+					l_total := l_total + l_input.last_appended_count
+					s.wipe_out
 				end
 				input_data_read_length := l_total.to_natural_64
+			else
+				l_length := content_length_value.to_integer_32
+				if l_length > l_total then
+					from
+						l_step := 8_192
+						create s.make (l_step.min (l_length))
+					until
+						l_step = 0 or l_input.end_of_input
+					loop
+						if l_total + l_step > l_length then
+							l_step := l_length - l_total
+						end
+						if l_step > 0 then
+							l_input.append_to_string (s, l_step)
+							nb := l_input.last_appended_count
+							l_total := l_total + nb
+							s.wipe_out
+							if nb < l_step then
+								l_step := 0
+							end
+						end
+					end
+					input_data_read_length := l_total.to_natural_64
+				end
 			end
 		ensure
 			is_input_data_fully_read
@@ -424,7 +448,11 @@ feature -- Access: Input
 	is_input_data_fully_read: BOOLEAN
 			-- Is all input data fully read?
 		do
-			Result := input_data_read_length = content_length_value
+			if is_chunked_input then
+				Result := input.end_of_input
+			else
+				Result := input_data_read_length = content_length_value
+			end
 		end
 
 feature -- Helper

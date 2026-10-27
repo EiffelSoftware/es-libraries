@@ -151,14 +151,14 @@ feature -- Execution
 			if l_safe_filename = Void or else l_safe_filename.is_empty then
 				l_safe_filename := "input_data"
 			end
-			if n = 0 and req.content_length_value > 0 then
+			if n = 0 and (req.content_length_value > 0 or req.is_chunked_input) then
 				if attached new_temporary_output_file ("tmp-uploaded-file_" + n.out) as f then
 					req.read_input_data_into_file (f)
 					f.close
 					fn := files_root.extended (l_safe_filename)
 					f.rename_file (fn.name)
 					l_body.append ("<li>")
-					l_body.append ("<div>Input data : size=" + f.count.out + " (" + req.content_length_value.out + ")</div>")
+					l_body.append ("<div>Input data : size=" + f.count.out + " (" + req.input_data_read_length.out + ")</div>")
 					l_body.append ("%N<a href=%"../files/" + url_encode (l_safe_filename) + "%">"+ html_encode (l_safe_filename) +"</a>")
 					l_body.append ("</li>")
 				end

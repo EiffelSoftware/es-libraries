@@ -24,6 +24,7 @@
 	<target name="login_with_github_any" extends="common">
 		<root class="LOGIN_WITH_GITHUB" feature="make_and_launch"/>
 		<library name="cgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\cgi.ecf"/>
+		<library name="fcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\fcgi.ecf"/>
 		<library name="libfcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\libfcgi.ecf"/>
 		<library name="standalone" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\standalone.ecf"/>
 		<cluster name="launcher" location=".\launcher\">
@@ -61,6 +62,17 @@
 			<concurrency use="none"/>
 		</capability>
 		<library name="default_libfcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\default\libfcgi.ecf"/>
+		<cluster name="launcher" location=".\launcher\">
+			<cluster name="default_launcher" location="$|default\"/>
+		</cluster>
+		<cluster name="src" location=".\src\" recursive="true"/>
+	</target>
+	<target name="login_with_github_fcgi" extends="common">
+		<root class="LOGIN_WITH_GITHUB" feature="make_and_launch"/>
+		<capability>
+			<concurrency use="none"/>
+		</capability>
+		<library name="default_fcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\default\fcgi.ecf"/>
 		<cluster name="launcher" location=".\launcher\">
 			<cluster name="default_launcher" location="$|default\"/>
 		</cluster>

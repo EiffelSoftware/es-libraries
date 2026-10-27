@@ -75,6 +75,7 @@ feature -- Output
 			-- Send `s' to http client
 		do
 			last_target_call_succeed := False
+			has_written := True
 			target.put_string_8_noexception (s)
 			last_target_call_succeed := not target.was_error
 		end
@@ -83,6 +84,7 @@ feature -- Output
 			-- Send `s' to http client
 		do
 			last_target_call_succeed := False
+			has_written := True
 			target.put_string_8_noexception (s)
 			last_target_call_succeed := not target.was_error
 		end
@@ -90,11 +92,16 @@ feature -- Output
 	put_character (c: CHARACTER_8)
 		do
 			last_target_call_succeed := False
+			has_written := True
 			target.put_character_noexception (c)
 			last_target_call_succeed := not target.was_error
 		end
 
 feature -- Status report
+
+	has_written: BOOLEAN
+			-- Has anything been written to the client yet?
+			-- i.e: the response is started.
 
 	is_available: BOOLEAN
 			-- <Precursor>

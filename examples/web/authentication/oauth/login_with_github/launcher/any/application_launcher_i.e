@@ -31,6 +31,9 @@ feature -- Execution
 			elseif is_standalone_launcher_id (l_id) then
 				create {WSF_STANDALONE_SERVICE_LAUNCHER [G]} launcher.make_and_launch (opts)
 
+			elseif is_fcgi_launcher_id (l_id) then
+				create {WSF_FCGI_SERVICE_LAUNCHER [G]} launcher.make_and_launch (opts)
+
 			elseif is_libfcgi_launcher_id (l_id) then
 				create {WSF_LIBFCGI_SERVICE_LAUNCHER [G]} launcher.make_and_launch (opts)
 
@@ -49,7 +52,7 @@ feature -- Execution
 	launcher_id: detachable READABLE_STRING_GENERAL
 			-- Launcher id based on the executable extension name if any.
 			-- This can be redefine to customize for your application.
-			--| ex: standalone, cgi, libfcgi or Void.
+			--| ex: standalone, cgi, fcgi, libfcgi or Void.
 		local
 			p: PATH
 			s: READABLE_STRING_32
@@ -79,10 +82,14 @@ feature -- Status report
 			Result := a_id.is_case_insensitive_equal ("cgi")
 		end
 
+	is_fcgi_launcher_id (a_id: READABLE_STRING_GENERAL): BOOLEAN
+		do
+			Result := a_id.is_case_insensitive_equal ("fcgi")
+		end
+
 	is_libfcgi_launcher_id (a_id: READABLE_STRING_GENERAL): BOOLEAN
 		do
 			Result := a_id.is_case_insensitive_equal ("libfcgi")
-					or a_id.is_case_insensitive_equal ("fcgi")
 		end
 
 end

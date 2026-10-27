@@ -26,6 +26,8 @@ feature -- Execution
 				launch_standalone (opts)
 			elseif nature = nature_cgi then
 				launch_cgi (opts)
+			elseif nature = nature_fcgi then
+				launch_fcgi (opts)
 			elseif nature = nature_libfcgi then
 				launch_libfcgi (opts)
 			else
@@ -38,7 +40,7 @@ feature {NONE} -- Access
 
 	launcher_nature: detachable READABLE_STRING_8
 			-- Initialize the launcher nature
-			-- either cgi, libfcgi, or standalone.
+			-- either cgi, fcgi, libfcgi, or standalone.
 			--| We could extend with more connector if needed.
 			--| and we could use WSF_DEFAULT_SERVICE_LAUNCHER to configure this at compilation time.
 		local
@@ -56,7 +58,10 @@ feature {NONE} -- Access
 				if ext.same_string (nature_cgi) then
 					Result := nature_cgi
 				end
-				if ext.same_string (nature_libfcgi) or else ext.same_string ("fcgi") then
+				if ext.same_string (nature_fcgi) then
+					Result := nature_fcgi
+				end
+				if ext.same_string (nature_libfcgi) then
 					Result := nature_libfcgi
 				end
 			end
@@ -81,6 +86,17 @@ feature {NONE} -- cgi
 	launch_cgi (opts: detachable WSF_SERVICE_LAUNCHER_OPTIONS)
 		local
 			launcher: WSF_CGI_SERVICE_LAUNCHER [G]
+		do
+			create launcher.make_and_launch (opts)
+		end
+
+feature {NONE} -- fcgi
+
+	nature_fcgi: STRING = "fcgi"
+
+	launch_fcgi (opts: detachable WSF_SERVICE_LAUNCHER_OPTIONS)
+		local
+			launcher: WSF_FCGI_SERVICE_LAUNCHER [G]
 		do
 			create launcher.make_and_launch (opts)
 		end

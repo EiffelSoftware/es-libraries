@@ -18,6 +18,7 @@
 	<target name="debug_any" extends="common">
 		<root class="EWF_DEBUG_SERVER" feature="make_and_launch"/>
 		<library name="cgi" location="..\..\..\..\library\web\framework\ewf\wsf\connector\cgi.ecf" readonly="false"/>
+		<library name="fcgi" location="..\..\..\..\library\web\framework\ewf\wsf\connector\fcgi.ecf" readonly="false"/>
 		<library name="libfcgi" location="..\..\..\..\library\web\framework\ewf\wsf\connector\libfcgi.ecf" readonly="false"/>
 		<library name="standalone" location="..\..\..\..\library\web\framework\ewf\wsf\connector\standalone.ecf" readonly="false"/>
 		<cluster name="launcher" location=".\launcher\any\" recursive="true"/>
@@ -38,6 +39,12 @@
 	<target name="debug_libfcgi" extends="common">
 		<root class="EWF_DEBUG_SERVER" feature="make_and_launch"/>
 		<library name="default_libfcgi" location="..\..\..\..\library\web\framework\ewf\wsf\default\libfcgi.ecf"/>
+		<cluster name="launcher" location=".\launcher\default\" recursive="true"/>
+		<cluster name="src" location=".\src\" recursive="true"/>
+	</target>
+	<target name="debug_fcgi" extends="common">
+		<root class="EWF_DEBUG_SERVER" feature="make_and_launch"/>
+		<library name="default_fcgi" location="..\..\..\..\library\web\framework\ewf\wsf\default\fcgi.ecf"/>
 		<cluster name="launcher" location=".\launcher\default\" recursive="true"/>
 		<cluster name="src" location=".\src\" recursive="true"/>
 	</target>
