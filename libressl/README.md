@@ -33,13 +33,12 @@ Linux / macOS (CMake, with Ninja or Make):
 	cmake --build build
 	cmake --install build
 
-Windows (Visual Studio, from a developer command prompt):
-
-	cmake -S libressl-4.4.0 -B build -G "Visual Studio 17 2022" -A x64 ^
-		-DBUILD_SHARED_LIBS=OFF -DLIBRESSL_APPS=OFF -DLIBRESSL_TESTS=OFF ^
-		-DCMAKE_INSTALL_PREFIX=%ISE_LIBRARY%\C_library\libressl\spec\%ISE_PLATFORM%
-	cmake --build build --config Release
-	cmake --install build --config Release
+Windows: run `build.bat` (or `build.bat windows` for 32 bits). It downloads the
+LibreSSL release, checks its SHA-256, and builds and installs the static libraries
+(with the static C runtime `/MT`, as EiffelStudio) into `spec\%ISE_PLATFORM%`.
+It requires CMake and Visual Studio with the C++ workload; no Perl is needed.
+To use another LibreSSL release, update `LIBRESSL_VERSION` and `LIBRESSL_SHA256`
+in the script (the SHA-256 is listed in the release `SHA256` file).
 
 On Windows, the application is linked with `ssl.lib`, `crypto.lib`, `ws2_32.lib`,
 `ntdll.lib` and `bcrypt.lib`.
@@ -47,6 +46,6 @@ On Windows, the application is linked with `ssl.lib`, `crypto.lib`, `ws2_32.lib`
 Notes
 -----
 - Tested on Linux x86-64 with LibreSSL 4.4.0 (EWF https server, net_ssl echo example,
-  openssl library tests). The Windows build has not been tested yet.
+  openssl library tests). The Windows build script and link settings have not been tested yet.
 - LibreSSL does not provide some legacy elliptic curves (for instance secp192k1),
   nor the OpenSSL secure heap (`BIO_s_secmem` falls back to `BIO_s_mem`).
