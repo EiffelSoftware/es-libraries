@@ -36,6 +36,8 @@
 		<setting name="dead_code_removal" value="feature"/>
 		<library name="cgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\cgi.ecf">
 		</library>
+		<library name="fcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\fcgi.ecf">
+		</library>
 		<library name="libfcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\libfcgi.ecf">
 		</library>
 		<library name="standalone" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\connector\standalone.ecf">
@@ -85,6 +87,22 @@
 			<concurrency use="none"/>
 		</capability>
 		<library name="default_libfcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\default\libfcgi.ecf">
+		</library>
+		<cluster name="launcher" location=".\launcher\">
+			<cluster name="default_launcher" location="$|default\">
+			</cluster>
+		</cluster>
+		<cluster name="src" location=".\src\" recursive="true">
+		</cluster>
+	</target>
+	<target name="books_restapi_fcgi" extends="common">
+		<root class="BOOKS_RESTAPI" feature="make_and_launch"/>
+		<setting name="total_order_on_reals" value="false"/>
+		<setting name="dead_code_removal" value="feature"/>
+		<capability>
+			<concurrency use="none"/>
+		</capability>
+		<library name="default_fcgi" location="$ISE_LIBRARY\contrib\library\web\framework\ewf\wsf\default\fcgi.ecf">
 		</library>
 		<cluster name="launcher" location=".\launcher\">
 			<cluster name="default_launcher" location="$|default\">

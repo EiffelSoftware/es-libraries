@@ -34,4 +34,12 @@
 		<library name="default_libfcgi" location="..\..\..\..\library\web\framework\ewf\wsf\default\libfcgi.ecf" readonly="false" use_application_options="true"/>
 		<cluster name="src" location="src\" recursive="true"/>
 	</target>
+	<target name="upload_image_fcgi" extends="upload_image_common">
+		<root class="IMAGE_UPLOADER" feature="make"/>
+		<capability>
+			<concurrency use="none"/>
+		</capability>
+		<library name="default_fcgi" location="..\..\..\..\library\web\framework\ewf\wsf\default\fcgi.ecf" readonly="false" use_application_options="true"/>
+		<cluster name="src" location="src\" recursive="true"/>
+	</target>
 </system>
