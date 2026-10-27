@@ -5,26 +5,32 @@
 			C library dependency for openSSL binding.
 
 			note: set custom variable "openssl_static" to "true", in order to link with static C lib.
+			note: set custom variable "libressl" to "true", in order to link with the static LibreSSL C libs instead,
+				installed under $(ISE_LIBRARY)/C_library/libressl/spec/$(ISE_PLATFORM) (see C_library/libressl/README.md).
   		</description>
 		<root all_classes="true"/>
 		<external_include location="$(ISE_LIBRARY)\C_library\openssl\spec\$(ISE_PLATFORM)\include">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform value="windows"/>
 			</condition>
 		</external_include>
 		<external_include location="/usr/local/include">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform excluded_value="windows"/>
 			</condition>
 		</external_include>
 		<external_object location="$(ISE_LIBRARY)\C_library\openssl\spec\$(ISE_PLATFORM)\lib\static\libcrypto.lib">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform value="windows"/>
 				<custom name="openssl_static" value="true"/>
 			</condition>
 		</external_object>
 		<external_object location="$(ISE_LIBRARY)\C_library\openssl\spec\$(ISE_PLATFORM)\lib\static\libssl.lib">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform value="windows"/>
 				<custom name="openssl_static" value="true"/>
 			</condition>
@@ -32,27 +38,91 @@
 
 		<external_object location="$(ISE_LIBRARY)\C_library\openssl\spec\$(ISE_PLATFORM)\lib\dynamic\libcrypto.lib">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform value="windows"/>
 				<custom name="openssl_static" excluded_value="true"/>
 			</condition>
 		</external_object>
 		<external_object location="$(ISE_LIBRARY)\C_library\openssl\spec\$(ISE_PLATFORM)\lib\dynamic\libssl.lib">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform value="windows"/>
 				<custom name="openssl_static" excluded_value="true"/>
 			</condition>
 		</external_object>
 		<external_linker_flag value="-lcrypto">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform excluded_value="windows"/>
 			</condition>
 		</external_linker_flag>
 		<external_linker_flag value="-lssl">
 			<condition>
+				<custom name="libressl" excluded_value="true"/>
 				<platform excluded_value="windows"/>
 			</condition>
 		</external_linker_flag>
 
+		<external_include location="$(ISE_LIBRARY)\C_library\libressl\spec\$(ISE_PLATFORM)\include">
+			<condition>
+				<platform value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_include>
+		<external_include location="$(ISE_LIBRARY)/C_library/libressl/spec/$(ISE_PLATFORM)/include">
+			<condition>
+				<platform excluded_value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_include>
+		<external_object location="$(ISE_LIBRARY)\C_library\libressl\spec\$(ISE_PLATFORM)\lib\ssl.lib">
+			<condition>
+				<platform value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_object>
+		<external_object location="$(ISE_LIBRARY)\C_library\libressl\spec\$(ISE_PLATFORM)\lib\crypto.lib">
+			<condition>
+				<platform value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_object>
+		<external_object location="ws2_32.lib">
+			<condition>
+				<platform value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_object>
+		<external_object location="ntdll.lib">
+			<condition>
+				<platform value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_object>
+		<external_object location="bcrypt.lib">
+			<condition>
+				<platform value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_object>
+		<external_object location="$(ISE_LIBRARY)/C_library/libressl/spec/$(ISE_PLATFORM)/lib/libssl.a">
+			<condition>
+				<platform excluded_value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_object>
+		<external_object location="$(ISE_LIBRARY)/C_library/libressl/spec/$(ISE_PLATFORM)/lib/libcrypto.a">
+			<condition>
+				<platform excluded_value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_object>
+		<external_linker_flag value="-lpthread">
+			<condition>
+				<platform excluded_value="windows"/>
+				<custom name="libressl" value="true"/>
+			</condition>
+		</external_linker_flag>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 	</target>
 </system>
