@@ -259,10 +259,14 @@ feature -- Basic operations
 feature -- Mode settings
 
 	enter_raw_mode
-			-- Put terminal into raw mode.
+			-- Put terminal into raw mode, with virtual terminal processing (and UTF-8 code pages on
+			-- Windows) enabled again: `leave_raw_mode` restores the original console modes, so
+			-- that a terminal entering raw mode again (e.g. after running another program) would
+			-- otherwise decode the output in the original code page.
 		local
 			l_failure: DEVELOPER_EXCEPTION
 		do
+			driver.enable_vt_mode.do_nothing
 			if driver.enable_raw_mode then
 				is_raw := True
 			else
