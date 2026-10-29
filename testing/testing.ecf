@@ -43,7 +43,12 @@
 		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>
 		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<library name="uuid" location="$ISE_LIBRARY\library\uuid\uuid.ecf"/>
-		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf"/>
+		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf">
+			<description>Not used by the testing engine itself: not included for terminal interfaces (variable debugger_ui=tui), which have no graphical toolkit.</description>
+			<condition>
+				<custom name="debugger_ui" excluded_value="tui"/>
+			</condition>
+		</library>
 		<cluster name="engine" location=".\" recursive="true">
 			<option namespace="Testing">
 				<warning name="obsolete_feature" value="all"/>
