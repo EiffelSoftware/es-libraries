@@ -26,7 +26,6 @@ feature {NONE} -- Initialize
 			-- Initialize with the given alias string `s`, "alias" keyword `a`, and alias kind `k`.
 			-- The alias string is expected to be correct by itself and with respect to `k`.
 		require
-			attached a
 			not s.value.is_empty
 			is_valid_kind (k)
 		do
