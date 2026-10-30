@@ -67,6 +67,9 @@ feature -- Status
 			Result := application_target /= Void
 		end
 
+	is_precompile_ignored: BOOLEAN
+			-- Should precompile libraries be ignored for targets in this system?
+
 	deep_date_has_changed: BOOLEAN
 			-- Did the date on any configuration file used in this system change?
 		require
@@ -389,6 +392,19 @@ feature -- Status setting
 			is_generated_uuid_set: is_generated_uuid = b
 		end
 
+	set_is_precompile_ignored (b: BOOLEAN)
+			-- Set `is_precompile_ignored' to `b' for all targets.
+		do
+			is_precompile_ignored := b
+			across
+				targets as ic
+			loop
+				ic.set_is_precompile_ignored (b)
+			end
+		ensure
+			is_precompile_ignored_set: is_precompile_ignored = b
+		end
+
 feature {CONF_ACCESS} -- Update, stored in configuration file
 
 	set_name (a_name: like name)
@@ -432,6 +448,9 @@ feature {CONF_ACCESS} -- Update, stored in configuration file
 		require
 			a_target_not_void: a_target /= Void
 		do
+			if is_precompile_ignored then
+				a_target.set_is_precompile_ignored (True)
+			end
 			targets.force (a_target, a_target.name.twin)
 			target_order.force (a_target)
 		end

@@ -341,20 +341,36 @@ feature -- Access queries
 			end
 		end
 
+	is_precompile_ignored: BOOLEAN
+			-- Should precompile libraries be ignored?
+		do
+			Result := internal_is_precompile_ignored or else system.is_precompile_ignored
+		end
+
 	precompile: detachable CONF_PRECOMPILE
 			-- The precompile (if any).
 		local
 			l_internal_precompile: like internal_precompile
 		do
-			l_internal_precompile := internal_precompile
-			if
-				l_internal_precompile = Void and
-				attached extends as l_extends
-			then
-				Result := l_extends.precompile
-			else
-				Result := l_internal_precompile
+			if not is_precompile_ignored then
+				l_internal_precompile := internal_precompile
+				if
+					l_internal_precompile = Void and
+					attached extends as l_extends
+				then
+					Result := l_extends.precompile
+				else
+					Result := l_internal_precompile
+				end
 			end
+		end
+
+	set_is_precompile_ignored (b: BOOLEAN)
+			-- Set `internal_is_precompile_ignored` to `b`.
+		do
+			internal_is_precompile_ignored := b
+		ensure
+			is_precompile_ignored_set: internal_is_precompile_ignored = b
 		end
 
 	libraries: STRING_TABLE [CONF_LIBRARY]
@@ -1405,6 +1421,9 @@ feature {CONF_VISITOR, CONF_ACCESS} -- Implementation, attributes that are store
 
 	internal_precompile: like precompile
 			-- Precompile of this target itself.
+
+	internal_is_precompile_ignored: BOOLEAN
+			-- Should precompile libraries be ignored?
 
 	internal_libraries: like libraries
 			-- The used libraries of this target itself.
