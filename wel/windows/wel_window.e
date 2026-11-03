@@ -1419,11 +1419,14 @@ feature {WEL_WINDOW} -- Messages
 
 feature {NONE} -- Messages
 
-	on_dpi_changed (a_dpi: NATURAL_32;  window_pos: WEL_WINDOW_POS)
-			-- WM_dpichange message.
-			-- This message is sent to a window whose dpi changed,
+	on_dpi_changed (a_dpi: NATURAL_32; a_suggested_rect: WEL_RECT)
+			-- Wm_dpichanged message.
+			-- This message is sent to a top level window whose DPI changed to `a_dpi`
+			-- (for instance when it moved to a monitor with a different scaling),
+			-- after it has been moved and resized to `a_suggested_rect`.
 		require
 			exists: exists
+			a_suggested_rect_attached: a_suggested_rect /= Void
 		do
 		end
 
@@ -1698,26 +1701,17 @@ feature {NONE} -- Messages
 		local
 			l_rect: WEL_RECT
 			l_dpi: NATURAL_32
-			l_wp: WEL_WINDOW_POS
 		do
-				-- When we handle the WM_DPICHANGED, the app it's
-				-- responsible to call SetWindowsPos and scale windows controls
-				-- and resources, at the moment only SetWindowsPos is handled.
-				-- a_wparam new dpi setting
-				-- need to use the new DPI retrieved from the a_wparam to calculate the new scale factor.
+				-- `a_wparam' holds the new DPI (in both its low and high words) and `a_lparam'
+				-- points to a RECT: the window rectangle suggested for the new DPI. Moving and
+				-- resizing the window to it keeps its apparent size, and prevents it from going
+				-- back and forth between two monitors with different DPIs.
+				-- Scaling the content of the window (fonts, ...) is left to `on_dpi_changed'.
 			l_dpi := cwin_hi_word (a_wparam).to_natural_32
-
-				-- a_lparam windows rectangle scaled for the new DPI.
-			create l_rect.make_by_pointer (a_lparam)
+				-- Copy the rectangle, `a_lparam' is only valid while the message is processed.
+			l_rect := (create {WEL_RECT}.make_by_pointer (a_lparam)).twin
 			move_and_resize_internal (l_rect.left, l_rect.top, l_rect.width, l_rect.height, True, 0)
-
-			l_wp := Window_pos_internal
-			if l_wp.item /= default_pointer then
-				create l_wp.make_by_pointer (a_lparam)
-			else
-				l_wp.set_item (a_lparam)
-			end
-			on_dpi_changed (l_dpi, l_wp)
+			on_dpi_changed (l_dpi, l_rect)
 		end
 
 feature {WEL_WINDOW, WEL_DISPATCHER} -- Implementation

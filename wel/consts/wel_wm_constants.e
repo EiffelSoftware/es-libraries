@@ -656,6 +656,16 @@ feature -- Access
 
 	Wm_dpichanged: INTEGER = 736
 			-- Declared in Windows as WM_DPICHANGED
+
+	Wm_dpichanged_beforeparent: INTEGER = 738
+			-- Declared in Windows as WM_DPICHANGED_BEFOREPARENT
+
+	Wm_dpichanged_afterparent: INTEGER = 739
+			-- Declared in Windows as WM_DPICHANGED_AFTERPARENT
+
+	Wm_getdpiscaledsize: INTEGER = 740
+			-- Declared in Windows as WM_GETDPISCALEDSIZE
+
 note
 	copyright:	"Copyright (c) 1984-2019, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
