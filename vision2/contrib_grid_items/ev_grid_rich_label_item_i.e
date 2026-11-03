@@ -42,6 +42,10 @@ feature {EV_GRID_DRAWER_I} -- Implementation
 			check l_interface /= Void and l_parent_i /= Void then
 				l_formats := l_interface.formats
 				if l_formats.count > 0 then
+					if not must_recompute_text_dimensions and then l_parent_i.drawing_dpi /= text_dimensions_dpi then
+							-- The grid is now displayed on a monitor with another DPI.
+						must_recompute_text_dimensions := True
+					end
 					if must_recompute_text_dimensions then
 						l_font := l_interface.font
 						if l_font /= Void then
@@ -73,12 +77,13 @@ feature {EV_GRID_DRAWER_I} -- Implementation
 								l_subtext := l_text.substring (l_offset, l_text.count)
 							end
 							l_text_dimensions := text_dimensions
-							l_parent_i.string_size (l_subtext, l_font, l_text_dimensions)
+							l_parent_i.string_size (l_subtext, l_parent_i.font_for_drawing (l_font), l_text_dimensions)
 							l_width := l_width + l_text_dimensions.w
 							l_height := l_height.max (l_text_dimensions.h )
 						end
 						internal_text_width := l_width
 						internal_text_height := l_height
+						text_dimensions_dpi := l_parent_i.drawing_dpi
 					end
 					must_recompute_text_dimensions := False
 				else
@@ -132,6 +137,8 @@ feature {EV_GRID_DRAWER_I} -- Implementation
 						if l_other_font = Void then
 							l_other_font := l_font_dft
 						end
+							-- The font for the DPI of the grid, as used by `recompute_text_dimensions'.
+						l_other_font := l_parent_i.font_for_drawing (l_other_font)
 						a_drawable.set_foreground_color (l_color)
 						a_drawable.set_font (l_other_font)
 						if not l_formats.islast then
