@@ -1392,6 +1392,13 @@ feature {EV_ANY_I} -- Per monitor DPI
 		do
 				-- The tree is collected first, as updating the widgets may change it.
 			l_widgets := widget_tree
+				-- The new layout is computed while the widgets are updated, so what they
+				-- display has to be saved before any of them is updated.
+			across l_widgets as w loop
+				if w.exists and then not w.is_destroyed then
+					w.save_content_for_dpi_change
+				end
+			end
 			across l_widgets as w loop
 				if w.exists and then not w.is_destroyed then
 					w.update_for_dpi (a_dpi)
@@ -1404,6 +1411,14 @@ feature {EV_ANY_I} -- Per monitor DPI
 					end
 				end
 			end
+		end
+
+	save_content_for_dpi_change
+			-- Save what `Current' displays, if it cannot redraw it by itself, before the widgets
+			-- are realized for another DPI: the new layout may move `Current' without its content.
+		require
+			exists: exists
+		do
 		end
 
 	notify_dpi_changed (a_dpi: NATURAL_32)
