@@ -697,6 +697,8 @@ feature {NONE} -- Implementation
 			insert_item (i - 1, wel_tci)
 			v_imp.wel_set_parent (Current)
 			v_imp.set_top_level_window_imp (top_level_window_imp)
+				-- `v_imp' may now be displayed on a monitor with another DPI.
+			v_imp.update_dpi_of_widget_tree_if_needed
 				-- If another item is already selected, we need to ensure
 				-- that we hide `v_imp' as otherwise, it may appear to be the
 				-- widget of the currently selected tab, when it should not be

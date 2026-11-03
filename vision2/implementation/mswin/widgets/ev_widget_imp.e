@@ -1432,14 +1432,17 @@ feature {EV_ANY_I} -- Per monitor DPI
 	update_dpi_of_widget_tree_if_needed
 			-- Realize `Current' and the widgets it contains for the DPI of the monitor of `Current',
 			-- if needed, for instance after `Current' has been inserted in a window displayed on
-			-- another monitor than the window it comes from.
+			-- another monitor than the window it comes from (or than the system DPI, for
+			-- which widgets are created), and then call their `dpi_changed_actions'.
 		local
 			l_dpi: NATURAL_32
 		do
 			if exists then
 				l_dpi := {WEL_SCALING_EXTERNALS}.dpi_for_window (wel_item)
 				if l_dpi /= realized_dpi then
-					update_dpi_of_widget_tree (l_dpi, False)
+						-- The widgets that adapt themselves to the DPI (such as {EV_GRID})
+						-- have to be notified, as when their window moves to another monitor.
+					update_dpi_of_widget_tree (l_dpi, True)
 				end
 			end
 		end
