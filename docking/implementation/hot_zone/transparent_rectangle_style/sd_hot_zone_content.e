@@ -198,11 +198,19 @@ feature {NONE} -- Implementation functions
 
 feature {NONE} -- Implementation attributes
 
-	pixmap_center_width: INTEGER = 34
+	pixmap_center_width: INTEGER
 			-- Width and height of the area in center figure area
+			-- (scaled as `arrow_indicator_center').
+		do
+			Result := internal_shared.icons.scaled_size (34)
+		end
 
-	pixmap_corner_width: INTEGER = 36
+	pixmap_corner_width: INTEGER
 			-- Width and height of the area in four corner figure areas
+			-- (scaled as `arrow_indicator_center').
+		do
+			Result := internal_shared.icons.scaled_size (36)
+		end
 
 	internal_rectangle: EV_RECTANGLE
 			-- Rectangle which allow user to dock

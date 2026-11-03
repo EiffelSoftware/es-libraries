@@ -41,9 +41,13 @@ feature {SD_SHARED} -- Element change
 	update_for_dpi (a_dpi: NATURAL)
 			-- Update all sizes, and the existing widgets, for a monitor with `a_dpi' DPI.
 		do
-			if a_dpi > 0 and then a_dpi /= dpi then
-				dpi := a_dpi
-				update_all
+			if a_dpi > 0 then
+					-- The icons are sized for their own DPI (they may have been set since).
+				internal_shared.icons.update_for_dpi (a_dpi)
+				if a_dpi /= dpi then
+					dpi := a_dpi
+					update_all
+				end
 			end
 		ensure
 			dpi_set: a_dpi > 0 implies dpi = a_dpi

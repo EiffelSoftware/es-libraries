@@ -19,6 +19,31 @@ feature -- Initlization
 			;(create {SD_SHARED}).set_icons (Current)
 		end
 
+feature -- Access
+
+	dpi: NATURAL
+			-- DPI of the monitor for which the icons are sized.
+			-- 96 by default: the icons have always the same size.
+		do
+			Result := 96
+		end
+
+	scaled_size (a_size: INTEGER): INTEGER
+			-- `a_size', a size in pixels for 96 DPI, scaled for `dpi'.
+		do
+			Result := (a_size * dpi.to_integer_32 + 48) // 96
+		end
+
+feature -- Element change
+
+	update_for_dpi (a_dpi: NATURAL)
+			-- Update the icons for `a_dpi', the DPI of the monitor of the main window of the docking managers.
+			-- Nothing by default: redefine it for icons depending on the DPI.
+		require
+			a_dpi_positive: a_dpi > 0
+		do
+		end
+
 feature -- Icons
 
 	unstick: EV_PIXMAP
