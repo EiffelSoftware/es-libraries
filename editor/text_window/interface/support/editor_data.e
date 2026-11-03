@@ -69,6 +69,16 @@ feature {TEXT_PANEL} -- Font update
 			update
 		end
 
+	update_font_for_dpi (a_dpi: NATURAL)
+			-- An editor is now displayed on a monitor with `a_dpi' DPI:
+			-- compute the fonts for it, and redraw all the editors.
+		do
+			if a_dpi > 0 and then a_dpi /= editor_dpi_cell.item then
+				editor_dpi_cell.put (a_dpi)
+				update_font
+			end
+		end
+
 feature -- Value
 
 	color_of_id (a_id: INTEGER): EV_COLOR

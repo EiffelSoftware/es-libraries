@@ -1330,6 +1330,8 @@ feature {NONE} -- Display functions
 			-- new size (`a_width', `a_height').
 			--| Note: This feature is called during the creation of the window
 		do
+				-- The text has to be drawn, and measured, with fonts for the new DPI.
+			editor_preferences.update_font_for_dpi (a_dpi)
 			on_size (a_x, a_y, a_width, a_height)
 		end
 
