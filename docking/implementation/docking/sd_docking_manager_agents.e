@@ -273,6 +273,8 @@ feature -- Agents
 		require
 			not_destroyed: not is_destroyed
 		do
+				-- The text of the docking widgets has to be drawn, and sized, for the new DPI.
+			internal_shared.update_sizes_for_dpi (a_dpi)
 			on_resize (a_x, a_y, a_width, a_height, a_force)
 		end
 
