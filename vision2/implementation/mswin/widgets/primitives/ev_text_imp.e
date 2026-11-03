@@ -19,7 +19,8 @@ inherit
 
 	EV_FONTABLE_IMP
 		redefine
-			interface
+			interface,
+			update_font_for_dpi
 		end
 
 	EV_TEXT_COMPONENT_IMP
@@ -386,6 +387,16 @@ feature -- Basic operation
 			-- Ensure that the last line is visible in `Current'.
 		do
 			scroll_to_line (line_count)
+		end
+
+feature {EV_ANY_I} -- Per monitor DPI
+
+	update_font_for_dpi
+			-- <Precursor>
+		do
+			Precursor
+				-- The text of `Current' has a new size, also with the default font.
+			set_default_minimum_size
 		end
 
 feature {NONE} -- Implementation

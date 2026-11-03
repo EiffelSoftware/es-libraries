@@ -46,7 +46,8 @@ inherit
 	EV_FONTABLE_IMP
 		redefine
 			interface,
-			set_font
+			set_font,
+			update_font_for_dpi
 		end
 
 	WEL_BS_CONSTANTS
@@ -182,26 +183,15 @@ feature -- Status setting
 	set_default_minimum_size
 			-- Reset `Current' to its default minimum size.
 		local
-			font_imp: detachable EV_FONT_IMP
+			l_font: WEL_FONT
 			w,h: INTEGER
 			l_text: like wel_text
 		do
 			l_text := wel_text
 			if not l_text.is_empty then
-				if private_font /= Void then
-					font_imp ?= private_font.implementation
-					check
-						font_not_void: font_imp /= Void then
-					end
-					w := extra_width + font_imp.string_width (l_text)
-					h := h.max (19 * font_imp.height // 9)
-				elseif attached private_wel_font as l_private_wel_font then
-
-					w := extra_width + l_private_wel_font.string_width (l_text)
-					h := h.max (19 * l_private_wel_font.height // 9)
-				else
-					check False end
-				end
+				l_font := realized_wel_font
+				w := extra_width + l_font.string_width (l_text)
+				h := h.max (19 * l_font.height // 9)
 			end
 
 
@@ -303,24 +293,13 @@ feature -- Element change
 		local
 			internal_pixmap_state: detachable EV_PIXMAP_IMP_STATE
 			l_internal_bitmap: detachable WEL_BITMAP
-			font_imp: detachable EV_FONT_IMP
 			size_difference: INTEGER
 			l_private_pixmap: like private_pixmap
 		do
 			l_private_pixmap := pix.twin
 			private_pixmap := l_private_pixmap
 			if not text.is_empty then
-				if attached private_font as l_private_font then
-					font_imp ?= l_private_font.implementation
-					check
-						font_not_void: font_imp /= Void then
-					end
-					size_difference := font_imp.string_width (wel_text)
-				elseif attached private_wel_font as l_private_wel_font then
-					size_difference := l_private_wel_font.string_width (wel_text)
-				else
-					check False end
-				end
+				size_difference := realized_wel_font.string_width (wel_text)
 			end
 
 			internal_pixmap_state ?= l_private_pixmap.implementation
@@ -336,6 +315,14 @@ feature -- Element change
 			-- Make `ft' new font of `Current'.
 		do
 			Precursor {EV_FONTABLE_IMP} (ft)
+			set_default_minimum_size
+		end
+
+	update_font_for_dpi
+			-- <Precursor>
+		do
+			Precursor
+				-- The text of `Current' has a new size, also with the default font.
 			set_default_minimum_size
 		end
 
@@ -479,8 +466,6 @@ feature {EV_ANY_I} -- Drawing implementation
 			memory_dc: WEL_DC
 				-- Dc used to perform all drawing on. This cuts out the flicker that would be present if
 				-- we did not buffer the drawing.
-			font_imp: detachable EV_FONT_IMP
-				-- Temporary font implementation used when retrieving font of `Current'.
 			height_offset: INTEGER
 				-- If `internal_pixmap_state' is not Void, this is used to find the number of pixels vertically from
 				-- the top of `Current' to where the pixmap should be drawn.
@@ -545,17 +530,7 @@ feature {EV_ANY_I} -- Drawing implementation
 			end
 			memory_dc.set_background_color (color_imp)
 				-- We are unable to query the font directly from `dc', so we set it ourselves.
-			if private_font /= Void then
-				font_imp ?= private_font.implementation
-				check
-					font_not_void: font_imp /= Void then
-				end
-				memory_dc.select_font (font_imp.wel_font)
-			elseif attached private_wel_font as l_private_wel_font then
-				memory_dc.select_font (l_private_wel_font)
-			else
-				check False end
-			end
+			memory_dc.select_font (realized_wel_font)
 
 					-- Calculate the draw state flags and then draw the background
 			if has_pushed_appearence (state) then

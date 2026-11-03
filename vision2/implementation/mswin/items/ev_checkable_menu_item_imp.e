@@ -22,6 +22,8 @@ inherit
 			{NONE} all
 		end
 
+	EV_SHARED_MENU_DPI
+
 	WEL_SYSTEM_COLORS
 		export
 			{NONE} all
@@ -135,7 +137,7 @@ feature {NONE} -- WEL Implementation
 		do
 			l_real_text := real_text
 			check l_real_text /= Void then end
-			text_height := menu_font.string_height (l_real_text)
+			text_height := realized_menu_font.string_height (l_real_text)
 			create memory_rect.make (0, 0, rect.width, text_height)
 
 			create check_dc.make

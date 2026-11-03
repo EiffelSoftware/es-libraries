@@ -132,13 +132,7 @@ feature -- Status setting
 				-- we are using a large font, hence we do nothing
 				-- with the system font.
  			if not has_system_font and not text.is_empty then
- 				if attached private_font as l_private_font then
- 					extra_width := 20 + l_private_font.implementation.height // 2
- 				elseif attached private_wel_font as l_private_wel_font then
- 					extra_width := 20 + l_private_wel_font.height // 2
- 				else
- 					check False end
- 				end
+ 				extra_width := 20 + realized_wel_font.height // 2
  			end
 			Precursor {EV_BUTTON_IMP}
 		end

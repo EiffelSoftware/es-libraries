@@ -40,7 +40,8 @@ inherit
 			is_usable
 		redefine
 			set_font,
-			interface
+			interface,
+			update_font_for_dpi
 		end
 
 	WEL_TAB_CONTROL
@@ -293,6 +294,13 @@ feature {EV_ANY_I} -- Element change
 			-- because vertical fonts doesn't work with everything.
 		do
 			private_font := f
+			internal_set_font
+		end
+
+	update_font_for_dpi
+			-- <Precursor>
+		do
+				-- Also notifies the parent that the size of the tabs changed.
 			internal_set_font
 		end
 
@@ -1006,8 +1014,6 @@ feature {NONE} -- Font implementation
 
 	internal_set_font
 			-- Set actual font.
-		local
-			local_font_windows: detachable EV_FONT_IMP
 		do
 			if
 				(tab_pos = {EV_NOTEBOOK}.Tab_top)
@@ -1017,11 +1023,7 @@ feature {NONE} -- Font implementation
 				-- font. Julian
 			then
 				if private_font /= Void then
-					local_font_windows ?= private_font.implementation
-					check
-						valid_font: local_font_windows /= Void then
-					end
-					wel_set_font (local_font_windows.wel_font)
+					wel_set_font (realized_wel_font)
 				else
 					set_default_font
 				end

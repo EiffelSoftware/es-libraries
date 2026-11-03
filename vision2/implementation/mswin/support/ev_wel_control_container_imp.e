@@ -72,8 +72,7 @@ inherit
 			class_style,
 			on_erase_background,
 			on_window_pos_changing,
-			on_window_pos_changed,
-			on_dpi_changed
+			on_window_pos_changed
 		end
 
 feature {NONE} -- Initialization
@@ -223,16 +222,6 @@ feature {NONE} -- WEL Implementation
 				-- To let the caller know that we have received the message
 			internal_wm_size_called := True
 		end
-
-
-	on_dpi_changed (a_dpi: NATURAL_32;  a_wp: WEL_WINDOW_POS)
-			-- WM_dpichange message.
-			-- This message is sent to a window whose dpi changed.
-		do
-				-- We don't need to handle `on_move' as descendents do not use it.
-			on_window_pos_changed (a_wp)
-		end
-
 
 	ev_redraw_children
 			-- Redraw all children.  Used for resizing optimizations.

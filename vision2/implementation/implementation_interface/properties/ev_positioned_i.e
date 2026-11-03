@@ -59,9 +59,9 @@ feature -- Measurement
 		end
 
 	dpi: NATURAL
-			-- Window dpi.
+			-- DPI of the monitor on which `Current' is displayed.
 		do
-			Result := {EV_MONITOR_DPI_DETECTOR_IMP}.dpi
+			Result := {EV_MONITOR_DPI_DETECTOR_IMP}.dpi_of (Current)
 		end
 
 feature {EV_ANY, EV_ANY_I} -- Implementation

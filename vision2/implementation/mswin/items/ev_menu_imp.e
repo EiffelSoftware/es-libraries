@@ -201,15 +201,15 @@ feature {EV_ANY_I} -- Implementation
 			max_pixmap_width := 16
 				-- Default spacing between text and accelerator, and the right border.
 				-- We use the letter `o' so that the spacing is proportional to the chosen font.
-			space_width := menu_font.string_width ("o")
+			space_width := realized_menu_font.string_width ("o")
 			from
 				ev_children.start
 			until
 				ev_children.after
 			loop
 				a_menu_item_imp := ev_children.item
-				max_plain_text_width := max_plain_text_width.max (menu_font.string_width (a_menu_item_imp.plain_text_without_ampersands))
-				max_accel_text_width := max_accel_text_width.max (menu_font.string_width (a_menu_item_imp.accelerator_text))
+				max_plain_text_width := max_plain_text_width.max (realized_menu_font.string_width (a_menu_item_imp.plain_text_without_ampersands))
+				max_accel_text_width := max_accel_text_width.max (realized_menu_font.string_width (a_menu_item_imp.accelerator_text))
 				if attached a_menu_item_imp.pixmap_imp as l_pixmap_imp then
 					max_pixmap_width := max_pixmap_width.max (l_pixmap_imp.width)
 				end

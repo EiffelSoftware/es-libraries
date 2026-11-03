@@ -53,6 +53,8 @@ inherit
 			{NONE} all
 		end
 
+	EV_SHARED_MENU_DPI
+
 	WEL_SYSTEM_COLORS
 		export
 			{NONE} all
@@ -442,7 +444,7 @@ feature {EV_MENU_CONTAINER_IMP, EV_MENU_IMP} -- WEL Implementation
 			text_height: INTEGER
 		do
 			if attached real_text as l_real_text then
-				text_height := menu_font.string_height (l_real_text) + 4
+				text_height := realized_menu_font.string_height (l_real_text) + 4
 				if attached pixmap_imp as l_pixmap_imp then
 					pixmap_height := l_pixmap_imp.height + 4 -- We add + 4 for drawing the edge when the item is selected
 					Result := text_height.max (pixmap_height)
@@ -500,10 +502,10 @@ feature {NONE} -- WEL Implementation
 			accel_text_width: INTEGER
 			pixmap_width: INTEGER
 		do
-			plain_text_width := menu_font.string_width (plain_text_without_ampersands)
+			plain_text_width := realized_menu_font.string_width (plain_text_without_ampersands)
 			accel_text := accelerator_text
 			if not accel_text.is_empty then
-				accel_text_width := menu_font.string_width ({STRING_32} " "+accel_text)
+				accel_text_width := realized_menu_font.string_width ({STRING_32} " "+accel_text)
 			end
 			if attached pixmap_imp as l_pixmap_imp then
 				pixmap_width := l_pixmap_imp.width + Menu_bar_item_pixmap_text_space
@@ -568,12 +570,12 @@ feature {NONE} -- WEL Implementation
 				erase_background (draw_dc, rect, background_color)
 
 					-- Set the font properties
-				draw_dc.select_font (menu_font)
+				draw_dc.select_font (realized_menu_font)
 				draw_dc.set_background_transparent
 				draw_dc.set_background_color (background_color)
 
 					-- Compute where to put texts
-				text_top_pos := top_pos + ((draw_item_struct_rect.height - menu_font.string_height (l_real_text)) // 2)
+				text_top_pos := top_pos + ((draw_item_struct_rect.height - realized_menu_font.string_height (l_real_text)) // 2)
 
 					-- Compute the drawing flags
 				draw_flags := Wel_drawing_constants.Dt_left
@@ -584,7 +586,7 @@ feature {NONE} -- WEL Implementation
 					-- Default spacing between text and accelerator, and the right border.
 					-- We use the letter `o' so that the spacing is proportional to the chosen font.
 					-- See `{EV_MENU_IMP}.on_measure_menu_item'.
-				space_width := menu_font.string_width ("o")
+				space_width := realized_menu_font.string_width ("o")
 					-- Compute the right offset of the end of the plain text
 				if accelerator_text_position = 0 then
 					right_plain_text_pos := right_pos - space_width
@@ -778,12 +780,12 @@ feature {NONE} -- WEL Implementation
 				-- Draw the text part
 			if attached real_text as l_real_text then
 					-- Set the font properties
-				draw_dc.select_font (menu_font)
+				draw_dc.select_font (realized_menu_font)
 				draw_dc.set_background_color (background_color)
 				draw_dc.set_text_color (text_color)
 
 					-- Compute where to put texts
-				text_top_pos := top_pos + ((draw_item_struct_rect.height - menu_font.string_height (l_real_text)) // 2)
+				text_top_pos := top_pos + ((draw_item_struct_rect.height - realized_menu_font.string_height (l_real_text)) // 2)
 				create rect.make (left_pos + left_pos_start, text_top_pos, right_pos, bottom_pos)
 
 					-- Compute the drawing flags

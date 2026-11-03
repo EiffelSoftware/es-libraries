@@ -124,6 +124,8 @@ feature -- Element change
 				ww ?= par_imp
 				check ww /= Void end
 				wel_set_parent (ww)
+					-- `Current' may now be displayed on a monitor with another DPI.
+				update_dpi_of_widget_tree_if_needed
 			else
 				set_top_level_window_imp (Void)
 				if parent_imp /= Void then
@@ -181,6 +183,12 @@ feature -- Status setting
 		end
 
 feature {NONE} -- WEL Implementation
+
+	menu_owner_dpi: NATURAL_32
+			-- <Precursor>
+		do
+			Result := {WEL_SCALING_EXTERNALS}.dpi_for_window (wel_item)
+		end
 
 	on_menu_char (char_code: CHARACTER; corresponding_menu: WEL_MENU)
 			-- The menu char `char_code' has been typed within `corresponding_menu'.

@@ -30,7 +30,8 @@ inherit
 	EV_FONTABLE_IMP
 		redefine
 			interface,
-			set_font
+			set_font,
+			update_font_for_dpi
 		end
 
 	WEL_SINGLE_LINE_EDIT
@@ -363,6 +364,14 @@ feature {NONE} -- WEL Implementation
 			-- Make `ft' new font of `Current'.
 		do
 			Precursor {EV_FONTABLE_IMP} (ft)
+			set_default_minimum_size
+		end
+
+	update_font_for_dpi
+			-- <Precursor>
+		do
+			Precursor
+				-- The text of `Current' has a new size, also with the default font.
 			set_default_minimum_size
 		end
 

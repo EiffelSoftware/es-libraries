@@ -55,6 +55,7 @@ feature -- Element change
 				if ww /= Void then
 					wel_set_parent (ww)
 					set_top_level_window_imp (par_imp.top_level_window_imp)
+					update_dpi_of_widget_tree_if_needed
 				end
 			elseif parent_imp /= Void then
 				wel_set_parent (default_parent)
