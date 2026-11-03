@@ -4258,6 +4258,7 @@ feature {EV_GRID_LOCKED_I} -- Drawing implementation
 			create static_fixed_viewport
 			create header
 			create fixed
+			create dpi_fonts.make (4)
 
 			set_default_size_values
 			set_default_colors
@@ -4883,8 +4884,90 @@ feature {EV_GRID_LOCKED_I} -- Drawing implementation
 			a_width_non_negative: a_width >= 0
 			a_height_non_negative: a_height >= 0
 		do
+			set_drawing_dpi (a_dpi)
 			viewport_resized (an_x, a_y, a_width, a_height)
 		end
+
+feature {EV_ANY_I} -- Per monitor DPI
+
+	drawing_dpi: NATURAL
+			-- DPI of the monitor on which `Current' is displayed, for which the text of
+			-- its items is drawn and measured (0 until it changes for the first time,
+			-- the fonts are then used as they are).
+
+	font_for_drawing (a_font: EV_FONT): EV_FONT
+			-- `a_font' with the size it has to have to draw text in `Current', for `drawing_dpi'.
+			--| The fonts are cached: a font changed after it was used for an item may not be
+			--| taken into account until the next DPI change.
+		local
+			l_fonts: like dpi_fonts
+		do
+			Result := a_font
+			if drawing_dpi /= 0 and then drawing_dpi /= {EV_MONITOR_DPI_DETECTOR_IMP}.font_dpi then
+				l_fonts := dpi_fonts
+				across
+					l_fonts as f
+				until
+					Result /= a_font
+				loop
+					if f.font = a_font then
+						Result := f.dpi_font
+					end
+				end
+				if Result = a_font then
+					if l_fonts.count >= Maximum_dpi_fonts_count then
+						l_fonts.wipe_out
+					end
+					Result := {EV_MONITOR_DPI_DETECTOR_IMP}.font_for_dpi (a_font, drawing_dpi)
+					l_fonts.extend ([a_font, Result])
+				end
+			end
+		ensure
+			result_attached: Result /= Void
+		end
+
+	default_row_height_for_dpi (a_dpi: NATURAL): INTEGER
+			-- `default_row_height' for a monitor with `a_dpi' DPI.
+		do
+			if a_dpi = 0 or else a_dpi = {EV_MONITOR_DPI_DETECTOR_IMP}.font_dpi then
+				Result := default_row_height
+			else
+				Result := {EV_MONITOR_DPI_DETECTOR_IMP}.font_for_dpi (create {EV_FONT}, a_dpi).line_height.max (18)
+			end
+		ensure
+			result_positive: Result > 0
+		end
+
+	set_drawing_dpi (a_dpi: NATURAL)
+			-- Draw and measure the text of the items of `Current' for `a_dpi'.
+		local
+			l_default_row_height: INTEGER
+		do
+			if a_dpi /= drawing_dpi then
+				l_default_row_height := default_row_height_for_dpi (drawing_dpi)
+				drawing_dpi := a_dpi
+				dpi_fonts.wipe_out
+					-- Keep the default row height, unless the application has set its own.
+				if row_height = l_default_row_height then
+					set_row_height (default_row_height_for_dpi (a_dpi))
+				end
+					-- The size of the text of the items is computed again when they are drawn,
+					-- see `{EV_GRID_LABEL_ITEM_I}.recompute_text_dimensions'.
+				redraw_client_area
+			end
+		ensure
+			drawing_dpi_set: drawing_dpi = a_dpi
+		end
+
+feature {NONE} -- Per monitor DPI
+
+	dpi_fonts: ARRAYED_LIST [TUPLE [font, dpi_font: EV_FONT]]
+			-- Fonts used to draw items, and their version for `drawing_dpi'.
+
+	Maximum_dpi_fonts_count: INTEGER = 64
+			-- Maximum number of fonts kept in `dpi_fonts'.
+
+feature {EV_GRID_LOCKED_I} -- Drawing implementation
 
 	reposition_locked_items
 			-- Reposition all items locked within `Current'.
