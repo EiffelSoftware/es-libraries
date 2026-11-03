@@ -754,7 +754,12 @@ feature {EV_ANY_I} -- Implementation
 			if interface /= Void and then size_type /= Wel_window_constants.Size_minimized then
 				w_rect := window_rect
 				internal_set_size (w_rect.width, w_rect.height)
-
+			end
+			if
+				interface /= Void and then size_type /= Wel_window_constants.Size_minimized and then
+					-- See `on_dpi_changed'.
+				not is_layout_deferred
+			then
 				if not upper_bar.is_empty then
 					bar_imp ?= upper_bar.implementation
 					check
@@ -1221,23 +1226,29 @@ feature {EV_ANY_I} -- Implementation
 
 	on_dpi_changed (a_dpi: NATURAL_32; a_suggested_rect: WEL_RECT)
 			-- <Precursor>
-			-- Realize the fonts of all the widgets of `Current' for `a_dpi', update the layout,
-			-- and then call the `dpi_changed_actions' of `Current' and of its widgets.
+			-- Realize the fonts of all the widgets of `Current' for `a_dpi', move and resize `Current'
+			-- to `a_suggested_rect', update the layout, and then call the `dpi_changed_actions'
+			-- of `Current' and of its widgets.
 		local
 			bar_imp: detachable EV_VERTICAL_BOX_IMP
 			w_rect: WEL_RECT
+			l_client_width, l_client_height: INTEGER
 		do
 			if interface /= Void then
+					-- The minimum sizes of the widgets change with their fonts: they are only
+					-- recorded, the layout is done once, for the new size of `Current'.
+				is_layout_deferred := True
 				update_dpi_of_widget_tree (a_dpi, False)
-				if
-					not maximized and then
-					(width /= a_suggested_rect.width or height /= a_suggested_rect.height)
-				then
-						-- The window could not take the suggested size since its minimum size
-						-- was still computed with the fonts of the previous DPI.
-					wel_move_and_resize (a_suggested_rect.left, a_suggested_rect.top,
-						a_suggested_rect.width, a_suggested_rect.height, True)
+				compute_minimum_size (False)
+
+				l_client_width := client_width
+				l_client_height := client_height
+				if not maximized then
+						-- Now that its minimum size is computed for `a_dpi', `Current' can take
+						-- the suggested size (`on_size' does not update the layout yet).
+					Precursor (a_dpi, a_suggested_rect)
 				end
+				is_layout_deferred := False
 				w_rect := window_rect
 				internal_set_size (w_rect.width, w_rect.height)
 
@@ -1246,12 +1257,13 @@ feature {EV_ANY_I} -- Implementation
 					check
 						bar_imp_not_void: bar_imp /= Void then
 					end
-					bar_imp.set_move_and_size (0, 0, client_width, client_y)
+					bar_imp.ev_apply_new_size (0, 0, client_width, client_y, True)
 				end
 
 				if attached item_imp as l_item_imp then
-					l_item_imp.set_move_and_size (client_x, client_y,
-						client_width, client_height)
+						-- The size of the widgets may not have changed, but their layout has to be updated.
+					l_item_imp.ev_apply_new_size (client_x, client_y,
+						client_width.max (l_item_imp.minimum_width), client_height.max (l_item_imp.minimum_height), True)
 				end
 
 				if not lower_bar.is_empty then
@@ -1259,9 +1271,12 @@ feature {EV_ANY_I} -- Implementation
 					check
 						bar_imp_not_void: bar_imp /= Void then
 					end
-					bar_imp.set_move_and_size (0,
+					bar_imp.ev_apply_new_size (0,
 						client_y + client_height + 1,
-						client_width, bar_imp.minimum_height)
+						client_width, bar_imp.minimum_height, True)
+				end
+				if client_width /= l_client_width or client_height /= l_client_height then
+					execute_resize_actions (client_width, client_height)
 				end
 
 					-- Calls user actions if any, now that all the widgets are realized for `a_dpi'.
@@ -1271,6 +1286,16 @@ feature {EV_ANY_I} -- Implementation
 					end
 				end
 			end
+		end
+
+	is_layout_deferred: BOOLEAN
+			-- Are the changes of the minimum sizes of the widgets of `Current' only recorded,
+			-- for a layout done later (while the widgets are realized for another DPI)?
+
+	is_layout_active: BOOLEAN
+			-- Are the changes of the minimum sizes of the widgets of `Current' applied at once?
+		do
+			Result := is_displayed and not is_layout_deferred
 		end
 
 	execute_dpi_actions (a_dpi: NATURAL_32; a_width, a_height: INTEGER)
