@@ -4888,7 +4888,7 @@ feature {EV_GRID_LOCKED_I} -- Drawing implementation
 			viewport_resized (an_x, a_y, a_width, a_height)
 		end
 
-feature {EV_ANY_I} -- Per monitor DPI
+feature {EV_ANY_I, EV_GRID} -- Per monitor DPI
 
 	drawing_dpi: NATURAL
 			-- DPI of the monitor on which `Current' is displayed, for which the text of
@@ -4942,14 +4942,33 @@ feature {EV_ANY_I} -- Per monitor DPI
 			-- Draw and measure the text of the items of `Current' for `a_dpi'.
 		local
 			l_default_row_height: INTEGER
+			l_previous_dpi: NATURAL
+			i: INTEGER
 		do
 			if a_dpi /= drawing_dpi then
 				l_default_row_height := default_row_height_for_dpi (drawing_dpi)
+				l_previous_dpi := drawing_dpi
+				if l_previous_dpi = 0 then
+					l_previous_dpi := {EV_MONITOR_DPI_DETECTOR_IMP}.font_dpi
+				end
 				drawing_dpi := a_dpi
 				dpi_fonts.wipe_out
 					-- Keep the default row height, unless the application has set its own.
 				if row_height = l_default_row_height then
 					set_row_height (default_row_height_for_dpi (a_dpi))
+				end
+				if a_dpi > 0 and l_previous_dpi /= a_dpi then
+						-- The columns keep the same width relatively to their text.
+					from
+						i := 1
+					until
+						i > column_count
+					loop
+						if attached columns.i_th (i) as l_column then
+							l_column.set_width (((l_column.width * a_dpi.to_integer_32 + l_previous_dpi.to_integer_32 // 2) // l_previous_dpi.to_integer_32).max (l_column.minimum_width))
+						end
+						i := i + 1
+					end
 				end
 					-- The size of the text of the items is computed again when they are drawn,
 					-- see `{EV_GRID_LABEL_ITEM_I}.recompute_text_dimensions'.
