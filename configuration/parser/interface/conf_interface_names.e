@@ -1363,7 +1363,7 @@ feature -- String parse errors
 	e_parse_debug_invalid_value (a_value: READABLE_STRING_GENERAL): READABLE_STRING_32
 			-- An error for an invalid value of the option "debug".
 		do
-			Result := locale.formatted_string (locale.translation ("Invalid value %"$1%" for the option %"debug%": expected true, false, or name=yes|no"), [a_value])
+			Result := locale.formatted_string (locale.translation ("Invalid value %"$1%" for the option %"debug%": expected true, false, name=true, name=false, or a list such as +name1-name2"), [a_value])
 		end
 
 	e_parse_string_unknown_name (option_name: READABLE_STRING_GENERAL; known_names: ITERABLE [READABLE_STRING_GENERAL]): READABLE_STRING_32
