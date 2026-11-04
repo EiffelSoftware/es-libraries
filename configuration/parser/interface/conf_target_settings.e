@@ -67,6 +67,9 @@ feature -- Access
 			-- never stored in the configuration file.
 			-- Key: lower case name of the debug clause.
 
+	forced_settings: detachable CONF_TARGET_SETTINGS
+			-- Settings given to the last call to `force` (for instance from the command line), if any.
+
 	namespace: like namespace_1_0_0
 			-- The XML namespace associated with the target.
 		do
@@ -227,6 +230,21 @@ feature -- Access: settings
 			Result_not_void: Result /= Void
 		end
 
+feature -- Comparison
+
+	is_same_settings (other: CONF_TARGET_SETTINGS): BOOLEAN
+			-- Do Current and `other` set the same settings, options, variables and debug clauses?
+		do
+			Result :=
+				settings.count = other.settings.count and then
+				(∀ s: settings ¦ attached other.settings.item (@ s.key) as v and then v.same_string (s)) and then
+				options ~ other.options and then
+				forced_variables.count = other.forced_variables.count and then
+				(∀ v: forced_variables ¦ attached other.forced_variables.item (@ v.key) as w and then w.same_string (v)) and then
+				forced_debugs.count = other.forced_debugs.count and then
+				(∀ d: forced_debugs ¦ other.forced_debugs.has (@ d.key) and then other.forced_debugs.item (@ d.key) = d)
+		end
+
 feature -- Modification
 
 	force (other: CONF_TARGET_SETTINGS)
@@ -234,6 +252,7 @@ feature -- Modification
 		local
 			new_options: like options
 		do
+			forced_settings := other
 			internal_settings.merge (other.settings)
 			forced_variables.merge (other.forced_variables)
 			forced_debugs.merge (other.forced_debugs)
