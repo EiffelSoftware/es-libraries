@@ -599,13 +599,19 @@ feature -- Access queries
 		end
 
 	variables: STRING_TABLE [READABLE_STRING_32]
-			-- User defined variables.
+			-- User defined variables, including `forced_variables`.
 		do
 			if attached extends as l_extends then
 				Result := l_extends.variables.twin
 				Result.merge (internal_variables)
 			else
 				Result := internal_variables
+			end
+			if not forced_variables.is_empty then
+				if Result = internal_variables then
+					Result := Result.twin
+				end
+				Result.merge (forced_variables)
 			end
 		ensure
 			Result_not_void: Result /= Void

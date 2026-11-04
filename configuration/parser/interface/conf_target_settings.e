@@ -20,6 +20,7 @@ feature {NONE} -- Initialization
 			-- Create empty settings that may be filled later.
 		do
 			create internal_settings.make (1)
+			create forced_variables.make_equal_caseless (0)
 		end
 
 feature -- Access
@@ -54,6 +55,10 @@ feature -- Access
 		ensure
 			Result_not_void: Result /= Void
 		end
+
+	forced_variables: STRING_TABLE [READABLE_STRING_32]
+			-- Variables taking precedence over the ones of the configuration file
+			-- (for instance given on the command line), never stored in the configuration file.
 
 	namespace: like namespace_1_0_0
 			-- The XML namespace associated with the target.
@@ -223,9 +228,21 @@ feature -- Modification
 			new_options: like options
 		do
 			internal_settings.merge (other.settings)
+			forced_variables.merge (other.forced_variables)
 			new_options := other.options.twin
 			new_options.merge (options)
 			internal_options := new_options
+		end
+
+	force_variable (a_name, a_value: READABLE_STRING_32)
+			-- Set the variable `a_name` to `a_value`, taking precedence over the variables
+			-- of the configuration file, but without storing it there.
+		require
+			a_name_not_empty: not a_name.is_empty
+		do
+			forced_variables.force (a_value, a_name)
+		ensure
+			forced: forced_variables.item (a_name) = a_value
 		end
 
 feature {CONF_ACCESS} -- Update, stored in configuration file
@@ -356,6 +373,7 @@ feature {CONF_VISITOR} -- Modification
 
 invariant
 	internal_settings_attached: attached internal_settings
+	forced_variables_attached: attached forced_variables
 
 note
 	copyright:	"Copyright (c) 1984-2021, Eiffel Software"

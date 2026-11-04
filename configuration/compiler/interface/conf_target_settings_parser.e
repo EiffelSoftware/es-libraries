@@ -107,6 +107,27 @@ feature -- Basic operations
 			end
 		end
 
+	parse_variable (input: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
+			-- Force in `settings` the variable given by `input` as "name=value"
+			-- (as <variable name="name" value="value"/> in the target), and set `error` accordingly.
+			-- The value may be empty.
+		local
+			i: INTEGER
+		do
+			error := Void
+			i := input.index_of (variable_delimiter, 1)
+			if i = 0 then
+				error := conf_interface_names.e_parse_variable_missing_delimiter (input)
+			elseif i = 1 then
+				error := conf_interface_names.e_parse_variable_missing_name (input)
+			else
+				settings.force_variable (input.substring (1, i - 1), input.substring (i + 1, input.count))
+			end
+		end
+
+	variable_delimiter: CHARACTER_32 = '='
+			-- A delimiter between the name and the value of a variable.
+
 feature {NONE} -- Search
 
 	available_configuration_option_names: ARRAYED_LIST [READABLE_STRING_GENERAL]
