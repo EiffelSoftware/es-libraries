@@ -109,6 +109,9 @@ feature {NONE} -- Initialization
 			attach_docking_manager (l_list)
 
 			agents.init_actions
+				-- The sizes are computed for the DPI of the active window (or of the primary monitor),
+				-- `main_window' may be on a monitor with another DPI, even if it is not displayed yet.
+			internal_shared.update_sizes_for_dpi (main_window.dpi)
 			zones.place_holder_content.set_top ({SD_ENUMERATION}.top)
 			if {PLATFORM}.is_windows then
 				set_main_area_background_color ((create {EV_STOCK_COLORS}).grey)
