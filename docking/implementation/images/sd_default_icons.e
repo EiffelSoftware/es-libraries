@@ -514,11 +514,17 @@ feature {NONE} -- Implementation: shared icons
 
 	shared_buffer (a_name: STRING): EV_PIXEL_BUFFER
 			-- Shared pixel buffer of the icon named `a_name', scaled for `dpi'.
+		local
+			l_buffer: EV_PIXEL_BUFFER
 		do
-			if attached shared_buffers.item (a_name) as l_buffer then
-				Result := l_buffer
+			if attached shared_buffers.item (a_name) as l_shared_buffer then
+				Result := l_shared_buffer
 			else
-				Result := scaled_buffer (source_buffer (a_name))
+					-- `update_for_dpi' changes the content of `Result': it cannot be the source icon
+					-- (a once of the icon matrices), given as is by `scaled_buffer' for 96 DPI.
+				l_buffer := scaled_buffer (source_buffer (a_name))
+				create Result.make_with_size (l_buffer.width, l_buffer.height)
+				Result.set_with_pixel_buffer (l_buffer)
 				shared_buffers.force (Result, a_name)
 			end
 		end
