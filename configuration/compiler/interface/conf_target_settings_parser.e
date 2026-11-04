@@ -34,6 +34,17 @@ feature -- Basic operations
 
 	parse_value (input: READABLE_STRING_32; delimiter_index: INTEGER; option: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
 			-- <Precursor>
+		do
+			if option.same_string_general (o_is_debug) then
+				parse_debug (input.substring (delimiter_index + 1, input.count), settings)
+			else
+				parse_setting_value (input, delimiter_index, option, settings)
+			end
+		end
+
+	parse_setting_value (input: READABLE_STRING_32; delimiter_index: INTEGER; option: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
+			-- Update `settings` from `input` with the value starting at `delimiter_index` for the setting or capability `option`,
+			-- and set `error` accordingly.
 		local
 			value: READABLE_STRING_32
 			valid_values: ITERABLE [READABLE_STRING_GENERAL]
@@ -104,6 +115,45 @@ feature -- Basic operations
 				settings.changeable_internal_options.array_override.put (value)
 			else
 				settings.add_setting (option, value)
+			end
+		end
+
+	parse_debug (a_value: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
+			-- Update `settings` from the value `a_value` of the option "debug", and set `error` accordingly:
+			--  "true" or "false": enable or disable debug clauses in the target (as the option debug="..."),
+			--  "name=yes" or "name=no" (or true/false): enable or disable the debug clause `name`
+			--  in the whole application (as <debug name="name" enabled="..."/>, but also in the libraries).
+		local
+			i: INTEGER
+			l_name, l_enabled: READABLE_STRING_32
+		do
+			i := a_value.index_of ('=', 1)
+			if i = 0 then
+				if a_value.is_case_insensitive_equal (configuration_value_true) then
+					settings.changeable_internal_options.set_debug (True)
+				elseif a_value.is_case_insensitive_equal (configuration_value_false) then
+					settings.changeable_internal_options.set_debug (False)
+				else
+					error := conf_interface_names.e_parse_debug_invalid_value (a_value)
+				end
+			else
+				l_name := a_value.substring (1, i - 1)
+				l_enabled := a_value.substring (i + 1, a_value.count)
+				if l_name.is_empty or else l_name.same_string_general (unnamed_debug) then
+					error := conf_interface_names.e_parse_debug_invalid_value (a_value)
+				elseif
+					l_enabled.is_case_insensitive_equal ("yes") or else
+					l_enabled.is_case_insensitive_equal (configuration_value_true)
+				then
+					settings.force_debug (l_name, True)
+				elseif
+					l_enabled.is_case_insensitive_equal ("no") or else
+					l_enabled.is_case_insensitive_equal (configuration_value_false)
+				then
+					settings.force_debug (l_name, False)
+				else
+					error := conf_interface_names.e_parse_debug_invalid_value (a_value)
+				end
 			end
 		end
 

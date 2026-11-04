@@ -617,6 +617,28 @@ feature -- Access queries
 			Result_not_void: Result /= Void
 		end
 
+	application_debugs: STRING_TABLE [BOOLEAN]
+			-- Named debug clauses enabled or disabled in the whole application (clusters and libraries),
+			-- taking precedence over the debug clauses of the groups:
+			-- the ones of the target (when its debug option is enabled), then `forced_debugs`.
+			-- Key: lower case name of the debug clause.
+		local
+			l_options: like options
+		do
+			create Result.make (forced_debugs.count)
+			l_options := options
+			if l_options.is_debug and then attached l_options.debugs as l_debugs then
+				⟳ d: l_debugs ¦
+					if not (@ d.key).same_string (unnamed_debug) then
+						Result.force (d, @ d.key)
+					end
+				⟲
+			end
+			Result.merge (forced_debugs)
+		ensure
+			no_unnamed_debug: not Result.has (unnamed_debug)
+		end
+
 	mapping: STRING_TABLE [READABLE_STRING_32]
 			-- Special classes name mapping (eg. STRING => STRING_32)
 		do

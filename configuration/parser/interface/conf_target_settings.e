@@ -21,6 +21,7 @@ feature {NONE} -- Initialization
 		do
 			create internal_settings.make (1)
 			create forced_variables.make_equal_caseless (0)
+			create forced_debugs.make (0)
 		end
 
 feature -- Access
@@ -59,6 +60,12 @@ feature -- Access
 	forced_variables: STRING_TABLE [READABLE_STRING_32]
 			-- Variables taking precedence over the ones of the configuration file
 			-- (for instance given on the command line), never stored in the configuration file.
+
+	forced_debugs: STRING_TABLE [BOOLEAN]
+			-- Named debug clauses enabled or disabled in the whole application, taking precedence
+			-- over the ones of the configuration file (for instance given on the command line),
+			-- never stored in the configuration file.
+			-- Key: lower case name of the debug clause.
 
 	namespace: like namespace_1_0_0
 			-- The XML namespace associated with the target.
@@ -229,6 +236,7 @@ feature -- Modification
 		do
 			internal_settings.merge (other.settings)
 			forced_variables.merge (other.forced_variables)
+			forced_debugs.merge (other.forced_debugs)
 			new_options := other.options.twin
 			new_options.merge (options)
 			internal_options := new_options
@@ -243,6 +251,17 @@ feature -- Modification
 			forced_variables.force (a_value, a_name)
 		ensure
 			forced: forced_variables.item (a_name) = a_value
+		end
+
+	force_debug (a_name: READABLE_STRING_32; a_enabled: BOOLEAN)
+			-- Enable (if `a_enabled`) or disable the debug clause `a_name` in the whole application,
+			-- taking precedence over the configuration file, but without storing it there.
+		require
+			a_name_not_empty: not a_name.is_empty
+		do
+			forced_debugs.force (a_enabled, a_name.as_lower)
+		ensure
+			forced: forced_debugs.item (a_name.as_lower) = a_enabled
 		end
 
 feature {CONF_ACCESS} -- Update, stored in configuration file
@@ -374,6 +393,7 @@ feature {CONF_VISITOR} -- Modification
 invariant
 	internal_settings_attached: attached internal_settings
 	forced_variables_attached: attached forced_variables
+	forced_debugs_attached: attached forced_debugs
 
 note
 	copyright:	"Copyright (c) 1984-2021, Eiffel Software"
