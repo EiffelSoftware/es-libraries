@@ -1288,6 +1288,30 @@ feature {EV_ANY_I} -- Implementation
 			end
 		end
 
+	realize_for_monitor_dpi
+			-- If `Current', not displayed, is on a monitor with another DPI than the one its widgets
+			-- are realized for (they are created for the system DPI), realize them for the DPI of
+			-- this monitor, and scale the size of `Current', as if it had moved to this monitor:
+			-- Windows does not always send WM_DPICHANGED to a hidden window (for instance to a
+			-- dialog created at its position).
+		local
+			l_dpi, l_realized_dpi: INTEGER
+			l_rect: WEL_RECT
+		do
+			if exists and then not is_displayed then
+				l_dpi := {WEL_SCALING_EXTERNALS}.dpi_for_window (wel_item).to_integer_32
+				l_realized_dpi := realized_dpi.to_integer_32
+				if l_dpi > 0 and l_realized_dpi > 0 and l_dpi /= l_realized_dpi then
+					l_rect := window_rect
+						-- The position is kept, the application may have chosen it.
+					l_rect.set_rect (l_rect.left, l_rect.top,
+						l_rect.left + (l_rect.width * l_dpi + l_realized_dpi // 2) // l_realized_dpi,
+						l_rect.top + (l_rect.height * l_dpi + l_realized_dpi // 2) // l_realized_dpi)
+					on_dpi_changed (l_dpi.to_natural_32, l_rect)
+				end
+			end
+		end
+
 	is_layout_deferred: BOOLEAN
 			-- Are the changes of the minimum sizes of the widgets of `Current' only recorded,
 			-- for a layout done later (while the widgets are realized for another DPI)?
@@ -1427,6 +1451,7 @@ feature {NONE} -- Implementation for switch non-parented and parented windows
 		do
 			if not is_displayed then
 				call_show_actions := True
+				realize_for_monitor_dpi
 				cwin_show_window (wel_item, show_flags)
 				if item_imp /= Void then
 					notify_change (nc_minsize, item_imp, False)
