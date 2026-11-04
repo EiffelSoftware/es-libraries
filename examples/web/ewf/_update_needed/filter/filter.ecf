@@ -26,9 +26,14 @@
 		<library name="default_standalone" location="..\..\..\..\..\library\web\framework\ewf\wsf\default\standalone.ecf" readonly="true"/>
 		<cluster name="filter" location="src\" recursive="true"/>
 	</target>
-	<target name="filter_fcgi" extends="common">
+	<target name="filter_libfcgi" extends="common">
 		<root class="FILTER_SERVER" feature="make"/>
 		<library name="default_libfcgi" location="..\..\..\..\..\library\web\framework\ewf\wsf\default\libfcgi.ecf"/>
+		<cluster name="filter" location="src\" recursive="true"/>
+	</target>
+	<target name="filter_fcgi" extends="common">
+		<root class="FILTER_SERVER" feature="make"/>
+		<library name="default_fcgi" location="..\..\..\..\..\library\web\framework\ewf\wsf\default\fcgi.ecf"/>
 		<cluster name="filter" location="src\" recursive="true"/>
 	</target>
 	<target name="filter" extends="filter_standalone">
