@@ -58,8 +58,8 @@ feature -- Request processing
 	process_request (a_socket: HTTPD_STREAM_SOCKET)
 			-- Process request ...
 		local
-			l_input: WGI_INPUT_STREAM
-			l_output: detachable WGI_OUTPUT_STREAM
+			l_input: WGI_STANDALONE_INPUT_STREAM
+			l_output: detachable WGI_STANDALONE_OUTPUT_STREAM
 			l_error: WGI_ERROR_STREAM
 			req: WGI_REQUEST_FROM_TABLE
 			res: detachable WGI_STANDALONE_RESPONSE_STREAM
@@ -67,11 +67,19 @@ feature -- Request processing
 			retried: BOOLEAN
 		do
 			if not retried then
-				create {WGI_STANDALONE_INPUT_STREAM} l_input.make (a_socket)
-				create {WGI_STANDALONE_OUTPUT_STREAM} l_output.make (a_socket)
+				create l_input.make (a_socket)
+				create l_output.make (a_socket)
 				create {WGI_STANDALONE_ERROR_STREAM} l_error.make_stderr (a_socket.descriptor.out)
 
 				create req.make (httpd_environment (a_socket), l_input, connector)
+				if
+					not is_http_version_1_0 and then
+					attached req.http_expect as l_expect and then
+					l_expect.is_case_insensitive_equal ("100-continue")
+				then
+						-- Send "100 Continue" only when the execution starts reading the request body.
+					l_input.set_continue_response_pending (l_output)
+				end
 				create res.make (l_output, l_error)
 				if is_http_version_1_0 then
 					l_output.set_http_version ({HTTP_CONSTANTS}.http_version_1_0)
@@ -88,6 +96,13 @@ feature -- Request processing
 				exec.execute
 				res.push
 				exec.clean
+				if l_input.is_continue_response_pending then
+						-- The request body was never requested ("100 Continue" was not sent),
+						-- the client may or may not send it: the connection can not be reused safely,
+						-- and it has to be closed gracefully, in case the client is sending the body.
+					is_persistent_connection_requested := False
+					is_lingering_close_requested := True
+				end
 			elseif exec /= Void then
 				if not has_error then
 					exec.execute_rescue ((create {EXCEPTION_MANAGER}).last_exception)

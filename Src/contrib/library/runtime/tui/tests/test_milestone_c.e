@@ -415,6 +415,25 @@ feature -- Backend
 			assert ("backend not raw", not l_backend.is_raw)
 		end
 
+	test_backend_reenables_vt_mode
+			-- Entering raw mode again after leaving it (which restores the original console modes,
+			-- code pages included) enables virtual terminal processing again.
+		local
+			l_driver: FAKE_CONSOLE_DRIVER
+			l_backend: ANSI_TERMINAL_BACKEND
+			l_count: INTEGER
+		do
+			create l_driver
+			create l_backend.make_with_driver_and_sink (l_driver, create {STRING_32}.make_empty)
+			l_backend.enter_raw_mode
+			l_backend.leave_raw_mode
+			l_count := l_driver.vt_enable_count
+			l_backend.enter_raw_mode
+			assert ("vt mode enabled again", l_driver.vt_enable_count = l_count + 1)
+			assert ("raw again", l_backend.is_raw)
+			l_backend.leave_raw_mode
+		end
+
 	test_backend_cursor_position_query
 			-- query_cursor_position sends DSR and parses the scripted answer.
 		local

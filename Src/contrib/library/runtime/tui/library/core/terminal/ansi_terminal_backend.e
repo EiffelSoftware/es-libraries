@@ -259,10 +259,14 @@ feature -- Basic operations
 feature -- Mode settings
 
 	enter_raw_mode
-			-- Put terminal into raw mode.
+			-- Put terminal into raw mode, with virtual terminal processing (and UTF-8 code pages on
+			-- Windows) enabled again: `leave_raw_mode` restores the original console modes, so
+			-- that a terminal entering raw mode again (e.g. after running another program) would
+			-- otherwise decode the output in the original code page.
 		local
 			l_failure: DEVELOPER_EXCEPTION
 		do
+			driver.enable_vt_mode.do_nothing
 			if driver.enable_raw_mode then
 				is_raw := True
 			else
@@ -456,9 +460,18 @@ feature {NONE} -- Cursor tracking
 
 	output_scanner: ANSI_TEXT_SCANNER
 			-- Escape sequence scanner used by cursor tracking (state persists across writes)
-		attribute
-			create Result.make
+		do
+			if attached internal_output_scanner as l_output_scanner then
+				Result := l_output_scanner
+			else
+				create Result.make
+				internal_output_scanner := Result
+			end
 		end
+
+	internal_output_scanner: detachable ANSI_TEXT_SCANNER
+			-- Storage of `output_scanner`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 feature {NONE} -- Constants
 

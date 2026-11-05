@@ -131,6 +131,7 @@ feature -- Scripting
 
 feature -- Observations
 
+	vt_enable_count: INTEGER
 	raw_enable_count: INTEGER
 	raw_disable_count: INTEGER
 	restore_count: INTEGER
@@ -188,6 +189,7 @@ feature -- Mode Commands
 
 	enable_vt_mode: BOOLEAN
 		do
+			vt_enable_count := vt_enable_count + 1
 			Result := True
 		end
 

@@ -238,6 +238,7 @@ feature {NONE} -- Initialization
 			run_test ("test_event_thread_with_fake_driver", agent l_t14.test_event_thread_with_fake_driver)
 			run_test ("test_event_thread_failure_reported", agent l_t14.test_event_thread_failure_reported)
 			run_test ("test_backend_restores_before_driver", agent l_t14.test_backend_restores_before_driver)
+			run_test ("test_backend_reenables_vt_mode", agent l_t14.test_backend_reenables_vt_mode)
 			run_test ("test_backend_cursor_position_query", agent l_t14.test_backend_cursor_position_query)
 			run_test ("test_terminal_resize_on_draw", agent l_t14.test_terminal_resize_on_draw)
 			run_test ("test_inline_viewport_setup_and_insert_before", agent l_t14.test_inline_viewport_setup_and_insert_before)

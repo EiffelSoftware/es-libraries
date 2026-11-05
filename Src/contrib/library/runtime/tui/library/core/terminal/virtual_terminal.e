@@ -297,9 +297,18 @@ feature -- Basic operations
 
 	scrollback: ARRAYED_LIST [STRING_32]
 			-- Rows scrolled off the top of the screen by `scroll_up`, oldest first
-		attribute
-			create Result.make (0)
+		do
+			if attached internal_scrollback as l_scrollback then
+				Result := l_scrollback
+			else
+				create Result.make (0)
+				internal_scrollback := Result
+			end
 		end
+
+	internal_scrollback: detachable ARRAYED_LIST [STRING_32]
+			-- Storage of `scrollback`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 	set_size (a_width, a_height: INTEGER)
 			-- Simulate the user resizing the terminal to `a_width` x `a_height`.
@@ -440,8 +449,17 @@ feature {NONE} -- Implementation
 
 	output_scanner: ANSI_TEXT_SCANNER
 			-- Escape sequence scanner (state persists across writes)
-		attribute
-			create Result.make
+		do
+			if attached internal_output_scanner as l_output_scanner then
+				Result := l_output_scanner
+			else
+				create Result.make
+				internal_output_scanner := Result
+			end
 		end
+
+	internal_output_scanner: detachable ANSI_TEXT_SCANNER
+			-- Storage of `output_scanner`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 end

@@ -21,7 +21,7 @@
 			To provide an example (assuming that the Unicode character U+FFFD is represented as
 			? textually):
 			1 - on UNIX, any invalid UTF-8 byte sequence such as 0x8F 0x8F is encoded as the
-			following Unicode sequence: U+FFFD U+0038 U+0046 U+FFFF U+0038 U+0046, and textually
+			following Unicode sequence: U+FFFD U+0038 U+0046 U+FFFD U+0038 U+0046, and textually
 			it looks like "?8F?8F".
 			2 - on Windows, any invalid UTF-16 2-byte sequence such as 0xD800 0x0054 is encoded as the
 			following Unicode sequence: U+FFFD U+0075 U+0044 U+0038 U+0030 U+0030 U+FFFD U+0035 U+0033,
@@ -48,7 +48,7 @@ feature -- Status report
 	is_valid_utf_8_string_8 (s: READABLE_STRING_8): BOOLEAN
 			-- Is `s' a valid UTF-8 Unicode sequence?
 		local
-			c: NATURAL_32
+			c, c2: NATURAL_32
 			i, nb: INTEGER
 		do
 			from
@@ -63,19 +63,31 @@ feature -- Status report
 						-- Form 0xxxxxxx.
 				elseif (c & 0xE0) = 0xC0 and i < nb then
 						-- Form 110xxxxx 10xxxxxx.
+						-- 0xC0 and 0xC1 would be an overlong encoding (below U+0080).
 					i := i + 1
-					Result := (s.code (i) & 0xC0) = 0x80
+					Result := c >= 0xC2 and (s.code (i) & 0xC0) = 0x80
 				elseif (c & 0xF0) = 0xE0 and i + 1 < nb then
 						-- Form 1110xxxx 10xxxxxx 10xxxxxx.
 					i := i + 2
-					Result := (s.code (i - 1) & 0xC0) = 0x80 and
-						(s.code (i) & 0xC0) = 0x80
+					c2 := s.code (i - 1)
+						-- 0xE0 followed by less than 0xA0 is an overlong encoding (below U+0800).
+						-- 0xED followed by more than 0x9F is a surrogate (U+D800..U+DFFF).
+					Result := (c2 & 0xC0) = 0x80 and
+						(s.code (i) & 0xC0) = 0x80 and
+						(c /= 0xE0 or c2 >= 0xA0) and
+						(c /= 0xED or c2 <= 0x9F)
 				elseif (c & 0xF8) = 0xF0 and i + 2 < nb then
 						-- Form 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx.
 					i := i + 3
-					Result := (s.code (i - 2) & 0xC0) = 0x80 and
+					c2 := s.code (i - 2)
+						-- 0xF0 followed by less than 0x90 is an overlong encoding (below U+10000).
+						-- 0xF4 followed by more than 0x8F, or anything above 0xF4, is above U+10FFFF.
+					Result := c <= 0xF4 and
+						(c2 & 0xC0) = 0x80 and
 						(s.code (i - 1) & 0xC0) = 0x80 and
-						(s.code (i) & 0xC0) = 0x80
+						(s.code (i) & 0xC0) = 0x80 and
+						(c /= 0xF0 or c2 >= 0x90) and
+						(c /= 0xF4 or c2 <= 0x8F)
 				else
 						-- Anything else is not a valid UTF-8 sequence that would yield a valid Unicode character.
 					Result := False
@@ -107,7 +119,7 @@ feature -- Status report
 						i := i + 2
 						if i <= nb then
 							c2 := s.code (i - 1) | (s.code (i) |<< 8)
-							Result := 0xDC00 <= c2 and c2 <= 0xDFF
+							Result := 0xDC00 <= c2 and c2 <= 0xDFFF
 						else
 								-- Surrogate pair is incomplete, clearly not a valid UTF-16 sequence.
 							Result := False
@@ -144,12 +156,13 @@ feature -- Status report
 					else
 						if c1 < 0xD800 or c1 >= 0xE000 then
 								-- Codepoint from Basic Multilingual Plane: one 16-bit code unit, this is valid Unicode.
-							i := i + 1
+							i := i + 2
 						elseif c1 <= 0xDBFF then
 							i := i + 2
 							if i <= n then
 								c2 := p.read_natural_16 (i)
-								Result := 0xDC00 <= c2 and c2 <= 0xDFF
+								Result := 0xDC00 <= c2 and c2 <= 0xDFFF
+								i := i + 2
 							else
 									-- Surrogate pair is incomplete, clearly not a valid UTF-16 sequence.
 								Result := False
@@ -185,7 +198,7 @@ feature -- Status report
 					i := i + 1
 					if i < n then
 						c := s.item (i)
-						Result := 0xDC00 <= c and c <= 0xDFF
+						Result := 0xDC00 <= c and c <= 0xDFFF
 					else
 							-- Surrogate pair is incomplete, clearly not a valid UTF-16 sequence.
 						Result := False
@@ -251,12 +264,11 @@ feature -- Measurement
 			even_start_position: start_pos \\ 2 = 0
 			even_end_position: end_pos \\ 2 = 0
 		local
-			i, n: INTEGER
+			i: INTEGER
 			c: NATURAL_32
 		do
 			from
 				i := start_pos
-				n := end_pos
 			until
 				i >= end_pos
 			loop
@@ -264,7 +276,7 @@ feature -- Measurement
 				if c < 0xD800 or c >= 0xE000 then
 						-- Codepoint from Basic Multilingual Plane: one 16-bit code unit.
 					i := i + 2
-				elseif i <= n then
+				else
 						-- Supplementary Planes: surrogate pair with lead and trail surrogates.
 					i := i + 4
 				end
@@ -306,7 +318,7 @@ feature -- Measurement
 		end
 
 	utf_8_to_string_32_count (s: SPECIAL [CHARACTER]; start_pos, end_pos: INTEGER): INTEGER
-			-- Count of characters corresponding to UTF-8 sequence `s'.
+			-- Count of characters corresponding to UTF-8 sequence `s' between indexes `start_pos' and `end_pos'.
 		require
 			start_position_big_enough: start_pos >= 0
 			end_position_big_enough: start_pos <= end_pos + 1
@@ -330,21 +342,24 @@ feature -- Measurement
 				elseif c <= 0xDF then
 						-- 110xxxxx 10xxxxxx
 					i := i + 2
-					if i <= n then
+					if i <= n + 1 then
 						Result := Result + 1
 					end
 				elseif c <= 0xEF then
 						-- 1110xxxx 10xxxxxx 10xxxxxx
 					i := i + 3
-					if i <= n then
+					if i <= n + 1 then
 						Result := Result + 1
 					end
 				elseif c <= 0xF7 then
 						-- 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 					i := i + 4
-					if i <= n then
+					if i <= n + 1 then
 						Result := Result + 1
 					end
+				else
+						-- Invalid lead byte 11111xxx, skipped as in `utf_8_string_8_into_string_32'.
+					i := i + 1
 				end
 			end
 		ensure
@@ -479,10 +494,10 @@ feature -- UTF-32 to UTF-8
 				if c = escape_character.natural_32_code then
 						-- We might be facing a character that was escaped.
 						-- In the Unix case, we only accept the 1-byte encoded format.
-					if i < n and then s.item (i + 1) = escape_character then
+					if i < end_pos and then s.item (i + 1) = escape_character then
 							-- The `escape_character' was escaped, it meant they really wanted an `escape_character'.
 						i := i + 1
-					elseif i + 1 < n then
+					elseif i + 1 < end_pos then
 							-- We have at least 2 characters to read, make sure they represent an hexadecimal
 							-- value.
 						l_encoded_value := s.substring (i + 1, i + 2)
@@ -917,7 +932,7 @@ feature -- UTF-8 to UTF-32
 				elseif (c1 & 0xE0) = 0xC0 then
 					if i < end_pos then
 						c2 := p.read_natural_8 (i + 1)
-						if (c2 & 0xC0) = 0x80 then
+						if (c2 & 0xC0) = 0x80 and c1 >= 0xC2 then
 								-- Valid UTF-8 sequence:
 								-- 110xxxxx 10xxxxxx
 							a_result.extend ((
@@ -926,7 +941,7 @@ feature -- UTF-8 to UTF-32
 							).to_character_32)
 							i := i + 2
 						else
-								-- Invalid UTF-8 sequence, we escape the first byte
+								-- Invalid or overlong UTF-8 sequence, we escape the first byte
 								-- and try with the next one to see if it is the starting
 								-- byte of a valid UTF-8 sequence.
 							escape_code_into (a_result, c1)
@@ -941,7 +956,8 @@ feature -- UTF-8 to UTF-32
 					if i + 1 < end_pos then
 						c2 := p.read_natural_8 (i + 1)
 						c3 := p.read_natural_8 (i + 2)
-						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 then
+						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 and
+							(c1 /= 0xE0 or c2 >= 0xA0) then
 								-- Valid UTF-8 sequence:
 								-- 1110xxxx 10xxxxxx 10xxxxxx
 							l_last_char := (((c1.as_natural_32 & 0xF) |<< 12) |
@@ -951,7 +967,7 @@ feature -- UTF-8 to UTF-32
 							a_result.extend (l_last_char)
 							i := i + 3
 						else
-								-- Invalid UTF-8 sequence, we escape the first byte
+								-- Invalid or overlong UTF-8 sequence, we escape the first byte
 								-- and try with the next one to see if it is the starting
 								-- byte of a valid UTF-8 sequence.
 							escape_code_into (a_result, c1)
@@ -967,7 +983,8 @@ feature -- UTF-8 to UTF-32
 						c2 := p.read_natural_8 (i + 1)
 						c3 := p.read_natural_8 (i + 2)
 						c4 := p.read_natural_8 (i + 3)
-						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 and (c4 & 0xC0) = 0x80 then
+						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 and (c4 & 0xC0) = 0x80 and
+							(c1 /= 0xF0 or c2 >= 0x90) then
 								-- Valid UTF-8 sequence:
 								-- 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 							a_result.extend ((
@@ -978,7 +995,7 @@ feature -- UTF-8 to UTF-32
 							).to_character_32)
 							i := i + 4
 						else
-								-- Invalid UTF-8 sequence, we escape the first byte
+								-- Invalid or overlong UTF-8 sequence, we escape the first byte
 								-- and try with the next one to see if it is the starting
 								-- byte of a valid UTF-8 sequence.
 							escape_code_into (a_result, c1)
@@ -1100,7 +1117,7 @@ feature -- UTF-8 to UTF-32
 				elseif (c1 & 0xE0) = 0xC0 then
 					if i < n then
 						c2 := s.code (i + 1).as_natural_8
-						if (c2 & 0xC0) = 0x80 then
+						if (c2 & 0xC0) = 0x80 and c1 >= 0xC2 then
 								-- Valid UTF-8 sequence:
 								-- 110xxxxx 10xxxxxx
 							a_result.extend ((
@@ -1109,7 +1126,7 @@ feature -- UTF-8 to UTF-32
 							).to_character_32)
 							i := i + 1
 						else
-								-- Invalid UTF-8 sequence, we escape the first byte
+								-- Invalid or overlong UTF-8 sequence, we escape the first byte
 								-- and try with the next one to see if it is the starting
 								-- byte of a valid UTF-8 sequence.
 							escape_code_into (a_result, c1)
@@ -1122,7 +1139,8 @@ feature -- UTF-8 to UTF-32
 					if i + 1 < n then
 						c2 := s.code (i + 1).as_natural_8
 						c3 := s.code (i + 2).as_natural_8
-						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 then
+						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 and
+							(c1 /= 0xE0 or c2 >= 0xA0) then
 								-- Valid UTF-8 sequence:
 								-- 1110xxxx 10xxxxxx 10xxxxxx
 							l_last_char := (((c1.as_natural_32 & 0xF) |<< 12) |
@@ -1132,7 +1150,7 @@ feature -- UTF-8 to UTF-32
 							a_result.extend (l_last_char)
 							i := i + 2
 						else
-								-- Invalid UTF-8 sequence, we escape the first byte
+								-- Invalid or overlong UTF-8 sequence, we escape the first byte
 								-- and try with the next one to see if it is the starting
 								-- byte of a valid UTF-8 sequence.
 							escape_code_into (a_result, c1)
@@ -1146,7 +1164,8 @@ feature -- UTF-8 to UTF-32
 						c2 := s.code (i + 1).as_natural_8
 						c3 := s.code (i + 2).as_natural_8
 						c4 := s.code (i + 3).as_natural_8
-						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 and (c4 & 0xC0) = 0x80 then
+						if (c2 & 0xC0) = 0x80 and (c3 & 0xC0) = 0x80 and (c4 & 0xC0) = 0x80 and
+							(c1 /= 0xF0 or c2 >= 0x90) then
 								-- Valid UTF-8 sequence:
 								-- 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 							a_result.extend ((
@@ -1157,7 +1176,7 @@ feature -- UTF-8 to UTF-32
 							).to_character_32)
 							i := i + 3
 						else
-								-- Invalid UTF-8 sequence, we escape the first byte
+								-- Invalid or overlong UTF-8 sequence, we escape the first byte
 								-- and try with the next one to see if it is the starting
 								-- byte of a valid UTF-8 sequence.
 							escape_code_into (a_result, c1)
@@ -1187,7 +1206,7 @@ feature -- UTF-32 to UTF-16
 		ensure
 			instance_free: class
 			roundtrip: attached utf_32_string_to_utf_16le_string_8 (s) as l_ref and then
-				∀ n: Result ¦ n = (l_ref.code (@ n.target_index * 2 + 1) | (l_ref.code ((@ n.target_index + 1) * 2) |<< 16))
+				∀ n: Result ¦ n = (l_ref.code (@ n.target_index * 2 + 1) | (l_ref.code ((@ n.target_index + 1) * 2) |<< 8))
 		end
 
 	utf_32_string_to_utf_16 (s: READABLE_STRING_GENERAL): SPECIAL [NATURAL_16]
@@ -1319,9 +1338,6 @@ feature -- UTF-32 to UTF-16
 			if m < p.count then
 					-- Remove the null terminating character.
 				p.resize (p.count - 2)
-				if a_new_upper /= Void then
-					a_new_upper.put (p.count - 2)
-				end
 			end
 		ensure
 			instance_free: class
@@ -1473,7 +1489,7 @@ feature -- UTF-32 to UTF-16
 			-- size of `p' to the number of written bytes.
 			-- If `a_new_upper' is provided, the upper index of `p' containing the zero-termination
 			-- is written to `a_new_upper'.
-			-- The sequence is not zero-terminated.
+			-- The sequence is zero-terminated.
 		require
 			start_position_big_enough: start_pos >= 1
 			end_position_big_enough: start_pos <= end_pos + 1
@@ -1507,12 +1523,12 @@ feature -- UTF-32 to UTF-16
 				c := s.code (i)
 				if c = escape_character.natural_32_code then
 						-- We might be facing a character that was escaped.
-					if i < n then
+					if i < end_pos then
 						if s.item (i + 1) = escape_character then
 								-- The `escape_character' was escaped, it meant they really wanted an `escape_character'.
 							i := i + 1
 						elseif s.item (i + 1) = 'u' then
-							if i + 4 < n then
+							if i + 4 < end_pos then
 								l_encoded_value := s.substring (i + 2, i + 5)
 								if is_hexa_decimal (l_encoded_value) then
 									c := to_natural_32 (l_encoded_value)
@@ -1708,8 +1724,8 @@ feature -- UTF-16 to UTF-32
 			utf_16_0_pointer_into_string_32 (p, Result)
 		ensure
 			instance_free: class
-			roundtrip: is_valid_utf_16_subpointer (p, 0, p.count // 2, True) implies
-				∀ n: string_32_to_utf_16 (Result) ¦ n = p.read_natural_16 ((@ n.target_index + 1) * 2)
+			roundtrip: is_valid_utf_16_subpointer (p, 0, p.count // 2 - 1, True) implies
+				∀ n: string_32_to_utf_16 (Result) ¦ n = p.read_natural_16 (@ n.target_index * 2)
 		end
 
 	utf_16_0_pointer_into_string_32 (p: MANAGED_POINTER; a_result: STRING_32)
@@ -1722,7 +1738,7 @@ feature -- UTF-16 to UTF-32
 			utf_16_0_subpointer_into_string_32 (p, 0, p.count // 2 - 1, True, a_result)
 		ensure
 			instance_free: class
-			roundtrip: is_valid_utf_16_subpointer (p, 0, p.count // 2, True) implies
+			roundtrip: is_valid_utf_16_subpointer (p, 0, p.count // 2 - 1, True) implies
 				∀ n: string_32_to_utf_16 (a_result.substring (old a_result.count + 1, a_result.count)) ¦ n = p.read_natural_16 (@ n.target_index * 2)
 		end
 
@@ -1740,7 +1756,7 @@ feature -- UTF-16 to UTF-32
 		ensure
 			instance_free: class
 			roundtrip: is_valid_utf_16_subpointer (p, start_pos, end_pos, a_stop_at_null) implies
-				∀ n: string_32_to_utf_16 (Result) ¦ n = p.read_natural_16 (@ n.target_index * 2)
+				∀ n: string_32_to_utf_16 (Result) ¦ n = p.read_natural_16 ((start_pos + @ n.target_index) * 2)
 		end
 
 	utf_16_0_subpointer_into_string_32 (p: MANAGED_POINTER; start_pos, end_pos: INTEGER; a_stop_at_null: BOOLEAN; a_result: STRING_32)
@@ -1784,7 +1800,7 @@ feature -- UTF-16 to UTF-32
 		ensure
 			instance_free: class
 			roundtrip: is_valid_utf_16_subpointer (p, start_pos, end_pos, a_stop_at_null) implies
-				∀ x: string_32_to_utf_16 (a_result.substring (old a_result.count + 1, a_result.count)) ¦ x = p.read_natural_16 (@ x.target_index * 2)
+				∀ x: string_32_to_utf_16 (a_result.substring (old a_result.count + 1, a_result.count)) ¦ x = p.read_natural_16 ((start_pos + @ x.target_index) * 2)
 		end
 
 	utf_16_0_pointer_to_escaped_string_32 (p: MANAGED_POINTER): STRING_32

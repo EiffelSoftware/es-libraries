@@ -47,4 +47,12 @@
 		<library name="default_libfcgi" location="..\..\..\..\library\web\framework\ewf\wsf\default\libfcgi.ecf"/>
 		<cluster name="simple" location=".\" recursive="true"/>
 	</target>
+	<target name="simple_fcgi" extends="common">
+		<root class="APPLICATION" feature="make_and_launch"/>
+		<option warning="true">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<library name="default_fcgi" location="..\..\..\..\library\web\framework\ewf\wsf\default\fcgi.ecf"/>
+		<cluster name="simple" location=".\" recursive="true"/>
+	</target>
 </system>

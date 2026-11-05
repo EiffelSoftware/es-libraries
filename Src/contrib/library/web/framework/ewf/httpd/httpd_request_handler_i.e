@@ -32,6 +32,7 @@ feature {NONE} -- Initialization
 	reset
 		do
 			reset_request (False)
+			is_lingering_close_requested := False
 
 			reset_error
 			if attached internal_client_socket as l_sock then
@@ -109,6 +110,13 @@ feature -- Access
 			-- Persistent connection requested?
 			-- either has "Connection: keep-alive" header,
 			-- or is HTTP/1.1 and no header "Connection: close".
+
+	is_lingering_close_requested: BOOLEAN
+			-- Should the connection be closed gracefully, i.e first stop sending,
+			-- then read and discard incoming data for a while, before closing it?
+			-- This is needed when the client may still be sending a request body
+			-- that was not read, otherwise closing the socket with pending incoming data
+			-- resets the connection, and the client may lose the response.
 
 	is_http_version_1_0: BOOLEAN
 		do
@@ -268,8 +276,51 @@ feature -- Execution
 			end
 			if l_exit and has_error and not l_socket.is_closed then
 				l_socket.close
+			elseif is_lingering_close_requested and not l_socket.is_closed and not is_secure then
+				lingering_close (l_socket)
+			end
+			is_lingering_close_requested := False
+		end
+
+	lingering_close (a_socket: like client_socket)
+			-- Stop sending on `a_socket', and then read and discard incoming data
+			-- until the peer closes the connection, or for a while (`lingering_close_max_duration_seconds').
+			-- Note: the socket itself is closed later, on `release'.
+		local
+			l_platform: HTTPD_SOCKET_PLATFORM
+			t0: DATE_TIME
+			l_done: BOOLEAN
+		do
+			create l_platform
+			l_platform.shutdown_write (a_socket)
+			if l_platform.last_shutdown_succeed then
+				a_socket.set_recv_timeout_ns (lingering_close_read_timeout_ns)
+				from
+					create t0.make_now_utc
+				until
+					l_done
+				loop
+					if a_socket.readable and not a_socket.was_error then
+						a_socket.read_stream_noexception (8_192)
+						l_done := a_socket.was_error or a_socket.last_string.is_empty
+					else
+						l_done := True
+					end
+					if not l_done then
+						l_done := (create {DATE_TIME}.make_now_utc).relative_duration (t0).seconds_count > lingering_close_max_duration_seconds
+					end
+				end
+				debug ("dbglog")
+					dbglog ("lingering_close {" + a_socket.descriptor.out + "} done.")
+				end
 			end
 		end
+
+	lingering_close_read_timeout_ns: NATURAL_64 = 2_000_000_000
+			-- Timeout for each read during `lingering_close' (in nanoseconds).
+
+	lingering_close_max_duration_seconds: INTEGER = 30
+			-- Maximum duration of `lingering_close' (in seconds).
 
 	execute_request (a_is_reusing_connection: BOOLEAN)
 			-- Execute http request, and if `a_is_reusing_connection' is True

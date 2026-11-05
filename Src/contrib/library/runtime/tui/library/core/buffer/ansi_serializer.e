@@ -115,9 +115,18 @@ feature -- Access
 	frame: STRING_8
 			-- Output of the last `render_spans_with_offset`, reused (emptied, capacity kept)
 			-- by the next one
-		attribute
-			create Result.make (1024)
+		do
+			if attached internal_frame as l_frame then
+				Result := l_frame
+			else
+				create Result.make (1024)
+				internal_frame := Result
+			end
 		end
+
+	internal_frame: detachable STRING_8
+			-- Storage of `frame`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 feature -- Status report
 
