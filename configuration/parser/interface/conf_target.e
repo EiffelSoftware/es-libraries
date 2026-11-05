@@ -628,11 +628,13 @@ feature -- Access queries
 			create Result.make (forced_debugs.count)
 			l_options := options
 			if l_options.is_debug and then attached l_options.debugs as l_debugs then
-				⟳ d: l_debugs ¦
+				across
+					l_debugs as d
+				loop
 					if not (@ d.key).same_string (unnamed_debug) then
 						Result.force (d, @ d.key)
 					end
-				⟲
+				end
 			end
 			Result.merge (forced_debugs)
 		ensure
