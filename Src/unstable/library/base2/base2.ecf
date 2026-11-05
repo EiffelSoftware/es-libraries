@@ -10,12 +10,12 @@
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<cluster name="mml" location=".\mml\" recursive="true">
 			<file_rule>
-				<exclude>.svn</exclude>
+				<exclude>/\..*$</exclude>
 			</file_rule>
 		</cluster>
 		<cluster name="structures" location=".\structures\" recursive="true">
 			<file_rule>
-				<exclude>.svn</exclude>
+				<exclude>/\..*$</exclude>
 			</file_rule>
 		</cluster>
 	</target>

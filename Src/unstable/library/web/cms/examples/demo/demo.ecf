@@ -4,9 +4,8 @@
 	<target name="common" abstract="true">
 		<root class="DEMO_CMS_SERVER" feature="make_and_launch"/>
 		<file_rule>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
-			<exclude>/\.svn$</exclude>
 		</file_rule>
 		<option debug="true" warning="true">
 			<debug name="dbglog" enabled="true"/>
@@ -97,7 +96,18 @@
 		<library name="libfcgi_launcher" location="..\..\launcher\libfcgi.ecf" readonly="false"/>
 		<cluster name="src" location=".\src\" recursive="true"/>
 	</target>
+	<target name="demo_fcgi" extends="common">
+		<capability>
+			<concurrency use="none"/>
+		</capability>
+		<library name="fcgi_launcher" location="..\..\launcher\fcgi.ecf" readonly="false"/>
+		<cluster name="src" location=".\src\" recursive="true"/>
+	</target>
 	<target name="demo_libfcgi_with_mysql" extends="demo_libfcgi">
+		<library name="persistence_store_mysql" location="..\..\library\persistence\store_mysql\store_mysql.ecf"/>
+		<override name="setup-mysql" location="setup\mysql\" recursive="true"/>
+	</target>
+	<target name="demo_fcgi_with_mysql" extends="demo_fcgi">
 		<library name="persistence_store_mysql" location="..\..\library\persistence\store_mysql\store_mysql.ecf"/>
 		<override name="setup-mysql" location="setup\mysql\" recursive="true"/>
 	</target>

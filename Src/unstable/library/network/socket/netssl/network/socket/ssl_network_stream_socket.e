@@ -95,6 +95,7 @@ feature -- Access
 				--| Close the descriptor, from {NETWORK_SOCKET}
 			Precursor
 			if is_closed then
+				release_shared_server_context
 				if attached context as l_context then
 					if attached l_context.last_ssl as l_ssl then
 						l_ssl.free
@@ -124,7 +125,12 @@ feature -- Input
 					ext.set_count (return_val)
 					last_string := ext.substring (1, return_val)
 				else
-					socket_error := "Peer error [0x" + return_val.to_hex_string + "]"
+					if l_ssl.was_error then
+							-- For instance, the deferred TLS handshake failed.
+						socket_error := l_ssl.ssl_error
+					else
+						socket_error := "Peer error [0x" + return_val.to_hex_string + "]"
+					end
 					last_string.wipe_out
 				end
 			else
@@ -154,6 +160,10 @@ feature -- Input
 					end
 				end
 				bytes_read := l_read
+				if l_ssl.was_error then
+						-- For instance, the deferred TLS handshake failed.
+					socket_error := l_ssl.ssl_error
+				end
 			else
 				check has_context: False end
 			end
@@ -235,21 +245,21 @@ feature {NONE} -- Implementation
 			-- Accept a new connection.
 			-- The new socket is stored in `other'.
 			-- If the accept fails, `other.is_created' is still False.
+			--| The SSL context is built once (see `shared_server_context') and shared with `other',
+			--| which receives it as a POINTER: no lock passing, thus the call is asynchronous,
+			--| and the TLS handshake happens later in `other' processor (on the first read or write).
+		local
+			l_context_pointer: POINTER
 		do
 			Precursor (other, a_address)
 			if other.is_created then
 				other.set_tls_protocol (tls_protocol)
-
-				if
-					attached certificate_x509_string and then
-					attached private_rsa_key_string
-				then
-					other.initialize_server_ssl_with_string (certificate_x509_string, private_rsa_key_string)
-				elseif
-					attached certificate_file_path and then
-					attached key_file_path
-				then
-					other.initialize_server_ssl (certificate_file_path, key_file_path)
+				prepare_shared_server_context
+				if attached shared_server_context as l_context then
+					l_context_pointer := l_context.retained_context_pointer
+				end
+				if l_context_pointer /= default_pointer then
+					other.initialize_server_ssl_with_context (l_context_pointer)
 				else
 					socket_error := "Certificate not found"
 				end

@@ -2,6 +2,8 @@ package netssl
 
 project
 	net_ssl = "net_ssl.ecf"
+	net_ssl_dynamic = "net_ssl_dynamic.ecf"
+	net_ssl_static = "net_ssl_static.ecf"
 
 note
 	title: Eiffel Net SSL

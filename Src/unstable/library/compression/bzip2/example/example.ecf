@@ -10,8 +10,7 @@
 		<library name="bzip2" location="..\bzip2.ecf"/>
 		<cluster name="example" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

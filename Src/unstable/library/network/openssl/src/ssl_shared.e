@@ -13,68 +13,13 @@ feature {NONE} -- Initialization
 	initialize_ssl
 			-- Initialize the SSL Library.
 			-- with libcrypto.
+			--| OPENSSL_init_ssl is thread safe, and cheap once the library is initialized,
+			--| so there is no need for any Eiffel side once or exclusive access.
 		note
 			EIS: "name=Library Initialization", "src=https://wiki.openssl.org/index.php/Library_Initialization", "protocol=uri"
 		do
-			if ssl_initialized.item = False then
-					--Using OpenSSL 1.1.0 or above, the library will initialize itself automatically,
-					--if not we initialize it explicitly.
-				if c_version_number < ssl_api_version then
-					c_openssl_init_ssl
-					c_openssl_add_ssl_algorithms
-					c_openssl_add_all_algorithms
-					process_exclusive_execution (exclusive_access)
-					process_crypto_exclusive_execution (exclusive_access)
-				end
-				ssl_initialized.put (True)
-			end
+			c_openssl_init_ssl
 		end
-
-feature {NONE} -- Attributes
-
-	process_exclusive_execution (a_access: like exclusive_access)
-		local
-			l_retry: BOOLEAN
-		do
-			if not l_retry then
-				a_access.enter
-	   			a_access.call(agent c_ssl_load_error_strings)
-				a_access.leave
-			else
-			end
-		rescue
-			l_retry := True
-			a_access.leave
-			retry
-		end
-
-	process_crypto_exclusive_execution (a_access: like exclusive_access)
-		local
-			l_retry: BOOLEAN
-		do
-			if not l_retry then
-				a_access.enter
-	   			a_access.call(agent c_err_load_crypto_strings)
-				a_access.leave
-			else
-			end
-		rescue
-			l_retry := True
-			a_access.leave
-			retry
-		end
-
-
-	ssl_initialized: CELL [BOOLEAN]
-			-- Have the SSL Library initialization routines been called?
-		once ("THREAD")
-			create Result.put (False)
-		end
-
-   exclusive_access: separate SSL_EXCLUSIVE_ACCESS
-   		once("PROCESS")
-   			create Result
-   		end
 
 feature {NONE} -- External
 
@@ -91,7 +36,7 @@ feature {NONE} -- External
 		external
 			"C inline use %"eif_openssl.h%""
 		alias
-			"OPENSSL_init_ssl(0, NULL)"
+			"OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)"
 		end
 
 	c_openssl_add_ssl_algorithms

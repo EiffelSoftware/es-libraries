@@ -752,10 +752,17 @@ feature -- BIO
 
 	c_bio_s_secmem: POINTER
 			-- BIO_s_secmem() is like BIO_s_mem() except that the secure heap is used for buffer storage.
+			--| LibreSSL has no secure heap: fall back to BIO_s_mem().
 		external
 			"C inline use %"eif_openssl.h%""
 		alias
-			"return BIO_s_secmem();"
+			"[
+				#ifdef LIBRESSL_VERSION_NUMBER
+					return BIO_s_mem();
+				#else
+					return BIO_s_secmem();
+				#endif
+			]"
 		end
 
 	c_pem_write_bio_rsaprivatekey (a_bp: POINTER; a_x: POINTER; a_enc: POINTER; a_kstr: POINTER; a_klen: INTEGER; a_cb: POINTER; a_u: POINTER): INTEGER

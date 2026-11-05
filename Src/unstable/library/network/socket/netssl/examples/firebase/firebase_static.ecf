@@ -14,8 +14,7 @@
 		<library name="net_ssl_static" location="..\..\net_ssl.ecf" readonly="false"/>
 		<cluster name="firebase" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

@@ -39,6 +39,16 @@ project
 	messaging = "modules/messaging/messaging.ecf"
 	sitemap = "modules/sitemap/sitemap.ecf"
 	wikitext = "modules/wikitext/wikitext.ecf"
+	cli = "cli/cli.ecf"
+	app_env = "library/app_env/app_env.ecf"
+	config = "library/configuration/config.ecf"
+	email = "library/email/email.ecf"
+	store_mariadb_fake = "library/persistence/store_mariadb/fake/store_mariadb.ecf"
+	store_mariadb = "library/persistence/store_mariadb/store_mariadb.ecf"
+	store_postgresql = "library/persistence/store_postgresql/store_postgresql.ecf"
+	api_key_auth = "modules/api_key_auth/api_key_auth.ecf"
+	jwt_auth = "modules/jwt_auth/jwt_auth.ecf"
+	storage_module = "modules/storage/storage_module.ecf"
 
 note
 	title: ROC CMS

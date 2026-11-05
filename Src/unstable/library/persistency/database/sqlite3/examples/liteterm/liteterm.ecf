@@ -4,8 +4,7 @@
 	<target name="liteterm">
 		<root class="APPLICATION" feature="make"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
-			<exclude>/CVS$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<option warning="true">

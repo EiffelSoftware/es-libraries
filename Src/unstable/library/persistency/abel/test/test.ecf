@@ -4,7 +4,7 @@
 	<target name="abel_test">
 		<root class="START" feature="make"/>
 		<file_rule>
-			<exclude>/.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/EIFGENs$</exclude>
 		</file_rule>
 		<file_rule>

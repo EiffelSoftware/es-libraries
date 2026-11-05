@@ -24,6 +24,7 @@ create
 	make_as_dtlsv1_client,
 	make_as_dtlsv1_server,
 	make_from_context_pointer,
+	make_from_retained_context_pointer,
 	make_as_tls_server,
 	make_as_tls_client
 
@@ -186,7 +187,30 @@ feature {NONE} -- Initialization
 			create last_ssl.make_from_pointer (a_ssl_pointer)
 		end
 
+	make_from_retained_context_pointer (a_context_pointer: POINTER)
+			-- Make a SSL context sharing the SSL_CTX structure `a_context_pointer',
+			-- taking ownership of one reference previously obtained with `retained_context_pointer'.
+			--| The SSL_CTX is reference counted, and `free' releases the reference owned by Current.
+			--| SSL_CTX is thread safe for `create_ssl', so it can be shared between threads and SCOOP processors.
+		require
+			a_context_pointer_set: a_context_pointer /= default_pointer
+		do
+			ctx := a_context_pointer
+		end
+
 feature -- Access
+
+	retained_context_pointer: POINTER
+			-- Pointer to the SSL_CTX structure, with its reference count incremented.
+			-- The caller owns the new reference, and is responsible to release it,
+			-- for instance via `make_from_retained_context_pointer' and then `free'.
+			--| Being a POINTER, it can be passed to another SCOOP processor without lock passing.
+			-- Return `default_pointer' if there is no SSL_CTX.
+		do
+			if ctx /= default_pointer and then c_ssl_ctx_up_ref (ctx) = 1 then
+				Result := ctx
+			end
+		end
 
 	options: INTEGER_64
 			-- Current options set for ctx as a bitmask.
@@ -202,6 +226,7 @@ feature -- Access
 
 	free
 			-- Free the underlying SSL Context Structure.
+			--| Note: the SSL_CTX is reference counted, so this only releases the reference owned by Current.
 		do
 			c_ssl_ctx_free (ctx)
 		end
@@ -390,6 +415,14 @@ feature {NONE} -- Externals
 			"SSL_CTX_free"
 		end
 
+	c_ssl_ctx_up_ref (a_ctx_ptr: POINTER): INTEGER
+			-- External call to SSL_CTX_up_ref.
+		external
+			"C use %"eif_openssl.h%""
+		alias
+			"SSL_CTX_up_ref"
+		end
+
 	c_ssl_ctx_new (method_ptr: POINTER): POINTER
 			-- External call to SSL_CTX_new.
 		external
@@ -400,32 +433,52 @@ feature {NONE} -- Externals
 
 	c_ssl_ctx_use_certificate(a_ctx_ptr, a_cert_buffer: POINTER ): INTEGER
 			-- Call external c_ssl_ctx_use_certificate.
+			--| SSL_CTX_use_certificate takes its own reference on the certificate,
+			--| so the BIO and the X509 are released here.
 		external
 			"C inline use %"eif_openssl.h%""
 		alias
 			"{
 				X509 *cert = NULL;
 				BIO *cbio;
+				int res = 0;
 			
 				cbio = BIO_new_mem_buf((void*)(const char *)$a_cert_buffer, -1);
-				cert = PEM_read_bio_X509(cbio, NULL, 0, NULL);
-				return (EIF_INTEGER_32) SSL_CTX_use_certificate((SSL_CTX *)$a_ctx_ptr, cert);
+				if (cbio != NULL) {
+					cert = PEM_read_bio_X509(cbio, NULL, 0, NULL);
+					if (cert != NULL) {
+						res = SSL_CTX_use_certificate((SSL_CTX *)$a_ctx_ptr, cert);
+						X509_free(cert);
+					}
+					BIO_free(cbio);
+				}
+				return (EIF_INTEGER_32) res;
 			}"
 		end
 
 
 	c_ssl_ctx_use_rsaprivatekey	(a_ctx_ptr, a_key_buffer: POINTER): INTEGER
 			-- Call external c_ssl_ctx_use_rsaprivatekey
+			--| SSL_CTX_use_RSAPrivateKey takes its own reference on the key,
+			--| so the BIO and the RSA are released here.
 		external
 			"C inline use %"eif_openssl.h%""
 		alias
 		 "{
 			BIO *kbio;
 			RSA *rsa = NULL;
+			int res = 0;
 	
 			kbio = BIO_new_mem_buf((void*)(const char *)$a_key_buffer, -1);
-			rsa = PEM_read_bio_RSAPrivateKey(kbio, NULL, 0, NULL);
-			return (EIF_INTEGER_32) SSL_CTX_use_RSAPrivateKey((SSL_CTX *)$a_ctx_ptr, rsa);
+			if (kbio != NULL) {
+				rsa = PEM_read_bio_RSAPrivateKey(kbio, NULL, 0, NULL);
+				if (rsa != NULL) {
+					res = SSL_CTX_use_RSAPrivateKey((SSL_CTX *)$a_ctx_ptr, rsa);
+					RSA_free(rsa);
+				}
+				BIO_free(kbio);
+			}
+			return (EIF_INTEGER_32) res;
 		  }"
 		end
 
