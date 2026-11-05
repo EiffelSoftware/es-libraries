@@ -12,8 +12,7 @@
 		<library name="wel" location="$ISE_LIBRARY\library\wel\wel.ecf" use_application_options="true"/>
 		<tests name="tests" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</tests>

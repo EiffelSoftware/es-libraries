@@ -9,7 +9,7 @@
 		<root all_classes="true"/>
 		<file_rule>
 			<exclude>/EIFGEN.{0,1}$</exclude>
-			<exclude>/\.svn</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/obsolete$</exclude>
 			<exclude>/release$</exclude>
 			<exclude>/temp$</exclude>

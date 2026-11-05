@@ -6,7 +6,7 @@
 		<root all_classes="true"/>
 		<file_rule>
 			<exclude>/EIFGENs$</exclude>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/documents$</exclude>
 			<exclude>/include$</exclude>
 			<exclude>/tests$</exclude>

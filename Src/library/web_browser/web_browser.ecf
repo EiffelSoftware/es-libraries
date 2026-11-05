@@ -7,7 +7,7 @@
 		<root all_classes="true"/>
 		<file_rule>
 			<exclude>/EIFGEN.{0,1}$</exclude>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/temp$</exclude>
 		</file_rule>
 		<option warning="error" namespace="EiffelSoftware.Library">

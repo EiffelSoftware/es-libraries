@@ -369,6 +369,108 @@ feature -- Testing UTF-16
 			assert ("Proper retrieve", u.utf_16_0_subpointer_to_escaped_string_32 (l_ptr, 17, 20, False).same_string (str.substring (10, 13)))
 		end
 
+	test_utf_16_postconditions
+			-- Regression: postconditions of the UTF-16 conversion routines
+			-- (string_32_to_utf_16, utf_16_0_pointer_to_string_32 and
+			-- utf_16_0_subpointer_to_string_32 with `start_pos' = 1) used to be wrong
+			-- or to fail when the input contained a BMP character such as U+20AC.
+		local
+			u: UTF_CONVERTER
+			r: SPECIAL [NATURAL_16]
+		do
+			r := u.string_32_to_utf_16 ({STRING_32} "%/0x20AC/a")
+			assert ("test_utf_16_postconditions - 1", r.count = 2 and r [0] = 0x20AC and r [1] = 0x61)
+
+			assert ("test_utf_16_postconditions - 2",
+				u.utf_16_0_pointer_to_string_32 (units (<<0x20AC, 0x61, 0>>)).same_string ({STRING_32} "%/0x20AC/a"))
+
+			assert ("test_utf_16_postconditions - 3",
+				u.utf_16_0_subpointer_to_string_32 (units (<<0x78, 0x20AC, 0x61>>), 1, 2, False).same_string ({STRING_32} "%/0x20AC/a"))
+		end
+
+	test_utf_32_substring_into_utf_16_pointer_upper
+			-- Regression: `a_new_upper' of `utf_32_substring_into_utf_16_pointer' was
+			-- 2 bytes too small when `p' had to be resized, losing the last code unit.
+		local
+			u: UTF_CONVERTER
+			p: MANAGED_POINTER
+			l_upper: CELL [INTEGER]
+		do
+			create p.make (0)
+			create l_upper.put (0)
+			u.utf_32_substring_into_utf_16_pointer ({STRING_32} "a%/0x1F600/", 1, 2, p, 0, l_upper)
+			assert ("test_utf_32_substring_into_utf_16_pointer_upper - 1", l_upper.item = 6)
+			assert ("test_utf_32_substring_into_utf_16_pointer_upper - 2", p.count = 6)
+			assert ("test_utf_32_substring_into_utf_16_pointer_upper - 3", p.read_natural_16 (2) = 0xD83D)
+			assert ("test_utf_32_substring_into_utf_16_pointer_upper - 4", p.read_natural_16 (4) = 0xDE00)
+		end
+
+	test_escaped_utf_32_substring_with_offset_utf_16
+			-- Regression: `escaped_utf_32_substring_into_utf_16_0_pointer' did not
+			-- handle an escape sequence in a substring starting at `start_pos' > 1.
+		local
+			u: UTF_CONVERTER
+			p: MANAGED_POINTER
+			l_upper: CELL [INTEGER]
+		do
+			create p.make (32)
+			create l_upper.put (0)
+			u.escaped_utf_32_substring_into_utf_16_0_pointer ({STRING_32} "xx%/0xFFFD/uD800", 3, 8, p, 0, l_upper)
+			assert ("test_escaped_utf_32_substring_with_offset_utf_16 - 1", l_upper.item = 2)
+			assert ("test_escaped_utf_32_substring_with_offset_utf_16 - 2", p.read_natural_16 (0) = 0xD800)
+			assert ("test_escaped_utf_32_substring_with_offset_utf_16 - 3", p.read_natural_16 (2) = 0)
+		end
+
+	test_utf_16_escaped_roundtrips
+			-- Escaped UTF-32 to UTF-16 and back must be the identity,
+			-- including for strings containing escape sequences and U+10FFFF.
+		local
+			u: UTF_CONVERTER
+			p: MANAGED_POINTER
+			s32: STRING_32
+		do
+			across samples_32 as c loop
+				create p.make (0)
+				u.escaped_utf_32_substring_into_utf_16_0_pointer (c, 1, c.count, p, 0, Void)
+				s32 := u.utf_16_0_pointer_to_escaped_string_32 (p)
+				assert ("test_utf_16_escaped_roundtrips - " + @ c.target_index.out, s32.same_string (c))
+			end
+		end
+
+feature -- Status report
+
+	test_is_valid_utf_16
+			-- Regression: `is_valid_utf_16le_string_8', `is_valid_utf_16' and
+			-- `is_valid_utf_16_subpointer' used to reject valid surrogate pairs
+			-- or to accept a lone lead surrogate.
+		local
+			u: UTF_CONVERTER
+			s: SPECIAL [NATURAL_16]
+		do
+			assert ("test_is_valid_utf_16 - 1", u.is_valid_utf_16le_string_8 ("a%U%/61/%/216/%U%/222/"))
+			assert ("test_is_valid_utf_16 - 2", not u.is_valid_utf_16le_string_8 ("%/61/%/216/a%U"))
+
+			create s.make_filled (0, 2)
+			s [0] := 0xD83D
+			s [1] := 0xDE00
+			assert ("test_is_valid_utf_16 - 3", u.is_valid_utf_16 (s))
+
+			assert ("test_is_valid_utf_16 - 4", u.is_valid_utf_16_subpointer (units (<<0x61, 0xD83D, 0xDE00>>), 0, 2, False))
+			assert ("test_is_valid_utf_16 - 5", not u.is_valid_utf_16_subpointer (units (<<0x61, 0xD83D, 0x62>>), 0, 2, False))
+		end
+
+feature -- Measurement
+
+	test_utf_16_characters_count
+			-- `utf_16_characters_count_form_pointer' must count a surrogate
+			-- pair as one character (here: 'a', U+1F600 and U+20AC, so 3).
+		local
+			u: UTF_CONVERTER
+		do
+			assert ("test_utf_16_characters_count - 1",
+				u.utf_16_characters_count_form_pointer (units (<<0x61, 0xD83D, 0xDE00, 0x20AC, 0>>), 0, 8) = 3)
+		end
+
 feature -- UTF-8
 
 	test_utf_8_roundtrip
@@ -523,6 +625,121 @@ feature -- UTF-8
 			end
 		end
 
+	test_utf_8_overlong
+			-- Regression: the escaped UTF-8 decoders accepted overlong encodings
+			-- (C0 AF, E0 80 AF) instead of escaping each byte, and must
+			-- still decode valid text properly.
+		local
+			u: UTF_CONVERTER
+			s: STRING_8
+			p: MANAGED_POINTER
+		do
+			assert ("test_utf_8_overlong - 1",
+				u.utf_8_string_8_to_escaped_string_32 ("%/192/%/175/").same_string ({STRING_32} "%/0xFFFD/C0%/0xFFFD/AF"))
+
+			create p.make (4)
+			p.put_natural_8 (0xE0, 0)
+			p.put_natural_8 (0x80, 1)
+			p.put_natural_8 (0xAF, 2)
+			p.put_natural_8 (0, 3)
+			assert ("test_utf_8_overlong - 2",
+				u.utf_8_0_pointer_to_escaped_string_32 (p).same_string ({STRING_32} "%/0xFFFD/E0%/0xFFFD/80%/0xFFFD/AF"))
+
+				-- Valid text of 1 to 4 bytes, including the lowest 3 and 4-byte characters.
+			s := "a%/195/%/169/%/226/%/130/%/172/%/240/%/159/%/152/%/128/%/224/%/160/%/128/%/240/%/144/%/128/%/128/"
+			create p.make (s.count + 1)
+			across s as c loop
+				p.put_natural_8 (c.code.to_natural_8, @ c.target_index - 1)
+			end
+			p.put_natural_8 (0, s.count)
+			assert ("test_utf_8_overlong - 3", u.utf_8_string_8_to_escaped_string_32 (s).same_string (expected_valid_text))
+			assert ("test_utf_8_overlong - 4", u.utf_8_0_pointer_to_escaped_string_32 (p).same_string (expected_valid_text))
+		end
+
+	test_escaped_utf_32_substring_with_offset_utf_8
+			-- Regression: `escaped_utf_32_substring_into_utf_8_0_pointer' did not
+			-- handle an escape sequence in a substring starting at `start_pos' > 1.
+		local
+			u: UTF_CONVERTER
+			p: MANAGED_POINTER
+			l_upper: CELL [INTEGER]
+		do
+			create p.make (16)
+			create l_upper.put (0)
+			u.escaped_utf_32_substring_into_utf_8_0_pointer ({STRING_32} "xx%/0xFFFD/8F", 3, 5, p, 0, l_upper)
+			assert ("test_escaped_utf_32_substring_with_offset_utf_8 - 1", l_upper.item = 1)
+			assert ("test_escaped_utf_32_substring_with_offset_utf_8 - 2", p.read_natural_8 (0) = 0x8F)
+			assert ("test_escaped_utf_32_substring_with_offset_utf_8 - 3", p.read_natural_8 (1) = 0)
+		end
+
+	test_utf_8_escaped_roundtrips
+			-- Regression: escaped UTF-8 to UTF-32 and back must be the identity,
+			-- including for invalid, overlong and truncated sequences.
+		local
+			u: UTF_CONVERTER
+			s32: STRING_32
+		do
+			across samples_8 as c loop
+				s32 := u.utf_8_string_8_to_escaped_string_32 (c)
+				assert ("test_utf_8_escaped_roundtrips - " + @ c.target_index.out, u.escaped_utf_32_string_to_utf_8_string_8 (s32).same_string (c))
+			end
+		end
+
+feature -- Status report (UTF-8)
+
+	test_is_valid_utf_8_string_8
+			-- Regression: `is_valid_utf_8_string_8' accepted overlong encodings, UTF-16
+			-- surrogates and code points above U+10FFFF, or rejected valid boundary values.
+		local
+			u: UTF_CONVERTER
+		do
+				-- Valid: 1, 2, 3, 4-byte characters, U+10FFFF, U+D7FF and U+E000.
+			assert ("test_is_valid_utf_8_string_8 - 1",
+				u.is_valid_utf_8_string_8 ("a%/195/%/169/%/226/%/130/%/172/%/240/%/159/%/152/%/128/%/244/%/143/%/191/%/191/%/237/%/159/%/191/%/238/%/128/%/128/"))
+
+				-- Invalid: overlong 2, 2, 3 and 4-byte, surrogate, > U+10FFFF, invalid lead 0xF5.
+			assert ("test_is_valid_utf_8_string_8 - 2", not u.is_valid_utf_8_string_8 ("%/192/%/175/"))
+			assert ("test_is_valid_utf_8_string_8 - 3", not u.is_valid_utf_8_string_8 ("%/193/%/191/"))
+			assert ("test_is_valid_utf_8_string_8 - 4", not u.is_valid_utf_8_string_8 ("%/224/%/128/%/175/"))
+			assert ("test_is_valid_utf_8_string_8 - 5", not u.is_valid_utf_8_string_8 ("%/240/%/128/%/128/%/175/"))
+			assert ("test_is_valid_utf_8_string_8 - 6", not u.is_valid_utf_8_string_8 ("%/237/%/160/%/128/"))
+			assert ("test_is_valid_utf_8_string_8 - 7", not u.is_valid_utf_8_string_8 ("%/244/%/144/%/128/%/128/"))
+			assert ("test_is_valid_utf_8_string_8 - 8", not u.is_valid_utf_8_string_8 ("%/245/%/128/%/128/%/128/"))
+		end
+
+feature -- Measurement (UTF-8)
+
+	test_utf_8_to_string_32_count
+			-- Regression: `utf_8_to_string_32_count' miscounted when a multi-byte
+			-- character ended exactly at `end_pos', must agree with the decoder
+			-- `utf_8_string_8_to_string_32', and used to loop forever on an invalid lead byte.
+		local
+			u: UTF_CONVERTER
+			s: STRING_8
+		do
+			s := "%/194/%/169/"
+			assert ("test_utf_8_to_string_32_count - 1", u.utf_8_to_string_32_count (s.area, 0, 1) = 1)
+
+			s := "a%/226/%/130/%/172/"
+			assert ("test_utf_8_to_string_32_count - 2", u.utf_8_to_string_32_count (s.area, 0, 3) = 2)
+
+			s := "%/240/%/159/%/152/%/128/"
+			assert ("test_utf_8_to_string_32_count - 3", u.utf_8_to_string_32_count (s.area, 0, 3) = 1)
+
+				-- Consistency with the decoder.
+			across samples_8 as c loop
+				s := c
+				if s.count > 0 then
+					assert ("test_utf_8_to_string_32_count - 4 (sample " + @ c.target_index.out + ")",
+						u.utf_8_to_string_32_count (s.area, 0, s.count - 1) = u.utf_8_string_8_to_string_32 (s).count)
+				end
+			end
+
+				-- Invalid lead byte 0xF8 used to hang forever.
+			s := "%/248/a"
+			assert ("test_utf_8_to_string_32_count - 5", u.utf_8_to_string_32_count (s.area, 0, 1) = 1)
+		end
+
 feature {NONE} -- Implementation
 
 	upper: CELL [INTEGER]
@@ -530,8 +747,38 @@ feature {NONE} -- Implementation
 			create Result.put (0)
 		end
 
+	expected_valid_text: STRING_32
+			-- Expected decoding of the valid text used in `test_utf_8_overlong'.
+		once
+			Result := {STRING_32} "a%/0xE9/%/0x20AC/%/0x1F600/%/0x800/%/0x10000/"
+		end
+
+	samples_8: ARRAY [STRING_8]
+			-- UTF-8 samples, valid and invalid.
+		once
+			Result := <<"", "abc", "%/195/%/169/", "%/226/%/130/%/172/", "%/240/%/159/%/152/%/128/",
+				"%/192/%/175/", "%/224/%/128/%/175/", "%/240/%/128/%/128/%/175/", "%/237/%/160/%/128/",
+				"%/143/%/143/", "%/195/", "a%/226/%/130/", "%/255/%/254/x", "x%/248/%/136/%/128/%/128/%/128/">>
+		end
+
+	samples_32: ARRAY [STRING_32]
+			-- UTF-32 samples, some with escape sequences.
+		once
+			Result := <<{STRING_32} "", {STRING_32} "abc", {STRING_32} "%/0xE9/%/0x20AC/%/0x1F600/",
+				{STRING_32} "x%/0xFFFD/uD800y", {STRING_32} "%/0x10FFFF/z">>
+		end
+
+	units (a: ARRAY [INTEGER]): MANAGED_POINTER
+			-- Buffer holding the 16-bit code units `a'.
+		do
+			create Result.make (a.count * 2)
+			across a as c loop
+				Result.put_natural_16 (c.to_natural_16, (@ c.target_index - a.lower) * 2)
+			end
+		end
+
 note
-	copyright: "Copyright (c) 1984-2014, Eiffel Software and others"
+	copyright: "Copyright (c) 1984-2026, Eiffel Software and others"
 	license: "Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software

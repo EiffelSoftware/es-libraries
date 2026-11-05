@@ -9,9 +9,8 @@
 		<file_rule>
 			<exclude>/Documentation$</exclude>
 			<exclude>/EIFGENs$</exclude>
-			<exclude>/\.svn</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/base$</exclude>
-			<exclude>/cvs$</exclude>
 			<exclude>/free_elks$</exclude>
 			<exclude>/ge$</exclude>
 			<exclude>/hact$</exclude>

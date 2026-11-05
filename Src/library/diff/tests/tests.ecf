@@ -5,7 +5,7 @@
 		<root class="ANY" feature="default_create"/>
 		<file_rule>
 			<exclude>/EIFGENs</exclude>
-			<exclude>/\.svn</exclude>
+			<exclude>/\..*$</exclude>
 		</file_rule>
 		<option warning="error" namespace="EiffelSoftware.Library">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>

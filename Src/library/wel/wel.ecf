@@ -69,7 +69,7 @@
 				<warning name="obsolete_feature" value="none"/>
 			</class_option>
 			<file_rule>
-				<exclude>/\.svn$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>^/tests$</exclude>
 			</file_rule>
 			<file_rule>

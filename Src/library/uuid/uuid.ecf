@@ -6,7 +6,7 @@
 	<target name="uuid">
 		<root all_classes="true"/>
 		<file_rule>
-			<exclude>/\.svn$</exclude>
+			<exclude>/\..*$</exclude>
 			<exclude>/tests$</exclude>
 		</file_rule>
 		<option warning="error" namespace="EiffelSoftware.Library">
