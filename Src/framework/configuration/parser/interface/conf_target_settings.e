@@ -20,6 +20,8 @@ feature {NONE} -- Initialization
 			-- Create empty settings that may be filled later.
 		do
 			create internal_settings.make (1)
+			create forced_variables.make_equal_caseless (0)
+			create forced_debugs.make (0)
 		end
 
 feature -- Access
@@ -54,6 +56,19 @@ feature -- Access
 		ensure
 			Result_not_void: Result /= Void
 		end
+
+	forced_variables: STRING_TABLE [READABLE_STRING_32]
+			-- Variables taking precedence over the ones of the configuration file
+			-- (for instance given on the command line), never stored in the configuration file.
+
+	forced_debugs: STRING_TABLE [BOOLEAN]
+			-- Named debug clauses enabled or disabled in the whole application, taking precedence
+			-- over the ones of the configuration file (for instance given on the command line),
+			-- never stored in the configuration file.
+			-- Key: lower case name of the debug clause.
+
+	forced_settings: detachable CONF_TARGET_SETTINGS
+			-- Settings given to the last call to `force` (for instance from the command line), if any.
 
 	namespace: like namespace_1_0_0
 			-- The XML namespace associated with the target.
@@ -215,6 +230,21 @@ feature -- Access: settings
 			Result_not_void: Result /= Void
 		end
 
+feature -- Comparison
+
+	is_same_settings (other: CONF_TARGET_SETTINGS): BOOLEAN
+			-- Do Current and `other` set the same settings, options, variables and debug clauses?
+		do
+			Result :=
+				settings.count = other.settings.count and then
+				(∀ s: settings ¦ attached other.settings.item (@ s.key) as v and then v.same_string (s)) and then
+				options ~ other.options and then
+				forced_variables.count = other.forced_variables.count and then
+				(∀ v: forced_variables ¦ attached other.forced_variables.item (@ v.key) as w and then w.same_string (v)) and then
+				forced_debugs.count = other.forced_debugs.count and then
+				(∀ d: forced_debugs ¦ other.forced_debugs.has (@ d.key) and then other.forced_debugs.item (@ d.key) = d)
+		end
+
 feature -- Modification
 
 	force (other: CONF_TARGET_SETTINGS)
@@ -222,10 +252,35 @@ feature -- Modification
 		local
 			new_options: like options
 		do
+			forced_settings := other
 			internal_settings.merge (other.settings)
+			forced_variables.merge (other.forced_variables)
+			forced_debugs.merge (other.forced_debugs)
 			new_options := other.options.twin
 			new_options.merge (options)
 			internal_options := new_options
+		end
+
+	force_variable (a_name, a_value: READABLE_STRING_32)
+			-- Set the variable `a_name` to `a_value`, taking precedence over the variables
+			-- of the configuration file, but without storing it there.
+		require
+			a_name_not_empty: not a_name.is_empty
+		do
+			forced_variables.force (a_value, a_name)
+		ensure
+			forced: forced_variables.item (a_name) = a_value
+		end
+
+	force_debug (a_name: READABLE_STRING_32; a_enabled: BOOLEAN)
+			-- Enable (if `a_enabled`) or disable the debug clause `a_name` in the whole application,
+			-- taking precedence over the configuration file, but without storing it there.
+		require
+			a_name_not_empty: not a_name.is_empty
+		do
+			forced_debugs.force (a_enabled, a_name.as_lower)
+		ensure
+			forced: forced_debugs.item (a_name.as_lower) = a_enabled
 		end
 
 feature {CONF_ACCESS} -- Update, stored in configuration file
@@ -356,6 +411,8 @@ feature {CONF_VISITOR} -- Modification
 
 invariant
 	internal_settings_attached: attached internal_settings
+	forced_variables_attached: attached forced_variables
+	forced_debugs_attached: attached forced_debugs
 
 note
 	copyright:	"Copyright (c) 1984-2021, Eiffel Software"

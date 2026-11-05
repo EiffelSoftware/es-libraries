@@ -34,6 +34,17 @@ feature -- Basic operations
 
 	parse_value (input: READABLE_STRING_32; delimiter_index: INTEGER; option: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
 			-- <Precursor>
+		do
+			if option.same_string_general (o_is_debug) then
+				parse_debug (input.substring (delimiter_index + 1, input.count), settings)
+			else
+				parse_setting_value (input, delimiter_index, option, settings)
+			end
+		end
+
+	parse_setting_value (input: READABLE_STRING_32; delimiter_index: INTEGER; option: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
+			-- Update `settings` from `input` with the value starting at `delimiter_index` for the setting or capability `option`,
+			-- and set `error` accordingly.
 		local
 			value: READABLE_STRING_32
 			valid_values: ITERABLE [READABLE_STRING_GENERAL]
@@ -106,6 +117,97 @@ feature -- Basic operations
 				settings.add_setting (option, value)
 			end
 		end
+
+	parse_debug (a_value: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
+			-- Update `settings` from the value `a_value` of the option "debug", and set `error` accordingly:
+			--  "true" or "false": enable or disable debug clauses in the target (as the option debug="...");
+			--  "name=true" or "name=false": enable or disable the debug clause `name` in the whole application
+			--  (as <debug name="name" enabled="..."/> in the target, but also in the libraries);
+			--  otherwise, a list of debug clauses, each one preceded by "+" (enable, the default) or "-" (disable),
+			--  for instance "foo" (same as "foo=true") or "+foo-bar+abc" (foo=true, bar=false, abc=true).
+		local
+			i, n: INTEGER
+			c: CHARACTER_32
+			l_name: STRING_32
+			l_enabled: BOOLEAN
+			l_value: READABLE_STRING_32
+		do
+			i := a_value.index_of ('=', 1)
+			if a_value.is_case_insensitive_equal (configuration_value_true) then
+				settings.changeable_internal_options.set_debug (True)
+			elseif a_value.is_case_insensitive_equal (configuration_value_false) then
+				settings.changeable_internal_options.set_debug (False)
+			elseif i > 0 then
+					-- name=true|false
+				l_value := a_value.substring (i + 1, a_value.count)
+				if l_value.is_case_insensitive_equal (configuration_value_true) then
+					force_debug (a_value.substring (1, i - 1), True, a_value, settings)
+				elseif l_value.is_case_insensitive_equal (configuration_value_false) then
+					force_debug (a_value.substring (1, i - 1), False, a_value, settings)
+				else
+					error := conf_interface_names.e_parse_debug_invalid_value (a_value)
+				end
+			else
+					-- [+|-]name[(+|-)name...]
+				from
+					create l_name.make_empty
+					l_enabled := True
+					n := a_value.count
+					i := 1
+				until
+					i > n + 1 or attached error
+				loop
+					if i <= n then
+						c := a_value [i]
+					end
+					if i > n or c = '+' or c = '-' then
+						if not l_name.is_empty then
+							force_debug (l_name, l_enabled, a_value, settings)
+							create l_name.make_empty
+						elseif i > 1 or i > n then
+								-- A sign without a name, or no name at all.
+							error := conf_interface_names.e_parse_debug_invalid_value (a_value)
+						end
+						l_enabled := c /= '-'
+					else
+						l_name.extend (c)
+					end
+					i := i + 1
+				end
+			end
+		end
+
+	force_debug (a_name: READABLE_STRING_32; a_enabled: BOOLEAN; a_value: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
+			-- Enable (if `a_enabled`) or disable the debug clause `a_name`, given in the value `a_value`
+			-- of the option "debug", in `settings`, or set `error` if `a_name` is not a valid name.
+		do
+			if a_name.is_empty or else a_name.same_string_general (unnamed_debug) then
+				error := conf_interface_names.e_parse_debug_invalid_value (a_value)
+			else
+				settings.force_debug (a_name, a_enabled)
+			end
+		end
+
+	parse_variable (input: READABLE_STRING_32; settings: CONF_TARGET_SETTINGS)
+			-- Force in `settings` the variable given by `input` as "name=value"
+			-- (as <variable name="name" value="value"/> in the target), and set `error` accordingly.
+			-- The value may be empty.
+		local
+			i: INTEGER
+		do
+			error := Void
+			i := input.index_of (variable_delimiter, 1)
+			if i = 0 then
+				error := conf_interface_names.e_parse_variable_missing_delimiter (input)
+			elseif i = 1 then
+				error := conf_interface_names.e_parse_variable_missing_name (input)
+			else
+				settings.force_variable (input.substring (1, i - 1), input.substring (i + 1, input.count))
+			end
+		end
+
+	variable_delimiter: CHARACTER_32 = '='
+			-- A delimiter between the name and the value of a variable.
 
 feature {NONE} -- Search
 

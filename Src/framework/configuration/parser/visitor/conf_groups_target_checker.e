@@ -176,8 +176,10 @@ feature -- Visit nodes
 				end
 --				Precursor (a_target)
 				if not is_checking_stopped then
-					if attached a_target.internal_precompile as l_pre then
-						l_pre.process (Current)
+					if not a_target.is_precompile_ignored then
+						if attached a_target.internal_precompile as l_pre then
+							l_pre.process (Current)
+						end
 					end
 					across
 						a_target.internal_libraries as i

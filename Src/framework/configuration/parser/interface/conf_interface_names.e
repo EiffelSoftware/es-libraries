@@ -1348,6 +1348,24 @@ feature -- String parse errors
 			Result := locale.formatted_string (locale.translation ("Missing value in the setting %"$1%""), [option])
 		end
 
+	e_parse_variable_missing_delimiter (a_variable: READABLE_STRING_GENERAL): READABLE_STRING_32
+			-- An error for a variable given without "=" between its name and its value.
+		do
+			Result := locale.formatted_string (locale.translation ("Missing %"=%" between the name and the value of the variable %"$1%""), [a_variable])
+		end
+
+	e_parse_variable_missing_name (a_variable: READABLE_STRING_GENERAL): READABLE_STRING_32
+			-- An error for a variable given without name.
+		do
+			Result := locale.formatted_string (locale.translation ("Missing name in the variable %"$1%""), [a_variable])
+		end
+
+	e_parse_debug_invalid_value (a_value: READABLE_STRING_GENERAL): READABLE_STRING_32
+			-- An error for an invalid value of the option "debug".
+		do
+			Result := locale.formatted_string (locale.translation ("Invalid value %"$1%" for the option %"debug%": expected true, false, name=true, name=false, or a list such as +name1-name2"), [a_value])
+		end
+
 	e_parse_string_unknown_name (option_name: READABLE_STRING_GENERAL; known_names: ITERABLE [READABLE_STRING_GENERAL]): READABLE_STRING_32
 			-- An error for an unknown setting name.
 		local

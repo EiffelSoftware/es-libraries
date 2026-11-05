@@ -341,20 +341,36 @@ feature -- Access queries
 			end
 		end
 
+	is_precompile_ignored: BOOLEAN
+			-- Should precompile libraries be ignored?
+		do
+			Result := internal_is_precompile_ignored or else system.is_precompile_ignored
+		end
+
 	precompile: detachable CONF_PRECOMPILE
 			-- The precompile (if any).
 		local
 			l_internal_precompile: like internal_precompile
 		do
-			l_internal_precompile := internal_precompile
-			if
-				l_internal_precompile = Void and
-				attached extends as l_extends
-			then
-				Result := l_extends.precompile
-			else
-				Result := l_internal_precompile
+			if not is_precompile_ignored then
+				l_internal_precompile := internal_precompile
+				if
+					l_internal_precompile = Void and
+					attached extends as l_extends
+				then
+					Result := l_extends.precompile
+				else
+					Result := l_internal_precompile
+				end
 			end
+		end
+
+	set_is_precompile_ignored (b: BOOLEAN)
+			-- Set `internal_is_precompile_ignored` to `b`.
+		do
+			internal_is_precompile_ignored := b
+		ensure
+			is_precompile_ignored_set: internal_is_precompile_ignored = b
 		end
 
 	libraries: STRING_TABLE [CONF_LIBRARY]
@@ -583,7 +599,7 @@ feature -- Access queries
 		end
 
 	variables: STRING_TABLE [READABLE_STRING_32]
-			-- User defined variables.
+			-- User defined variables, including `forced_variables`.
 		do
 			if attached extends as l_extends then
 				Result := l_extends.variables.twin
@@ -591,8 +607,38 @@ feature -- Access queries
 			else
 				Result := internal_variables
 			end
+			if not forced_variables.is_empty then
+				if Result = internal_variables then
+					Result := Result.twin
+				end
+				Result.merge (forced_variables)
+			end
 		ensure
 			Result_not_void: Result /= Void
+		end
+
+	application_debugs: STRING_TABLE [BOOLEAN]
+			-- Named debug clauses enabled or disabled in the whole application (clusters and libraries),
+			-- taking precedence over the debug clauses of the groups:
+			-- the ones of the target (when its debug option is enabled), then `forced_debugs`.
+			-- Key: lower case name of the debug clause.
+		local
+			l_options: like options
+		do
+			create Result.make (forced_debugs.count)
+			l_options := options
+			if l_options.is_debug and then attached l_options.debugs as l_debugs then
+				across
+					l_debugs as d
+				loop
+					if not (@ d.key).same_string (unnamed_debug) then
+						Result.force (d, @ d.key)
+					end
+				end
+			end
+			Result.merge (forced_debugs)
+		ensure
+			no_unnamed_debug: not Result.has (unnamed_debug)
 		end
 
 	mapping: STRING_TABLE [READABLE_STRING_32]
@@ -1405,6 +1451,9 @@ feature {CONF_VISITOR, CONF_ACCESS} -- Implementation, attributes that are store
 
 	internal_precompile: like precompile
 			-- Precompile of this target itself.
+
+	internal_is_precompile_ignored: BOOLEAN
+			-- Should precompile libraries be ignored?
 
 	internal_libraries: like libraries
 			-- The used libraries of this target itself.
