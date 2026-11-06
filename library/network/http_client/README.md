@@ -53,6 +53,31 @@ For the net implementation (using EiffelNet), if you need https:// support, you 
 	end
 ```
 
+## Streaming and cancellation
+
+* To process a response as it arrives (e.g. Server-Sent Events), give an agent receiving the
+  parts of its content (without the header) to the request context:
+```
+	create ctx.make
+	ctx.set_content_write_agent (agent (s: READABLE_STRING_8) do process (s) end)
+	if attached sess.post ("/v1/messages", ctx, l_json) as l_response then
+		-- `l_response.status' and its headers are set; its `body' is empty.
+```
+* To be able to stop a transfer (for instance from another thread), give the context a
+  function telling whether to stop: it is asked during the transfer, and the response of a
+  stopped transfer `is_cancelled' (an error).
+```
+	ctx.set_cancellation_query (agent: BOOLEAN do Result := is_stop_requested end)
+```
+	- libcurl implementation: asked at each part received and by the progress callback
+	  (about every second, even while no data arrive).
+	- net implementation: asked every second while waiting for the response, and between the
+	  reads of the content.
+	- The function may be called from the thread performing the request.
+* With libcurl, the callbacks of the transfers go to the object given as their data
+  (`LIBCURL_TRANSFER`), so that requests performed at the same time in several threads do
+  not mix their data.
+
 ## Examples
 * See the `tests/test-safe.ecf` project to see how to use.
 * Examples will come in the future.
