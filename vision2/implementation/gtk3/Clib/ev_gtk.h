@@ -28,16 +28,9 @@ indexing
 #include <gdk/gdkwayland.h>
 #endif
 
-/* 
-	For macOs GDB_BACKEND quarts maybe we need  
-    to check GDK_WINDOWING_QUARTZ
-*/
-#ifdef EIF_MACOSX
-	#include <TargetConditionals.h>
-	#ifdef TARGET_OS_MAC
-		#include <gdk/gdk.h>
-		#include <gdk/gdkquartz.h>
-	#endif
+#ifdef GDK_WINDOWING_QUARTZ
+	/* Native macOS backend: only available when GTK+ 3 was built with it. */
+#include <gdk/gdkquartz.h>
 #endif
 
 
