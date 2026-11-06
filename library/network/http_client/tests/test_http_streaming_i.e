@@ -19,6 +19,17 @@ feature -- Factory
 		deferred
 		end
 
+feature {NONE} -- Implementation
+
+	now_ms: INTEGER_64
+			-- Current time in milliseconds
+		local
+			t: DATE_TIME
+		do
+			create t.make_now_utc
+			Result := t.date.days.to_integer_64 * 86_400_000 + (t.time.fine_seconds * 1000).truncated_to_integer_64
+		end
+
 feature -- Test routines
 
 	test_streamed_content
@@ -37,9 +48,9 @@ feature -- Test routines
 			sess.set_timeout (20)
 			create l_parts.make (3)
 			create ctx.make
-			ctx.set_content_write_agent (agent (s: READABLE_STRING_8; a_parts: like l_parts)
+			ctx.set_content_write_agent (agent (s: READABLE_STRING_8; a_parts: ARRAYED_LIST [TUPLE [content: STRING_8; time: INTEGER_64]])
 				do
-					a_parts.extend ([s.to_string_8, {MONOTONIC_CLOCK}.milliseconds])
+					a_parts.extend ([s.to_string_8, now_ms])
 				end (?, l_parts))
 			if attached sess.get ("/stream", ctx) as res then
 				srv.stop
@@ -49,8 +60,13 @@ feature -- Test routines
 				assert ("content type", attached res.header ("Content-Type") as ct and then ct.same_string ("text/event-stream"))
 				assert ("no body (given to the agent)", not attached res.body as b or else b.is_empty)
 				create l_all.make_empty
-				across l_parts as p loop
-					l_all.append (p.item.content)
+				from
+					l_parts.start
+				until
+					l_parts.after
+				loop
+					l_all.append (l_parts.item.content)
+					l_parts.forth
 				end
 				assert ("whole content", l_all.same_string ("data: one%N%Ndata: two%N%Ndata: three%N%N"))
 				assert ("several parts", l_parts.count >= 2)
@@ -77,23 +93,23 @@ feature -- Test routines
 			sess.set_timeout (30)
 			create l_parts.make (2)
 			create ctx.make
-			ctx.set_content_write_agent (agent (s: READABLE_STRING_8; a_parts: like l_parts)
+			ctx.set_content_write_agent (agent (s: READABLE_STRING_8; a_parts: ARRAYED_LIST [STRING_8])
 				do
 					a_parts.extend (s.to_string_8)
 				end (?, l_parts))
 				-- (Stop once the first part is received.)
-			ctx.set_cancellation_query (agent (a_parts: like l_parts): BOOLEAN
+			ctx.set_cancellation_query (agent (a_parts: ARRAYED_LIST [STRING_8]): BOOLEAN
 				do
 					Result := not a_parts.is_empty
 				end (l_parts))
-			l_start := {MONOTONIC_CLOCK}.milliseconds
+			l_start := now_ms
 			if attached sess.get ("/stream", ctx) as res then
-				assert ("stopped quickly", {MONOTONIC_CLOCK}.milliseconds - l_start < 8000)
+				assert ("stopped quickly", now_ms - l_start < 8000)
 				srv.stop
 				assert ("cancelled", res.is_cancelled)
 				assert ("error", res.error_occurred)
 				assert ("first part received", not l_parts.is_empty and then l_parts.first.starts_with ("data: one"))
-				assert ("second part not received", across l_parts as p all not p.item.has_substring ("two") end)
+				assert ("second part not received", not l_parts.last.has_substring ("two") and l_parts.count = 1)
 			else
 				srv.stop
 				assert ("response", False)
@@ -114,14 +130,14 @@ feature -- Test routines
 			sess := new_session (srv.url)
 			sess.set_timeout (30)
 			create ctx.make
-			l_start := {MONOTONIC_CLOCK}.milliseconds
+			l_start := now_ms
 				-- (Stop after one second.)
 			ctx.set_cancellation_query (agent (a_start: INTEGER_64): BOOLEAN
 				do
-					Result := {MONOTONIC_CLOCK}.milliseconds - a_start > 1000
+					Result := now_ms - a_start > 1000
 				end (l_start))
 			if attached sess.get ("/wait", ctx) as res then
-				assert ("stopped quickly", {MONOTONIC_CLOCK}.milliseconds - l_start < 8000)
+				assert ("stopped quickly", now_ms - l_start < 8000)
 				srv.stop
 				assert ("cancelled", res.is_cancelled)
 				assert ("error", res.error_occurred)

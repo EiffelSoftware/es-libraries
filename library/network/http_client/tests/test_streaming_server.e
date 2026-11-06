@@ -42,6 +42,7 @@ feature -- Basic operations
 			-- Listen, and serve one connection in a thread.
 		local
 			l_socket: detachable NETWORK_STREAM_SOCKET
+			l_thread: WORKER_THREAD
 			p: INTEGER
 		do
 				-- (A free port near a random one.)
@@ -59,8 +60,9 @@ feature -- Basic operations
 				port := p
 				server_socket := l_socket
 				l_socket.listen (1)
-				create thread.make (agent serve (l_socket))
-				thread.launch
+				create l_thread.make (agent serve (l_socket))
+				thread := l_thread
+				l_thread.launch
 			end
 		end
 
@@ -113,6 +115,7 @@ feature {NONE} -- Implementation
 		local
 			retried: BOOLEAN
 			l_done: BOOLEAN
+			i: INTEGER
 		do
 			if not retried then
 				a_socket.accept
@@ -127,11 +130,16 @@ feature {NONE} -- Implementation
 					wait (first_delay_ms)
 					if not is_stop_requested then
 						c.put_string ("HTTP/1.1 200 OK%R%NContent-Type: text/event-stream%R%NTransfer-Encoding: chunked%R%NConnection: close%R%N%R%N")
-						across parts as p until is_stop_requested loop
-							wait (delays_ms [p.target_index])
+						from
+							i := parts.lower
+						until
+							i > parts.upper or is_stop_requested
+						loop
+							wait (delays_ms [i])
 							if not is_stop_requested then
-								c.put_string (p.item.count.to_hex_string.as_lower + "%R%N" + p.item + "%R%N")
+								c.put_string (parts [i].count.to_hex_string.as_lower + "%R%N" + parts [i] + "%R%N")
 							end
+							i := i + 1
 						end
 						if not is_stop_requested then
 							c.put_string ("0%R%N%R%N")
