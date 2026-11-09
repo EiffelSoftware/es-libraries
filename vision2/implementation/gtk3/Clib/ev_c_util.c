@@ -363,15 +363,36 @@ void enable_ev_gtk_log (int a_mode)
  * context), so that `ev_gdk_event_get' returns them, in order, before calling
  * `gdk_event_get'. When the queue is disabled (e.g. a main loop run by GTK+ itself),
  * the events go to `gtk_main_do_event' as usual.
+ *
+ * The drag and drop events are never queued: GDK Quartz emits them from the AppKit
+ * drag callbacks, during the native drag loop, and needs them handled at once (it
+ * answers AppKit with the resulting action, and destroys the drag context right after
+ * emitting GDK_DROP_FINISHED). Queued, a drag (of a selected text for instance) never ends.
  */
 
 static GQueue *ev_gdk_event_queue = NULL;
 static gboolean ev_gdk_event_queue_enabled = FALSE;
 
+static gboolean
+ev_gdk_event_is_dnd (GdkEvent *event)
+{
+	switch (event->type) {
+	case GDK_DRAG_ENTER:
+	case GDK_DRAG_LEAVE:
+	case GDK_DRAG_MOTION:
+	case GDK_DRAG_STATUS:
+	case GDK_DROP_START:
+	case GDK_DROP_FINISHED:
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
 static void
 ev_gdk_event_queue_handler (GdkEvent *event, gpointer data)
 {
-	if (ev_gdk_event_queue_enabled) {
+	if (ev_gdk_event_queue_enabled && !ev_gdk_event_is_dnd (event)) {
 		g_queue_push_tail (ev_gdk_event_queue, gdk_event_copy (event));
 	} else {
 		gtk_main_do_event (event);

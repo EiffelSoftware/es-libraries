@@ -205,6 +205,16 @@ static gboolean ev_gtk_is_drag_source_active (void)
 	if (display == NULL || GPOINTER_TO_INT (g_object_get_data (G_OBJECT (display), EV_GTK_DRAG_SOURCE_COUNT_KEY)) <= 0) {
 		return FALSE;
 	}
+#ifdef GDK_WINDOWING_QUARTZ
+		/* With Quartz, the native drag runs its own event loop, inside GTK+, and is over
+		 * when that returns; GDK gets the events through its event handler anyway.
+		 * Moreover "drag-end" is not emitted for a failed drag: the count above stays
+		 * positive, and an EiffelVision2 capture (pointer grab) would then never see
+		 * its button release. */
+	if (GDK_IS_QUARTZ_DISPLAY (display)) {
+		return FALSE;
+	}
+#endif
 		/* A drag in progress holds the pointer grab: should a "drag-end" ever be missed,
 		 * this keeps the events from being dispatched by GTK alone forever. */
 	seat = gdk_display_get_default_seat (display);

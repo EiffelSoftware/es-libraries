@@ -103,6 +103,14 @@ GDK_BACKEND=quartz Src/scripts/run_as_macos_app.sh <dir>/vision2_demo/EIFGENs/vi
   returns any. `{EV_APPLICATION_IMP}` installs a handler that queues them
   (`ev_gdk_event_get` in `Clib/ev_c_util.c`), so that EiffelVision2 processes
   them as with X11 (pointer actions, capture, pick and drop, keys, ...).
+- The drag and drop events (`GDK_DRAG_*`, `GDK_DROP_*`) are not queued: GDK
+  Quartz emits them from the AppKit drag callbacks, during the native drag loop,
+  and needs them handled at once.
+- A GTK+ drag (of a selected text, ...) runs the native drag loop inside GTK+,
+  and GTK+ Quartz does not emit "drag-end" for a failed drag: the X11 handling
+  of a GTK+ drag in progress (`ev_gtk_is_drag_source_active`, events dispatched
+  by GTK+ only) is not used, otherwise an EiffelVision2 capture would never get
+  its button release and the application would stop responding.
 - A popup menu shown without anchor widget is positioned relative to the
   window under the pointer, and is never made transient for itself (AppKit
   aborts on `addChildWindow:` of a window to itself).
