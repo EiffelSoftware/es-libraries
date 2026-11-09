@@ -62,6 +62,8 @@ feature -- Status report
 			-- Is `a_kind' a kind of provider?
 		do
 			Result := a_kind.same_string (Kind_anthropic) or a_kind.same_string (Kind_openai) or a_kind.same_string (Kind_ollama)
+		ensure
+			class
 		end
 
 	needs_key: BOOLEAN
