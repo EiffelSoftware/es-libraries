@@ -53,6 +53,9 @@ feature -- Access
 	last_error: detachable STRING_32
 			-- Error of the last `load' or `save', if any
 
+	keeps_transcripts: BOOLEAN
+			-- Are transcripts of the conversations kept?
+
 feature -- Element change
 
 	reset_to_default
@@ -67,6 +70,15 @@ feature -- Element change
 			providers.extend (create {AI_PROVIDER_SETTINGS}.make ("llama.app", {AI_PROVIDER_SETTINGS}.Kind_openai, "http://localhost:9931", Void))
 			model_provider := {STRING_32} "anthropic"
 			model_id := {STRING_32} "claude-opus-5-5"
+			keeps_transcripts := True
+		end
+
+	set_keeps_transcripts (b: BOOLEAN)
+			-- Set `keeps_transcripts' to `b'.
+		do
+			keeps_transcripts := b
+		ensure
+			set: keeps_transcripts = b
 		end
 
 	put_provider (p: AI_PROVIDER_SETTINGS)
@@ -162,6 +174,7 @@ feature -- Persistence
 								end
 							⟲
 						end
+						keeps_transcripts := not attached {JSON_BOOLEAN} o.item ("transcripts") as t or else t.item
 						if attached object_item (o, "model") as m and then attached string_item (m, "provider") as mp and then attached string_item (m, "id") as l_id and then not l_id.is_empty then
 							set_model (mp, l_id)
 						end
@@ -191,7 +204,7 @@ feature -- Persistence
 		do
 			last_error := Void
 			if not retried then
-				create o.make_with_capacity (2)
+				create o.make_with_capacity (3)
 				create l_providers.make (providers.count)
 				⟳ s: providers ¦
 					create p.make_with_capacity (5)
@@ -208,6 +221,7 @@ feature -- Persistence
 					l_providers.extend (p)
 				⟲
 				o.put (l_providers, "providers")
+				o.put_boolean (keeps_transcripts, "transcripts")
 				if attached model_provider as mp and then attached model_id as l_id then
 					create m.make_with_capacity (2)
 					m.put_string (mp, "provider")

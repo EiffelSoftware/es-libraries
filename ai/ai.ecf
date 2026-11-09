@@ -19,6 +19,7 @@
 		<library name="http_client" location="$ISE_LIBRARY\contrib\library\network\http_client\http_client.ecf"/>
 		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json.ecf"/>
 		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<cluster name="es_ai" location=".\" recursive="true"/>
 	</target>
 	<target name="es_ai_tests" extends="es_ai">
@@ -30,7 +31,6 @@
 		<setting name="console_application" value="true"/>
 		<library name="net" location="$ISE_LIBRARY\library\net\net.ecf"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
-		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
 		<tests name="tests" location=".\tests\"/>
 	</target>
 </system>

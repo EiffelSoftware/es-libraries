@@ -25,7 +25,11 @@ The default settings (`{AI_SETTINGS}.make_default`) declare `anthropic`, `openai
   and `AI_RESPONSE_BUILDER`, which builds the message (texts, tool calls with their input) from the events.
 - `transport`: `AI_REQUEST_JOB` performs a request in a thread with the `http_client` library; the user interface
   polls it (`take_events`, `is_finished`) and can stop it (`cancel`).
-- `settings`: `AI_SETTINGS` and `AI_PROVIDER_SETTINGS`, saved as JSON.
+- `settings`: `AI_SETTINGS` and `AI_PROVIDER_SETTINGS`, saved as JSON (with `keeps_transcripts`); `is_local`
+  tells a provider on this machine.
+- `session`: `AI_CHAT_SESSION`, a conversation with a model: `ask` sends a question with the conversation so far,
+  `poll` takes the answer received into account (`answer_text`, `answer_version`), `stop` stops it; an answer is kept
+  in the conversation, an error forgets the question. `AI_TRANSCRIPT` appends the questions and answers to a Markdown file.
 
 ```eiffel
 	p := (create {AI_PROVIDER_FACTORY}).new_provider (settings.provider_named ("anthropic"))

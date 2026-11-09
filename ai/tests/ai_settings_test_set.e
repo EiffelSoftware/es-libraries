@@ -25,6 +25,7 @@ feature -- Tests
 			assert ("llama.app without key", attached s.provider_named ("llama.app") as p and then (p.kind.same_string ({AI_PROVIDER_SETTINGS}.Kind_openai) and not p.needs_key and p.is_usable))
 			assert ("ollama without key", attached s.provider_named ("ollama") as p and then (not p.needs_key and p.is_usable))
 			assert ("model", s.model_provider ~ {STRING_32} "anthropic" and s.model_id ~ {STRING_32} "claude-opus-5-5")
+			assert ("transcripts", s.keeps_transcripts)
 		end
 
 	test_change
@@ -63,6 +64,16 @@ feature -- Tests
 			assert ("usable", p.is_usable)
 		end
 
+	test_is_local
+			-- Providers on this machine.
+		do
+			assert ("localhost", (create {AI_PROVIDER_SETTINGS}.make ("a", "ollama", "http://localhost:11434", Void)).is_local)
+			assert ("loopback", (create {AI_PROVIDER_SETTINGS}.make ("a", "openai", "http://127.0.0.1:9931/v1", Void)).is_local)
+			assert ("ipv6", (create {AI_PROVIDER_SETTINGS}.make ("a", "openai", "http://[::1]:8080", Void)).is_local)
+			assert ("cloud", not (create {AI_PROVIDER_SETTINGS}.make ("a", "anthropic", "https://api.anthropic.com", Void)).is_local)
+			assert ("not a prefix", not (create {AI_PROVIDER_SETTINGS}.make ("a", "openai", "https://localhost.example.com", Void)).is_local)
+		end
+
 	test_save_and_load
 			-- What is saved is loaded back.
 		local
@@ -78,6 +89,7 @@ feature -- Tests
 			p.set_key ("secret")
 			s.put_provider (p)
 			s.set_model ({STRING_32} "local é", "qwen3")
+			s.set_keeps_transcripts (False)
 			s.save (l_path)
 			assert ("saved", s.last_error = Void)
 			create f.make_with_path (l_path)
@@ -99,6 +111,7 @@ feature -- Tests
 			end
 			assert ("variable", attached l.provider_named ("nvidia") as n and then n.key_variable ~ {STRING_32} "NVIDIA_API_KEY")
 			assert ("model", l.model_provider ~ {STRING_32} "local é" and l.model_id ~ {STRING_32} "qwen3")
+			assert ("no transcripts", not l.keeps_transcripts)
 			f.delete
 		end
 

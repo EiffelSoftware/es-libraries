@@ -72,6 +72,35 @@ feature -- Status report
 			Result := kind.same_string (Kind_anthropic) or else (kind.same_string (Kind_openai) and key_variable /= Void)
 		end
 
+	is_local: BOOLEAN
+			-- Is the provider on this machine (`url' on localhost)? Nothing sent to it leaves the machine.
+		local
+			l_host: STRING_8
+			i: INTEGER
+		do
+			l_host := url.as_lower
+			i := l_host.substring_index ("://", 1)
+			if i > 0 then
+				l_host.remove_head (i + 2)
+			end
+			if l_host.starts_with ("[") then
+				i := l_host.index_of (']', 1)
+				if i > 0 then
+					l_host := l_host.substring (2, i - 1)
+				end
+			else
+				i := l_host.index_of ('/', 1)
+				if i > 0 then
+					l_host.keep_head (i - 1)
+				end
+				i := l_host.index_of (':', 1)
+				if i > 0 then
+					l_host.keep_head (i - 1)
+				end
+			end
+			Result := l_host.same_string ("localhost") or l_host.starts_with ("127.") or l_host.same_string ("::1")
+		end
+
 	is_usable: BOOLEAN
 			-- Can requests be sent (an API key when needed)?
 		do

@@ -24,6 +24,8 @@ feature {NONE} -- Initialization
 			first_delay_ms := a_first_delay_ms
 			parts := a_parts
 			delays_ms := a_delays_ms
+			create request_text.make_empty
+			create request_body.make_empty
 		end
 
 feature -- Access
@@ -33,9 +35,9 @@ feature -- Access
 
 	request_text: STRING_8
 			-- Request line and header received
-		attribute
-			create Result.make_empty
-		end
+
+	request_body: STRING_8
+			-- Body of the request received
 
 	port: INTEGER
 			-- Port listened to (on the loopback interface), once started
@@ -152,6 +154,7 @@ feature {NONE} -- Implementation
 						l_length <= 0 or not c.readable
 					loop
 						c.read_stream (l_length)
+						request_body.append (c.last_string)
 						l_length := l_length - c.last_string.count
 						if c.last_string.is_empty then
 							l_length := 0
