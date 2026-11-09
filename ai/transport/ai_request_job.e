@@ -48,6 +48,60 @@ feature -- Access
 	error_message: detachable STRING_32
 			-- Error of the transfer, if any (once finished)
 
+	received_count: INTEGER
+			-- Number of bytes of the streamed answer received so far
+		do
+			mutex.lock
+			Result := internal_received_count
+			mutex.unlock
+		end
+
+	chunk_count: INTEGER
+			-- Number of parts of the streamed answer received so far
+		do
+			mutex.lock
+			Result := internal_chunk_count
+			mutex.unlock
+		end
+
+	elapsed_seconds: REAL_64
+			-- Seconds since the start of the request (until its end, once finished)
+		do
+			if attached started_at as l_start then
+				mutex.lock
+				if attached finished_at as l_end then
+					Result := l_end.relative_duration (l_start).fine_seconds_count
+				else
+					Result := (create {DATE_TIME}.make_now_utc).relative_duration (l_start).fine_seconds_count
+				end
+				mutex.unlock
+			end
+		ensure
+			non_negative: Result >= 0
+		end
+
+	idle_seconds: REAL_64
+			-- Seconds since the last part of the answer was received (since the start if none)
+		local
+			l_last: detachable DATE_TIME
+		do
+			mutex.lock
+			l_last := last_received_at
+			if l_last = Void then
+				l_last := started_at
+			end
+			if l_last /= Void then
+				if attached finished_at as l_end then
+					Result := l_end.relative_duration (l_last).fine_seconds_count
+				else
+					Result := (create {DATE_TIME}.make_now_utc).relative_duration (l_last).fine_seconds_count
+				end
+			end
+			mutex.unlock
+		ensure
+			non_negative: Result >= 0
+		end
+
 	take_events: ARRAYED_LIST [AI_STREAM_EVENT]
 			-- Events of the streamed answer received since the last call
 		do
@@ -96,6 +150,7 @@ feature -- Basic operations
 			l_thread: WORKER_THREAD
 		do
 			is_started := True
+			started_at := create {DATE_TIME}.make_now_utc
 			create l_thread.make (agent execute)
 			thread := l_thread
 			l_thread.launch
@@ -164,12 +219,15 @@ feature -- Basic operations
 				end
 				if not request.is_streamed and then attached res.body as b then
 					body := b.to_string_8
+					internal_received_count := body.count
+					internal_chunk_count := 1
 				end
 				if attached decoder as d then
 					d.finish
 					pending_events.append (d.take_events)
 				end
 				internal_is_finished := True
+				finished_at := create {DATE_TIME}.make_now_utc
 				l_locked := False
 				mutex.unlock
 			else
@@ -180,6 +238,7 @@ feature -- Basic operations
 					error_message := {STRING_32} "Request failed (exception)"
 				end
 				internal_is_finished := True
+				finished_at := create {DATE_TIME}.make_now_utc
 				mutex.unlock
 			end
 		rescue
@@ -201,6 +260,11 @@ feature {NONE} -- Implementation
 	pending_events: ARRAYED_LIST [AI_STREAM_EVENT]
 			-- Events decoded, not yet taken
 
+	started_at: detachable DATE_TIME
+			-- When `start' was called (UTC)
+
+	internal_received_count, internal_chunk_count: INTEGER
+	last_received_at, finished_at: detachable DATE_TIME
 	internal_status: INTEGER
 	internal_is_finished: BOOLEAN
 	internal_is_cancelled: BOOLEAN
@@ -222,6 +286,9 @@ feature {NONE} -- Implementation
 			-- Receive part `s' of the streamed answer (in the thread of the job).
 		do
 			mutex.lock
+			internal_received_count := internal_received_count + s.count
+			internal_chunk_count := internal_chunk_count + 1
+			last_received_at := create {DATE_TIME}.make_now_utc
 			if body.count < Max_body_kept then
 				body.append (s.head (Max_body_kept - body.count))
 			end

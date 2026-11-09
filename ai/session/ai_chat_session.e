@@ -25,6 +25,7 @@ feature {NONE} -- Initialization
 			create model.make_from_string_general (a_model)
 			create conversation.make (a_system_prompt)
 			create answer_text.make_empty
+			create stop_reason.make_empty
 			create builder.make (a_provider.settings.kind)
 			create pending_tool_calls.make (0)
 			max_rounds := Default_max_rounds
@@ -70,6 +71,12 @@ feature -- Access
 
 	tools: detachable ITERABLE [AI_TOOL_DEFINITION]
 			-- Tools the model may call, if any
+
+	stop_reason: STRING_32
+			-- Why the last answer ended, as the provider tells it (see {AI_STREAM_DECODER}.Stop_*; empty if unknown)
+
+	last_job: detachable AI_REQUEST_JOB
+			-- Request of the answer being received, or of the last answer (its URL, body, progress...)
 
 	pending_tool_calls: ARRAYED_LIST [AI_CONTENT]
 			-- Tool calls of the last answer, waiting for their results (see `answer_tool_calls')
@@ -278,9 +285,11 @@ feature {NONE} -- Implementation
 			create builder.make (provider.settings.kind)
 			create j.make (provider.chat_request (conversation, model, tools, 0), provider.new_stream_decoder)
 			job := j
+			last_job := j
 			j.start
 		ensure
 			answering: is_answering
+			last_job_set: last_job /= Void
 		end
 
 	job: detachable AI_REQUEST_JOB
@@ -303,7 +312,8 @@ feature {NONE} -- Implementation
 			total_input_tokens := total_input_tokens + input_tokens
 			total_output_tokens := total_output_tokens + output_tokens
 			was_stopped := j.is_cancelled
-			is_truncated := builder.stop_reason.same_string ({AI_STREAM_DECODER}.Stop_max_tokens)
+			stop_reason := builder.stop_reason.twin
+			is_truncated := stop_reason.same_string ({AI_STREAM_DECODER}.Stop_max_tokens)
 			if was_stopped then
 					-- (Kept as far as received.)
 			elseif not j.is_success then

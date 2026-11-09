@@ -53,6 +53,14 @@ feature -- Tests
 			assert ("seen in parts", l_versions >= 2)
 			assert ("two messages", s.conversation.messages.count = 2)
 			assert ("tokens", s.input_tokens = 12 and s.total_output_tokens = 4)
+			if attached s.last_job as j then
+				assert ("job finished", j.is_finished)
+				assert ("received", j.received_count > 0 and j.chunk_count >= 1)
+				assert ("posted to the server", j.request.url.starts_with (srv1.url))
+				assert ("timed", j.elapsed_seconds >= j.idle_seconds and j.idle_seconds >= 0)
+			else
+				assert ("last job", False)
+			end
 				-- Second question, with another model (and server).
 			srv2 := started_server (openai_text_stream ("Bye"), 0)
 			s.set_model (provider (srv2.url), "m2")

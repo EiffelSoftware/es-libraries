@@ -56,6 +56,9 @@ feature -- Access
 	keeps_transcripts: BOOLEAN
 			-- Are transcripts of the conversations kept?
 
+	shows_log: BOOLEAN
+			-- Is the log of the requests and answers shown (by a user interface)?
+
 feature -- Element change
 
 	reset_to_default
@@ -71,6 +74,7 @@ feature -- Element change
 			model_provider := {STRING_32} "anthropic"
 			model_id := {STRING_32} "claude-opus-5-5"
 			keeps_transcripts := True
+			shows_log := False
 		end
 
 	clear_model
@@ -88,6 +92,14 @@ feature -- Element change
 			keeps_transcripts := b
 		ensure
 			set: keeps_transcripts = b
+		end
+
+	set_shows_log (b: BOOLEAN)
+			-- Set `shows_log' to `b'.
+		do
+			shows_log := b
+		ensure
+			set: shows_log = b
 		end
 
 	put_provider (p: AI_PROVIDER_SETTINGS)
@@ -184,6 +196,7 @@ feature -- Persistence
 							⟲
 						end
 						keeps_transcripts := not attached {JSON_BOOLEAN} o.item ("transcripts") as t or else t.item
+						shows_log := attached {JSON_BOOLEAN} o.item ("log") as l_log and then l_log.item
 						if attached object_item (o, "model") as m and then attached string_item (m, "provider") as mp and then attached string_item (m, "id") as l_id and then not l_id.is_empty then
 							set_model (mp, l_id)
 						end
@@ -231,6 +244,7 @@ feature -- Persistence
 				⟲
 				o.put (l_providers, "providers")
 				o.put_boolean (keeps_transcripts, "transcripts")
+				o.put_boolean (shows_log, "log")
 				if attached model_provider as mp and then attached model_id as l_id then
 					create m.make_with_capacity (2)
 					m.put_string (mp, "provider")

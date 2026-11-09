@@ -26,6 +26,7 @@ feature -- Tests
 			assert ("ollama without key", attached s.provider_named ("ollama") as p and then (not p.needs_key and p.is_usable))
 			assert ("model", s.model_provider ~ {STRING_32} "anthropic" and s.model_id ~ {STRING_32} "claude-opus-5-5")
 			assert ("transcripts", s.keeps_transcripts)
+			assert ("no log", not s.shows_log)
 		end
 
 	test_change
@@ -93,6 +94,7 @@ feature -- Tests
 			s.put_provider (p)
 			s.set_model ({STRING_32} "local é", "qwen3")
 			s.set_keeps_transcripts (False)
+			s.set_shows_log (True)
 			s.save (l_path)
 			assert ("saved", s.last_error = Void)
 			create f.make_with_path (l_path)
@@ -115,6 +117,7 @@ feature -- Tests
 			assert ("variable", attached l.provider_named ("nvidia") as n and then n.key_variable ~ {STRING_32} "NVIDIA_API_KEY")
 			assert ("model", l.model_provider ~ {STRING_32} "local é" and l.model_id ~ {STRING_32} "qwen3")
 			assert ("no transcripts", not l.keeps_transcripts)
+			assert ("log", l.shows_log)
 			f.delete
 		end
 
