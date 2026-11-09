@@ -42,6 +42,9 @@ feature -- Tests
 			create p.make ("local", {AI_PROVIDER_SETTINGS}.Kind_openai, "http://localhost:1234", Void)
 			s.put_provider (p)
 			assert ("replaced", s.providers.count = 7 and s.provider_named ("local") = p)
+			s.clear_model
+			assert ("no model", s.model_provider = Void and s.model_id = Void)
+			s.set_model ("anthropic", "claude-opus-5-5")
 			s.remove_provider ("anthropic")
 			assert ("removed", s.provider_named ("anthropic") = Void)
 			assert ("model forgotten", s.model_id = Void)

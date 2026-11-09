@@ -73,6 +73,15 @@ feature -- Element change
 			keeps_transcripts := True
 		end
 
+	clear_model
+			-- Choose no model.
+		do
+			model_provider := Void
+			model_id := Void
+		ensure
+			no_model: model_provider = Void and model_id = Void
+		end
+
 	set_keeps_transcripts (b: BOOLEAN)
 			-- Set `keeps_transcripts' to `b'.
 		do
