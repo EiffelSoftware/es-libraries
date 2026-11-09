@@ -63,13 +63,22 @@ flags given by `vision2-gtk-config`.
 
 ```bash
 ec -batch -config Src/examples/vision2/widget_test/vision2_demo.ecf -target vision2_demo -project_path <dir>/vision2_demo -c_compile
-GDK_BACKEND=quartz <dir>/vision2_demo/EIFGENs/vision2_demo/W_code/vision2_demo
+GDK_BACKEND=quartz Src/scripts/run_as_macos_app.sh <dir>/vision2_demo/EIFGENs/vision2_demo/W_code/vision2_demo
 ```
 
+- Start the application as an `.app` bundle, with `Src/scripts/run_as_macos_app.sh`:
+  macOS only makes a process a regular application (Dock icon, keyboard input)
+  when LaunchServices launches it from a bundle. Started directly from a
+  terminal, a GTK+ 3 Quartz application gets the mouse events, but its keyboard
+  input goes to the terminal (this is not specific to EiffelVision2).
+  The script keeps the environment of the shell, waits for the application,
+  and writes its output to the terminal (or to `$ES_APP_LOG`).
+- The IDE is built the same way (`Src/Eiffel/Ace/ec.ecf`, target `bench`) and started with
+  `Src/scripts/run_as_macos_app.sh <dir>/EIFGENs/bench/W_code/ec -gui`.
 - `otool -L` on the executable lists the Homebrew GTK+ 3 and no X11 library.
-- The IDE is built the same way and started with `GDK_BACKEND=quartz ./ec -gui`
-  from its `W_code` folder.
 - `GDK_BACKEND=quartz` makes GDK fail instead of falling back to X11.
+- `vision2` is a read-only library: after a change in its Eiffel code, recompile
+  the application with `-clean`.
 - At startup GTK+ prints `GtkSettings Cursor Theme: Unsupported GDK backend`: expected on Quartz.
 - The C compilation reports `-Wreturn-type` warnings for the X11 externals
   guarded by `#ifdef GDK_WINDOWING_X11` ({GDK_X11}); they are not called on Quartz.
@@ -78,7 +87,24 @@ GDK_BACKEND=quartz <dir>/vision2_demo/EIFGENs/vision2_demo/W_code/vision2_demo
 
 - `EV_SCREEN` drawing and screen capture are disabled (`has_x11_support` is
   False on macOS); the same fallbacks as on Wayland are used.
+- The transparent overlay window used by `EV_SCREEN` for drag feedback is off
+  by default: on Quartz, updating it at each pointer motion makes the drag
+  slow until the application stops responding. So, for instance, the resize
+  bar of an auto-hidden docking tool shows no feedback while dragging; the
+  tool is resized on release. `EV_SCREEN_OVERLAY=yes` enables the overlay anyway.
 - Fake pointer and key events (`fake_pointer_*`, `fake_key_*`) rely on XTest
   and do nothing.
-- Drag and drop (docking, pick and drop) is a known weak spot of GTK+ 3 Quartz: to be checked.
 - No global menu bar, Dock or Cmd shortcut integration (would need `gtk-mac-integration`).
+
+## Quartz specifics handled in the gtk3 implementation
+
+- GDK Quartz only fetches the native events while the GLib main context is
+  polled, and dispatches them to the GDK event handler: `gdk_event_get` never
+  returns any. `{EV_APPLICATION_IMP}` installs a handler that queues them
+  (`ev_gdk_event_get` in `Clib/ev_c_util.c`), so that EiffelVision2 processes
+  them as with X11 (pointer actions, capture, pick and drop, keys, ...).
+- A popup menu shown without anchor widget is positioned relative to the
+  window under the pointer, and is never made transient for itself (AppKit
+  aborts on `addChildWindow:` of a window to itself).
+- Input shapes are not implemented by GDK Quartz: a window meant to let the
+  pointer events through also ignores them at the `NSWindow` level.
