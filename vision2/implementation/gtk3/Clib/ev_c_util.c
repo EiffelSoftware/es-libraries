@@ -48,16 +48,33 @@ ev_gtk_clear_pending_menu_trigger_event (void)
 	g_clear_pointer (&ev_gtk_pending_menu_trigger_event, gdk_event_free);
 }
 
+static gboolean
+ev_gtk_is_menu_own_window (GtkMenu *menu, GdkWindow *window)
+{
+	/* Is `window' part of the popup window of `menu' itself?
+	 * GTK makes the menu popup transient for the window it is positioned
+	 * against: with its own window, it would be transient for itself, which
+	 * AppKit refuses with an uncaught exception on the Quartz backend
+	 * ("addChildWindow:ordered: cannot add self as child of itself"). */
+	GtkWidget *l_toplevel = gtk_widget_get_toplevel (GTK_WIDGET (menu));
+	GdkWindow *l_menu_window = l_toplevel != NULL ? gtk_widget_get_window (l_toplevel) : NULL;
+
+	return l_menu_window != NULL && gdk_window_get_toplevel (window) == l_menu_window;
+}
+
 static GdkWindow *
 ev_gtk_menu_popup_window (GtkMenu *menu, GtkWidget *anchor_widget)
 {
+	/* Window that the popup position is relative to: the one of `anchor_widget',
+	 * otherwise of the attach widget of `menu', otherwise the root window
+	 * (the position is then in screen coordinates, see {EV_MENU_IMP}.show_at). */
 	GdkWindow *window = NULL;
 	GtkWidget *widget = anchor_widget;
 
 	if (widget != NULL && GTK_IS_WIDGET (widget)) {
 		gtk_widget_realize (widget);
 		window = gtk_widget_get_window (widget);
-		if (window != NULL) {
+		if (window != NULL && !ev_gtk_is_menu_own_window (menu, window)) {
 			return window;
 		}
 	}
@@ -66,15 +83,9 @@ ev_gtk_menu_popup_window (GtkMenu *menu, GtkWidget *anchor_widget)
 	if (widget != NULL && GTK_IS_WIDGET (widget)) {
 		gtk_widget_realize (widget);
 		window = gtk_widget_get_window (widget);
-		if (window != NULL) {
+		if (window != NULL && !ev_gtk_is_menu_own_window (menu, window)) {
 			return window;
 		}
-	}
-
-	gtk_widget_realize (GTK_WIDGET (menu));
-	window = gtk_widget_get_window (GTK_WIDGET (menu));
-	if (window != NULL) {
-		return window;
 	}
 
 	{
@@ -86,6 +97,37 @@ ev_gtk_menu_popup_window (GtkMenu *menu, GtkWidget *anchor_widget)
 	}
 
 	return NULL;
+}
+
+static GdkWindow *
+ev_gtk_menu_screen_reference_window (GtkMenu *menu, GdkDevice *device)
+{
+	/* A toplevel window to position `menu' given in screen coordinates: the one
+	 * of the event triggering the popup, otherwise the one under the pointer.
+	 * Better than the root window, which some backends (Quartz) do not use
+	 * as a reference for the position of the popup. NULL if none. */
+	GdkWindow *window = NULL;
+	GdkEvent *event;
+
+	if (ev_gtk_pending_menu_trigger_event != NULL) {
+		window = ev_gtk_pending_menu_trigger_event->any.window;
+	} else {
+		event = gtk_get_current_event ();
+		if (event != NULL) {
+			window = event->any.window;
+			gdk_event_free (event);
+		}
+	}
+	if ((window == NULL || ev_gtk_is_menu_own_window (menu, window)) && device != NULL) {
+		window = gdk_device_get_window_at_position (device, NULL, NULL);
+	}
+	if (window != NULL) {
+		window = gdk_window_get_toplevel (window);
+		if (ev_gtk_is_menu_own_window (menu, window) || gdk_window_get_window_type (window) == GDK_WINDOW_ROOT) {
+			window = NULL;
+		}
+	}
+	return window;
 }
 
 static GdkEvent *
@@ -162,11 +204,24 @@ c_ev_gtk_menu_popup (GtkMenu *menu, GtkWidget *anchor_widget, gint x, gint y, gu
 		gtk_menu_attach_to_widget (menu, anchor_widget, NULL);
 	}
 
-	rect_window = ev_gtk_menu_popup_window (menu, anchor_widget);
 	rect.x = x;
 	rect.y = y;
 	rect.width = 1;
 	rect.height = 1;
+	if (anchor_widget == NULL) {
+			/* `x', `y' are screen coordinates (see {EV_MENU_IMP}.show_at):
+			 * make them relative to a toplevel window if possible. */
+		rect_window = ev_gtk_menu_screen_reference_window (menu, device);
+		if (rect_window != NULL) {
+			gdk_window_get_origin (rect_window, &origin_x, &origin_y);
+			rect.x = x - origin_x;
+			rect.y = y - origin_y;
+		} else {
+			rect_window = ev_gtk_menu_popup_window (menu, NULL);
+		}
+	} else {
+		rect_window = ev_gtk_menu_popup_window (menu, anchor_widget);
+	}
 
 	if (rect_window != NULL) {
 		gdk_window_get_origin (rect_window, &origin_x, &origin_y);
