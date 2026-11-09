@@ -172,8 +172,10 @@ feature -- Execution
 						end
 						check no_form_data: not ctx.has_form_data end
 
-						curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfields, l_upload_data)
+							-- (The size first; then the data, copied by libcurl: the C string made by `setopt_string'
+							-- is freed by the garbage collector before the end of the transfer.)
 						curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfieldsize, l_upload_data.count)
+						curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_copypostfields, l_upload_data)
 					elseif l_upload_filename /= Void then
 						check
 							post_or_put_request_method:	request_method.is_case_insensitive_equal ("POST")
@@ -216,8 +218,8 @@ feature -- Execution
 						else
 							l_headers.force ("application/x-www-form-urlencoded", "Content-Type")
 							l_upload_data := ctx.form_parameters_to_x_www_form_url_encoded_string
-							curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfields, l_upload_data)
 							curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfieldsize, l_upload_data.count)
+							curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_copypostfields, l_upload_data)
 						end
 						if l_use_curl_form then
 							create l_form.make
