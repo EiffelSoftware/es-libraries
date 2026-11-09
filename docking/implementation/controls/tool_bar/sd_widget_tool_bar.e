@@ -144,10 +144,28 @@ feature -- Command
 	compute_minimum_size
 			-- <Precursor>
 		local
-			l_width, l_height: INTEGER
+			l_width, l_height, l_row_height: INTEGER
 		do
 			-- See bug#15525, toolbar can be void if `is_destroyed'
 			if not is_destroyed then
+					-- The row height of `tool_bar' only takes account of its buttons (pixmaps and texts),
+					-- so make sure it is high enough for the other widgets (EV_COMBO_BOX, EV_TEXT_FIELD, ...):
+					-- otherwise, once `tool_bar' recomputed its row height alone, these widgets are truncated
+					-- (e.g. with GTK+ 3, whose entries are higher than the tool bar buttons).
+				l_row_height := tool_bar.row_height
+				from
+					start
+				until
+					after
+				loop
+					if not attached {SD_TOOL_BAR} item then
+						l_row_height := l_row_height.max (item.minimum_height)
+					end
+					forth
+				end
+				if l_row_height > tool_bar.row_height then
+					tool_bar.set_row_height (l_row_height)
+				end
 				tool_bar.compute_minimum_size
 
 				check has: has_fixed (tool_bar) end
