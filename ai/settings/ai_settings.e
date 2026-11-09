@@ -22,7 +22,7 @@ create
 feature {NONE} -- Initialization
 
 	make_default
-			-- The usual providers: Anthropic, OpenAI, NVIDIA (keys in their usual environment
+			-- The usual providers: Anthropic, OpenAI, NVIDIA, OpenRouter (keys in their usual environment
 			-- variables) and Ollama (local), with Claude Opus 5.5 as the model.
 		do
 			create providers.make (4)
@@ -62,6 +62,7 @@ feature -- Element change
 			providers.extend (create {AI_PROVIDER_SETTINGS}.make ("anthropic", {AI_PROVIDER_SETTINGS}.Kind_anthropic, "https://api.anthropic.com", "ANTHROPIC_API_KEY"))
 			providers.extend (create {AI_PROVIDER_SETTINGS}.make ("openai", {AI_PROVIDER_SETTINGS}.Kind_openai, "https://api.openai.com", "OPENAI_API_KEY"))
 			providers.extend (create {AI_PROVIDER_SETTINGS}.make ("nvidia", {AI_PROVIDER_SETTINGS}.Kind_openai, "https://integrate.api.nvidia.com", "NVIDIA_API_KEY"))
+			providers.extend (create {AI_PROVIDER_SETTINGS}.make ("openrouter", {AI_PROVIDER_SETTINGS}.Kind_openai, "https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"))
 			providers.extend (create {AI_PROVIDER_SETTINGS}.make ("ollama", {AI_PROVIDER_SETTINGS}.Kind_ollama, "http://localhost:11434", Void))
 			model_provider := {STRING_32} "anthropic"
 			model_id := {STRING_32} "claude-opus-5-5"

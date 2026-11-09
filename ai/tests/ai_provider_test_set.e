@@ -141,6 +141,12 @@ feature -- Tests: OpenAI-compatible
 			assert ("two", l_models.count = 2 and then l_models [2].id.same_string_general ("meta/llama-4"))
 			l_models := provider ({AI_PROVIDER_SETTINGS}.Kind_ollama, "http://localhost:11434").models (ollama_models)
 			assert ("ollama", l_models.count = 2 and then l_models [1].id.same_string_general ("qwen3:8b"))
+			l_models := provider ({AI_PROVIDER_SETTINGS}.Kind_openai, "https://openrouter.ai/api/v1").models (openrouter_models)
+			assert ("openrouter", l_models.count = 2 and then l_models [1].id.same_string_general ("anthropic/claude-opus-5-5"))
+			assert ("openrouter name", l_models [1].display_name.same_string_general ("Anthropic: Claude Opus 5.5"))
+			assert ("openrouter limits", l_models [1].context_size = 1_000_000 and l_models [1].output_limit = 128_000)
+			assert ("openrouter without limits", l_models [2].context_size = 0 and l_models [2].output_limit = 0)
+			assert ("openrouter url", provider ({AI_PROVIDER_SETTINGS}.Kind_openai, "https://openrouter.ai/api/v1").models_request.url.same_string ("https://openrouter.ai/api/v1/models"))
 			assert ("ollama tags", provider ({AI_PROVIDER_SETTINGS}.Kind_ollama, "http://localhost:11434/").models_request.url.same_string ("http://localhost:11434/api/tags"))
 		end
 

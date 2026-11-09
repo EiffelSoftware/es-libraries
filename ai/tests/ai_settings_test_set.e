@@ -18,9 +18,10 @@ feature -- Tests
 			s: AI_SETTINGS
 		do
 			create s.make_default
-			assert ("four", s.providers.count = 4)
+			assert ("five", s.providers.count = 5)
 			assert ("anthropic", attached s.provider_named ("Anthropic") as p and then p.kind.same_string ({AI_PROVIDER_SETTINGS}.Kind_anthropic))
 			assert ("nvidia", attached s.provider_named ("nvidia") as p and then p.kind.same_string ({AI_PROVIDER_SETTINGS}.Kind_openai))
+			assert ("openrouter", attached s.provider_named ("openrouter") as p and then (p.kind.same_string ({AI_PROVIDER_SETTINGS}.Kind_openai) and p.key_variable ~ {STRING_32} "OPENROUTER_API_KEY"))
 			assert ("ollama without key", attached s.provider_named ("ollama") as p and then (not p.needs_key and p.is_usable))
 			assert ("model", s.model_provider ~ {STRING_32} "anthropic" and s.model_id ~ {STRING_32} "claude-opus-5-5")
 		end
@@ -34,11 +35,11 @@ feature -- Tests
 			create s.make_default
 			create p.make ("local", {AI_PROVIDER_SETTINGS}.Kind_openai, "http://localhost:8080", Void)
 			s.put_provider (p)
-			assert ("added", s.providers.count = 5 and s.provider_named ("LOCAL") = p)
+			assert ("added", s.providers.count = 6 and s.provider_named ("LOCAL") = p)
 			assert ("local server without key", not p.needs_key)
 			create p.make ("local", {AI_PROVIDER_SETTINGS}.Kind_openai, "http://localhost:1234", Void)
 			s.put_provider (p)
-			assert ("replaced", s.providers.count = 5 and s.provider_named ("local") = p)
+			assert ("replaced", s.providers.count = 6 and s.provider_named ("local") = p)
 			s.remove_provider ("anthropic")
 			assert ("removed", s.provider_named ("anthropic") = Void)
 			assert ("model forgotten", s.model_id = Void)
@@ -115,7 +116,7 @@ feature -- Tests
 			create s.make_default
 			s.load (l_path)
 			assert ("error", s.last_error /= Void)
-			assert ("unchanged", s.providers.count = 4)
+			assert ("unchanged", s.providers.count = 5)
 			f.delete
 			s.load (l_path)
 			assert ("no error", s.last_error = Void)

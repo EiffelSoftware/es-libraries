@@ -112,6 +112,11 @@ feature -- Lists of models
 	]"
 			-- Answer of GET /v1/models (OpenAI-compatible)
 
+	openrouter_models: STRING_8 = "[
+		{"data":[{"id":"anthropic/claude-opus-5-5","canonical_slug":"anthropic/claude-opus-5-5","name":"Anthropic: Claude Opus 5.5","context_length":1000000,"architecture":{"modality":"text+image->text"},"pricing":{"prompt":"0.000005","completion":"0.000025"},"top_provider":{"context_length":1000000,"max_completion_tokens":128000,"is_moderated":false}},{"id":"qwen/qwen3-coder","name":"Qwen: Qwen3 Coder","top_provider":{"is_moderated":false}}]}
+	]"
+			-- Answer of GET /api/v1/models (OpenRouter)
+
 	ollama_models: STRING_8 = "[
 		{"models":[{"name":"qwen3:8b","model":"qwen3:8b","size":5200000000},{"name":"llama3.2:latest","model":"llama3.2:latest","size":2000000000}]}
 	]"

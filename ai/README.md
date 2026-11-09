@@ -8,11 +8,11 @@ user interface, nor on the compiler.
 | Kind | Protocol | Examples |
 |------|----------|----------|
 | `anthropic` | Messages API (`POST /v1/messages`, `GET /v1/models`) | Anthropic (Claude) |
-| `openai` | Chat Completions (`POST /v1/chat/completions`, `GET /v1/models`) | OpenAI, NVIDIA, llama-server, LM Studio, vLLM |
+| `openai` | Chat Completions (`POST /v1/chat/completions`, `GET /v1/models`) | OpenAI, NVIDIA, OpenRouter, llama-server, LM Studio, vLLM |
 | `ollama` | Chat Completions, models by `GET /api/tags` | Ollama |
 
-The default settings (`{AI_SETTINGS}.make_default`) declare `anthropic`, `openai`, `nvidia` (keys in
-`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `NVIDIA_API_KEY`) and a local `ollama`; the default model is
+The default settings (`{AI_SETTINGS}.make_default`) declare `anthropic`, `openai`, `nvidia`, `openrouter` (keys in
+`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `NVIDIA_API_KEY`, `OPENROUTER_API_KEY`) and a local `ollama`; the default model is
 `anthropic/claude-opus-5-5`. A key can also be kept in the settings file, which is then readable by its owner only.
 
 ## Classes

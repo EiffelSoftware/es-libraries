@@ -73,12 +73,21 @@ feature -- Answers
 
 	models (a_body: READABLE_STRING_8): ARRAYED_LIST [AI_MODEL]
 			-- <Precursor>
+			-- (With their name and limits when given, as by OpenRouter.)
+		local
+			m: AI_MODEL
 		do
 			create Result.make (10)
 			if attached array_item (parsed_json (a_body), "data") as l_data then
 				⟳ d: l_data ¦
 					if attached string_item (d, "id") as l_id and then not l_id.is_empty then
-						Result.extend (create {AI_MODEL}.make (name, l_id))
+						create m.make (name, l_id)
+						if attached string_item (d, "name") as n and then not n.is_empty then
+							m.set_display_name (n)
+						end
+						m.set_context_size (integer_item (d, "context_length").max (0))
+						m.set_output_limit (integer_item (object_item (d, "top_provider"), "max_completion_tokens").max (0))
+						Result.extend (m)
 					end
 				⟲
 			end
