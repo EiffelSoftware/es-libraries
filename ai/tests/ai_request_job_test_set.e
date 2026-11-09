@@ -112,6 +112,49 @@ feature -- Tests
 			assert ("get", srv.request_text.starts_with ("GET /v1/models"))
 		end
 
+	test_body_sent_intact
+			-- A large body is sent as given, even while the garbage collector runs (libcurl must keep
+			-- its own copy of the body).
+		local
+			srv: AI_TEST_SERVER
+			j: AI_REQUEST_JOB
+			r: AI_HTTP_REQUEST
+			l_body: STRING_8
+			i, n: INTEGER
+			l_garbage: ARRAYED_LIST [STRING_8]
+		do
+			create l_body.make (300_000)
+			l_body.append ("{%"model%":%"m%",%"text%":%"")
+			from i := 1 until l_body.count > 290_000 loop
+				l_body.append ("line " + i.out + " of the body; ")
+				i := i + 1
+			end
+			l_body.append ("%"}")
+			srv := started_server (200, 0, <<"{}">>, <<0>>)
+			create r.make_post (srv.url, "/v1/test", l_body, False)
+			r.add_header ("Content-Type", "application/json")
+			create j.make (r, Void)
+			j.start
+			from
+				create l_garbage.make (100)
+			until
+				j.is_finished or n > 200
+			loop
+					-- (Allocations meanwhile, as in the user interface: the garbage collector runs.)
+				l_garbage.wipe_out
+				from i := 1 until i > 1000 loop
+					l_garbage.extend (create {STRING_8}.make_filled ('x', 3000))
+					i := i + 1
+				end
+				n := n + 1
+			end
+			j.wait
+			srv.stop
+			assert ("success", j.is_success)
+			assert ("same length: " + srv.request_body.count.out + " for " + l_body.count.out, srv.request_body.count = l_body.count)
+			assert ("same body", srv.request_body.same_string (l_body))
+		end
+
 feature {NONE} -- Implementation
 
 	started_server (a_status, a_first_delay_ms: INTEGER; a_parts: ARRAY [READABLE_STRING_8]; a_delays_ms: ARRAY [INTEGER]): AI_TEST_SERVER
