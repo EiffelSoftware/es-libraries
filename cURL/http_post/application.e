@@ -36,8 +36,9 @@ feature -- Initialization
 					-- data.
 				curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_url, "dev.eiffel.com/index.php?title=Special:UserLogin&action=submitlogin&type=login")
 
-					-- Now specify the POST data
-				curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfields, "wpName=test_id&wpPassword=test_password&wpLoginattempt=Log+in")
+					-- Now specify the POST data (copied by libcurl: with `curlopt_postfields', the data would have
+					-- to stay in memory until the end of the transfer, which the C string made by `setopt_string' does not)
+				curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_copypostfields, "wpName=test_id&wpPassword=test_password&wpLoginattempt=Log+in")
 
 					-- Perform the request, `l_result' will get the return code
 				l_result := curl_easy.perform (curl_handle)
