@@ -32,3 +32,7 @@ XDG_DATA_DIRS="$ISE_LIBRARY/library/vision2/implementation/gtk3:${XDG_DATA_DIRS:
 
 Or use it for all the GTK+ 3 applications of the user, by copying
 `Adwaita-compact/gtk-3.0/gtk.css` to `~/.config/gtk-3.0/gtk.css`.
+
+The macOS package of EiffelStudio uses it by default: its applications and
+commands set `GTK_THEME=Adwaita-compact` and `XDG_DATA_DIRS` as above, unless
+`GTK_THEME` is already set (`GTK_THEME=Adwaita estudio` for the standard look).
