@@ -581,6 +581,14 @@ feature -- Measurement
 			Result := app_implementation.screen_virtual_width
 		end
 
+feature {NONE} -- Externals
+
+	frozen ev_gtk_window_set_ignore_pointer_events (a_window: POINTER)
+			-- Let the pointer events go through the realized GtkWindow `a_window'.
+		external
+			"C (GtkWidget*) | %"ev_c_util.h%""
+		end
+
 feature {NONE} -- Externals (XTEST extension)
 
 	device_x_offset: INTEGER
@@ -1280,12 +1288,18 @@ feature {NONE} -- Screen feedback overlay
 			--| overlay would come up as an opaque rectangle covering the screen, which
 			--| is a great deal worse than the missing feedback it is meant to replace,
 			--| so this stays False and the drawing routines do nothing, as before.
+			--|
+			--| Off by default with the macOS Quartz backend: there, moving and showing
+			--| the screen-sized overlay window at each pointer motion makes a drag
+			--| (e.g. a resize bar) slow, until the application stops responding.
+			--| EV_SCREEN_OVERLAY=yes enables it anyway, EV_SCREEN_OVERLAY=no disables it.
 		local
 			l_screen: POINTER
 		once
-			Result := True
 			if attached {EXECUTION_ENVIRONMENT}.item (once "EV_SCREEN_OVERLAY") as e then
 				Result := not e.is_case_insensitive_equal_general ("no")
+			else
+				Result := not {GDK}.gdk_display_is_quartz
 			end
 			if Result then
 				l_screen := {GDK}.gdk_screen_get_default
@@ -1378,6 +1392,11 @@ feature {NONE} -- Screen feedback overlay
 				c_region := {CAIRO}.cairo_region_create
 				{GTK}.gtk_widget_input_shape_combine_region (c_window, c_region)
 				{CAIRO}.cairo_region_destroy (c_region)
+					-- Not every backend implements input shapes (Quartz does not):
+					-- otherwise the overlay would take every pointer event, even the
+					-- release ending the drag, and the application would look frozen.
+				{GTK}.gtk_widget_realize (c_window)
+				ev_gtk_window_set_ignore_pointer_events (c_window)
 
 				create d
 				overlay.set_drawing (d)

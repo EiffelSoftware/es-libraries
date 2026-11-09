@@ -407,6 +407,34 @@ ev_gdk_event_get (void)
 	return gdk_event_get ();
 }
 
+#ifdef GDK_WINDOWING_QUARTZ
+#include <objc/runtime.h>
+#include <objc/message.h>
+	/* Exported by GDK Quartz, but only declared in an Objective-C header
+	 * (gdk/quartz/gdkquartz-cocoa-access.h): the NSWindow of a toplevel window. */
+extern void *gdk_quartz_window_get_nswindow (GdkWindow *window);
+#endif
+
+void
+ev_gtk_window_set_ignore_pointer_events (GtkWidget *a_window)
+{
+	/* Let the pointer events go through the realized window `a_window', to the
+	 * windows below. Callers also set an empty input shape, which is enough with
+	 * X11, but GDK Quartz does not implement input shapes: there the NSWindow
+	 * has to ignore the mouse events itself ([NSWindow setIgnoresMouseEvents: YES]). */
+#ifdef GDK_WINDOWING_QUARTZ
+	GdkWindow *l_window = gtk_widget_get_window (a_window);
+	void *l_nswindow;
+
+	if (l_window != NULL && GDK_IS_QUARTZ_WINDOW (l_window)) {
+		l_nswindow = gdk_quartz_window_get_nswindow (l_window);
+		if (l_nswindow != NULL) {
+			((void (*)(id, SEL, BOOL)) objc_msgSend) ((id) l_nswindow, sel_registerName ("setIgnoresMouseEvents:"), YES);
+		}
+	}
+#endif
+}
+
 /* XPM */
 char *default_pixmap_data[] = {
 /* width height ncolors chars_per_pixel */

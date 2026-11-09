@@ -36,6 +36,9 @@ extern void ev_gdk_event_queue_install (void);
 extern gboolean ev_gdk_event_queue_set_enabled (gboolean a_enabled);
 extern GdkEvent *ev_gdk_event_get (void);
 
+/* Let the pointer events go through a realized window (complement of an empty input shape). */
+extern void ev_gtk_window_set_ignore_pointer_events (GtkWidget *a_window);
+
 /* XPM */
 extern char **default_pixmap_xpm (void);
 extern char **information_pixmap_xpm (void);
