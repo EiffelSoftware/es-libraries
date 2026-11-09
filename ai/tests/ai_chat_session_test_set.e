@@ -119,6 +119,78 @@ feature -- Tests
 			assert ("partial kept", s.conversation.messages.count = 2 and then s.conversation.messages [2].text.same_string_general ("Partial"))
 		end
 
+	test_tool_round
+			-- The model calls a tool; its result is sent back, and the model answers.
+		local
+			srv1, srv2: AI_TEST_SERVER
+			s: AI_CHAT_SESSION
+			l_tools: ARRAYED_LIST [AI_TOOL_DEFINITION]
+			l_schema: JSON_OBJECT
+		do
+			create l_schema.make_with_capacity (1)
+			l_schema.put_string ("object", "type")
+			create l_tools.make (1)
+			l_tools.extend (create {AI_TOOL_DEFINITION}.make ("read_class", "Text of a class", l_schema))
+			create srv1.make (200, 0, <<
+				"data: {%"choices%":[{%"index%":0,%"delta%":{%"tool_calls%":[{%"index%":0,%"id%":%"call_1%",%"type%":%"function%",%"function%":{%"name%":%"read_class%",%"arguments%":%"{\%"class\%":\%"A\%"}%"}}]},%"finish_reason%":%"tool_calls%"}]}%N%Ndata: [DONE]%N%N"
+				>>, <<0>>)
+			srv1.start
+			create s.make (provider (srv1.url), "m", "")
+			s.set_tools (l_tools)
+			s.ask ("Read A")
+			s.wait
+			srv1.stop
+			assert ("no error", s.last_error = Void)
+			assert ("pending", s.has_pending_tool_calls and s.pending_tool_calls.count = 1)
+			assert ("call", s.pending_tool_calls [1].tool_name.same_string_general ("read_class") and s.pending_tool_calls [1].tool_call_id.same_string_general ("call_1"))
+			if attached parsed_json_object (srv1.request_body) as o then
+				assert ("tools sent", attached array_item (o, "tools") as t and then t.count = 1)
+			end
+			srv2 := started_server (openai_text_stream ("A is"), 0)
+			s.set_model (provider (srv2.url), "m")
+			s.answer_tool_calls (<<["call_1", "class A end", False]>>)
+			assert ("answering", s.is_answering)
+			s.wait
+			srv2.stop
+			assert ("answer", s.answer_text.same_string_general ("A is, world!"))
+			assert ("not pending", not s.has_pending_tool_calls)
+			assert ("rounds", s.rounds = 1)
+			assert ("four messages", s.conversation.messages.count = 4)
+			if attached parsed_json_object (srv2.request_body) as o and then attached array_item (o, "messages") as l_messages then
+				assert ("tool result sent", l_messages.count = 3 and then string_item (l_messages [3], "role") ~ {STRING_32} "tool" and then string_item (l_messages [3], "content") ~ {STRING_32} "class A end")
+			else
+				assert ("JSON body", False)
+			end
+		end
+
+	test_stopped_tool_calls_answered_with_next_question
+			-- Tool calls left without results are answered "not run" with the next question.
+		local
+			srv1, srv2: AI_TEST_SERVER
+			s: AI_CHAT_SESSION
+		do
+			create srv1.make (200, 0, <<
+				"data: {%"choices%":[{%"index%":0,%"delta%":{%"tool_calls%":[{%"index%":0,%"id%":%"call_1%",%"type%":%"function%",%"function%":{%"name%":%"read_class%",%"arguments%":%"{}%"}}]},%"finish_reason%":%"tool_calls%"}]}%N%Ndata: [DONE]%N%N"
+				>>, <<0>>)
+			srv1.start
+			create s.make (provider (srv1.url), "m", "")
+			s.ask ("Read A")
+			s.wait
+			srv1.stop
+			s.stop
+			assert ("no more pending", not s.has_pending_tool_calls)
+			srv2 := started_server (openai_text_stream ("Ok"), 0)
+			s.set_model (provider (srv2.url), "m")
+			s.ask ("Never mind")
+			s.wait
+			srv2.stop
+			if attached parsed_json_object (srv2.request_body) as o and then attached array_item (o, "messages") as l_messages then
+				assert ("result then question", l_messages.count = 4 and then string_item (l_messages [3], "role") ~ {STRING_32} "tool" and then string_item (l_messages [4], "content") ~ {STRING_32} "Never mind")
+			else
+				assert ("JSON body", False)
+			end
+		end
+
 feature {NONE} -- Implementation
 
 	openai_text_stream (a_word: STRING_8): ARRAY [READABLE_STRING_8]

@@ -1,4 +1,4 @@
-note
+﻿note
 	description: "[
 		Conversation with a model: each question is sent with the conversation so far, and the
 		answer is received in a thread while the user interface polls it (`poll'), shows the text
@@ -26,6 +26,8 @@ feature {NONE} -- Initialization
 			create conversation.make (a_system_prompt)
 			create answer_text.make_empty
 			create builder.make (a_provider.settings.kind)
+			create pending_tool_calls.make (0)
+			max_rounds := Default_max_rounds
 		ensure
 			provider_set: provider = a_provider
 			idle: not is_answering
@@ -66,6 +68,21 @@ feature -- Access
 	transcript: detachable AI_TRANSCRIPT
 			-- Transcript kept, if any
 
+	tools: detachable ITERABLE [AI_TOOL_DEFINITION]
+			-- Tools the model may call, if any
+
+	pending_tool_calls: ARRAYED_LIST [AI_CONTENT]
+			-- Tool calls of the last answer, waiting for their results (see `answer_tool_calls')
+
+	rounds: INTEGER
+			-- Number of answers to the results of tool calls since the last question
+
+	max_rounds: INTEGER
+			-- Maximum of `rounds' for a question
+
+	Default_max_rounds: INTEGER = 25
+			-- Default of `max_rounds'
+
 feature -- Status report
 
 	is_answering: BOOLEAN
@@ -80,6 +97,12 @@ feature -- Status report
 	is_truncated: BOOLEAN
 			-- Did the last answer end because of its maximum length?
 
+	has_pending_tool_calls: BOOLEAN
+			-- Is the model waiting for the results of tool calls? (Not if the answer was stopped or failed.)
+		do
+			Result := not pending_tool_calls.is_empty and not was_stopped and last_error = Void
+		end
+
 feature -- Element change
 
 	set_model (a_provider: AI_PROVIDER; a_model: READABLE_STRING_GENERAL)
@@ -92,6 +115,24 @@ feature -- Element change
 			create model.make_from_string_general (a_model)
 		ensure
 			provider_set: provider = a_provider
+		end
+
+	set_tools (a_tools: like tools)
+			-- Let the model call `a_tools' (none if Void).
+		do
+			tools := a_tools
+		ensure
+			tools_set: tools = a_tools
+		end
+
+	set_max_rounds (n: INTEGER)
+			-- Set `max_rounds' to `n'.
+		require
+			positive: n > 0
+		do
+			max_rounds := n
+		ensure
+			set: max_rounds = n
 		end
 
 	set_transcript (t: detachable AI_TRANSCRIPT)
@@ -108,6 +149,7 @@ feature -- Element change
 			idle: not is_answering
 		do
 			conversation.wipe_out
+			pending_tool_calls.wipe_out
 			answer_text.wipe_out
 			answer_version := answer_version + 1
 			last_error := Void
@@ -125,25 +167,52 @@ feature -- Basic operations
 			idle: not is_answering
 			a_question_not_empty: not a_question.is_empty
 		local
-			j: AI_REQUEST_JOB
+			m: AI_MESSAGE
 		do
-			conversation.extend_user_text (a_question)
+			create m.make_user
+			⟳ c: pending_tool_calls ¦
+					-- (Calls left without results when the user stopped.)
+				m.extend_tool_result (c.tool_call_id, "Not run: stopped by the user.", True)
+			⟲
+			pending_tool_calls.wipe_out
+			m.extend_text (a_question)
+			conversation.extend (m)
 			if attached transcript as t then
 				t.put_question (a_question)
 			end
-			answer_text.wipe_out
-			answer_version := answer_version + 1
-			last_error := Void
-			was_stopped := False
-			is_truncated := False
-			input_tokens := 0
-			output_tokens := 0
-			create builder.make (provider.settings.kind)
-			create j.make (provider.chat_request (conversation, model, Void, 0), provider.new_stream_decoder)
-			job := j
-			j.start
+			rounds := 0
+			start_request
 		ensure
 			answering: is_answering
+		end
+
+	answer_tool_calls (a_results: ITERABLE [TUPLE [id: READABLE_STRING_GENERAL; text: READABLE_STRING_GENERAL; is_error: BOOLEAN]])
+			-- Send `a_results' of `pending_tool_calls' to the model, which goes on answering (unless
+			-- `max_rounds' is reached: `last_error' then tells it).
+		require
+			idle: not is_answering
+			pending: has_pending_tool_calls
+		local
+			m: AI_MESSAGE
+		do
+			create m.make_user
+			⟳ r: a_results ¦
+				m.extend_tool_result (r.id, r.text, r.is_error)
+			⟲
+			pending_tool_calls.wipe_out
+			conversation.extend (m)
+			rounds := rounds + 1
+			if rounds > max_rounds then
+				m.contents.wipe_out
+				⟳ r: a_results ¦
+					m.extend_tool_result (r.id, "Not run: too many tool calls.", True)
+				⟲
+				last_error := {STRING_32} "Stopped after " + max_rounds.out + {STRING_32} " answers to tool calls."
+			else
+				start_request
+			end
+		ensure
+			no_pending: pending_tool_calls.is_empty
 		end
 
 	poll: BOOLEAN
@@ -170,10 +239,12 @@ feature -- Basic operations
 		end
 
 	stop
-			-- Stop the answer being received.
+			-- Stop the answer being received (or the tool calls waiting for their results).
 		do
 			if attached job as j then
 				j.cancel
+			elseif has_pending_tool_calls then
+				was_stopped := True
 			end
 		end
 
@@ -191,6 +262,26 @@ feature -- Basic operations
 		end
 
 feature {NONE} -- Implementation
+
+	start_request
+			-- Send the conversation, and receive the answer.
+		local
+			j: AI_REQUEST_JOB
+		do
+			answer_text.wipe_out
+			answer_version := answer_version + 1
+			last_error := Void
+			was_stopped := False
+			is_truncated := False
+			input_tokens := 0
+			output_tokens := 0
+			create builder.make (provider.settings.kind)
+			create j.make (provider.chat_request (conversation, model, tools, 0), provider.new_stream_decoder)
+			job := j
+			j.start
+		ensure
+			answering: is_answering
+		end
 
 	job: detachable AI_REQUEST_JOB
 			-- Request of the answer being received
@@ -224,9 +315,13 @@ feature {NONE} -- Implementation
 			elseif attached builder.error_message as e then
 				last_error := e
 			end
-			if not m.contents.is_empty and then not m.text.is_empty then
+			if not m.contents.is_empty and then (not m.text.is_empty or m.has_tool_calls) then
 				conversation.extend (m)
-			elseif not conversation.messages.is_empty and then not conversation.messages.last.is_assistant then
+				if m.has_tool_calls then
+						-- (Waiting for their results, or answered "not run" with the next question if stopped.)
+					pending_tool_calls.append (m.tool_calls)
+				end
+			elseif rounds = 0 and then not conversation.messages.is_empty and then not conversation.messages.last.is_assistant then
 					-- No answer: the question is forgotten (it can be asked again).
 				conversation.messages.finish
 				conversation.messages.remove

@@ -29,7 +29,9 @@ The default settings (`{AI_SETTINGS}.make_default`) declare `anthropic`, `openai
   tells a provider on this machine.
 - `session`: `AI_CHAT_SESSION`, a conversation with a model: `ask` sends a question with the conversation so far,
   `poll` takes the answer received into account (`answer_text`, `answer_version`), `stop` stops it; an answer is kept
-  in the conversation, an error forgets the question. `AI_TRANSCRIPT` appends the questions and answers to a Markdown file.
+  in the conversation, an error forgets the question. With `set_tools`, the model may call tools: after its answer,
+  `pending_tool_calls` are run by the application, and `answer_tool_calls` sends their results (the model goes on, up to
+  `max_rounds` times per question). `AI_TRANSCRIPT` appends the questions and answers to a Markdown file.
 
 ```eiffel
 	p := (create {AI_PROVIDER_FACTORY}).new_provider (settings.provider_named ("anthropic"))

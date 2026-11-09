@@ -1,4 +1,4 @@
-note
+﻿note
 	description: "[
 		Transcript of conversations with models, appended to a text file (Markdown): the questions,
 		the answers and the model which gave them, with their time. No API key is ever written.
