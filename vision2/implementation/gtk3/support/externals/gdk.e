@@ -39,6 +39,15 @@ feature -- Backends
 			"return (EIF_BOOLEAN) ev_gdk_display_is_wayland ();"
 		end
 
+	frozen gdk_display_is_quartz: BOOLEAN
+			-- Is the default display driven by the native macOS (Quartz) backend?
+			--| See `gdk_display_is_x11'.
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"return (EIF_BOOLEAN) ev_gdk_display_is_quartz ();"
+		end
+
 feature -- GdkPixBuf
 
 	gdk_is_pixbuf (obj: POINTER): BOOLEAN
@@ -502,6 +511,28 @@ feature -- GdkEvent
 	frozen gdk_event_get: POINTER
 		external
 			"C (): GdkEvent* | <ev_gtk.h>"
+		end
+
+	frozen ev_gdk_event_get: POINTER
+			-- Next event of the queue filled by `ev_gdk_event_queue_install`, if any,
+			-- otherwise `gdk_event_get`.
+		external
+			"C (): GdkEvent* | %"ev_c_util.h%""
+		end
+
+	frozen ev_gdk_event_queue_install
+			-- Keep a copy of the events dispatched by GDK while the queue is enabled,
+			-- for `ev_gdk_event_get` (needed when `gdk_event_get` returns no event,
+			-- as with the Quartz backend).
+		external
+			"C () | %"ev_c_util.h%""
+		end
+
+	frozen ev_gdk_event_queue_set_enabled (a_enabled: BOOLEAN): BOOLEAN
+			-- Enable or disable the event queue according to `a_enabled`
+			-- and return the previous status.
+		external
+			"C (gboolean): gboolean | %"ev_c_util.h%""
 		end
 
 	frozen gdk_events_pending: BOOLEAN

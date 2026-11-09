@@ -31,6 +31,11 @@ extern void ev_gtk_clear_pending_menu_trigger_event (void);
 extern void c_gtk_return_combo_toggle (GtkWidget *widget, GtkWidget** user_data);
 extern void enable_ev_gtk_log (int a_mode);
 
+/* GDK event queue fed by GDK's own dispatching (needed for the Quartz backend). */
+extern void ev_gdk_event_queue_install (void);
+extern gboolean ev_gdk_event_queue_set_enabled (gboolean a_enabled);
+extern GdkEvent *ev_gdk_event_get (void);
+
 /* XPM */
 extern char **default_pixmap_xpm (void);
 extern char **information_pixmap_xpm (void);

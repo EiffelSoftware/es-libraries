@@ -128,6 +128,10 @@ feature {NONE} -- Initialization
 					-- We do not want X Errors to exit the system so we ignore them indefinitely.
 				if is_x11_backend then
 					{GDK_X11}.gdk_x11_display_error_trap_push ({GDK}.gdk_display_get_default)
+				elseif {GDK}.gdk_display_is_quartz then
+						-- GDK Quartz only dispatches its events to the GDK event handler,
+						-- `gdk_event_get' returns none: queue them for `process_underlying_toolkit_event_queue'.
+					{GDK}.ev_gdk_event_queue_install
 				end
 
 				update_screen_meta_data
@@ -642,7 +646,7 @@ feature {EV_ANY_I} -- Implementation
 					end
 					l_no_more_events := True
 				else
-					gdk_event := {GDK}.gdk_event_get
+					gdk_event := {GDK}.ev_gdk_event_get
 				end
 				if not gdk_event.is_default_pointer then
 						-- GDK events are always handled before gtk events.
@@ -1097,8 +1101,11 @@ feature {EV_ANY_I} -- Implementation
 
 	process_gtk_events
 			-- Process Pending gtk events.
+			-- GDK events dispatched meanwhile are queued (if `{GDK}.ev_gdk_event_queue_install'
+			-- was called) for the next `{GDK}.ev_gdk_event_get'.
 		local
 			l_events_processed: BOOLEAN
+			l_was_queue_enabled: BOOLEAN
 		do
 			if not l_events_processed then
 -- FIXME: check if acquire/release are required.
@@ -1107,8 +1114,11 @@ feature {EV_ANY_I} -- Implementation
 --					{GTK2}.g_main_context_dispatch (ctx)
 --					{GTK2}.g_main_context_release (ctx)
 --				end
+				l_was_queue_enabled := {GDK}.ev_gdk_event_queue_set_enabled (True)
 				{GLIB2}.dispatch_events
 			end
+				-- Restore the status of the enclosing event loop, if any (also after an exception).
+			l_was_queue_enabled := {GDK}.ev_gdk_event_queue_set_enabled (l_was_queue_enabled)
 		rescue
 				-- Catch any exceptions.
 			l_events_processed := True

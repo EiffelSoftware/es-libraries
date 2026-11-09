@@ -294,6 +294,64 @@ void enable_ev_gtk_log (int a_mode)
         	G_LOG_LEVEL_DEBUG | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, ev_gtk_log, (gpointer) (rt_int_ptr) a_mode);
 }
 
+/*
+ * GDK event queue.
+ *
+ * EiffelVision2 reads the GDK events itself with `gdk_event_get' before they reach GTK+.
+ * This works when GDK reads its events directly (X11), but with the Quartz backend GDK
+ * only fetches the native events while the GLib main context is polled, and its event
+ * source then dispatches each event to the GDK event handler (`gtk_main_do_event'):
+ * `gdk_event_get' never returns any event.
+ *
+ * Once `ev_gdk_event_queue_install' was called, the GDK event handler keeps a copy of
+ * the events dispatched while the queue is enabled (EiffelVision2 dispatching the main
+ * context), so that `ev_gdk_event_get' returns them, in order, before calling
+ * `gdk_event_get'. When the queue is disabled (e.g. a main loop run by GTK+ itself),
+ * the events go to `gtk_main_do_event' as usual.
+ */
+
+static GQueue *ev_gdk_event_queue = NULL;
+static gboolean ev_gdk_event_queue_enabled = FALSE;
+
+static void
+ev_gdk_event_queue_handler (GdkEvent *event, gpointer data)
+{
+	if (ev_gdk_event_queue_enabled) {
+		g_queue_push_tail (ev_gdk_event_queue, gdk_event_copy (event));
+	} else {
+		gtk_main_do_event (event);
+	}
+}
+
+void
+ev_gdk_event_queue_install (void)
+{
+	if (ev_gdk_event_queue == NULL) {
+		ev_gdk_event_queue = g_queue_new ();
+		gdk_event_handler_set (ev_gdk_event_queue_handler, NULL, NULL);
+	}
+}
+
+gboolean
+ev_gdk_event_queue_set_enabled (gboolean a_enabled)
+{
+	/* Return the previous status, to be restored by the caller (nested event loops). */
+	gboolean l_previous = ev_gdk_event_queue_enabled;
+
+	ev_gdk_event_queue_enabled = (ev_gdk_event_queue != NULL) && a_enabled;
+	return l_previous;
+}
+
+GdkEvent *
+ev_gdk_event_get (void)
+{
+	/* Next event to process (to be freed with `gdk_event_free'), or NULL. */
+	if (ev_gdk_event_queue != NULL && !g_queue_is_empty (ev_gdk_event_queue)) {
+		return (GdkEvent *) g_queue_pop_head (ev_gdk_event_queue);
+	}
+	return gdk_event_get ();
+}
+
 /* XPM */
 char *default_pixmap_data[] = {
 /* width height ncolors chars_per_pixel */

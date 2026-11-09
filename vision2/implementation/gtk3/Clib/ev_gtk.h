@@ -362,6 +362,17 @@ ev_gdk_display_is_wayland (void)
 #endif
 }
 
+static gboolean
+ev_gdk_display_is_quartz (void)
+{
+#ifdef GDK_WINDOWING_QUARTZ
+	GdkDisplay *display = gdk_display_get_default ();
+	return display != NULL && GDK_IS_QUARTZ_DISPLAY (display);
+#else
+	return FALSE;
+#endif
+}
+
 /* Cairo context drawing straight onto `window', used by EV_SCREEN for the root
  * window. gdk_cairo_create is deprecated since GTK 3.22 in favour of
  * gdk_window_begin_draw_frame, which only applies to a window this process
