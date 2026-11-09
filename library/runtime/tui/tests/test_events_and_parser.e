@@ -76,12 +76,24 @@ feature -- Test routines
 			assert ("3 events", l_parser.events.count = 3)
 			if attached {KEY_EVENT} l_parser.events.i_th (1) as ev1 then
 				assert ("first is enter", ev1.code.is_enter)
+				assert ("line feed is ctrl+enter", ev1.modifiers.is_control)
 			end
 			if attached {KEY_EVENT} l_parser.events.i_th (2) as ev2 then
 				assert ("second is tab", ev2.code.is_tab)
 			end
 			if attached {KEY_EVENT} l_parser.events.i_th (3) as ev3 then
 				assert ("third is backspace", ev3.code.is_backspace)
+			end
+
+			-- A carriage return is a plain Enter
+			l_parser.wipe_out
+			l_parser.parse_string ("%R")
+			assert ("1 event for cr", l_parser.events.count = 1)
+			if attached {KEY_EVENT} l_parser.events.first as ev_cr then
+				assert ("cr is enter", ev_cr.code.is_enter)
+				assert ("cr without ctrl", not ev_cr.modifiers.is_control)
+			else
+				assert ("expected key event for cr", False)
 			end
 
 			-- Parse Ctrl+C (code 3)
