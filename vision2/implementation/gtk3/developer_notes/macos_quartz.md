@@ -108,3 +108,12 @@ GDK_BACKEND=quartz Src/scripts/run_as_macos_app.sh <dir>/vision2_demo/EIFGENs/vi
   aborts on `addChildWindow:` of a window to itself).
 - Input shapes are not implemented by GDK Quartz: a window meant to let the
   pointer events through also ignores them at the `NSWindow` level.
+- GDK Quartz does not always honor `gtk_window_move` on a window that is not
+  mapped yet (the first time, it may appear elsewhere): `{EV_GTK_WINDOW_IMP}.set_position`
+  keeps that position and `show` applies it again once the window is mapped.
+- A newly shown window does not reliably become the key window (for instance
+  when shown from a mouse event in another window): `{EV_POPUP_WINDOW_IMP}.show`
+  makes it key (`gtk_window_present`), unless it is disconnected from the window manager.
+- The keyboard focus moves asynchronously to a newly shown window: code that
+  hides a popup when none of its widgets has the focus should check again a bit
+  later (see `{EB_ADDRESS_MANAGER}.one_lost_focus`).

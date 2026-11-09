@@ -393,6 +393,13 @@ feature {EV_ANY_I} -- Status report
 			Result := {GDK}.gdk_display_is_x11
 		end
 
+	is_quartz_backend: BOOLEAN
+			-- Is the live GDK display driven by the native macOS (Quartz) backend?
+			--| Evaluated once, so it must not be called before `gtk_init_check'.
+		once
+			Result := {GDK}.gdk_display_is_quartz
+		end
+
 	has_x11_support: BOOLEAN
 			-- Has X11 support ?
 		once
