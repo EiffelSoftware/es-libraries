@@ -241,11 +241,10 @@ feature --standard curl operations
 				curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_url, l_end_point)
 				curl_slist := curl.slist_append (curl_slist, "Content-Type: application/json")
 				curl_easy.setopt_slist (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_httpheader, curl_slist)
-				if a_data.is_empty then
-					curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfields, "")
-				else
-					curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfields, a_data)
-				end
+					-- (The size first, then the data, copied by libcurl: the C string made by `setopt_string'
+					-- may be freed by the garbage collector before the end of the transfer.)
+				curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfieldsize, a_data.count)
+				curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_copypostfields, a_data)
 				curl_easy.set_write_function (curl_handle)
 				curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_writedata, l_curl_string.object_id)
 				l_result := curl_easy.perform (curl_handle)
