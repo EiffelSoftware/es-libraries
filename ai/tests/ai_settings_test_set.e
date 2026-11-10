@@ -89,6 +89,9 @@ feature -- Tests
 			l_path := (create {EXECUTION_ENVIRONMENT}).current_working_path.extended ("ai_settings_test.json")
 			create s.make_default
 			s.remove_provider ("openai")
+			if attached s.provider_named ("anthropic") as a then
+				a.set_workspace_id ("wrkspc_01")
+			end
 			create p.make ({STRING_32} "local é", {AI_PROVIDER_SETTINGS}.Kind_openai, "http://localhost:8080/v1", Void)
 			p.set_key ("secret")
 			s.put_provider (p)
@@ -114,6 +117,8 @@ feature -- Tests
 			else
 				assert ("local", False)
 			end
+			assert ("workspace", attached l.provider_named ("anthropic") as a and then a.workspace_id ~ {STRING_32} "wrkspc_01")
+			assert ("no workspace", attached l.provider_named ("nvidia") as n and then n.workspace_id = Void)
 			assert ("variable", attached l.provider_named ("nvidia") as n and then n.key_variable ~ {STRING_32} "NVIDIA_API_KEY")
 			assert ("model", l.model_provider ~ {STRING_32} "local é" and l.model_id ~ {STRING_32} "qwen3")
 			assert ("no transcripts", not l.keeps_transcripts)

@@ -5,7 +5,8 @@
 			{"providers": [{"name": "anthropic", "kind": "anthropic", "url": "https://api.anthropic.com",
 				"key_variable": "ANTHROPIC_API_KEY"}, ...],
 			 "model": {"provider": "anthropic", "id": "claude-opus-5-5"}}
-		A provider may also have a "key" (better kept in the environment variable).
+		A provider may also have a "key" (better kept in the environment variable), and an
+		Anthropic one a "workspace_id".
 	]"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -191,6 +192,9 @@ feature -- Persistence
 								then
 									create l_settings.make (n, k.to_string_8, utf_8 (u), string_item (p, "key_variable"))
 									l_settings.set_key (string_item (p, "key"))
+									if attached string_item (p, "workspace_id") as w and then {AI_PROVIDER_SETTINGS}.is_valid_workspace_id (w) then
+										l_settings.set_workspace_id (w)
+									end
 									put_provider (l_settings)
 								end
 							⟲
@@ -239,6 +243,9 @@ feature -- Persistence
 					if attached s.key as k then
 						p.put_string (k, "key")
 						l_has_key := True
+					end
+					if attached s.workspace_id as w then
+						p.put_string (w, "workspace_id")
 					end
 					l_providers.extend (p)
 				⟲

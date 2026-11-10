@@ -22,6 +22,33 @@ inherit
 
 feature -- Tests: Anthropic
 
+	test_anthropic_workspace
+			-- The workspace of the settings (or of ANTHROPIC_WORKSPACE_ID) is sent in a header.
+		local
+			s: AI_PROVIDER_SETTINGS
+			l_env: EXECUTION_ENVIRONMENT
+			l_old: detachable STRING_32
+		do
+			create l_env
+			l_old := l_env.item ({AI_PROVIDER_SETTINGS}.Workspace_variable)
+			l_env.put ("", {AI_PROVIDER_SETTINGS}.Workspace_variable)
+			create s.make ("test", {AI_PROVIDER_SETTINGS}.Kind_anthropic, "https://api.anthropic.com", Void)
+			s.set_key ("sk-test")
+			assert ("no workspace", header ((create {AI_PROVIDER_FACTORY}).new_provider (s).models_request, "anthropic-workspace-id") = Void)
+			l_env.put ("wrkspc_env", {AI_PROVIDER_SETTINGS}.Workspace_variable)
+			assert ("from the environment", header ((create {AI_PROVIDER_FACTORY}).new_provider (s).models_request, "anthropic-workspace-id") ~ "wrkspc_env")
+			s.set_workspace_id ("wrkspc_01")
+			assert ("models", header ((create {AI_PROVIDER_FACTORY}).new_provider (s).models_request, "anthropic-workspace-id") ~ "wrkspc_01")
+			assert ("chat", header ((create {AI_PROVIDER_FACTORY}).new_provider (s).chat_request (conversation, "claude-opus-5-5", Void, 0), "anthropic-workspace-id") ~ "wrkspc_01")
+			assert ("invalid", not s.is_valid_workspace_id ("a b") and not s.is_valid_workspace_id ("a%Nb") and not s.is_valid_workspace_id (""))
+			s.set_workspace_id (Void)
+			l_env.put ("", {AI_PROVIDER_SETTINGS}.Workspace_variable)
+			assert ("none again", header ((create {AI_PROVIDER_FACTORY}).new_provider (s).models_request, "anthropic-workspace-id") = Void)
+			if attached l_old then
+				l_env.put (l_old, {AI_PROVIDER_SETTINGS}.Workspace_variable)
+			end
+		end
+
 	test_anthropic_request
 			-- Headers and body of a request with a system prompt, tools, a tool call and its result.
 		local

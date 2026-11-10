@@ -119,6 +119,9 @@ feature {NONE} -- Implementation
 			if attached settings.api_key as k then
 				r.add_header ("x-api-key", utf_8 (k))
 			end
+			if attached settings.workspace as w then
+				r.add_header ("anthropic-workspace-id", utf_8 (w))
+			end
 		end
 
 	message_json (m: AI_MESSAGE): JSON_OBJECT

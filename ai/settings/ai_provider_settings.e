@@ -2,6 +2,9 @@ note
 	description: "[
 		Settings of a provider: its name, kind (protocol), base URL, and its API key, read from an
 		environment variable (`key_variable') or, if given, from the settings themselves (`key').
+		An Anthropic provider may also have the identifier of the workspace to use (`workspace_id',
+		or the environment variable ANTHROPIC_WORKSPACE_ID), needed by the API keys that are not
+		scoped to a workspace.
 	]"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -56,7 +59,31 @@ feature -- Access
 			end
 		end
 
+	workspace_id: detachable STRING_32
+			-- Identifier of the workspace kept in the settings, if any (Anthropic)
+
+	workspace: detachable STRING_32
+			-- Workspace to use (header anthropic-workspace-id): `workspace_id', or the value of
+			-- `Workspace_variable' for an Anthropic provider, if any
+		do
+			if attached workspace_id as w then
+				Result := w
+			elseif kind.same_string (Kind_anthropic) and then attached (create {EXECUTION_ENVIRONMENT}).item (Workspace_variable) as l_value and then not l_value.is_empty then
+				Result := l_value
+			end
+		ensure
+			valid: Result /= Void implies is_valid_workspace_id (Result)
+		end
+
 feature -- Status report
+
+	is_valid_workspace_id (a_id: READABLE_STRING_GENERAL): BOOLEAN
+			-- Can `a_id' be the identifier of a workspace (sent in a header: printable ASCII, no space)?
+		do
+			Result := not a_id.is_empty and then across 1 |..| a_id.count as i all a_id.code (i.item) > 32 and a_id.code (i.item) < 127 end
+		ensure
+			class
+		end
 
 	is_valid_kind (a_kind: READABLE_STRING_GENERAL): BOOLEAN
 			-- Is `a_kind' a kind of provider?
@@ -119,7 +146,22 @@ feature -- Element change
 			end
 		end
 
+	set_workspace_id (a_id: detachable READABLE_STRING_GENERAL)
+			-- Set `workspace_id' to `a_id' (none if Void or empty).
+		require
+			valid_id: (a_id /= Void and then not a_id.is_empty) implies is_valid_workspace_id (a_id)
+		do
+			if a_id = Void or else a_id.is_empty then
+				workspace_id := Void
+			else
+				workspace_id := a_id.to_string_32
+			end
+		end
+
 feature -- Kinds
+
+	Workspace_variable: STRING = "ANTHROPIC_WORKSPACE_ID"
+			-- Environment variable holding the workspace of an Anthropic provider without `workspace_id'
 
 	Kind_anthropic: STRING = "anthropic"
 			-- Anthropic Messages API
@@ -133,6 +175,7 @@ feature -- Kinds
 invariant
 	name_not_empty: not name.is_empty
 	valid_kind: is_valid_kind (kind)
+	valid_workspace_id: attached workspace_id as w implies is_valid_workspace_id (w)
 
 note
 	copyright: "Copyright (c) 1984-2026, Eiffel Software"

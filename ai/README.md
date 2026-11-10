@@ -14,6 +14,8 @@ user interface, nor on the compiler.
 The default settings (`{AI_SETTINGS}.make_default`) declare `anthropic`, `openai`, `nvidia`, `openrouter` (keys in
 `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `NVIDIA_API_KEY`, `OPENROUTER_API_KEY`), and the local `ollama` (port 11434) and `llama.app` (port 9931); the default model is
 `anthropic/claude-opus-5-5`. A key can also be kept in the settings file, which is then readable by its owner only.
+An Anthropic provider may have a `workspace_id` (or use the environment variable `ANTHROPIC_WORKSPACE_ID`), sent in the
+`anthropic-workspace-id` header: needed by the API keys that are not scoped to a workspace.
 
 ## Classes
 
