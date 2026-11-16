@@ -29,6 +29,9 @@ feature -- Status
 
 	error_message: detachable READABLE_STRING_8
 
+	is_cancelled: BOOLEAN
+			-- Was the transfer stopped, as asked by the `cancellation_query' of the request context?
+
 feature {HTTP_CLIENT_REQUEST} -- Status setting
 
 	set_error_occurred (b: BOOLEAN)
@@ -42,6 +45,16 @@ feature {HTTP_CLIENT_REQUEST} -- Status setting
 		do
 			set_error_occurred (True)
 			error_message := m
+		end
+
+	set_cancelled
+			-- Record that the transfer was stopped as asked (an error).
+		do
+			is_cancelled := True
+			set_error_message ("Transfer cancelled")
+		ensure
+			cancelled: is_cancelled
+			error: error_occurred
 		end
 
 feature -- Access

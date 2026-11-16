@@ -375,6 +375,17 @@ feature {NONE} -- Inlined C Implementation
 
 				void eiffeltui_w32_init (void)
 				{
+					DWORD l_mode = 0;
+						/* A kept handle may not be a console any more: the standard handle it was
+						 * may have been closed by a redirection of the standard output (`_dup2'),
+						 * its value then reused. Such a handle is not closed (it is not ours any
+						 * more), the console is opened again. */
+					if (eiffeltui_w32_in != INVALID_HANDLE_VALUE && !GetConsoleMode (eiffeltui_w32_in, &l_mode)) {
+						eiffeltui_w32_in = INVALID_HANDLE_VALUE;
+					}
+					if (eiffeltui_w32_out != INVALID_HANDLE_VALUE && !GetConsoleMode (eiffeltui_w32_out, &l_mode)) {
+						eiffeltui_w32_out = INVALID_HANDLE_VALUE;
+					}
 					if (eiffeltui_w32_in == INVALID_HANDLE_VALUE) {
 						eiffeltui_w32_in = eiffeltui_w32_open (STD_INPUT_HANDLE, L"CONIN$");
 					}
@@ -515,14 +526,18 @@ feature {NONE} -- Inlined C Implementation
 		end
 
 	c_win32_enable_vt_mode: BOOLEAN
-			-- Enable ENABLE_VIRTUAL_TERMINAL_PROCESSING and UTF-8 code pages, saving originals first.
+			-- Enable ENABLE_VIRTUAL_TERMINAL_PROCESSING and UTF-8 code pages, saving originals first
+			-- (opening the console again if the handle kept is not a console any more).
 		external
 			"C inline use <windows.h>"
 		alias
 			"[
 				extern HANDLE eiffeltui_w32_out;
 				extern void eiffeltui_w32_save (void);
+				extern void eiffeltui_w32_init (void);
 				DWORD l_mode = 0;
+					/* (Open the console again if the handle kept is not a console any more.) */
+				eiffeltui_w32_init ();
 				if (eiffeltui_w32_out == INVALID_HANDLE_VALUE || !GetConsoleMode (eiffeltui_w32_out, &l_mode)) {
 					return EIF_TRUE; /* Not a console: nothing to enable. */
 				}

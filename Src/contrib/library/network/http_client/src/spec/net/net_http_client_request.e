@@ -359,7 +359,7 @@ feature -- Access
 							--| Get response.           |--
 							--| Get header message      |--
 							--|-------------------------|--
-						if is_ready_for_reading (l_socket) then
+						if is_ready_for_reading_or_cancelled (l_socket, ctx) then
 							create l_message.make_empty
 							append_socket_header_content_to (Result, l_socket, l_message)
 							if session.is_header_received_verbose then
@@ -392,6 +392,10 @@ feature -- Access
 
 									-- Get content if any.
 								append_socket_content_to (Result, l_socket, l_content_length, l_message)
+								if Result.is_cancelled then
+										-- (The rest of the response is not read: the connection cannot be used again.)
+									l_is_keep_alive := False
+								end
 									-- Restore previous header
 								Result.set_raw_header (l_prev_header)
 									-- Set message
@@ -421,6 +425,10 @@ feature -- Access
 									l_socket.cleanup
 								end
 							end
+						elseif ctx /= Void and then ctx.is_cancellation_requested then
+							Result.set_cancelled
+							l_socket.cleanup
+							session.set_persistent_connection (Void)
 						else
 							if session.is_debug_verbose then
 								log ("Debug: Read Timeout!%N")
@@ -460,6 +468,54 @@ feature {NONE} -- Helpers
 			-- Is `a_socket' ready for reading?
 		do
 			Result := a_socket.ready_for_reading
+		end
+
+	is_ready_for_reading_or_cancelled (a_socket: HTTP_STREAM_SOCKET; ctx: like context): BOOLEAN
+			-- Is `a_socket' ready for reading? With a `cancellation_query' in `ctx', the wait
+			-- (as long as the timeout of `a_socket', or with no limit if it is zero) checks every
+			-- `Cancellation_check_interval_ns' whether the transfer is to be stopped (False then).
+		local
+			l_timeout, l_waited: NATURAL_64
+		do
+			if ctx /= Void and then ctx.cancellation_query /= Void then
+				l_timeout := a_socket.timeout_ns
+				a_socket.set_timeout_ns (Cancellation_check_interval_ns)
+				from
+				until
+					Result or else ctx.is_cancellation_requested or else (l_timeout > 0 and l_waited >= l_timeout)
+				loop
+					Result := a_socket.ready_for_reading
+					l_waited := l_waited + Cancellation_check_interval_ns
+				end
+				a_socket.set_timeout_ns (l_timeout)
+			else
+				Result := is_ready_for_reading (a_socket)
+			end
+		end
+
+	Cancellation_check_interval_ns: NATURAL_64 = 1_000_000_000
+			-- Time between two checks of the cancellation while waiting for a response (1 second)
+
+	put_content (a_content: READABLE_STRING_8; a_output: STRING)
+			-- Give `a_content', part of the content of the response, to the `content_write_agent'
+			-- of the context if any, or append it to `a_output'.
+		do
+			if attached context as ctx and then attached ctx.content_write_agent as agt then
+				agt.call ([a_content])
+			else
+				a_output.append (a_content)
+			end
+		end
+
+	is_cancelled_transfer (a_response: HTTP_CLIENT_RESPONSE): BOOLEAN
+			-- Is the transfer of `a_response' to be stopped, as asked by the context?
+			-- (If so, `a_response' is cancelled.)
+		do
+			Result := a_response.is_cancelled
+			if not Result and then attached context as ctx and then ctx.is_cancellation_requested then
+				a_response.set_cancelled
+				Result := True
+			end
 		end
 
 	is_redirection_http_status (a_status: INTEGER): BOOLEAN
@@ -746,16 +802,16 @@ feature {NONE} -- Helpers
 					from
 						r := a_len
 					until
-						r = 0 or else not a_socket.readable or else a_response.error_occurred
+						r = 0 or else not a_socket.readable or else a_response.error_occurred or else is_cancelled_transfer (a_response)
 					loop
-						a_socket.read_stream_noexception (r)
+						a_socket.read_stream_noexception (r.min (buffer_size))
 						l_count := l_count + a_socket.bytes_read
 						if session.is_debug_verbose then
 							log ("Debug:   - byte read=" + a_socket.bytes_read.out + "%N")
 							log ("Debug:   - current count=" + l_count.out + "%N")
 						end
 						r := r - a_socket.bytes_read
-						a_output.append (a_socket.last_string)
+						put_content (a_socket.last_string, a_output)
 					end
 					check full_content_read: not a_response.error_occurred implies l_count = a_len end
 				elseif attached a_response.header ("Transfer-Encoding") as l_enc and then l_enc.is_case_insensitive_equal ("chunked") then
@@ -769,13 +825,13 @@ feature {NONE} -- Helpers
 						l_chunk_size := buffer_size
 						n := l_chunk_size --| value to satisfy until condition on first loop.
 					until
-						n < l_chunk_size or not a_socket.readable
+						n < l_chunk_size or not a_socket.readable or else is_cancelled_transfer (a_response)
 					loop
 						a_socket.read_stream_noexception (l_chunk_size)
 						s := a_socket.last_string
 						n := a_socket.bytes_read
 						l_count := l_count + n
-						a_output.append (s)
+						put_content (s, a_output)
 					end
 				end
 			end
@@ -800,7 +856,7 @@ feature {NONE} -- Helpers
 				create hexa2int.make
 				n := 1
 			until
-				n = 0 or not a_socket.readable
+				n = 0 or not a_socket.readable or else is_cancelled_transfer (a_response)
 			loop
 				a_socket.read_line_noexception
 				s := a_socket.last_string
@@ -829,7 +885,7 @@ feature {NONE} -- Helpers
 					from
 						r := n
 					until
-						r = 0 or else not a_socket.readable or else a_response.error_occurred
+						r = 0 or else not a_socket.readable or else a_response.error_occurred or else is_cancelled_transfer (a_response)
 					loop
 						a_socket.read_stream_noexception (r)
 						l_count := l_count + a_socket.bytes_read
@@ -838,7 +894,7 @@ feature {NONE} -- Helpers
 							log ("Debug:   - current count=" + l_count.out + "%N")
 						end
 						r := r - a_socket.bytes_read
-						a_output.append (a_socket.last_string)
+						put_content (a_socket.last_string, a_output)
 					end
 
 					a_socket.read_character_noexception

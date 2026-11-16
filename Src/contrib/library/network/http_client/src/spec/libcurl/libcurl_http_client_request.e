@@ -54,7 +54,7 @@ feature -- Execution
 			l_form: detachable CURL_FORM
 			l_last: CURL_FORM
 			l_upload_file: detachable RAW_FILE
-			l_custom_function: detachable LIBCURL_CUSTOM_FUNCTION
+			l_transfer: detachable LIBCURL_TRANSFER
 			curl: detachable CURL_EXTERNALS
 			curl_easy: detachable CURL_EASY_EXTERNALS
 			curl_handle: POINTER
@@ -172,8 +172,10 @@ feature -- Execution
 						end
 						check no_form_data: not ctx.has_form_data end
 
-						curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfields, l_upload_data)
+							-- (The size first; then the data, copied by libcurl: the C string made by `setopt_string'
+							-- is freed by the garbage collector before the end of the transfer.)
 						curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfieldsize, l_upload_data.count)
+						curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_copypostfields, l_upload_data)
 					elseif l_upload_filename /= Void then
 						check
 							post_or_put_request_method:	request_method.is_case_insensitive_equal ("POST")
@@ -188,12 +190,12 @@ feature -- Execution
 
 							curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_infilesize, l_upload_file.count)
 								-- specify callback read function for upload file
-							if l_custom_function = Void then
-								create l_custom_function.make
+							if l_transfer = Void then
+								create l_transfer.make
 							end
-							l_custom_function.set_file_to_read (l_upload_file)
+							l_transfer.set_file_to_read (l_upload_file)
 							l_upload_file.open_read
-							curl_easy.set_curl_function (l_custom_function)
+							curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_readdata, l_transfer.object_id)
 						end
 					elseif
 						ctx.has_form_data and
@@ -216,8 +218,8 @@ feature -- Execution
 						else
 							l_headers.force ("application/x-www-form-urlencoded", "Content-Type")
 							l_upload_data := ctx.form_parameters_to_x_www_form_url_encoded_string
-							curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfields, l_upload_data)
 							curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_postfieldsize, l_upload_data.count)
+							curl_easy.setopt_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_copypostfields, l_upload_data)
 						end
 						if l_use_curl_form then
 							create l_form.make
@@ -270,34 +272,55 @@ feature -- Execution
 
 				--| Write options
 
+					-- (The callbacks of libcurl go to the process-wide {LIBCURL_DEFAULT_FUNCTION}, which
+					-- passes them to the object given as their data: a {CURL_STRING}, or `l_transfer'.)
 				if ctx /= Void and then ctx.has_write_option then
-					if l_custom_function = Void then
-						create l_custom_function.make
+					if l_transfer = Void then
+						create l_transfer.make
 					end
-					if attached ctx.write_agent as l_write_agent then
-						l_custom_function.set_write_procedure (l_write_agent)
+					if attached ctx.content_write_agent as l_content_write_agent then
+						l_transfer.set_content_write_procedure (l_content_write_agent)
+					elseif attached ctx.write_agent as l_write_agent then
+						l_transfer.set_write_procedure (l_write_agent)
 					elseif attached ctx.output_content_file as l_output_content_file then
 						create l_curl_string.make_empty
-						l_custom_function.set_write_procedure (new_write_content_data_to_file_agent (l_output_content_file, l_curl_string))
+						l_transfer.set_write_procedure (new_write_content_data_to_file_agent (l_output_content_file, l_curl_string))
 						-- l_curl_string will contain the raw header, used to fill `Result'
 					elseif attached ctx.output_file as l_output_file then
 						create l_curl_string.make_empty
-						l_custom_function.set_write_procedure (new_write_data_to_file_agent (l_output_file, l_curl_string))
+						l_transfer.set_write_procedure (new_write_data_to_file_agent (l_output_file, l_curl_string))
 						-- l_curl_string will contain the raw header, used to fill `Result'
 					end
-					curl_easy.set_curl_function (l_custom_function)
+					curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_writedata, l_transfer.object_id)
 				else
 					create l_curl_string.make_empty
 					curl_easy.setopt_curl_string (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_writedata, l_curl_string)
+				end
+
+				--| Cancellation: the progress callback is called regularly, also while no data arrive.
+				if ctx /= Void and then attached ctx.cancellation_query as l_cancellation_query then
+					if l_transfer = Void then
+						create l_transfer.make
+					end
+					l_transfer.set_cancellation_query (l_cancellation_query)
+					curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_noprogress, 0)
+					curl_easy.set_progress_function (curl_handle)
+					curl_easy.setopt_integer (curl_handle, {CURL_OPT_CONSTANTS}.curlopt_progressdata, l_transfer.object_id)
 				end
 
 				create Result.make (l_url)
 				l_result := curl_easy.perform (curl_handle)
 
 				--| Result
-				if l_result = {CURL_CODES}.curle_ok then
+				if l_transfer /= Void and then l_transfer.is_cancelled then
+					Result.set_cancelled
 					Result.status := response_status_code (curl_easy, curl_handle)
-					if l_curl_string /= Void then
+				elseif l_result = {CURL_CODES}.curle_ok then
+					Result.status := response_status_code (curl_easy, curl_handle)
+					if l_transfer /= Void and then l_transfer.content_write_procedure /= Void then
+							-- The content went to the agent: the header only.
+						Result.set_response_message (l_transfer.last_header, ctx)
+					elseif l_curl_string /= Void then
 						Result.set_response_message (l_curl_string.string, ctx)
 						if session.is_header_received_verbose then
 							io.error.put_string ("< Receiving:%N")

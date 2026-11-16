@@ -77,6 +77,16 @@ feature -- Access
 			-- Use this agent to hook the write of the response.
 			--| could be used to save the response directly in a file		
 
+	content_write_agent: detachable PROCEDURE [READABLE_STRING_8]
+			-- Agent receiving the parts of the content of the response (without its header)
+			-- as they arrive, for instance to process a streamed response.
+			--| The `body' of the response is then empty; its status and header are set.
+
+	cancellation_query: detachable FUNCTION [BOOLEAN]
+			-- Function telling whether the transfer has to be stopped, asked during the transfer.
+			--| It may be called from the thread performing the request: it must be safe to call from it.
+			--| The response of a stopped transfer `is_cancelled'.
+
 	output_file: detachable FILE
 			-- Optional output file to get downloaded content and header
 
@@ -110,7 +120,13 @@ feature -- Status report
 	has_write_option: BOOLEAN
 			-- Has non default write behavior?
 		do
-			Result := write_agent /= Void or output_file /= Void or output_content_file /= Void
+			Result := write_agent /= Void or content_write_agent /= Void or output_file /= Void or output_content_file /= Void
+		end
+
+	is_cancellation_requested: BOOLEAN
+			-- Is the transfer to be stopped (according to `cancellation_query')?
+		do
+			Result := attached cancellation_query as q and then q.item (Void)
 		end
 
 feature -- Element change
@@ -220,6 +236,22 @@ feature -- Element change
 			-- Set `write_agent' to `agt'.
 		do
 			write_agent := agt
+		end
+
+	set_content_write_agent (agt: like content_write_agent)
+			-- Set `content_write_agent' to `agt'.
+		do
+			content_write_agent := agt
+		ensure
+			content_write_agent_set: content_write_agent = agt
+		end
+
+	set_cancellation_query (q: like cancellation_query)
+			-- Set `cancellation_query' to `q'.
+		do
+			cancellation_query := q
+		ensure
+			cancellation_query_set: cancellation_query = q
 		end
 
 	set_output_file (f: FILE)

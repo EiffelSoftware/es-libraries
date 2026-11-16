@@ -15,6 +15,8 @@ inherit
 	CURL_DEFAULT_FUNCTION
 		redefine
 			write_function,
+			read_function,
+			progress_function,
 			debug_function,
 			dump
 		end
@@ -26,6 +28,8 @@ feature -- Command
 
 	write_function (a_data_pointer: POINTER; a_size, a_nmemb: INTEGER; a_object_id: POINTER): INTEGER
 			-- Redefine
+			-- (The data go to the object identified by `a_object_id': a {CURL_STRING}, or a
+			-- {LIBCURL_TRANSFER}, which may stop the transfer.)
 		local
 			l_c_string: C_STRING
 			l_identified: IDENTIFIED
@@ -36,8 +40,31 @@ feature -- Command
 			create l_identified
 			if attached {CURL_STRING} l_identified.id_object (a_object_id.to_integer_32) as l_string then
 				l_string.append (l_c_string.substring (1, Result))
+			elseif attached {LIBCURL_TRANSFER} l_identified.id_object (a_object_id.to_integer_32) as l_transfer then
+				if not l_transfer.write (l_c_string.substring (1, Result)) then
+						-- (A count different from the one received stops the transfer.)
+					Result := 0
+				end
 			else
-				check False end
+				check known_receiver: False end
+			end
+		end
+
+	read_function (a_data_pointer: POINTER; a_size, a_nmemb: INTEGER; a_object_id: POINTER): INTEGER
+			-- <Precursor>
+			-- (Read from the {LIBCURL_TRANSFER} identified by `a_object_id'.)
+		do
+			if attached {LIBCURL_TRANSFER} (create {IDENTIFIED}).id_object (a_object_id.to_integer_32) as l_transfer then
+				Result := l_transfer.read (a_data_pointer, a_size * a_nmemb)
+			end
+		end
+
+	progress_function (a_object_id: POINTER; a_download_total, a_download_now, a_upload_total, a_upload_now: REAL_64): INTEGER
+			-- <Precursor>
+			-- (Non zero when the {LIBCURL_TRANSFER} identified by `a_object_id' is to be stopped.)
+		do
+			if attached {LIBCURL_TRANSFER} (create {IDENTIFIED}).id_object (a_object_id.to_integer_32) as l_transfer then
+				Result := l_transfer.progress
 			end
 		end
 

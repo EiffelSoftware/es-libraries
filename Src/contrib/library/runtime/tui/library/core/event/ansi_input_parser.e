@@ -281,8 +281,12 @@ feature {NONE} -- State Processors
 		do
 			create l_mod.default_create
 			l_mod.set_alt (a_alt)
-			if a_code = 10 or a_code = 13 then
+			if a_code = 13 then
 				l_code := {KEY_CODE}.enter
+			elseif a_code = 10 then
+					-- Line feed: Ctrl+J, and Ctrl+Enter on Windows Terminal (Enter sends a carriage return).
+				l_code := {KEY_CODE}.enter
+				l_mod.set_control (True)
 			elseif a_code = 9 then
 				l_code := {KEY_CODE}.tab
 			elseif a_code = 8 or a_code = 127 then
