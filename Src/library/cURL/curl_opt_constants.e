@@ -484,6 +484,18 @@ feature -- HTTP
 			is_class: class
 		end
 
+	curlopt_copypostfields: INTEGER
+			-- Declared as CURLOPT_COPYPOSTFIELDS: the data to post, copied by libcurl
+			-- (unlike CURLOPT_POSTFIELDS, whose data must stay as is until the end of the transfer).
+			-- Set CURLOPT_POSTFIELDSIZE before, for data that may contain null characters.
+		external
+			"C inline use <curl/curl.h>"
+		alias
+			"return CURLOPT_COPYPOSTFIELDS;"
+		ensure
+			is_class: class
+		end
+
 	curlopt_postfieldsize: INTEGER
 			-- Declared as CURLOPT_POSTFIELDSIZE
 		external
@@ -1385,6 +1397,7 @@ feature -- Status report
 						v = curlopt_post or
 						v = curlopt_postfields or
 						v = curlopt_postfieldsize or
+						v = curlopt_copypostfields or
 						v = curlopt_postfieldsize_large or
 						v = curlopt_httppost or
 						v = curlopt_referer or
