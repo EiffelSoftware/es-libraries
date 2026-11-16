@@ -14,8 +14,7 @@
 		<library name="curl" location="$ISE_LIBRARY\library\cURL\cURL.ecf"/>
 		<cluster name="smtp_mime" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>

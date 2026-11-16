@@ -14,8 +14,7 @@
 		<library name="iphone" location="$ISE_LIBRARY\library\iphone\iphone.ecf"/>
 		<cluster name="basic" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 			<visible class="APPLICATION" feature="make"/>

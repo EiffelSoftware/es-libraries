@@ -17,8 +17,7 @@
 		<library name="web_browser" location="$ISE_LIBRARY\library\web_browser\web_browser.ecf" readonly="False"/>
 		<cluster name="root_cluster" location=".\" recursive="true">
 			<file_rule>
-				<exclude>/.svn$</exclude>
-				<exclude>/CVS$</exclude>
+				<exclude>/\..*$</exclude>
 				<exclude>/EIFGENs$</exclude>
 			</file_rule>
 		</cluster>
