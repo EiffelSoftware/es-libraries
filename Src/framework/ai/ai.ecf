@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="es_ai" uuid="B7C3E6A4-5F21-4D8E-9A3C-2E6F1B7D4A90" library_target="es_ai">
+	<description>Access to AI models (Anthropic, OpenAI-compatible servers such as OpenAI, NVIDIA, llama-server or LM Studio, Ollama): providers, models, streamed conversations with tools. Independent of the user interface.</description>
+	<target name="es_ai">
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/tests$</exclude>
+		</file_rule>
+		<option warning="warning">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true"/>
+		</option>
+		<capability>
+			<concurrency support="thread"/>
+			<void_safety support="all"/>
+		</capability>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="http_client" location="$ISE_LIBRARY\contrib\library\network\http_client\http_client.ecf"/>
+		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json.ecf"/>
+		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<cluster name="es_ai" location=".\" recursive="true"/>
+	</target>
+	<target name="es_ai_tests" extends="es_ai">
+		<root class="ANY" feature="default_create"/>
+		<file_rule>
+			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+		</file_rule>
+		<setting name="console_application" value="true"/>
+		<library name="net" location="$ISE_LIBRARY\library\net\net.ecf"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<tests name="tests" location=".\tests\"/>
+	</target>
+</system>
