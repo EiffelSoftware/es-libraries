@@ -1195,12 +1195,26 @@ feature {NONE} -- Scroll bars Management
  			l_line_height := line_height
  			l_buff_height := buffered_drawable_height
 
- 			if l_diff < 0 then
+			if not is_vertical_scroll_using_viewport_offset then
+					-- The drawing area is not taller than the visible area:
+					-- keep the vertical offset at 0 and redraw the visible lines.
+					-- Note: `l_buff_height` may not be up to date with `viewable_height` during a resize,
+					-- so it must not be used to compute a new offset.
+				if l_diff /= 0 or view_y_offset /= 0 then
+					editor_viewport.set_y_offset (0)
+					if attached margin as l_margin then
+						l_margin.synch_with_panel
+					else
+						check margin_always_attached: False end
+					end
+					refresh_now
+				end
+ 			elseif l_diff < 0 then
  					-- Scroll up
  				if view_y_offset + (l_diff * l_line_height) < 0 then
  						-- The newly anticipated y_offset (taking into account where we are moving to) is
  						-- above the drawing area, so flip to the bottom
- 					editor_viewport.set_y_offset (l_buff_height - viewable_height - ((l_buff_height - viewable_height) \\ l_line_height))
+ 					editor_viewport.set_y_offset ((l_buff_height - viewable_height - ((l_buff_height - viewable_height) \\ l_line_height)).max (0))
  					flip_count := flip_count - 1
 					if attached margin as l_margin then
 						l_margin.synch_with_panel
@@ -1244,7 +1258,7 @@ feature {NONE} -- Scroll bars Management
 
 			check
  				not_too_high: editor_viewport.y_offset >= 0
- 				not_too_low: (editor_viewport.y_offset + viewable_height) <= buffered_drawable_height
+ 				not_too_low: is_vertical_scroll_using_viewport_offset implies (editor_viewport.y_offset + viewable_height) <= buffered_drawable_height
  			end
  		end
 
@@ -1362,7 +1376,7 @@ feature {NONE} -- Display functions
 		do
 			if editor_viewport.y_offset + viewable_height > buffered_drawable_height then
 					-- The viewport needs to be moved up because it is too low down to display
-				editor_viewport.set_y_offset (editor_viewport.y_offset - (editor_viewport.height - last_viewport_height))
+				editor_viewport.set_y_offset ((editor_viewport.y_offset - (editor_viewport.height - last_viewport_height)).max (0))
 				if attached margin as l_margin then
 					l_margin.margin_viewport.set_y_offset (editor_viewport.y_offset)
 				else

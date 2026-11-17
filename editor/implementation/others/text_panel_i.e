@@ -10,6 +10,10 @@ deferred class
 
 feature {NONE} -- Implementation
 
+	is_vertical_scroll_using_viewport_offset: BOOLEAN = True
+			-- Is vertical scrolling done by moving the vertical offset of `editor_viewport`
+			-- over a drawing area taller than the visible area?
+
 	on_visible_area_resized (a_width, a_height: INTEGER)
 		do
 		end
