@@ -1061,14 +1061,16 @@ feature {NONE} -- Scroll bars Management
 				in_resize := True
 
 				if display_scrollbars then
+						-- Update the range even when the scrollbar is hidden, since it
+						-- defines the valid values of `first_line_displayed`.
+					vertical_scrollbar.value_range.resize_exactly (1, maximum_top_line_index)
+					if first_line_displayed > maximum_top_line_index then
+						vertical_scrollbar.set_value (maximum_top_line_index)
+					else
+						vertical_scrollbar.set_value (first_line_displayed)
+					end
+					vertical_scrollbar.set_leap (number_of_lines_displayed.max (1))
 					if show_vertical_scrollbar then
-						vertical_scrollbar.value_range.resize_exactly (1, maximum_top_line_index)
-						if first_line_displayed > maximum_top_line_index then
-							vertical_scrollbar.set_value (maximum_top_line_index)
-						else
-							vertical_scrollbar.set_value (first_line_displayed)
-						end
-						vertical_scrollbar.set_leap (number_of_lines_displayed.max (1))
 						if scroll_vbox.is_show_requested then
 							if not platform_is_windows then
 								vertical_scrollbar_needs_updating := False
