@@ -48,6 +48,9 @@ feature -- Access
 	error_message: detachable STRING_32
 			-- Error of the transfer, if any (once finished)
 
+	content_type: detachable STRING_8
+			-- Content type of the answer (header Content-Type), if given (once finished)
+
 	received_count: INTEGER
 			-- Number of bytes of the streamed answer received so far
 		do
@@ -190,8 +193,8 @@ feature -- Basic operations
 			if not retried then
 				create cl
 				sess := cl.new_session (request.base_url)
-					-- (No limit for a streamed answer, which can be long: `cancel' stops it.)
-				sess.set_timeout (0)
+					-- (No limit for a streamed answer, which can be long, unless the request has one: `cancel' stops it.)
+				sess.set_timeout (request.timeout)
 				sess.set_connect_timeout (30)
 				create ctx.make
 				⟳ h: request.headers ¦
@@ -210,6 +213,11 @@ feature -- Basic operations
 				l_locked := True
 				internal_status := res.status
 				internal_is_cancelled := res.is_cancelled
+				across res.headers as h until content_type /= Void loop
+					if h.name.is_case_insensitive_equal ("Content-Type") then
+						content_type := h.value.to_string_8
+					end
+				end
 				if res.error_occurred and not res.is_cancelled then
 					if attached res.error_message as m then
 						error_message := {UTF_CONVERTER}.utf_8_string_8_to_string_32 (m)
