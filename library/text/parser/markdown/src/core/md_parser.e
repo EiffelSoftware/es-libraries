@@ -1712,7 +1712,7 @@ feature {NONE} -- Inline parsing
 									-- Handle the triple ___ for strong and emphasis
 								j := j + 1
 							end
-							if j > 0 and then is_word_boundary_at (s, i) and then is_word_boundary_at (s, j + 2) then
+							if j > 0 and then can_open_underscore (s, i) and then can_close_underscore (s, j + 2) then
 								flush_text_buffer_to (buf, Result)
 								inner := s.substring (i + 2, j - 1)
 								create st.make
@@ -1726,7 +1726,7 @@ feature {NONE} -- Inline parsing
 						else
 								-- Emphasis: _text_
 							j := s.index_of ('_', i + 1)
-							if j > 0 and then is_word_boundary_at (s, i) and then is_word_boundary_at (s, j + 1) then
+							if j > 0 and then can_open_underscore (s, i) and then can_close_underscore (s, j + 1) then
 								flush_text_buffer_to (buf, Result)
 								inner := s.substring (i + 1, j - 1)
 								create em.make
@@ -2184,24 +2184,24 @@ feature {NONE} -- Inline parsing
 			end
 		end
 
-	is_word_boundary_at (s: STRING_8; pos: INTEGER): BOOLEAN
-			-- Is there a word boundary at position `pos` in `s`?
-			-- Word boundary: start/end of string, or transition between word and non-word character.
-			-- For underscore emphasis, we need a word boundary before and after.
+	can_open_underscore (s: STRING_8; pos: INTEGER): BOOLEAN
+			-- Can the underscores at position `pos` in `s` open an emphasis or a strong emphasis?
+			-- Not inside a word (CommonMark): `snake_case_name` has no emphasis.
 		require
 			s_attached: s /= Void
-			valid_pos: pos >= 1 and pos <= s.count + 1
-		local
-			prev_is_word, curr_is_word: BOOLEAN
+			valid_pos: pos >= 1 and pos <= s.count
 		do
-			if pos = 1 or pos > s.count then
-				Result := True
-			else
-					-- For GFM underscore emphasis, underscore is NOT a word character
-				prev_is_word := s [pos - 1].is_alpha_numeric
-				curr_is_word := s [pos].is_alpha_numeric
-				Result := not prev_is_word or not curr_is_word
-			end
+			Result := pos = 1 or else not s [pos - 1].is_alpha_numeric
+		end
+
+	can_close_underscore (s: STRING_8; a_after: INTEGER): BOOLEAN
+			-- Can the underscores before position `a_after` in `s` close an emphasis or a strong emphasis?
+			-- Not inside a word (CommonMark): `snake_case_name` has no emphasis.
+		require
+			s_attached: s /= Void
+			valid_position: a_after >= 1 and a_after <= s.count + 1
+		do
+			Result := a_after > s.count or else not s [a_after].is_alpha_numeric
 		end
 
 	extract_title_from_url_string (a_url_string: READABLE_STRING_8): detachable STRING_8

@@ -56,6 +56,30 @@ feature -- Tests (GFM extensions)
 			assert ("xhtml", o.same_string ("<p><strong><em>emphasized and strong text</em></strong></p>%N"))
 		end
 
+	test_underscore_inside_words
+			-- Underscores inside words (snake_case names) are not emphasis.
+		local
+			t: MD_CONTENT_TEXT
+			o: STRING
+		do
+			create t.make_from_string ("Call my_feature_name, then other_name_too.%N")
+			create o.make_empty
+			t.document.process (create {MD_XHTML_GENERATOR}.make (o))
+			assert ("xhtml", o.same_string ("<p>Call my_feature_name, then other_name_too.</p>%N"))
+		end
+
+	test_underscore_emphasis_and_word
+			-- An emphasis with underscores, then a name with underscores.
+		local
+			t: MD_CONTENT_TEXT
+			o: STRING
+		do
+			create t.make_from_string ("_emphasized_ and __strong__ before a_b__c.%N")
+			create o.make_empty
+			t.document.process (create {MD_XHTML_GENERATOR}.make (o))
+			assert ("xhtml", o.same_string ("<p><em>emphasized</em> and <strong>strong</strong> before a_b__c.</p>%N"))
+		end
+
 	test_task_list_unchecked
 		local
 			p: MD_PARSER
