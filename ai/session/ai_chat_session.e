@@ -63,6 +63,12 @@ feature -- Access
 	input_tokens, output_tokens: INTEGER
 			-- Tokens of the last answer
 
+	cache_read_tokens, cache_write_tokens: INTEGER
+			-- Tokens of `input_tokens' read from the cache of the provider, and written to it, by the last answer
+
+	total_cache_read_tokens, total_cache_write_tokens: INTEGER
+			-- Tokens read from the cache, and written to it, by the answers of the conversation
+
 	total_input_tokens, total_output_tokens: INTEGER
 			-- Tokens of all the answers of the session
 
@@ -162,6 +168,8 @@ feature -- Element change
 			last_error := Void
 			total_input_tokens := 0
 			total_output_tokens := 0
+			total_cache_read_tokens := 0
+			total_cache_write_tokens := 0
 		ensure
 			no_messages: conversation.messages.is_empty
 		end
@@ -319,6 +327,8 @@ feature {NONE} -- Implementation
 			is_truncated := False
 			input_tokens := 0
 			output_tokens := 0
+			cache_read_tokens := 0
+			cache_write_tokens := 0
 			create builder.make (provider.settings.kind)
 			create j.make (provider.chat_request (conversation, model, tools, 0), provider.new_stream_decoder)
 			job := j
@@ -346,6 +356,10 @@ feature {NONE} -- Implementation
 			answer_version := answer_version + 1
 			input_tokens := builder.input_tokens
 			output_tokens := builder.output_tokens
+			cache_read_tokens := builder.cache_read_tokens
+			cache_write_tokens := builder.cache_write_tokens
+			total_cache_read_tokens := total_cache_read_tokens + cache_read_tokens
+			total_cache_write_tokens := total_cache_write_tokens + cache_write_tokens
 			total_input_tokens := total_input_tokens + input_tokens
 			total_output_tokens := total_output_tokens + output_tokens
 			was_stopped := j.is_cancelled

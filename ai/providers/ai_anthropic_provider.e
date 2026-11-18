@@ -1,7 +1,9 @@
 ﻿note
 	description: "[
 		Anthropic (Claude models), through the Messages API: GET /v1/models, POST /v1/messages
-		(streamed). The instructions are marked to be cached, as they stay the same in a conversation.
+		(streamed). The instructions (and the tools) are marked to be cached, as they stay the same in a
+		conversation, and so is the last message: each request reads the conversation sent by the previous
+		one from the cache, and only the new messages are read in full.
 	]"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -65,7 +67,9 @@ feature -- Requests
 			end
 			create l_messages.make (a_conversation.messages.count)
 			⟳ m: a_conversation.messages ¦
-				l_messages.extend (message_json (m))
+					-- (The last message marked to be cached: the next request, sending the same conversation
+					-- followed by the answer and the next message, reads it from the cache.)
+				l_messages.extend (message_json (m, @m.is_last))
 			⟲
 			o.put (l_messages, "messages")
 			create Result.make_post (base_url, "/v1/messages", o.representation, True)
@@ -124,11 +128,13 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	message_json (m: AI_MESSAGE): JSON_OBJECT
-			-- JSON of message `m'
+	message_json (m: AI_MESSAGE; a_cached: BOOLEAN): JSON_OBJECT
+			-- JSON of message `m', its last block marked to be cached if `a_cached' (unless it is data of the
+			-- provider sent back as received, e.g. a thinking block)
 		local
 			l_content: JSON_ARRAY
-			b: JSON_OBJECT
+			b, l_cache: JSON_OBJECT
+			l_last: detachable JSON_OBJECT
 		do
 			create Result.make_with_capacity (2)
 			Result.put_string (m.role, "role")
@@ -140,6 +146,7 @@ feature {NONE} -- Implementation
 						b.put_string ("text", "type")
 						b.put_string (c.text, "text")
 						l_content.extend (b)
+						l_last := b
 					end
 				elseif c.is_tool_call and then attached c.tool_input as l_input then
 					create b.make_with_capacity (4)
@@ -148,6 +155,7 @@ feature {NONE} -- Implementation
 					b.put_string (c.tool_name, "name")
 					b.put (l_input, "input")
 					l_content.extend (b)
+					l_last := b
 				elseif c.is_tool_result then
 					create b.make_with_capacity (4)
 					b.put_string ("tool_result", "type")
@@ -157,11 +165,18 @@ feature {NONE} -- Implementation
 						b.put_boolean (True, "is_error")
 					end
 					l_content.extend (b)
+					l_last := b
 				elseif c.is_provider_data and then c.text.same_string_general (settings.Kind_anthropic) and then attached c.provider_data as d then
 						-- (As received, e.g. a thinking block.)
 					l_content.extend (d)
+					l_last := Void
 				end
 			⟲
+			if a_cached and attached l_last then
+				create l_cache.make_with_capacity (1)
+				l_cache.put_string ("ephemeral", "type")
+				l_last.put (l_cache, "cache_control")
+			end
 			Result.put (l_content, "content")
 		end
 
