@@ -21,13 +21,15 @@ inherit
 feature -- Tests
 
 	test_text_widgets_survive_awkward_areas
-			-- Block, Paragraph, Clear, Tabs.
+			-- Block, Paragraph, Clear, Fill (narrow and wide symbol), Tabs.
 		do
 			check_all (<<
 				["block", agent render_block (?, ?)],
 				["paragraph", agent render_paragraph (?, ?, False)],
 				["paragraph+block", agent render_paragraph (?, ?, True)],
 				["clear", agent render_clear (?, ?)],
+				["fill", agent render_fill (?, ?, "#")],
+				["fill wide", agent render_fill (?, ?, {STRING_32} "%/0x4E16/")],
 				["tabs", agent render_tabs (?, ?, False)],
 				["tabs+block", agent render_tabs (?, ?, True)]
 			>>)
@@ -50,7 +52,8 @@ feature -- Tests
 		end
 
 	test_metric_widgets_survive_awkward_areas
-			-- Gauge, LineGauge, Sparkline (both directions), BarChart (both directions).
+			-- Gauge, LineGauge, Sparkline (both directions; bar set, Braille, Octant and HalfBlock
+			-- markers with absent and styled bars), BarChart (both directions).
 		do
 			check_all (<<
 				["gauge", agent render_gauge (?, ?, False)],
@@ -59,6 +62,9 @@ feature -- Tests
 				["line gauge+block", agent render_line_gauge (?, ?, True)],
 				["sparkline", agent render_sparkline (?, ?, False, {SPARKLINE_DIRECTION}.left_to_right)],
 				["sparkline+block rtl", agent render_sparkline (?, ?, True, {SPARKLINE_DIRECTION}.right_to_left)],
+				["sparkline braille absent", agent render_marker_sparkline (?, ?, False, {CANVAS_MARKER}.braille, {SPARKLINE_DIRECTION}.left_to_right)],
+				["sparkline octant+block rtl", agent render_marker_sparkline (?, ?, True, {CANVAS_MARKER}.octant, {SPARKLINE_DIRECTION}.right_to_left)],
+				["sparkline half block absent", agent render_marker_sparkline (?, ?, False, {CANVAS_MARKER}.half_block, {SPARKLINE_DIRECTION}.right_to_left)],
 				["barchart vertical", agent render_barchart (?, ?, False, {BAR_CHART_DIRECTION}.vertical)],
 				["barchart vertical+block", agent render_barchart (?, ?, True, {BAR_CHART_DIRECTION}.vertical)],
 				["barchart horizontal", agent render_barchart (?, ?, False, {BAR_CHART_DIRECTION}.horizontal)],
@@ -94,6 +100,81 @@ feature -- Tests
 				["tree+block", agent render_tree (?, ?, True)],
 				["calendar", agent render_calendar (?, ?, False)],
 				["calendar+block", agent render_calendar (?, ?, True)]
+			>>)
+		end
+
+	test_divider_survives_awkward_areas
+			-- Divider: horizontal with a wide label (each alignment), vertical, each line set.
+		do
+			check_all (<<
+				["divider left", agent render_divider (?, ?, {DIVIDER_DIRECTION}.horizontal, {DIVIDER_LINE_SET}.plain, {TEXT_ALIGNMENT}.left)],
+				["divider center thick", agent render_divider (?, ?, {DIVIDER_DIRECTION}.horizontal, {DIVIDER_LINE_SET}.thick, {TEXT_ALIGNMENT}.center)],
+				["divider right double", agent render_divider (?, ?, {DIVIDER_DIRECTION}.horizontal, {DIVIDER_LINE_SET}.double, {TEXT_ALIGNMENT}.right)],
+				["divider vertical dashed", agent render_divider (?, ?, {DIVIDER_DIRECTION}.vertical, {DIVIDER_LINE_SET}.dashed, {TEXT_ALIGNMENT}.left)]
+			>>)
+		end
+
+	test_checkbox_survives_awkward_areas
+			-- Checkbox: a wide label, checked and not, focused and not, ASCII and Unicode symbols.
+		do
+			check_all (<<
+				["checkbox", agent render_checkbox (?, ?, False, False, False)],
+				["checkbox checked focused", agent render_checkbox (?, ?, True, True, False)],
+				["checkbox unicode", agent render_checkbox (?, ?, True, False, True)],
+				["checkbox unicode focused", agent render_checkbox (?, ?, False, True, True)]
+			>>)
+		end
+
+	test_slider_survives_awkward_areas
+			-- Slider: both directions, a wide label left and right (format agent), focused, a
+			-- huge INTEGER_64 range.
+		do
+			check_all (<<
+				["slider", agent render_slider (?, ?, {SLIDER_DIRECTION}.horizontal, {SLIDER_LABEL_POSITION}.none, False)],
+				["slider label left focused", agent render_slider (?, ?, {SLIDER_DIRECTION}.horizontal, {SLIDER_LABEL_POSITION}.left, True)],
+				["slider label right", agent render_slider (?, ?, {SLIDER_DIRECTION}.horizontal, {SLIDER_LABEL_POSITION}.right, False)],
+				["slider vertical", agent render_slider (?, ?, {SLIDER_DIRECTION}.vertical, {SLIDER_LABEL_POSITION}.none, True)],
+				["slider vertical label above", agent render_slider (?, ?, {SLIDER_DIRECTION}.vertical, {SLIDER_LABEL_POSITION}.left, False)],
+				["slider vertical label below", agent render_slider (?, ?, {SLIDER_DIRECTION}.vertical, {SLIDER_LABEL_POSITION}.right, True)]
+			>>)
+		end
+
+	test_menu_survives_awkward_areas
+			-- Menu: closed; open with a wide entry; a sub-menu open, with a shadow and styles.
+		do
+			check_all (<<
+				["menu closed", agent render_menu (?, ?, 0)],
+				["menu open", agent render_menu (?, ?, 1)],
+				["menu sub-menu shadow", agent render_menu (?, ?, 2)]
+			>>)
+		end
+
+	test_toast_survives_awkward_areas
+			-- Toast: three toasts (wide text, a long word, two lines) at each position, one
+			-- waiting, with a style; a rounded border.
+		do
+			check_all (<<
+				["toast top left", agent render_toast (?, ?, {TOAST_POSITION}.top_left)],
+				["toast top centre", agent render_toast (?, ?, {TOAST_POSITION}.top_center)],
+				["toast top right", agent render_toast (?, ?, {TOAST_POSITION}.top_right)],
+				["toast bottom left", agent render_toast (?, ?, {TOAST_POSITION}.bottom_left)],
+				["toast bottom centre", agent render_toast (?, ?, {TOAST_POSITION}.bottom_center)],
+				["toast bottom right", agent render_toast (?, ?, {TOAST_POSITION}.bottom_right)]
+			>>)
+		end
+
+	test_tooltip_survives_awkward_areas
+			-- Tooltip: wide text, a long word and two lines, on each side of an anchor inside
+			-- the buffer, of one past its edge and of one covering it, bordered (rounded) and
+			-- borderless, with styles.
+		do
+			check_all (<<
+				["tooltip below", agent render_tooltip (?, ?, {OVERLAY_PLACEMENT}.below, True)],
+				["tooltip above", agent render_tooltip (?, ?, {OVERLAY_PLACEMENT}.above, True)],
+				["tooltip right", agent render_tooltip (?, ?, {OVERLAY_PLACEMENT}.right, True)],
+				["tooltip left", agent render_tooltip (?, ?, {OVERLAY_PLACEMENT}.left, True)],
+				["tooltip borderless below", agent render_tooltip (?, ?, {OVERLAY_PLACEMENT}.below, False)],
+				["tooltip borderless left", agent render_tooltip (?, ?, {OVERLAY_PLACEMENT}.left, False)]
 			>>)
 		end
 
@@ -215,6 +296,52 @@ feature {NONE} -- Widget builders
 			(create {TUI_CLEAR}).render (a_area, a_buffer)
 		end
 
+	render_fill (a_area: RECT; a_buffer: BUFFER; a_symbol: READABLE_STRING_GENERAL)
+		do
+			(create {TUI_FILL}.make (a_symbol)).with_style (create {STYLE}.make_bg ({COLOR}.red)).render (a_area, a_buffer)
+		end
+
+	render_divider (a_area: RECT; a_buffer: BUFFER; a_direction, a_set, a_align: NATURAL_8)
+		do
+			(create {TUI_DIVIDER}.make)
+				.with_direction (a_direction)
+				.with_line_set (a_set)
+				.with_style (create {STYLE}.make_bg ({COLOR}.blue))
+				.with_label ({STRING_32} "ab %/0x4E16/%/0x754C/ cd")
+				.with_label_alignment (a_align)
+				.render (a_area, a_buffer)
+		end
+
+	render_checkbox (a_area: RECT; a_buffer: BUFFER; a_checked, a_focused, a_unicode: BOOLEAN)
+		local
+			b: TUI_CHECKBOX
+		do
+			b := (create {TUI_CHECKBOX}.make ({STRING_32} "ab %/0x4E16/%/0x754C/ cd"))
+				.with_checked (a_checked)
+				.with_focused (a_focused)
+				.with_style (create {STYLE}.make_bg ({COLOR}.blue))
+			if a_unicode then
+				b := b.with_unicode_symbols
+			end
+			b.render (a_area, a_buffer)
+		end
+
+	render_slider (a_area: RECT; a_buffer: BUFFER; a_direction, a_label: NATURAL_8; a_focused: BOOLEAN)
+		local
+			s: SLIDER_STATE
+		do
+			create s.make ({INTEGER_64}.min_value, {INTEGER_64}.max_value, 3)
+			s.set_value (12345)
+			(create {TUI_SLIDER})
+				.with_direction (a_direction)
+				.with_label_position (a_label)
+				.with_label_format (agent (v: INTEGER_64): STRING_32 do Result := {STRING_32} "%/0x4E16/" + v.out end)
+				.with_focused (a_focused)
+				.with_style (create {STYLE}.make_bg ({COLOR}.blue))
+				.with_thumb_style (create {STYLE}.make_fg ({COLOR}.red))
+				.render_stateful (a_area, a_buffer, s)
+		end
+
 	render_tabs (a_area: RECT; a_buffer: BUFFER; a_with_block: BOOLEAN)
 		local
 			t: TUI_TABS
@@ -280,6 +407,14 @@ feature {NONE} -- Widget builders
 			s.select_index (2)
 			s.select_column (3)
 			t.render_table (a_area, a_buffer, s)
+			-- V10: an always reserved symbol column, scroll padding and a row with margins
+			t := t.with_highlight_spacing ({HIGHLIGHT_SPACING}.always).with_scroll_padding (2)
+			t.append_row ((create {TABLE_ROW}.make_raw (<<"4", "delta", "w">>)).with_top_margin (1).with_bottom_margin (2))
+			create s.make
+			t.render_table (a_area, a_buffer, s)
+			s.scroll_down_by (3, t.count)
+			s.scroll_right_by (1, t.column_count)
+			t.render_table (a_area, a_buffer, s)
 		end
 
 	render_scrollbar (a_area: RECT; a_buffer: BUFFER; a_orientation: NATURAL_8)
@@ -326,6 +461,24 @@ feature {NONE} -- Widget builders
 			s: TUI_SPARKLINE
 		do
 			create s.make_with_data ({ARRAY [NATURAL_64]} <<1, 5, 2, 8, 0, 3, 9, 4, 7, 6, 2, 1, 5, 8, 3>>)
+			s.set_direction (a_direction)
+			if a_with_block then
+				s.set_block (sample_block)
+			end
+			s.render (a_area, a_buffer)
+		end
+
+	render_marker_sparkline (a_area: RECT; a_buffer: BUFFER; a_with_block: BOOLEAN; a_marker: NATURAL_8; a_direction: INTEGER)
+		local
+			s: TUI_SPARKLINE
+		do
+			create s.make_with_data ({ARRAY [NATURAL_64]} <<1, 5, 2, 8, 0, 3, 9>>)
+			s.append_absent
+			s.append_bar ((create {SPARKLINE_BAR}.make (7)).with_style (create {STYLE}.make_fg ({COLOR}.Red)))
+			s.append_absent
+			s.append_value ({NATURAL_64}.max_value)
+			s.set_absent_value_symbol ('%/0x2591/')
+			s.set_marker (a_marker)
 			s.set_direction (a_direction)
 			if a_with_block then
 				s.set_block (sample_block)
@@ -464,6 +617,65 @@ feature {NONE} -- Widget builders
 			end
 			create s.make_with_date (2026, 9, 27)
 			c.render_stateful (a_area, a_buffer, s)
+		end
+
+	render_menu (a_area: RECT; a_buffer: BUFFER; a_depth: INTEGER)
+			-- A wide-character menu with a separator, a disabled item and a sub-menu, closed
+			-- (`a_depth` 0), open (1) or with the sub-menu open (2).
+		local
+			s: MENU_STATE
+			m: TUI_MENU
+		do
+			create s.make (<<create {MENU_ITEM}.make_submenu ({STRING_32} "%/0x6587/%/0x4EF6/", <<
+				(create {MENU_ITEM}.make ("New")).with_shortcut ({STRING_32} "Ctrl+%/0x5BBD/"),
+				create {MENU_ITEM}.make_separator,
+				(create {MENU_ITEM}.make ("Off")).with_enabled (False),
+				create {MENU_ITEM}.make_submenu ("More", <<create {MENU_ITEM}.make ({STRING_32} "%/0x4E16/%/0x754C/ wide")>>)>>),
+				create {MENU_ITEM}.make_submenu ("Edit", <<create {MENU_ITEM}.make ("Cut")>>)>>)
+			create m
+			if a_depth > 0 then
+				s.open
+			end
+			if a_depth > 1 then
+				s.move_up
+				s.move_right
+				m := m.with_shadow (create {SHADOW}.make_light_shade).with_menu_style (create {STYLE}.make_bg ({COLOR}.blue))
+			end
+			m.render_stateful (a_area, a_buffer, s)
+		end
+
+	render_toast (a_area: RECT; a_buffer: BUFFER; a_position: NATURAL_8)
+			-- Three visible toasts and one waiting, at `a_position`, at most 8 columns wide.
+		local
+			q: TOAST_QUEUE
+		do
+			create q.make_at (0)
+			q.push ({STRING_32} "ab %/0x4E16/%/0x754C/ cd", {TOAST_LEVEL}.info, 100)
+			q.push ("abcdefghijklmnop", {TOAST_LEVEL}.error, 100)
+			q.push ("one%Ntwo", {TOAST_LEVEL}.warning, 100)
+			q.push ("waiting", {TOAST_LEVEL}.success, 100)
+			(create {TUI_TOAST})
+				.with_position (a_position)
+				.with_max_width (8)
+				.with_border_type ({BORDER_TYPE}.rounded)
+				.with_style (create {STYLE}.make_bg ({COLOR}.blue))
+				.render_stateful (a_area, a_buffer, q)
+		end
+
+	render_tooltip (a_area: RECT; a_buffer: BUFFER; a_side: NATURAL_8; a_bordered: BOOLEAN)
+			-- Three tooltips preferring `a_side`: next to a small anchor inside the buffer, next
+			-- to one past its bottom-right corner, and over an anchor covering it.
+		local
+			t: TUI_TOOLTIP
+		do
+			create t.make ({STRING_32} "ab %/0x4E16/%/0x754C/ cd abcdefghijklmnop%Ntwo", create {RECT}.make (4, 2, 3, 1))
+			t := t.with_preferred_side (a_side).with_bordered (a_bordered).with_max_width (8)
+				.with_border_type ({BORDER_TYPE}.rounded)
+				.with_style (create {STYLE}.make_bg ({COLOR}.blue))
+				.with_border_style (create {STYLE}.make_fg ({COLOR}.cyan))
+			t.render (a_area, a_buffer)
+			t.with_anchor (create {RECT}.make (10, 5, 6, 3)).render (a_area, a_buffer)
+			t.with_anchor (create {RECT}.make (0, 0, 12, 6)).render (a_area, a_buffer)
 		end
 
 end

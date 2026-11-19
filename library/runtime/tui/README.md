@@ -32,6 +32,27 @@ git push -uf origin main
 * [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
 * [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
 
+## Running the tests
+
+The suite needs assertions on: many tests check that a contract refuses bad input. Run it with one of these builds from the repository root.
+
+```sh
+# Windows, workbench build
+ec -batch -config eiffeltui.ecf -target eiffeltui_tests -c_compile
+EIFGENs/eiffeltui_tests/W_code/eiffeltui_tests.exe
+
+# Windows, finalized build: -keep retains the assertions
+ec -batch -config eiffeltui.ecf -target eiffeltui_tests -finalize -keep -c_compile
+EIFGENs/eiffeltui_tests/F_code/eiffeltui_tests.exe
+
+# Linux, in Docker
+docker/build.sh --test
+```
+
+A build finalized without `-keep` has no assertions, so the suite stops with "SUITE NOT RUN" and exit code 2 instead of running. If a workbench executable crashes at start with no output after a melt, add `-freeze` to the compile command.
+
+The totals differ by platform because Windows and Linux each run their own driver tests. On success the suite exits with code 0. If any test fails, it exits with code 1.
+
 ## Test and Deploy
 
 Use the built-in continuous integration in GitLab.

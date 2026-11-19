@@ -343,7 +343,7 @@ feature -- Rendering
 			l_strip_len: INTEGER
 			l_has_begin, l_has_end: BOOLEAN
 			l_arrows_len, l_track_len: INTEGER
-			l_viewport_len, l_max_pos, l_start_pos, l_max_viewport_pos: INTEGER
+			l_viewport_len, l_max_pos, l_start_pos, l_max_viewport_pos: INTEGER_64
 			l_thumb_len, l_thumb_start: INTEGER
 			k, k_track: INTEGER
 			cell_row, cell_col: INTEGER
@@ -382,22 +382,24 @@ feature -- Rendering
 						l_track_len := l_strip_len - l_arrows_len
 
 						if l_track_len > 0 then
+							-- In INTEGER_64, as Ratatui's `usize`: a position or a length up to
+							-- {INTEGER}.max_value times a track of up to 65535 cells cannot overflow
 							if a_state.viewport_content_length > 0 then
-								l_viewport_len := a_state.viewport_content_length
+								l_viewport_len := a_state.viewport_content_length.to_integer_64
 							else
-								l_viewport_len := l_strip_len
+								l_viewport_len := l_strip_len.to_integer_64
 							end
 
-							l_max_pos := (a_state.content_length - 1).max (0)
-							l_start_pos := a_state.position.min (l_max_pos).max (0)
+							l_max_pos := (a_state.content_length.to_integer_64 - 1).max (0)
+							l_start_pos := a_state.position.to_integer_64.min (l_max_pos).max (0)
 							l_max_viewport_pos := l_max_pos + l_viewport_len
 
 							if l_max_viewport_pos = 0 then
 								l_thumb_len := l_track_len
 								l_thumb_start := 0
 							else
-								l_thumb_len := (((l_viewport_len * l_track_len) + (l_max_viewport_pos // 2)) // l_max_viewport_pos).min (l_track_len).max (1)
-								l_thumb_start := (((l_start_pos * l_track_len) + (l_max_viewport_pos // 2)) // l_max_viewport_pos).min (l_track_len - l_thumb_len).max (0)
+								l_thumb_len := (((l_viewport_len * l_track_len) + (l_max_viewport_pos // 2)) // l_max_viewport_pos).min (l_track_len).max (1).to_integer_32
+								l_thumb_start := (((l_start_pos * l_track_len) + (l_max_viewport_pos // 2)) // l_max_viewport_pos).min (l_track_len - l_thumb_len).max (0).to_integer_32
 							end
 
 							from

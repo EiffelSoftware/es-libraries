@@ -1,6 +1,6 @@
 note
 	description: "[
-		Chart widget plotting 2D line and scatter datasets with labeled X and Y axes
+		Chart widget plotting 2D line, scatter, bar and area datasets with labeled X and Y axes
 		using TUI_CANVAS and Braille sub-pixel rendering.
 	]"
 	author: "EiffelTUI Team"
@@ -547,10 +547,15 @@ feature -- Rendering
 						-- 1. Render Braille Canvas with Datasets
 						create l_canvas.make
 						l_canvas.set_bounds (x_bounds.min, x_bounds.max, y_bounds.min, y_bounds.max)
-						-- One stacked layer per dataset, drawn with the dataset's marker
+						-- One stacked layer per dataset, drawn with the dataset's marker (and its
+						-- character for the Custom marker)
 						across dataset_store as ds loop
 							create l_layer.make_with_painter (agent paint_dataset (ds, ?))
-							l_layer.set_marker (ds.marker)
+							if ds.marker = {CANVAS_MARKER}.custom then
+								l_layer.set_custom_marker (ds.marker_char)
+							else
+								l_layer.set_marker (ds.marker)
+							end
 							l_canvas.add_layer (l_layer)
 						end
 						l_canvas.render (l_plot_rect, a_buffer)
@@ -651,12 +656,17 @@ feature {NONE} -- Internal Painting
 
 	paint_dataset (a_dataset: TUI_CHART_DATASET; a_painter: CANVAS_PAINTER)
 			-- Paint `a_dataset` according to its graph type (the layer carries its marker).
+			-- Every point is drawn first, whatever the type, as in Ratatui: so a line or area
+			-- dataset with a single point still shows it. A scatter dataset is the points only.
 		local
 			i: INTEGER
 			p1, p2: TUPLE [x, y: REAL_64]
 			l_base: REAL_64
 		do
 			a_painter.set_style (a_dataset.style)
+			across a_dataset.data as pt loop
+				a_painter.draw_point (pt.x, pt.y)
+			end
 			if a_dataset.graph_type = {CHART_GRAPH_TYPE}.bar then
 				-- Bars rise from 0 (clamped to the y bounds), as in Ratatui
 				l_base := (0.0).max (y_bounds.min).min (y_bounds.max)
@@ -674,9 +684,18 @@ feature {NONE} -- Internal Painting
 					a_painter.draw_line (p1.x, p1.y, p2.x, p2.y)
 					i := i + 1
 				end
-			else
-				across a_dataset.data as pt loop
-					a_painter.draw_point (pt.x, pt.y)
+			elseif a_dataset.graph_type = {CHART_GRAPH_TYPE}.area then
+				-- One filled line per pair of consecutive points, filled to the dataset's
+				-- `fill_to_y` (Ratatui `GraphType::Area`)
+				from
+					i := 1
+				until
+					i >= a_dataset.data.count
+				loop
+					p1 := a_dataset.data.i_th (i)
+					p2 := a_dataset.data.i_th (i + 1)
+					a_painter.draw_filled_line (p1.x, p1.y, p2.x, p2.y, a_dataset.fill_to_y)
+					i := i + 1
 				end
 			end
 		end

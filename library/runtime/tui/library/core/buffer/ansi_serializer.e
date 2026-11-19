@@ -10,6 +10,14 @@ note
 		Each span starts with an absolute cursor move, and so does every cell that follows a
 		cell whose width terminals may see differently (`is_width_disputed`): the columns on
 		screen then match the buffer, whatever width the terminal gave that cell.
+		A cell with a forced width (CELL_DIFF_OPTION.Forced_width, n columns) is followed at
+		once by a move to its column + n: its symbol may hold escape sequences and text of any
+		width, so the terminal's column after it is not trusted, even at the end of a span.
+		A cell placed anywhere else than where the previous cell of its span left the cursor
+		(such as the cell after a continuation cell that starts a span) is moved to as well.
+		A two-column cluster with VS16 (`has_uncertain_width`) is written after its right column
+		is blanked (move there, a space in the cluster's style, move back): a terminal that draws
+		it in one column then shows a blank there, not the previous frame's text.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -44,8 +52,8 @@ feature -- Basic operations
 			l_span: DIFF_SPAN
 			l_reanchor: BOOLEAN
 			l_end: detachable TUPLE [row, column: INTEGER]
-			l_col, l_end_row, l_end_col: INTEGER
-			l_wrote: BOOLEAN
+			l_col, l_end_row, l_end_col, l_next_col: INTEGER
+			l_wrote, l_clear: BOOLEAN
 		do
 			l_frame := frame
 			l_frame.wipe_out
@@ -67,27 +75,46 @@ feature -- Basic operations
 					from
 						i := 1
 						l_reanchor := False
+						l_next_col := l_span.start_col + a_offset_col
 					until
 						i > l_span.cells.count
 					loop
 						l_cell := l_span.cells.i_th (i)
 						if not l_cell.is_continuation then
 							l_col := l_span.start_col + i - 1 + a_offset_col
-							if l_reanchor then
+							l_clear := has_uncertain_width (l_cell) and l_cell.diff_option /= {CELL_DIFF_OPTION}.Forced_width
+							if (l_reanchor or l_col /= l_next_col) and not l_clear then
 								-- The terminal may have given the previous cell another width
-								-- than ours: put the cursor where this cell belongs
+								-- than ours, or the previous cell left the cursor elsewhere:
+								-- put the cursor where this cell belongs
 								append_cursor_move (l_frame, l_span.row + a_offset_row, l_col)
 							end
 							if l_cell.style /= l_active_style and then not l_cell.style.same_rendering (l_active_style) then
 								emit_style_transition (l_frame, l_active_style, l_cell.style)
 								l_active_style := l_cell.style
 							end
+							if l_clear then
+								-- A terminal that draws the cluster in one column would leave the
+								-- previous frame's text in the column the buffer reserved: blank it
+								-- first, as a write there after the glyph would erase the glyph on
+								-- a terminal that draws it in two (Ratatui `has_uncertain_width`)
+								append_cursor_move (l_frame, l_span.row + a_offset_row, l_col + 1)
+								l_frame.append_character (' ')
+								append_cursor_move (l_frame, l_span.row + a_offset_row, l_col)
+							end
 							{UTF_CONVERTER}.string_32_into_utf_8_string_8 (l_cell.symbol, l_frame)
-							l_reanchor := is_width_disputed (l_cell)
 							-- The cursor is now after this cell (in the buffer's columns, which
 							-- the re-anchoring moves keep the terminal to)
+							l_next_col := l_col + l_cell.covered_width
+							if l_cell.diff_option = {CELL_DIFF_OPTION}.Forced_width then
+								-- Re-anchor at once: nothing tells how far the symbol moved the cursor
+								append_cursor_move (l_frame, l_span.row + a_offset_row, l_next_col)
+								l_reanchor := False
+							else
+								l_reanchor := is_width_disputed (l_cell)
+							end
 							l_end_row := l_span.row + a_offset_row
-							l_end_col := l_col + l_cell.width.to_integer_32
+							l_end_col := l_next_col
 							l_wrote := True
 						end
 						i := i + 1
@@ -141,6 +168,17 @@ feature -- Status report
 			Result := a_cell.width = 2 or a_cell.symbol.count > 1
 		ensure
 			instance_free: class
+		end
+
+	has_uncertain_width (a_cell: TERMINAL_CELL): BOOLEAN
+			-- Is `a_cell` a two-column cluster with VS16 (U+FE0F), which some terminals draw in
+			-- one column and others in two? The serializer blanks its right column before
+			-- writing it (Ratatui `has_uncertain_width`, P1 X2c).
+		do
+			Result := a_cell.width = 2 and a_cell.symbol.has ({UNICODE_WIDTH}.Vs16.to_character_32)
+		ensure
+			instance_free: class
+			disputed: Result implies is_width_disputed (a_cell)
 		end
 
 feature {NONE} -- Helpers

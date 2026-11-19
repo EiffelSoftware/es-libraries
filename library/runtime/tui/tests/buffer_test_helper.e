@@ -84,15 +84,41 @@ feature -- Assertions
 					l_msg.append (" [row ")
 					l_msg.append_integer (r - 1)
 					l_msg.append ("]: expected %"")
-					l_msg.append_string_general (l_exp)
+					l_msg.append (printable (l_exp))
 					l_msg.append ("%" but got %"")
-					l_msg.append_string_general (l_actual)
+					l_msg.append (printable (l_actual))
 					l_msg.append ("%"")
 					assert (l_msg, False)
 				end
 				r := r + 1
 			end
 			assert (a_tag + " row count match", a_buf.height >= a_expected.count)
+		end
+
+	printable (a_text: READABLE_STRING_GENERAL): STRING
+			-- `a_text` in ASCII for a failure message: printable ASCII as it is, every other
+			-- character as <U+XXXX> (as in the sources, see tools/escape_non_ascii_literals.py).
+		local
+			i: INTEGER
+			l_code: NATURAL_32
+			l_hex: STRING
+		do
+			create Result.make (a_text.count)
+			from i := 1 until i > a_text.count loop
+				l_code := a_text.code (i)
+				if l_code >= 32 and l_code < 127 then
+					Result.append_character (l_code.to_character_8)
+				else
+					l_hex := l_code.to_hex_string
+					from until l_hex.count <= 4 or else l_hex [1] /= '0' loop
+						l_hex.remove_head (1)
+					end
+					Result.append ("<U+" + l_hex + ">")
+				end
+				i := i + 1
+			end
+		ensure
+			ascii: across Result as c all c.natural_32_code < 127 end
 		end
 
 	assert_virtual_terminal_lines (a_tag: STRING; a_term: VIRTUAL_TERMINAL; a_expected: ARRAY [READABLE_STRING_GENERAL])
@@ -119,9 +145,9 @@ feature -- Assertions
 					l_msg.append (" [row ")
 					l_msg.append_integer (r - 1)
 					l_msg.append ("]: expected %"")
-					l_msg.append_string_general (l_exp)
+					l_msg.append (printable (l_exp))
 					l_msg.append ("%" but got %"")
-					l_msg.append_string_general (l_actual)
+					l_msg.append (printable (l_actual))
 					l_msg.append ("%"")
 					assert (l_msg, False)
 				end
@@ -148,11 +174,9 @@ feature -- Assertions
 			buf_not_void: a_buf /= Void
 			valid_pos: a_buf.is_valid_position (a_row, a_col)
 			symbol_not_void: a_expected_symbol /= Void
-		local
-			l_exp: STRING_32
 		do
-			create l_exp.make_from_string_general (a_expected_symbol)
-			assert (a_tag + " cell symbol matches", a_buf.cell (a_row, a_col).symbol.is_equal (l_exp))
+				-- `same_string`: the symbol is an IMMUTABLE_STRING_32, and `is_equal` wants `like Current`
+			assert (a_tag + " cell symbol matches", a_buf.cell (a_row, a_col).symbol.same_string_general (a_expected_symbol))
 		end
 
 end

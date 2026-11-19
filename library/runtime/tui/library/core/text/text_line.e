@@ -2,6 +2,9 @@ note
 	description: "[
 		A single horizontal line of text composed of one or more styled TEXT_SPANs.
 		Supports alignment and line-level styling.
+		A line may have no alignment of its own (`has_alignment` False, Ratatui `None`): the
+		widget that renders it then decides (`resolved_alignment`), and on its own it renders
+		left aligned.
 		No grapheme cluster straddles two spans (invariant `no_split_cluster`): spans are
 		added only through `append_span` and `append_text`, `spans` is a read-only view, and
 		TEXT_SPAN is immutable.
@@ -45,7 +48,7 @@ feature {NONE} -- Initialization
 		end
 
 	make_empty
-			-- Initialize an empty line with left alignment and default style.
+			-- Initialize an empty line with no alignment of its own and default style.
 		do
 			create span_items.make (4)
 			create spans.make (span_items)
@@ -54,6 +57,7 @@ feature {NONE} -- Initialization
 		ensure
 			spans_empty: spans.is_empty
 			alignment_left: alignment = {TEXT_ALIGNMENT}.left
+			no_alignment: not has_alignment
 		end
 
 	make (a_spans: ITERABLE [TEXT_SPAN])
@@ -131,7 +135,27 @@ feature -- Access
 			-- Ordered sequence of styled spans (read-only view)
 
 	alignment: NATURAL_8
-			-- Alignment mode (left, center, right)
+			-- Alignment mode (left, center, right); left when none is set (see `has_alignment`)
+
+	has_alignment: BOOLEAN
+			-- Has an alignment been set on this line? If not, the widget rendering it decides
+			-- (Ratatui `Line::alignment` is `None`).
+
+	resolved_alignment (a_default: NATURAL_8): NATURAL_8
+			-- `alignment` if one is set, else `a_default` (the parent's alignment; Ratatui
+			-- `line.alignment.unwrap_or (default)`)
+		require
+			valid_default: {TEXT_ALIGNMENT}.is_valid (a_default)
+		do
+			if has_alignment then
+				Result := alignment
+			else
+				Result := a_default
+			end
+		ensure
+			own_when_set: has_alignment implies Result = alignment
+			default_when_unset: not has_alignment implies Result = a_default
+		end
 
 	style: STYLE
 			-- Baseline style for the line
@@ -261,13 +285,38 @@ feature -- Element change
 		end
 
 	set_alignment (a_align: NATURAL_8)
-			-- Set alignment to `a_align`.
+			-- Set alignment to `a_align`. It overrides the alignment of the widget rendering
+			-- the line, also when `a_align` is left.
 		require
 			valid_align: {TEXT_ALIGNMENT}.is_valid (a_align)
 		do
 			alignment := a_align
+			has_alignment := True
 		ensure
 			alignment_set: alignment = a_align
+			has_alignment: has_alignment
+		end
+
+	reset_alignment
+			-- Remove the line's own alignment, so that the widget rendering it decides.
+		do
+			alignment := {TEXT_ALIGNMENT}.left
+			has_alignment := False
+		ensure
+			no_alignment: not has_alignment
+			alignment_left: alignment = {TEXT_ALIGNMENT}.left
+		end
+
+	set_alignment_from (a_other: TEXT_LINE)
+			-- Take the alignment of `a_other`, set or not (for lines made from `a_other`).
+		require
+			other_not_void: a_other /= Void
+		do
+			alignment := a_other.alignment
+			has_alignment := a_other.has_alignment
+		ensure
+			alignment_set: alignment = a_other.alignment
+			has_alignment_set: has_alignment = a_other.has_alignment
 		end
 
 	set_style (a_style: STYLE)
@@ -278,6 +327,56 @@ feature -- Element change
 			style := a_style
 		ensure
 			style_set: style = a_style
+		end
+
+feature -- Fluent Builders
+
+	with_alignment (a_align: NATURAL_8): like Current
+			-- Copy of `Current` with alignment `a_align` (Ratatui `Line::alignment`).
+		require
+			valid_align: {TEXT_ALIGNMENT}.is_valid (a_align)
+		do
+			Result := twin
+			Result.set_alignment (a_align)
+		ensure
+			alignment_set: Result.alignment = a_align
+			has_alignment: Result.has_alignment
+			unchanged: alignment = old alignment and has_alignment = old has_alignment
+		end
+
+	left_aligned: like Current
+			-- Copy of `Current` aligned left, overriding the parent's alignment
+			-- (Ratatui `Line::left_aligned`)
+		do
+			Result := with_alignment ({TEXT_ALIGNMENT}.left)
+		ensure
+			left: Result.alignment = {TEXT_ALIGNMENT}.left and Result.has_alignment
+		end
+
+	centered: like Current
+			-- Copy of `Current` centred (Ratatui `Line::centered`)
+		do
+			Result := with_alignment ({TEXT_ALIGNMENT}.center)
+		ensure
+			centered: Result.alignment = {TEXT_ALIGNMENT}.center and Result.has_alignment
+		end
+
+	right_aligned: like Current
+			-- Copy of `Current` aligned right (Ratatui `Line::right_aligned`)
+		do
+			Result := with_alignment ({TEXT_ALIGNMENT}.right)
+		ensure
+			right: Result.alignment = {TEXT_ALIGNMENT}.right and Result.has_alignment
+		end
+
+	without_alignment: like Current
+			-- Copy of `Current` with no alignment of its own (see `reset_alignment`)
+		do
+			Result := twin
+			Result.reset_alignment
+		ensure
+			no_alignment: not Result.has_alignment
+			unchanged: alignment = old alignment and has_alignment = old has_alignment
 		end
 
 feature -- Measurement
@@ -388,7 +487,8 @@ feature -- Comparison
 		local
 			i: INTEGER
 		do
-			if alignment = a_other.alignment and style.is_equal (a_other.style) and spans.count = a_other.spans.count then
+			if alignment = a_other.alignment and has_alignment = a_other.has_alignment
+				and style.is_equal (a_other.style) and spans.count = a_other.spans.count then
 				Result := True
 				from
 					i := 1
@@ -415,7 +515,8 @@ feature -- Output
 feature -- Rendering
 
 	render (a_area: RECT; a_buffer: BUFFER)
-			-- Render line inside `a_area` into `a_buffer` honoring alignment and style.
+			-- Render line inside `a_area` into `a_buffer` honoring alignment and style
+			-- (left aligned when no alignment is set).
 		local
 			l_x, l_y, l_w: INTEGER
 			l_start_col: INTEGER
@@ -451,5 +552,6 @@ invariant
 	no_split_cluster: not has_split_cluster
 	style_not_void: style /= Void
 	valid_alignment: {TEXT_ALIGNMENT}.is_valid (alignment)
+	unset_is_left: not has_alignment implies alignment = {TEXT_ALIGNMENT}.left
 
 end

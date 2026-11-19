@@ -62,6 +62,7 @@ feature {NONE} -- Setup
 		do
 			marker_type := {CANVAS_MARKER}.braille
 			is_pong_active := True
+			shapes_aspect := 1.0
 
 			-- Map coordinates
 			user_x := 0.0
@@ -221,7 +222,11 @@ feature {NONE} -- Rendering
 			when {CANVAS_MARKER}.dot then l_marker_str := "Dot (%/0x2022/)"
 			when {CANVAS_MARKER}.block then l_marker_str := "Full Block (%/0x2588/)"
 			when {CANVAS_MARKER}.half_block then l_marker_str := "Half Block (%/0x2580/)"
-			when {CANVAS_MARKER}.bar then l_marker_str := "Bar (%/0x2503/)"
+			when {CANVAS_MARKER}.bar then l_marker_str := "Bar (%/0x2584/)"
+			when {CANVAS_MARKER}.quadrant then l_marker_str := "Quadrant (2x2)"
+			when {CANVAS_MARKER}.sextant then l_marker_str := "Sextant (2x3)"
+			when {CANVAS_MARKER}.octant then l_marker_str := "Octant (2x4)"
+			when {CANVAS_MARKER}.custom then l_marker_str := "Custom (%/0xD7/)"
 			else l_marker_str := "Braille"
 			end
 			l_line.append_span (create {TEXT_SPAN}.make (
@@ -257,6 +262,8 @@ feature {NONE} -- Rendering
 				with_title (" 1. World Map Coordinate Projection ")
 
 			create l_canvas.make
+			-- The Custom marker draws this character (`with_marker` below keeps it)
+			l_canvas.set_custom_marker ('%/0xD7/')
 			l_canvas := l_canvas.with_block (l_block).
 				with_bounds (-180.0, 180.0, -90.0, 90.0).
 				with_marker (marker_type).
@@ -265,7 +272,7 @@ feature {NONE} -- Rendering
 		end
 
 	paint_map (p: CANVAS_PAINTER)
-			-- Paint world map continents and user crosshair.
+			-- Paint the world map coastlines (SHAPE_MAP) and the user crosshair.
 		do
 			-- Latitude and Longitude grid
 			p.set_style (create {STYLE}.make_fg ({COLOR}.Dark_gray))
@@ -274,34 +281,8 @@ feature {NONE} -- Rendering
 			p.draw_line (-180.0, 45.0, 180.0, 45.0)  -- Tropic of Cancer
 			p.draw_line (-180.0, -45.0, 180.0, -45.0)-- Tropic of Capricorn
 
-			-- Stylized continental outlines
-			p.set_style (create {STYLE}.make_fg ({COLOR}.Bright_green))
-			-- North America
-			p.draw_line (-130.0, 50.0, -65.0, 45.0)
-			p.draw_line (-65.0, 45.0, -80.0, 25.0)
-			p.draw_line (-80.0, 25.0, -115.0, 30.0)
-			p.draw_line (-115.0, 30.0, -130.0, 50.0)
-
-			-- South America
-			p.draw_line (-80.0, 10.0, -35.0, -5.0)
-			p.draw_line (-35.0, -5.0, -70.0, -55.0)
-			p.draw_line (-70.0, -55.0, -80.0, 10.0)
-
-			-- Eurasia
-			p.draw_line (-10.0, 40.0, 40.0, 60.0)
-			p.draw_line (40.0, 60.0, 140.0, 50.0)
-			p.draw_line (140.0, 50.0, 100.0, 10.0)
-			p.draw_line (100.0, 10.0, -10.0, 40.0)
-
-			-- Africa
-			p.draw_line (-15.0, 35.0, 50.0, 30.0)
-			p.draw_line (50.0, 30.0, 30.0, -35.0)
-			p.draw_line (30.0, -35.0, -15.0, 35.0)
-
-			-- Australia
-			p.draw_line (115.0, -20.0, 150.0, -25.0)
-			p.draw_line (150.0, -25.0, 140.0, -38.0)
-			p.draw_line (140.0, -38.0, 115.0, -20.0)
+			-- Coastlines: the high resolution world map (Ratatui `Map`, `MapResolution::High`)
+			world_map.paint (p)
 
 			-- User "You are here" Crosshair & Text
 			p.set_style (create {STYLE}.make_fg ({COLOR}.Bright_red))
@@ -310,6 +291,12 @@ feature {NONE} -- Rendering
 			p.draw_circle (user_x, user_y, 4.0)
 
 			p.draw_text (user_x + 5.0, user_y - 3.0, "You are here", (create {STYLE}.make_fg ({COLOR}.Bright_yellow)).with_bold)
+		end
+
+	world_map: SHAPE_MAP
+			-- High resolution world map in bright green (Ratatui `Map`, `MapResolution::High`).
+		once
+			create Result.make ({MAP_RESOLUTION}.high, create {STYLE}.make_fg ({COLOR}.Bright_green))
 		end
 
 	render_pong_canvas (a_frame: FRAME; a_area: RECT)
@@ -325,6 +312,8 @@ feature {NONE} -- Rendering
 				with_title (" 2. Animated Pong Court (Tick-Driven) ")
 
 			create l_canvas.make
+			-- The Custom marker draws this character (`with_marker` below keeps it)
+			l_canvas.set_custom_marker ('%/0xD7/')
 			l_canvas := l_canvas.with_block (l_block).
 				with_bounds (0.0, 200.0, 0.0, 100.0).
 				with_marker (marker_type).
@@ -374,9 +363,18 @@ feature {NONE} -- Rendering
 			l_block := l_block.with_borders ({BORDERS}.all_borders).
 				with_border_type ({BORDER_TYPE}.rounded).
 				with_border_style (create {STYLE}.make_fg ({COLOR}.Bright_magenta)).
-				with_title (" 3. Geometric Shapes, Nested Rects & Rulers ")
+				with_title (" 3. Shapes: Circles, Rects, Polygons & Rulers ")
 
+			-- Width over height of the inner area, a cell being about twice as tall as wide:
+			-- the star uses it to keep its shape (the world is 100 x 100 whatever the panel)
+			if a_area.height > 2 and a_area.width > 2 then
+				shapes_aspect := (a_area.width.to_integer_32 - 2).to_double / (2.0 * (a_area.height.to_integer_32 - 2).to_double)
+			else
+				shapes_aspect := 1.0
+			end
 			create l_canvas.make
+			-- The Custom marker draws this character (`with_marker` below keeps it)
+			l_canvas.set_custom_marker ('%/0xD7/')
 			l_canvas := l_canvas.with_block (l_block).
 				with_bounds (0.0, 100.0, 0.0, 100.0).
 				with_marker (marker_type).
@@ -385,7 +383,8 @@ feature {NONE} -- Rendering
 		end
 
 	paint_shapes (p: CANVAS_PAINTER)
-			-- Paint nested rectangles, diagonals, and concentric circles.
+			-- Paint nested rectangles, diagonals, concentric circles, and two polygons
+			-- (SHAPE_AREA, Ratatui `Area`): a filled star and a triangle outline.
 		local
 			i: INTEGER
 			sz: REAL_64
@@ -410,6 +409,10 @@ feature {NONE} -- Rendering
 			p.draw_line (10.0, 10.0, 90.0, 90.0)
 			p.draw_line (10.0, 90.0, 90.0, 10.0)
 
+			-- Polygons: a concave star filled by the even-odd rule, and a triangle outline
+			star_polygon (shapes_aspect).paint (p)
+			triangle_polygon.paint (p)
+
 			-- Axis ticks & labels
 			p.set_style (create {STYLE}.make_fg ({COLOR}.White))
 			p.draw_line (10.0, 20.0, 90.0, 20.0)
@@ -421,6 +424,38 @@ feature {NONE} -- Rendering
 			p.draw_text (35.0, 14.0, "40", create {STYLE}.make_fg ({COLOR}.Gray))
 			p.draw_text (55.0, 14.0, "60", create {STYLE}.make_fg ({COLOR}.Gray))
 			p.draw_text (75.0, 14.0, "80", create {STYLE}.make_fg ({COLOR}.Gray))
+		end
+
+	shapes_aspect: REAL_64
+			-- Width over height of the shapes panel on screen (set by `render_shapes_canvas`)
+
+	star_polygon (a_aspect: REAL_64): SHAPE_AREA
+			-- Filled five-pointed star centred at (88, 40), 36 units high: ten vertices alternating
+			-- between an outer and an inner radius (so the polygon is concave), its x radius
+			-- divided by `a_aspect` so that it looks like a star on screen.
+		require
+			positive_aspect: a_aspect > 0.0
+		local
+			l_vertices: ARRAYED_LIST [TUPLE [x, y: REAL_64]]
+			l_angle, l_radius: REAL_64
+			i: INTEGER
+			m: DOUBLE_MATH
+		do
+			create m
+			create l_vertices.make (10)
+			from i := 0 until i >= 10 loop
+				l_angle := {DOUBLE_MATH}.pi / 2.0 + i.to_double * {DOUBLE_MATH}.pi / 5.0
+				if i \\ 2 = 0 then l_radius := 18.0 else l_radius := 7.0 end
+				l_vertices.extend ([88.0 + l_radius / a_aspect * m.cosine (l_angle), 40.0 + l_radius * m.sine (l_angle)])
+				i := i + 1
+			end
+			create Result.make (l_vertices, create {STYLE}.make_fg ({COLOR}.Bright_green), True)
+		end
+
+	triangle_polygon: SHAPE_AREA
+			-- Triangle outline in the lower-left corner (not filled).
+		once
+			create Result.make (<<[5.0, 26.0], [25.0, 26.0], [15.0, 44.0]>>, create {STYLE}.make_fg ({COLOR}.Bright_red), False)
 		end
 
 	render_art_canvas (a_frame: FRAME; a_area: RECT)
@@ -436,6 +471,8 @@ feature {NONE} -- Rendering
 				with_title (" 4. Mathematical Lissajous Harmonic Curves ")
 
 			create l_canvas.make
+			-- The Custom marker draws this character (`with_marker` below keeps it)
+			l_canvas.set_custom_marker ('%/0xD7/')
 			l_canvas := l_canvas.with_block (l_block).
 				with_bounds (-1.2, 1.2, -1.2, 1.2).
 				with_marker (marker_type).
@@ -526,8 +563,8 @@ feature {NONE} -- Event Handling
 						is_pong_active := not is_pong_active
 					end
 				elseif k.code.is_enter then
-					-- Cycle marker: Braille -> Dot -> Block -> HalfBlock -> Bar
-					marker_type := (marker_type \\ 5) + 1
+					-- Cycle marker: Braille -> Dot -> Block -> HalfBlock -> Bar -> Quadrant -> Sextant -> Octant -> Custom
+					marker_type := (marker_type \\ {CANVAS_MARKER}.custom) + 1
 				elseif k.code.is_left then
 					user_x := (user_x - 5.0).max (-170.0)
 				elseif k.code.is_right then

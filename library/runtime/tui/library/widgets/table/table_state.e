@@ -235,24 +235,60 @@ feature -- Navigation: Column
 feature -- Viewport Scrolling
 
 	adjust_viewport (a_visible_height: INTEGER; a_total_count: INTEGER)
-			-- Automatically adjust `offset` so that `selected` is within the visible window.
+			-- Automatically adjust `offset` so that `selected` is within the visible window
+			-- of `a_visible_height` one-line rows.
 		require
-			positive_height: a_visible_height > 0
+			positive_height: a_visible_height > 0 and a_visible_height < {INTEGER}.max_value
 		do
-			if a_total_count <= 0 then
-				offset := 1
-			else
-				if has_selection then
-					if selected < offset then
-						offset := selected
-					elseif selected >= offset + a_visible_height then
-						offset := selected - a_visible_height + 1
-					end
-				end
-				offset := offset.max (1).min (a_total_count)
-			end
+			adjust_viewport_with_padding (a_visible_height, a_total_count, 0)
 		ensure
 			offset_valid: offset >= 1
+		end
+
+	adjust_viewport_with_padding (a_visible_height: INTEGER; a_total_count: INTEGER; a_padding: INTEGER)
+			-- Adjust `offset` for `a_total_count` one-line rows shown in `a_visible_height` rows,
+			-- keeping up to `a_padding` rows visible before and after the selection.
+		require
+			positive_height: a_visible_height > 0 and a_visible_height < {INTEGER}.max_value
+			non_negative_padding: a_padding >= 0
+		do
+			adjust_viewport_by_heights (a_total_count.max (0), agent (i: INTEGER): INTEGER do Result := 1 end,
+				a_visible_height, a_padding)
+		ensure
+			offset_valid: offset >= 1
+		end
+
+	adjust_viewport_by_heights (a_count: INTEGER; a_height: FUNCTION [INTEGER, INTEGER]; a_visible_rows: INTEGER; a_padding: INTEGER)
+			-- `adjust_viewport_for_rows` for `a_count` rows, row `i` taking `a_height (i)` lines
+			-- (at least 1, margins included). Only the heights around the selection are read, so
+			-- the cost does not grow with `a_count` (`{ROW_VIEWPORT}.adjusted_offset_by`).
+		require
+			height_not_void: a_height /= Void
+			non_negative_count: a_count >= 0
+			positive_rows: a_visible_rows > 0 and a_visible_rows < {INTEGER}.max_value
+			non_negative_padding: a_padding >= 0
+		do
+			offset := {ROW_VIEWPORT}.adjusted_offset_by (a_count, a_height, offset, selected, a_visible_rows, a_padding, False)
+		ensure
+			offset_valid: offset >= 1
+			offset_in_table: a_count > 0 implies offset <= a_count
+		end
+
+	adjust_viewport_for_rows (a_heights: ARRAYED_LIST [INTEGER]; a_visible_rows: INTEGER; a_padding: INTEGER)
+			-- Adjust `offset` for rows of `a_heights` lines each (margins included) shown in
+			-- `a_visible_rows` lines: the selected row is fully visible with up to `a_padding` rows
+			-- around it (the padding is reduced when that block would not fit). Unlike LIST_STATE,
+			-- an offset near the end is kept even when it leaves blank lines (Ratatui `Table`);
+			-- see `{ROW_VIEWPORT}.adjusted_offset`.
+		require
+			positive_rows: a_visible_rows > 0 and a_visible_rows < {INTEGER}.max_value
+			non_negative_padding: a_padding >= 0
+			positive_heights: across a_heights as h all h >= 1 end
+		do
+			offset := {ROW_VIEWPORT}.adjusted_offset (a_heights, offset, selected, a_visible_rows, a_padding, False)
+		ensure
+			offset_valid: offset >= 1
+			offset_in_table: a_heights.count > 0 implies offset <= a_heights.count
 		end
 
 	adjust_column_viewport (a_visible_columns: INTEGER; a_total_columns: INTEGER)
@@ -274,6 +310,76 @@ feature -- Viewport Scrolling
 			end
 		ensure
 			column_offset_valid: column_offset >= 1
+		end
+
+feature -- Scrolling
+
+	scroll_down_by (a_amount: INTEGER; a_total_count: INTEGER)
+			-- Move the row selection down by `a_amount` rows, saturating at `a_total_count`; with
+			-- no row selected, start from row 1 (Ratatui `TableState::scroll_down_by`).
+			-- Nothing happens when the table has no rows.
+		require
+			non_negative_amount: a_amount >= 0
+		do
+			if a_total_count > 0 then
+				select_index ({ROW_VIEWPORT}.index_down_by (selected, a_amount, a_total_count))
+			end
+		ensure
+			selected_when_not_empty: a_total_count > 0 implies has_selection
+			selection_valid: a_total_count > 0 implies (selected >= 1 and selected <= a_total_count)
+			unchanged_when_empty: a_total_count <= 0 implies (selected = old selected and has_selection = old has_selection)
+			column_unchanged: selected_column = old selected_column
+		end
+
+	scroll_up_by (a_amount: INTEGER; a_total_count: INTEGER)
+			-- Move the row selection up by `a_amount` rows, saturating at row 1; with no row
+			-- selected, select row 1 (Ratatui `TableState::scroll_up_by`).
+			-- Nothing happens when the table has no rows.
+		require
+			non_negative_amount: a_amount >= 0
+		do
+			if a_total_count > 0 then
+				select_index ({ROW_VIEWPORT}.index_up_by (selected, a_amount, a_total_count))
+			end
+		ensure
+			selected_when_not_empty: a_total_count > 0 implies has_selection
+			selection_valid: a_total_count > 0 implies (selected >= 1 and selected <= a_total_count)
+			unchanged_when_empty: a_total_count <= 0 implies (selected = old selected and has_selection = old has_selection)
+			column_unchanged: selected_column = old selected_column
+		end
+
+	scroll_right_by (a_amount: INTEGER; a_total_columns: INTEGER)
+			-- Move the column selection right by `a_amount` columns, saturating at
+			-- `a_total_columns`; with no column selected, start from column 1
+			-- (Ratatui `TableState::scroll_right_by`). Nothing happens when there are no columns.
+		require
+			non_negative_amount: a_amount >= 0
+		do
+			if a_total_columns > 0 then
+				select_column ({ROW_VIEWPORT}.index_down_by (selected_column, a_amount, a_total_columns))
+			end
+		ensure
+			selected_when_not_empty: a_total_columns > 0 implies has_column_selection
+			selection_valid: a_total_columns > 0 implies (selected_column >= 1 and selected_column <= a_total_columns)
+			unchanged_when_empty: a_total_columns <= 0 implies (selected_column = old selected_column and has_column_selection = old has_column_selection)
+			row_unchanged: selected = old selected
+		end
+
+	scroll_left_by (a_amount: INTEGER; a_total_columns: INTEGER)
+			-- Move the column selection left by `a_amount` columns, saturating at column 1; with
+			-- no column selected, select column 1 (Ratatui `TableState::scroll_left_by`).
+			-- Nothing happens when there are no columns.
+		require
+			non_negative_amount: a_amount >= 0
+		do
+			if a_total_columns > 0 then
+				select_column ({ROW_VIEWPORT}.index_up_by (selected_column, a_amount, a_total_columns))
+			end
+		ensure
+			selected_when_not_empty: a_total_columns > 0 implies has_column_selection
+			selection_valid: a_total_columns > 0 implies (selected_column >= 1 and selected_column <= a_total_columns)
+			unchanged_when_empty: a_total_columns <= 0 implies (selected_column = old selected_column and has_column_selection = old has_column_selection)
+			row_unchanged: selected = old selected
 		end
 
 invariant

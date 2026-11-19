@@ -2,6 +2,11 @@ note
 	description: "[
 		Named Unicode block characters: full block, half blocks, quadrant blocks, and shades.
 		Matches Ratatui `symbols::block`.
+
+		An expanded class of class features, called as `{SYMBOLS_BLOCK}.full`. EiffelStudio
+		26.09 has an incremental compilation bug: a melted build crashes at start when melted
+		code is the first to use an expanded class. Freeze after such a change (see the V1 melt
+		crash notes in review/p1_visualization_plan.md).
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"

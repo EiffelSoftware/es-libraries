@@ -232,6 +232,19 @@ feature {STYLE} -- Element change (internal)
 			end
 		end
 
+	set_rapid_blink (a_enabled: BOOLEAN)
+			-- Set rapid blink attribute.
+		do
+			flags.set_rapid_blink (a_enabled)
+			if a_enabled then
+				add_modifier.add_flag ({STYLE_FLAGS}.flag_rapid_blink)
+				sub_modifier.remove_flag ({STYLE_FLAGS}.flag_rapid_blink)
+			else
+				add_modifier.remove_flag ({STYLE_FLAGS}.flag_rapid_blink)
+				sub_modifier.add_flag ({STYLE_FLAGS}.flag_rapid_blink)
+			end
+		end
+
 	set_reverse (a_enabled: BOOLEAN)
 			-- Set reverse video attribute.
 		do
@@ -377,6 +390,15 @@ feature -- Fluent Builders
 			Result.set_blink (True)
 		ensure
 			blink_set: Result.flags.is_blink
+		end
+
+	with_rapid_blink: STYLE
+			-- New style with rapid blink enabled
+		do
+			Result := twin
+			Result.set_rapid_blink (True)
+		ensure
+			rapid_blink_set: Result.flags.is_rapid_blink
 		end
 
 	with_reverse: STYLE

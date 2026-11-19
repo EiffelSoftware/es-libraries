@@ -2,6 +2,8 @@ note
 	description: "[
 		Widget rendering multi-line styled text with automatic word/character wrapping,
 		alignment, optional scrolling, and optional container block integration.
+		Alignment of a line (Ratatui 0.30.1, #2369): the line's own if it has one, else the
+		paragraph's; the paragraph's is the one set on it, else the text's, else left.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -33,12 +35,14 @@ feature {NONE} -- Initialization
 			create style.default_create
 			wrap_mode := {TEXT_WRAP_MODE}.none
 			wrap_trim := True
-			alignment := {TEXT_ALIGNMENT}.left
+			own_alignment := {TEXT_ALIGNMENT}.left
 			scroll_x := 0
 			scroll_y := 0
 		ensure
 			text_set: text = a_text
 			no_block: block = Void
+			no_alignment: not has_alignment
+			text_alignment: alignment = a_text.alignment
 		end
 
 	make_raw (a_content: READABLE_STRING_GENERAL)
@@ -113,7 +117,23 @@ feature -- Access
 			-- Should leading whitespace be trimmed on wrapped continuation lines?
 
 	alignment: NATURAL_8
-			-- Text alignment (left, center, right)
+			-- Alignment (left, center, right) of the lines without their own: the one set on
+			-- the paragraph, else the text's (left if the text has none either; Ratatui
+			-- `Paragraph::new` takes `text.alignment`, 0.30.1 #2369)
+		do
+			if has_alignment then
+				Result := own_alignment
+			else
+				Result := text_store.alignment
+			end
+		ensure
+			own_when_set: has_alignment implies Result = own_alignment
+			text_when_unset: not has_alignment implies Result = text_store.alignment
+		end
+
+	has_alignment: BOOLEAN
+			-- Has an alignment been set on the paragraph (`set_alignment`)? If not, it uses
+			-- the text's.
 
 	scroll_x: NATURAL_16
 			-- Horizontal scroll offset in columns
@@ -157,13 +177,25 @@ feature -- Element change
 		end
 
 	set_alignment (a_align: NATURAL_8)
-			-- Set default text alignment.
+			-- Set the alignment of the lines without their own; it overrides the text's.
 		require
 			valid_align: {TEXT_ALIGNMENT}.is_valid (a_align)
 		do
-			alignment := a_align
+			own_alignment := a_align
+			has_alignment := True
 		ensure
 			alignment_set: alignment = a_align
+			has_alignment: has_alignment
+		end
+
+	reset_alignment
+			-- Remove the paragraph's own alignment, so that the text's is used.
+		do
+			own_alignment := {TEXT_ALIGNMENT}.left
+			has_alignment := False
+		ensure
+			no_alignment: not has_alignment
+			text_alignment: alignment = text_store.alignment
 		end
 
 	set_scroll (a_x, a_y: NATURAL_16)
@@ -212,6 +244,41 @@ feature -- Fluent Builders
 			Result.set_alignment (a_align)
 		ensure
 			alignment_set: Result.alignment = a_align
+			has_alignment: Result.has_alignment
+			result_not_void: Result /= Void
+		end
+
+	left_aligned: like Current
+			-- Copy of `Current` aligned left (Ratatui `Paragraph::left_aligned`).
+		do
+			Result := with_alignment ({TEXT_ALIGNMENT}.left)
+		ensure
+			left: Result.alignment = {TEXT_ALIGNMENT}.left and Result.has_alignment
+		end
+
+	centered: like Current
+			-- Copy of `Current` centred (Ratatui `Paragraph::centered`).
+		do
+			Result := with_alignment ({TEXT_ALIGNMENT}.center)
+		ensure
+			centered: Result.alignment = {TEXT_ALIGNMENT}.center and Result.has_alignment
+		end
+
+	right_aligned: like Current
+			-- Copy of `Current` aligned right (Ratatui `Paragraph::right_aligned`).
+		do
+			Result := with_alignment ({TEXT_ALIGNMENT}.right)
+		ensure
+			right: Result.alignment = {TEXT_ALIGNMENT}.right and Result.has_alignment
+		end
+
+	without_alignment: like Current
+			-- Copy of `Current` with no alignment of its own, so that the text's is used.
+		do
+			Result := twin
+			Result.reset_alignment
+		ensure
+			no_alignment: not Result.has_alignment
 			result_not_void: Result /= Void
 		end
 
@@ -262,8 +329,11 @@ feature -- Comparison
 feature -- Rendering
 
 	render (a_area: RECT; a_buffer: BUFFER)
-			-- Render paragraph within `a_area` on `a_buffer`.
+			-- Render paragraph within `a_area` on `a_buffer`. As Ratatui's `Paragraph::render`,
+			-- `a_area` is first cut to the buffer; `style` is patched over it, then the block and
+			-- the text are drawn, the text in the block's inner area of the cut area.
 		local
+			l_area: RECT
 			l_render_area: RECT
 			l_lines: ARRAYED_LIST [TEXT_LINE]
 			l_row, l_target_row: INTEGER
@@ -273,9 +343,11 @@ feature -- Rendering
 			l_offset: NATURAL_16
 			l_col_offset: INTEGER
 		do
-			if not a_area.is_empty then
-				render_block (a_area, a_buffer)
-				l_render_area := inner_area (a_area)
+			l_area := a_area.intersection (a_buffer.area)
+			if not l_area.is_empty then
+				a_buffer.set_style (l_area, style)
+				render_block (l_area, a_buffer)
+				l_render_area := inner_area (l_area)
 
 				if not l_render_area.is_empty and l_render_area.width > 0 and l_render_area.height > 0 then
 					l_lines := {TEXT_LAYOUT}.wrap_text (text_store, l_render_area.width, wrap_mode, wrap_trim)
@@ -290,11 +362,7 @@ feature -- Rendering
 
 						if l_target_row < a_buffer.height and l_line_idx <= l_lines.count then
 							l_line := l_lines.i_th (l_line_idx)
-							if l_line.alignment /= {TEXT_ALIGNMENT}.left then
-								l_align := l_line.alignment
-							else
-								l_align := alignment
-							end
+							l_align := l_line.resolved_alignment (alignment)
 
 							l_offset := {TEXT_LAYOUT}.aligned_offset (l_line.width, l_render_area.width, l_align)
 							l_col_offset := l_render_area.x.to_integer_32 + l_offset.to_integer_32 - scroll_x.to_integer_32
@@ -305,6 +373,11 @@ feature -- Rendering
 				end
 			end
 		end
+
+feature {NONE} -- Implementation
+
+	own_alignment: NATURAL_8
+			-- Alignment set on the paragraph (meaningful when `has_alignment`)
 
 feature {NONE} -- Implementation: Line Rendering
 
@@ -320,5 +393,7 @@ invariant
 	style_not_void: style /= Void
 	valid_wrap_mode: {TEXT_WRAP_MODE}.is_valid (wrap_mode)
 	valid_alignment: {TEXT_ALIGNMENT}.is_valid (alignment)
+	valid_own_alignment: {TEXT_ALIGNMENT}.is_valid (own_alignment)
+	unset_is_left: not has_alignment implies own_alignment = {TEXT_ALIGNMENT}.left
 
 end

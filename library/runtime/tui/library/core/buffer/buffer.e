@@ -13,6 +13,14 @@ note
 		reorder what the terminal displays. That includes TAB: tabs are not expanded, because the
 		buffer does not know where the caller's tab stops are. Replace them before drawing (for
 		example with spaces up to the next multiple of 4 or 8 columns).
+
+		Diff options (Ratatui `CellDiffOption`, see CELL_DIFF_OPTION) are set with `set_diff_option`.
+		Writing content into a cell (`put_char`, `put_string`, `set_stringn`, `set_string_clipped`,
+		`set_span`, `set_line`, `set_line_clipped`, `fill`, `clear`, and the repair of a wide
+		character the write cuts) clears that cell's option, so set an option after the content.
+		Changing only the style (`set_style`, `set_style_region`) keeps it, as do `merge`,
+		`copy_from` and `resize`. Ratatui's `Cell::set_symbol` keeps the option; here a cell that
+		gets new content is an ordinary cell again, so a widget drawn over a skipped cell shows.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -31,6 +39,8 @@ feature {NONE} -- Initialization
 		require
 			positive_width: a_width > 0
 			positive_height: a_height > 0
+			width_in_rect_range: a_width <= Max_extent
+			height_in_rect_range: a_height <= Max_extent
 		do
 			width := a_width
 			height := a_height
@@ -88,15 +98,25 @@ feature -- Access
 			-- Are wide characters and their continuation cells consistent along `a_row`?
 		require
 			valid_row: a_row >= 0 and a_row < height
+		do
+			Result := is_continuation_consistent_between (a_row, 0, width)
+		end
+
+	is_continuation_consistent_between (a_row, a_from, a_to: INTEGER): BOOLEAN
+			-- Is each cell of `a_row` in columns [`a_from`, `a_to`) (cut to the row) consistent with
+			-- its neighbours: a continuation cell follows a wide character, and a wide character is
+			-- followed by a continuation cell?
+		require
+			valid_row: a_row >= 0 and a_row < height
 		local
 			c: INTEGER
 			l_c: TERMINAL_CELL
 		do
 			Result := True
 			from
-				c := 0
+				c := a_from.max (0)
 			until
-				c >= width or not Result
+				c >= a_to.min (width) or not Result
 			loop
 				l_c := cell (a_row, c)
 				if l_c.is_continuation then
@@ -138,6 +158,26 @@ feature -- Element change
 			valid_col: a_col >= 0 and a_col < width
 		do
 			cells.put (a_cell, index_of (a_row, a_col))
+		end
+
+	set_diff_option (a_row, a_col: INTEGER; a_option, a_width: NATURAL_8)
+			-- Give the cell at (`a_row`, `a_col`) diff option `a_option` (a CELL_DIFF_OPTION
+			-- constant), with forced width `a_width` for `Forced_width` and 0 otherwise
+			-- (Ratatui `Cell::set_diff_option`). The cell's content is unchanged.
+			-- A forced width counts from this cell along its row; it does not reach the next row.
+		require
+			valid_row: a_row >= 0 and a_row < height
+			valid_col: a_col >= 0 and a_col < width
+			valid_option: {CELL_DIFF_OPTION}.is_valid (a_option)
+			valid_width: {CELL_DIFF_OPTION}.is_valid_width (a_option, a_width)
+			forced_not_continuation: a_option = {CELL_DIFF_OPTION}.Forced_width implies not cell (a_row, a_col).is_continuation
+		do
+			cell (a_row, a_col).set_diff_option_in_place (a_option, a_width)
+		ensure
+			option_set: cell (a_row, a_col).diff_option = a_option
+			width_set: cell (a_row, a_col).forced_width = a_width
+			same_symbol: cell (a_row, a_col).symbol = old cell (a_row, a_col).symbol
+			same_style: cell (a_row, a_col).style = old cell (a_row, a_col).style
 		end
 
 	put_char (a_row, a_col: INTEGER; a_char: CHARACTER_32; a_style: STYLE)
@@ -371,31 +411,78 @@ feature -- Element change
 		end
 
 	fill (a_char: CHARACTER_32; a_style: STYLE)
-			-- Fill entire buffer with `a_char` and `a_style`.
+			-- Fill entire buffer with `a_char` and `a_style`: `put_char` on every cell, in row
+			-- order, with the buffer's consistency checked once at the end (linear time).
 		local
 			r, c: INTEGER
+			l_code: NATURAL_32
+			l_w: NATURAL_8
+			l_symbol: IMMUTABLE_STRING_32
+			l_style: STYLE
 		do
-			from
-				r := 0
-			until
-				r >= height
-			loop
+			l_code := {UNICODE_SCALAR}.scalar_value (a_char.natural_32_code)
+			l_w := {UNICODE_WIDTH}.width (l_code)
+			if l_w > 0 then
+				l_symbol := {TERMINAL_CELL}.pooled_char (l_code)
+				l_style := owned_style (a_style)
 				from
-					c := 0
+					r := 0
 				until
-					c >= width
+					r >= height
 				loop
-					put_char (r, c, a_char, a_style)
-					c := c + 1
+					from
+						c := 0
+					until
+						c >= width
+					loop
+						put_grapheme (r, c, l_symbol, l_w, l_style)
+						c := c + 1
+					end
+					r := r + 1
 				end
-				r := r + 1
 			end
 		ensure
 			consistent: is_consistent
 		end
 
+	clear_area (a_area: RECT)
+			-- Write a blank with the default style into every cell of `a_area` that lies in the
+			-- buffer, as `put_char (row, col, ' ', default style)` on each would, so diff options
+			-- are cleared and a wide character cut by the area's edge is split into blanks
+			-- (TUI_CLEAR, Ratatui `Clear`). Linear in the area: the rows are checked once.
+		local
+			r, c, l_r_end, l_c_end: INTEGER
+			l_blank: IMMUTABLE_STRING_32
+			l_style: STYLE
+		do
+			if not a_area.is_empty then
+				l_blank := {TERMINAL_CELL}.pooled_char (32)
+				l_style := owned_style (Default_style)
+				l_r_end := a_area.bottom.to_integer_32.min (height)
+				l_c_end := a_area.right.to_integer_32.min (width)
+				from
+					r := a_area.y.to_integer_32
+				until
+					r >= l_r_end
+				loop
+					from
+						c := a_area.x.to_integer_32
+					until
+						c >= l_c_end
+					loop
+						put_grapheme (r, c, l_blank, 1, l_style)
+						c := c + 1
+					end
+					r := r + 1
+				end
+			end
+		ensure
+			rows_consistent: across a_area.y.to_integer_32 |..| (a_area.bottom.to_integer_32.min (height) - 1) as i_row all
+				is_continuation_consistent (i_row) end
+		end
+
 	clear
-			-- Reset all cells to default spaces in place.
+			-- Reset all cells to default spaces in place, without diff options.
 		local
 			i: INTEGER
 		do
@@ -412,11 +499,13 @@ feature -- Element change
 		end
 
 	resize (a_new_width, a_new_height: INTEGER)
-			-- Resize buffer, preserving existing contents within the overlapping area.
+			-- Resize buffer, preserving existing contents (and diff options) within the overlapping area.
 			-- A wide character cut by the new right edge becomes a blank.
 		require
 			positive_width: a_new_width > 0
 			positive_height: a_new_height > 0
+			width_in_rect_range: a_new_width <= Max_extent
+			height_in_rect_range: a_new_height <= Max_extent
 		local
 			l_new_cells: SPECIAL [TERMINAL_CELL]
 			r, c: INTEGER
@@ -455,8 +544,9 @@ feature -- Element change
 		end
 
 	merge (a_other: BUFFER)
-			-- Overwrite the overlapping top-left area of `Current` with the cells of `a_other`
-			-- (like Ratatui `Buffer::merge`), then repair wide characters cut by its edges.
+			-- Overwrite the overlapping top-left area of `Current` with the cells of `a_other`,
+			-- diff options included (like Ratatui `Buffer::merge`), then repair wide characters
+			-- cut by its edges.
 		local
 			r, c, l_min_h, l_min_w: INTEGER
 		do
@@ -483,7 +573,8 @@ feature -- Element change
 		end
 
 	copy_from (a_other: BUFFER)
-			-- Copy all cell contents and styling from `a_other` (symbols and styles are shared).
+			-- Copy all cell contents, styling and diff options from `a_other` (symbols and styles
+			-- are shared).
 		require
 			same_dimensions: width = a_other.width and height = a_other.height
 		local
@@ -613,7 +704,11 @@ feature {NONE} -- Implementation
 				l_target.set_content (a_symbol, 1, a_style)
 			end
 		ensure
-			continuation_consistent: is_continuation_consistent (a_row)
+				-- Only columns `a_col` - 1 .. `a_col` + 2 change, which only the checks of columns
+				-- `a_col` - 2 .. `a_col` + 3 read: a row that was consistent stays consistent when
+				-- these are. Checking only them keeps a write on a wide row in constant time; the
+				-- public writers still check the whole row, once per call.
+			consistent_around: is_continuation_consistent_between (a_row, a_col - 2, a_col + 4)
 		end
 
 	attached_to_previous (a_row, a_col: INTEGER; a_cluster: IMMUTABLE_STRING_32; a_lo, a_hi: INTEGER): INTEGER
@@ -712,6 +807,12 @@ feature {NONE} -- Implementation
 			count_set: Result.count = a_count
 		end
 
+feature -- Constants
+
+	Max_extent: INTEGER = 65535
+			-- Largest width and height: `area` is a RECT, whose coordinates are NATURAL_16
+			-- (Ratatui's buffer area is a `Rect` of u16)
+
 feature {NONE} -- Constants
 
 	Default_style: STYLE
@@ -723,6 +824,7 @@ feature {NONE} -- Constants
 
 invariant
 	positive_dimensions: width > 0 and height > 0
+	dimensions_in_rect_range: width <= Max_extent and height <= Max_extent
 	cells_count_consistent: cells.count = area_count
 
 end

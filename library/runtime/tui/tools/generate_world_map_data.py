@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+"""
+generate_world_map_data.py
+
+Generates library/widgets/canvas/world_map_data.e from Ratatui's world map tables
+(ratatui/ratatui-widgets/src/canvas/world.rs: WORLD_LOW_RESOLUTION, WORLD_HIGH_RESOLUTION).
+
+Each table is a list of (longitude, latitude) points in EPSG:4326. The Eiffel class keeps the
+values exactly as they are written in world.rs (same decimal literals, same order), interleaved
+as longitude, latitude in one SPECIAL [REAL_64] per resolution.
+
+Encoding: the values are manifest REAL_64 arrays, split into chunk routines of CHUNK points
+each. The compile time of a single 10 250-value manifest array was measured against this
+layout (see the V5 status block in review/p1_visualization_plan.md).
+
+The script can also print Ratatui's `draw_low` / `draw_high` expected buffers from map.rs as
+Eiffel row arrays (--test-rows), so that the snapshots in TEST_CANVAS can be traced to the source.
+
+Usage:
+  python tools/generate_world_map_data.py                  # read ratatui/.../world.rs, write the class
+  python tools/generate_world_map_data.py --source FILE    # read another copy of world.rs
+  python tools/generate_world_map_data.py --stdout         # print the class instead of writing it
+  python tools/generate_world_map_data.py --chunk N        # points per chunk routine (0: one routine)
+  python tools/generate_world_map_data.py --test-rows      # print map.rs snapshot rows for the tests
+"""
+
+import argparse
+import datetime
+import os
+import re
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CANVAS_SRC = os.path.join(ROOT, "ratatui", "ratatui-widgets", "src", "canvas")
+SOURCE = os.path.join(CANVAS_SRC, "world.rs")
+MAP_SOURCE = os.path.join(CANVAS_SRC, "map.rs")
+OUTPUT = os.path.join(ROOT, "library", "widgets", "canvas", "world_map_data.e")
+
+CHUNK = 500
+
+# (Rust table, Eiffel feature, Eiffel count constant, expected points)
+TABLES = [
+    ("WORLD_LOW_RESOLUTION", "low_resolution", "Low_resolution_count", 1166),
+    ("WORLD_HIGH_RESOLUTION", "high_resolution", "High_resolution_count", 5125),
+]
+
+TABLE_RE = r"pub static {name}: \[\(f64, f64\); (\d+)\] = \[(.*?)\];"
+POINT_RE = re.compile(r"\(\s*(-?\d+\.\d+),\s*(-?\d+\.\d+)\s*\)")
+
+
+def parse(text, name, size):
+    m = re.search(TABLE_RE.format(name=name), text, re.S)
+    if not m:
+        raise SystemExit(f"{name} not found in world.rs")
+    if int(m.group(1)) != size:
+        raise SystemExit(f"{name} has {m.group(1)} points, expected {size}")
+    points = POINT_RE.findall(m.group(2))
+    if len(points) != size:
+        raise SystemExit(f"{name}: parsed {len(points)} points, expected {size}")
+    for lon, lat in points:
+        # Latitudes are within [-90, 90]. Longitudes are within [-180, 180], except six points of
+        # the low resolution table east of 180 (Chukotka, up to 188.87), kept as in Ratatui.
+        if not (-90.0 <= float(lat) <= 90.0 and -180.0 <= float(lon) <= 190.0):
+            raise SystemExit(f"{name}: point ({lon}, {lat}) out of range")
+    return points
+
+
+def eiffel_values(points, indent):
+    lines = []
+    for i in range(0, len(points), 4):
+        row = ", ".join(f"{lon}, {lat}" for lon, lat in points[i:i + 4])
+        lines.append(row + ",")
+    lines[-1] = lines[-1][:-1]
+    return ("\n" + indent).join(lines)
+
+
+def eiffel_table(rust_name, feature, count_name, points, chunk):
+    n = len(points)
+    if chunk <= 0 or chunk >= n:
+        chunks = [points]
+    else:
+        chunks = [points[i:i + chunk] for i in range(0, n, chunk)]
+    out = []
+    out.append(
+        f"\t{feature}: SPECIAL [REAL_64]\n"
+        f"\t\t\t-- Ratatui `{rust_name}`: {n} points, longitude and latitude interleaved\n"
+        f"\t\t\t-- (item 2 * i is the longitude of point i, item 2 * i + 1 its latitude).\n"
+        f"\t\t\t-- Shared: do not change it.\n"
+        f"\t\tonce\n"
+        f"\t\t\tcreate Result.make_empty (2 * {count_name})\n"
+    )
+    for k in range(len(chunks)):
+        out.append(f"\t\t\tappend_values (Result, {feature}_{k + 1})\n")
+    out.append(
+        f"\t\tensure\n"
+        f"\t\t\tinstance_free: class\n"
+        f"\t\t\tcount: Result.count = 2 * {count_name}\n"
+        f"\t\tend\n"
+    )
+    privates = []
+    first = 1
+    for k, part in enumerate(chunks):
+        last = first + len(part) - 1
+        privates.append(
+            f"\t{feature}_{k + 1}: ARRAY [REAL_64]\n"
+            f"\t\t\t-- Points {first}..{last} of `{rust_name}`.\n"
+            f"\t\tdo\n"
+            f"\t\t\tResult := <<\n\t\t\t\t{eiffel_values(part, chr(9) * 4)}\n\t\t\t>>\n"
+            f"\t\tensure\n"
+            f"\t\t\tinstance_free: class\n"
+            f"\t\t\tcount: Result.count = {2 * len(part)}\n"
+            f"\t\tend\n"
+        )
+        first = last + 1
+    return "".join(out), "\n".join(privates)
+
+
+TEMPLATE = '''note
+	description: "[
+		World map point data for SHAPE_MAP (Ratatui `canvas::world`): coastlines as
+		(longitude, latitude) points in EPSG:4326, one table per MAP_RESOLUTION.
+
+		GENERATED by tools/generate_world_map_data.py from Ratatui's
+		ratatui-widgets/src/canvas/world.rs on {date}.
+		Do not edit the tables by hand: change the generator and run it again.
+
+		Data source (as world.rs names it): http://www.gnuplotting.org/plotting-the-world-revisited
+		- High resolution ({high} points): gnuplotting's world_110m.txt, the Natural Earth 1:110m
+		  coastline (public domain, naturalearthdata.com), rounded to 4 decimals by Ratatui.
+		- Low resolution ({low} points): the world.dat of gnuplot's demo directory, which the same
+		  gnuplotting page starts from. Against gnuplot's current demo/world.dat (1 165 points), one
+		  point is missing, a run of 33 Antarctic points is in another place and two points
+		  (66.82, 66.82) are added at the end; the rest is the same, in the same order.
+		Ratatui is MIT licensed. Six low resolution points lie east of longitude 180 (up to 188.87),
+		as in Ratatui; with bounds [-180, 180] they are skipped when painted.
+
+		The values are manifest arrays split into chunks of {chunk} points: see the V5 status block of
+		review/p1_visualization_plan.md for the compile time measurement behind this layout.
+		A reference class, not expanded: EiffelStudio 26.09 crashes at start when a new expanded
+		class is melted into a frozen workbench build.
+	]"
+	author: "EiffelTUI Team"
+	date: "$Date$"
+	revision: "$Revision$"
+
+class
+	WORLD_MAP_DATA
+
+feature -- Access
+
+{public}
+feature -- Measurement
+
+	Low_resolution_count: INTEGER = {low}
+			-- Number of points of `low_resolution` (Ratatui `WORLD_LOW_RESOLUTION`).
+
+	High_resolution_count: INTEGER = {high}
+			-- Number of points of `high_resolution` (Ratatui `WORLD_HIGH_RESOLUTION`).
+
+feature {NONE} -- Implementation
+
+	append_values (a_target: SPECIAL [REAL_64]; a_values: ARRAY [REAL_64])
+			-- Append `a_values` to `a_target`.
+		require
+			room: a_target.count + a_values.count <= a_target.capacity
+		local
+			i: INTEGER
+		do
+			from
+				i := a_values.lower
+			until
+				i > a_values.upper
+			loop
+				a_target.extend (a_values [i])
+				i := i + 1
+			end
+		ensure
+			instance_free: class
+			appended: a_target.count = old a_target.count + a_values.count
+		end
+
+feature {NONE} -- Generated values
+
+{private}
+end
+'''
+
+
+def generate(text, chunk):
+    publics, privates = [], []
+    sizes = {}
+    for rust_name, feature, count_name, size in TABLES:
+        points = parse(text, rust_name, size)
+        pub, priv = eiffel_table(rust_name, feature, count_name, points, chunk)
+        publics.append(pub)
+        privates.append(priv)
+        sizes[feature] = size
+    fields = {
+        "date": datetime.date.today().isoformat(),
+        "low": str(sizes["low_resolution"]),
+        "high": str(sizes["high_resolution"]),
+        "chunk": str(chunk) if chunk > 0 else "all",
+        "public": "\n".join(publics),
+        "private": "\n".join(privates),
+    }
+    # Plain replacement, not str.format: the Eiffel text has braces of its own ({NONE})
+    result = TEMPLATE
+    for key, value in fields.items():
+        result = result.replace("{" + key + "}", value)
+    return result
+
+
+def test_rows(map_text):
+    """Print the expected buffers of map.rs `draw_low` and `draw_high` as Eiffel row arrays.
+
+    draw_low (Dot marker): rows with '*' for the dot '•', for TEST_CANVAS `dot_rows`.
+    draw_high (Braille): each cell as two hex digits of its Braille pattern (U+2800 + pattern),
+    00 for a space, for TEST_CANVAS `braille_hex_rows`.
+    """
+    for test in ("draw_low", "draw_high"):
+        m = re.search(r"fn " + test + r"\(\).*?Buffer::with_lines\(\[(.*?)\]\);", map_text, re.S)
+        if not m:
+            raise SystemExit(f"{test} not found in map.rs")
+        rows = re.findall(r'"(.*?)"', m.group(1))
+        if len(rows) != 40 or any(len(r) != 80 for r in rows):
+            raise SystemExit(f"{test}: expected 40 rows of 80 cells")
+        print(f"-- {test} ({len(rows)} rows)")
+        out = []
+        for r in rows:
+            if test == "draw_low":
+                assert set(r) <= {" ", "•"}, test
+                out.append('"' + r.replace("•", "*") + '"')
+            else:
+                cells = []
+                for ch in r:
+                    if ch == " ":
+                        cells.append("00")
+                    else:
+                        cp = ord(ch)
+                        assert 0x2801 <= cp <= 0x28FF, (test, hex(cp))
+                        cells.append(f"{cp - 0x2800:02X}")
+                out.append('"' + "".join(cells) + '"')
+        print(",\n".join(out))
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--source", default=SOURCE, help="path to world.rs")
+    ap.add_argument("--map-source", default=MAP_SOURCE, help="path to map.rs (for --test-rows)")
+    ap.add_argument("--stdout", action="store_true", help="print the class instead of writing it")
+    ap.add_argument("--chunk", type=int, default=CHUNK, help="points per chunk routine (0: one routine)")
+    ap.add_argument("--test-rows", action="store_true", help="print the map.rs snapshot rows and exit")
+    args = ap.parse_args()
+
+    if args.test_rows:
+        with open(args.map_source, encoding="utf-8") as f:
+            test_rows(f.read())
+        return
+    with open(args.source, encoding="utf-8") as f:
+        text = f.read()
+    result = generate(text, args.chunk)
+    if args.stdout:
+        sys.stdout.write(result)
+    else:
+        with open(OUTPUT, "w", encoding="ascii", newline="\n") as f:
+            f.write(result)
+        print(f"wrote {OUTPUT}")
+
+
+if __name__ == "__main__":
+    main()

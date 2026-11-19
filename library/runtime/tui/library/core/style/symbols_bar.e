@@ -2,6 +2,11 @@ note
 	description: "[
 		Named vertical and horizontal fractional Unicode bar glyphs and level sets (U+2581..U+258F).
 		Matches Ratatui `symbols::bar`.
+
+		An expanded class of class features, called as `{SYMBOLS_BAR}.full`. EiffelStudio
+		26.09 has an incremental compilation bug: a melted build crashes at start when melted
+		code is the first to use an expanded class. Freeze after such a change (see the V1 melt
+		crash notes in review/p1_visualization_plan.md).
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -43,6 +48,8 @@ feature -- Vertical Bar Glyphs
 			-- Full solid block (synonym for full)
 		do
 			Result := full
+		ensure
+			instance_free: class
 		end
 
 	vertical_bar (a_level: INTEGER): CHARACTER_32
@@ -60,6 +67,8 @@ feature -- Vertical Bar Glyphs
 			when 7 then Result := seven_eighths
 			else Result := full
 			end
+		ensure
+			instance_free: class
 		end
 
 feature -- Horizontal Bar Glyphs (Left to Right)
@@ -118,6 +127,8 @@ feature -- Sets and Ratios
 			else
 				Result := full
 			end
+		ensure
+			instance_free: class
 		end
 
 	horizontal_bar_for_ratio (a_ratio: REAL_64): CHARACTER_32
@@ -148,6 +159,8 @@ feature -- Sets and Ratios
 			else
 				Result := horizontal_full
 			end
+		ensure
+			instance_free: class
 		end
 
 end

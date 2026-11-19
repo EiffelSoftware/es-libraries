@@ -197,12 +197,12 @@ feature {NONE} -- State Initialization
 		end
 
 	init_ping_telemetry
-			-- Initialize telemetry wave data for ping sparkline.
+			-- Initialize telemetry wave data for ping sparkline (0: a lost packet).
 		local
 			l_vals: ARRAY [NATURAL_64]
 			i: INTEGER
 		do
-			l_vals := <<8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 3, 3, 2, 2, 1, 1, 1, 2, 2, 3, 4, 5, 6, 7, 7, 8, 8, 8, 7, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 2, 4, 6, 7, 8, 8, 8, 8, 6, 4, 2, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7>>
+			l_vals := <<8, 8, 8, 8, 7, 7, 7, 6, 6, 5, 4, 3, 3, 2, 2, 1, 1, 1, 2, 2, 3, 4, 5, 6, 7, 7, 0, 8, 8, 7, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 2, 4, 6, 7, 8, 0, 8, 8, 6, 4, 2, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 0, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7>>
 			create ping_telemetry.make (l_vals.count)
 			from i := 1 until i > l_vals.count loop
 				ping_telemetry.extend (l_vals [i])
@@ -1076,20 +1076,37 @@ feature {NONE} -- Tab 4: Traceroute Tab
 		end
 
 	render_traceroute_ping (a_frame: FRAME; a_area: RECT)
-			-- Latency sparkline.
+			-- Latency sparkline: a lost packet (0) is an absent bar, drawn as a red cross
+			-- (Ratatui `absent_value_symbol`), and a slow ping (7 or more) has its own yellow
+			-- bar style (SPARKLINE_BAR, Ratatui `SparklineBar`).
 		local
 			l_block: TUI_BLOCK
 			l_sparkline: TUI_SPARKLINE
+			l_bars: ARRAYED_LIST [SPARKLINE_BAR]
 		do
 			create l_block.make
 			l_block := l_block.with_borders ({BORDERS}.all_borders).
 				with_border_type ({BORDER_TYPE}.rounded).
 				with_border_style (create {STYLE}.make_fg ({COLOR}.Bright_green)).
-				with_title (" Ping Latency Telemetry ")
+				with_title (" Ping Latency Telemetry (%/0xD7/ lost, yellow slow) ")
 
-			create l_sparkline.make_with_data (ping_telemetry)
-			l_sparkline := l_sparkline.with_block (l_block).
-				with_bar_style (create {STYLE}.make_fg ({COLOR}.Bright_green))
+			create l_bars.make (ping_telemetry.count)
+			across ping_telemetry as v loop
+				if v = 0 then
+					l_bars.extend (create {SPARKLINE_BAR}.make_absent)
+				elseif v >= 7 then
+					l_bars.extend ((create {SPARKLINE_BAR}.make (v)).with_style (create {STYLE}.make_fg ({COLOR}.Bright_yellow)))
+				else
+					l_bars.extend (create {SPARKLINE_BAR}.make (v))
+				end
+			end
+			create l_sparkline
+			l_sparkline := l_sparkline.with_bars (l_bars).
+				with_max_value (8).
+				with_block (l_block).
+				with_bar_style (create {STYLE}.make_fg ({COLOR}.Bright_green)).
+				with_absent_value_symbol ('%/0xD7/').
+				with_absent_value_style ((create {STYLE}.make_fg ({COLOR}.Bright_red)).with_bold)
 			a_frame.render_widget (l_sparkline, a_area)
 		end
 

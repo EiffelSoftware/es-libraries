@@ -2,6 +2,9 @@ note
 	description: "[
 		A container widget providing styled borders, decorative corners (plain, rounded,
 		double, thick), aligned titles, and interior padding calculations.
+		An optional `shadow` (SHADOW) is drawn last, after the style, the borders and the
+		titles, as in Ratatui. It lies outside the block's area, so it is not part of
+		`inner`, and a widget drawn later over the shadow cells covers it.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -79,7 +82,18 @@ feature -- Access
 	four_sided_padding: PADDING
 			-- Four-sided interior padding (top, right, bottom, left)
 
+	shadow: detachable SHADOW
+			-- Optional shadow drawn behind the block, outside its area
+
 feature -- Element change
+
+	set_shadow (a_shadow: detachable SHADOW)
+			-- Set or clear the shadow.
+		do
+			shadow := a_shadow
+		ensure
+			shadow_set: shadow = a_shadow
+		end
 
 	set_borders (a_borders: NATURAL_8)
 			-- Set visible border edges.
@@ -221,6 +235,10 @@ feature -- Duplication
 				if attached a_other.border_set as bs then
 					border_set := bs.twin
 				end
+				if attached a_other.shadow as l_shadow then
+					-- Its own shadow; a custom effect stays shared (see SHADOW)
+					shadow := l_shadow.twin
+				end
 				create l_titles.make (a_other.titles.count)
 				across a_other.titles as bt loop
 					l_copy := bt.twin
@@ -256,6 +274,7 @@ feature -- Duplication
 				and four_sided_padding.is_equal (a_other.four_sided_padding)
 				and title_alignment = a_other.title_alignment
 				and title ~ a_other.title
+				and shadow ~ a_other.shadow
 				and titles.count = a_other.titles.count
 			then
 				Result := True
@@ -427,6 +446,16 @@ feature -- Fluent Builders
 			padding_set: Result.four_sided_padding = a_padding
 		end
 
+	with_shadow (a_shadow: detachable SHADOW): like Current
+			-- Return a copy of Current with shadow `a_shadow` (Void: none).
+		do
+			Result := twin
+			Result.set_shadow (a_shadow)
+		ensure
+			result_not_void: Result /= Void
+			shadow_set: Result.shadow = a_shadow
+		end
+
 	with_border_merged (a_merged: BOOLEAN): like Current
 			-- Return a copy of Current with border collision merging enabled or disabled.
 		do
@@ -452,11 +481,15 @@ feature -- Geometry
 
 	inner (a_area: RECT): RECT
 			-- Usable interior rectangle inside borders and padding.
+			-- Each side's padding is the symmetric `padding` plus the side of `four_sided_padding`;
+			-- the sums are taken in NATURAL_32, so they cannot wrap around (Ratatui saturates them).
+			-- When the padding leaves no room on an axis, the result is empty on that axis and stays
+			-- where the padding starts, inside `a_area` (Ratatui moves it by the padding).
 		require
 			area_not_void: a_area /= Void
 		local
 			l_x, l_y, l_w, l_h: NATURAL_16
-			l_pad_l, l_pad_r, l_pad_t, l_pad_b: NATURAL_16
+			l_pad_l, l_pad_r, l_pad_t, l_pad_b: NATURAL_32
 		do
 			l_x := a_area.x
 			l_y := a_area.y
@@ -489,22 +522,22 @@ feature -- Geometry
 				end
 			end
 
-			-- Apply horizontal padding
-			l_pad_l := padding.horizontal + four_sided_padding.left
-			l_pad_r := padding.horizontal + four_sided_padding.right
-			if l_w > (l_pad_l + l_pad_r) then
-				l_x := l_x + l_pad_l
-				l_w := l_w - (l_pad_l + l_pad_r)
+			-- Apply horizontal padding (the sums fit: each term is at most 65535)
+			l_pad_l := padding.horizontal.to_natural_32 + four_sided_padding.left.to_natural_32
+			l_pad_r := padding.horizontal.to_natural_32 + four_sided_padding.right.to_natural_32
+			if l_w.to_natural_32 > l_pad_l + l_pad_r then
+				l_x := l_x + l_pad_l.to_natural_16
+				l_w := (l_w.to_natural_32 - (l_pad_l + l_pad_r)).to_natural_16
 			else
 				l_w := 0
 			end
 
 			-- Apply vertical padding
-			l_pad_t := padding.vertical + four_sided_padding.top
-			l_pad_b := padding.vertical + four_sided_padding.bottom
-			if l_h > (l_pad_t + l_pad_b) then
-				l_y := l_y + l_pad_t
-				l_h := l_h - (l_pad_t + l_pad_b)
+			l_pad_t := padding.vertical.to_natural_32 + four_sided_padding.top.to_natural_32
+			l_pad_b := padding.vertical.to_natural_32 + four_sided_padding.bottom.to_natural_32
+			if l_h.to_natural_32 > l_pad_t + l_pad_b then
+				l_y := l_y + l_pad_t.to_natural_16
+				l_h := (l_h.to_natural_32 - (l_pad_t + l_pad_b)).to_natural_16
 			else
 				l_h := 0
 			end
@@ -513,29 +546,43 @@ feature -- Geometry
 		ensure
 			result_not_void: Result /= Void
 			contained_in_area: a_area.contains_rect (Result)
+			left_padding_kept: Result.width > 0 implies
+				Result.x.to_natural_32 >= a_area.x.to_natural_32 + padding.horizontal.to_natural_32 + four_sided_padding.left.to_natural_32
+			right_padding_kept: Result.width > 0 implies
+				Result.right.to_natural_32 + padding.horizontal.to_natural_32 + four_sided_padding.right.to_natural_32 <= a_area.right.to_natural_32
+			top_padding_kept: Result.height > 0 implies
+				Result.y.to_natural_32 >= a_area.y.to_natural_32 + padding.vertical.to_natural_32 + four_sided_padding.top.to_natural_32
+			bottom_padding_kept: Result.height > 0 implies
+				Result.bottom.to_natural_32 + padding.vertical.to_natural_32 + four_sided_padding.bottom.to_natural_32 <= a_area.bottom.to_natural_32
 		end
 
 feature -- Rendering
 
 	render (a_area: RECT; a_buffer: BUFFER)
-			-- Draw borders, background, and titles on `a_buffer`.
+			-- Draw background, borders, titles and then the shadow on `a_buffer`. As Ratatui's
+			-- `Block::render`, `a_area` is first cut to the buffer, so a block running past the
+			-- buffer is drawn as a closed box at the buffer's edge. `inner` is not cut: as in
+			-- Ratatui, only TUI_PARAGRAPH cuts its area before computing it, so other widgets in
+			-- such a block may draw over that edge.
 		local
+			l_area: RECT
 			l_x, l_y, l_w, l_h: INTEGER
 			r, c: INTEGER
 			l_tl, l_tr, l_bl, l_br, l_hz_top, l_hz_bot, l_vt_left, l_vt_right: CHARACTER_32
 			l_b_top, l_b_bottom, l_b_left, l_b_right: BOOLEAN
 			l_border_style: STYLE
 		do
-			if not a_area.is_empty then
-				l_x := a_area.x.to_integer_32
-				l_y := a_area.y.to_integer_32
-				l_w := a_area.width.to_integer_32
-				l_h := a_area.height.to_integer_32
+			l_area := a_area.intersection (a_buffer.area)
+			if not l_area.is_empty then
+				l_x := l_area.x.to_integer_32
+				l_y := l_area.y.to_integer_32
+				l_w := l_area.width.to_integer_32
+				l_h := l_area.height.to_integer_32
 
 				-- Check boundaries against buffer
 				if l_x < a_buffer.width and l_y < a_buffer.height then
 					-- 1. Paint background style over the whole area (patching, clipped to the buffer)
-					a_buffer.set_style (a_area, style)
+					a_buffer.set_style (l_area, style)
 					-- Borders use the block style patched by the border style (as in Ratatui)
 					l_border_style := style.patch (border_style)
 
@@ -621,6 +668,11 @@ feature -- Rendering
 					end
 					if l_b_bottom and l_h > 1 and l_w > 2 then
 						render_title_row ({BLOCK_TITLE}.position_bottom, l_x, l_y + l_h - 1, l_w, a_buffer)
+					end
+
+					-- Shadow last, around the part of the block inside the buffer (as Ratatui)
+					if attached shadow as l_shadow then
+						l_shadow.render (l_area, a_buffer)
 					end
 				end
 			end

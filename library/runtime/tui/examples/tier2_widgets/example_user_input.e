@@ -175,6 +175,11 @@ feature {NONE} -- Application Hooks
 				with_shows_cursor (is_editing)
 
 			a_frame.render_stateful_widget (l_text_input, l_input_area, input_state)
+			if is_editing and then attached l_text_input.cursor_screen_position (l_input_area, input_state) as c then
+				-- The terminal's cursor while editing, as in Ratatui's user_input example, as a bar
+				a_frame.set_cursor_position (c.col, c.row)
+				a_frame.set_cursor_shape (l_text_input.cursor_shape)
+			end
 
 			-- Message History List
 			create l_msg_items.make (messages.count)

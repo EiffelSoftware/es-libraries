@@ -2,6 +2,11 @@ note
 	description: "[
 		Terminal color abstraction supporting default, 16-color ANSI,
 		256-color palette, and 24-bit TrueColor RGB.
+
+		Colors can be read from text and written back (`make_from_string`, `as_string`), as
+		Ratatui's `Color::from_str` and `Display`. Ratatui's names are not EiffelTUI's
+		constant names for the grays: "white" is ANSI 15 (`Bright_white`), "gray" is ANSI 7
+		(`White`, `Gray`) and "darkgray" is ANSI 8 (`Bright_black`, `Dark_gray`).
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -23,7 +28,8 @@ create
 	make_ansi,
 	make_indexed,
 	make_rgb,
-	make_reset
+	make_reset,
+	make_from_string
 
 feature {NONE} -- Initialization
 
@@ -96,7 +102,40 @@ feature {NONE} -- Initialization
 			is_reset: is_reset
 		end
 
+	make_from_string (a_text: READABLE_STRING_GENERAL)
+			-- Initialize from `a_text`, read as Ratatui's `Color::from_str` reads it:
+			-- * a name, after lower-casing, removing spaces, "-" and "_", and the aliases
+			--   "bright" = "light", "grey" = "silver" = "gray", "lightblack" = "darkgray",
+			--   "lightwhite" = "lightgray" = "white": one of the 16 ANSI colors, or "reset";
+			-- * else a palette index "0" .. "255" (as Rust reads a `u8`: an optional "+",
+			--   then decimal digits);
+			-- * else "#rrggbb" (each pair as Rust's `u8::from_str_radix`: two hex digits, or
+			--   "+" and one).
+			-- "default" (any case, as a name) gives the default color, which Ratatui does not
+			-- have, so that every color reads back from `as_string`.
+		require
+			valid_text: is_valid_color_string (a_text)
+		do
+			if attached parsed (a_text) as l_color then
+				kind := l_color.kind
+				code := l_color.code
+				red_val := l_color.red_val
+				green_val := l_color.green_val
+				blue_val := l_color.blue_val
+			end
+		ensure
+			parsed: attached parsed (a_text) as l_color and then is_equal (l_color)
+		end
+
 feature -- Status report
+
+	is_valid_color_string (a_text: READABLE_STRING_GENERAL): BOOLEAN
+			-- Does `a_text` name a color for `make_from_string`? (Ratatui: `from_str` is `Ok`)
+		do
+			Result := parsed (a_text) /= Void
+		ensure
+			instance_free: class
+		end
 
 	is_reset: BOOLEAN
 			-- Is this an explicit reset to the terminal default color?
@@ -285,6 +324,31 @@ feature -- Output
 			end
 		end
 
+	as_string: STRING_8
+			-- Text that `make_from_string` reads back as this color, as Ratatui's `Display`:
+			-- the ANSI colors by Ratatui name ("LightRed", "Gray", "White" for ANSI 15),
+			-- "#RRGGBB", the palette index ("10"), "Reset"; and "Default" for the default color
+		do
+			inspect kind
+			when Kind_ansi then
+				Result := Ansi_names.item (code.to_integer_32).twin
+			when Kind_indexed then
+				Result := code.out
+			when Kind_rgb then
+				create Result.make (7)
+				Result.append_character ('#')
+				append_hex (red_val, Result)
+				append_hex (green_val, Result)
+				append_hex (blue_val, Result)
+			when Kind_reset then
+				Result := "Reset"
+			else
+				Result := "Default"
+			end
+		ensure
+			reads_back: is_valid_color_string (Result) and then is_equal (create {COLOR}.make_from_string (Result))
+		end
+
 feature -- Named Constants (Once functions)
 
 	Black: COLOR
@@ -438,6 +502,185 @@ feature -- Named Constants (Once functions)
 			create Result.make_reset
 		ensure
 			instance_free: class
+		end
+
+feature {NONE} -- Parsing
+
+	parsed (a_text: READABLE_STRING_GENERAL): detachable COLOR
+			-- The color `a_text` names (see `make_from_string`), or Void.
+			-- As in Ratatui, the index and the hex forms are read from `a_text` itself, not
+			-- from the normalized name, so " 10" and "# ff0000" are not colors.
+		local
+			l_name: STRING_32
+			l_index, l_r, l_g, l_b, i: INTEGER
+		do
+			l_name := normalized_name (a_text)
+			if l_name.same_string ("reset") then
+				create Result.make_reset
+			elseif l_name.same_string ("default") then
+				create Result
+			else
+				from
+					i := 0
+				until
+					i > 15 or Result /= Void
+				loop
+					if l_name.same_string (Ansi_keys.item (i)) then
+						create Result.make_ansi (i.to_natural_8)
+					end
+					i := i + 1
+				end
+			end
+			if Result = Void then
+				l_index := palette_index (a_text)
+				if l_index >= 0 then
+					create Result.make_indexed (l_index.to_natural_8)
+				elseif a_text.count = 7 and then a_text.code (1) = ('#').natural_32_code then
+					l_r := hex_byte (a_text, 2)
+					l_g := hex_byte (a_text, 4)
+					l_b := hex_byte (a_text, 6)
+					if l_r >= 0 and l_g >= 0 and l_b >= 0 then
+						create Result.make_rgb (l_r.to_natural_8, l_g.to_natural_8, l_b.to_natural_8)
+					end
+				end
+			end
+		ensure
+			instance_free: class
+		end
+
+	normalized_name (a_text: READABLE_STRING_GENERAL): STRING_32
+			-- `a_text` as Ratatui compares it with the color names: lower case, without
+			-- spaces, "-" and "_", then the aliases replaced in Ratatui's order
+		do
+			create Result.make_from_string_general (a_text)
+			Result.to_lower
+			Result.prune_all (' ')
+			Result.prune_all ('-')
+			Result.prune_all ('_')
+			Result.replace_substring_all ({STRING_32} "bright", {STRING_32} "light")
+			Result.replace_substring_all ({STRING_32} "grey", {STRING_32} "gray")
+			Result.replace_substring_all ({STRING_32} "silver", {STRING_32} "gray")
+			Result.replace_substring_all ({STRING_32} "lightblack", {STRING_32} "darkgray")
+			Result.replace_substring_all ({STRING_32} "lightwhite", {STRING_32} "white")
+			Result.replace_substring_all ({STRING_32} "lightgray", {STRING_32} "white")
+		ensure
+			instance_free: class
+		end
+
+	palette_index (a_text: READABLE_STRING_GENERAL): INTEGER
+			-- `a_text` as Rust's `u8::from_str` reads it (an optional "+", then one or more
+			-- decimal digits, at most 255), or -1
+		local
+			i, l_digit: INTEGER
+		do
+			i := 1
+			if a_text.count >= 1 and then a_text.code (1) = ('+').natural_32_code then
+				i := 2
+			end
+			if i > a_text.count then
+				Result := -1
+			end
+			from
+			until
+				i > a_text.count or Result < 0
+			loop
+				l_digit := a_text.code (i).to_integer_32 - ('0').code
+				if l_digit < 0 or l_digit > 9 then
+					Result := -1
+				else
+					Result := Result * 10 + l_digit
+					if Result > 255 then
+						Result := -1
+					end
+				end
+				i := i + 1
+			end
+		ensure
+			instance_free: class
+			in_range: Result >= -1 and Result <= 255
+		end
+
+	hex_byte (a_text: READABLE_STRING_GENERAL; a_pos: INTEGER): INTEGER
+			-- The two characters of `a_text` at `a_pos` as Rust's `u8::from_str_radix (_, 16)`
+			-- reads them (two hex digits, or "+" and one), or -1
+		require
+			valid_pos: a_pos >= 1 and a_pos < a_text.count
+		local
+			l_high, l_low: INTEGER
+		do
+			l_low := hex_value (a_text.code (a_pos + 1))
+			if a_text.code (a_pos) = ('+').natural_32_code then
+				Result := l_low
+			else
+				l_high := hex_value (a_text.code (a_pos))
+				if l_high >= 0 and l_low >= 0 then
+					Result := l_high * 16 + l_low
+				else
+					Result := -1
+				end
+			end
+		ensure
+			instance_free: class
+			in_range: Result >= -1 and Result <= 255
+		end
+
+	hex_value (a_code: NATURAL_32): INTEGER
+			-- Value of the hex digit `a_code` (either case), or -1
+		do
+			inspect a_code
+			when 48 .. 57 then
+				Result := (a_code - 48).to_integer_32
+			when 65 .. 70 then
+				Result := (a_code - 55).to_integer_32
+			when 97 .. 102 then
+				Result := (a_code - 87).to_integer_32
+			else
+				Result := -1
+			end
+		ensure
+			instance_free: class
+		end
+
+	append_hex (a_value: NATURAL_8; a_target: STRING_8)
+			-- Append `a_value` to `a_target` as two upper-case hex digits.
+		do
+			a_target.append_character (Hex_digits.item ((a_value // 16).to_integer_32 + 1))
+			a_target.append_character (Hex_digits.item ((a_value \\ 16).to_integer_32 + 1))
+		ensure
+			two_more: a_target.count = old a_target.count + 2
+		end
+
+	Hex_digits: STRING_8 = "0123456789ABCDEF"
+
+	Ansi_names: ARRAY [STRING_8]
+			-- Ratatui's names of the ANSI colors 0 .. 15 (`Display`)
+		once
+			Result := <<"Black", "Red", "Green", "Yellow", "Blue", "Magenta", "Cyan", "Gray",
+				"DarkGray", "LightRed", "LightGreen", "LightYellow", "LightBlue", "LightMagenta",
+				"LightCyan", "White">>
+			Result.rebase (0)
+		ensure
+			instance_free: class
+			sixteen: Result.lower = 0 and Result.count = 16
+		end
+
+	Ansi_keys: ARRAY [STRING_32]
+			-- `Ansi_names` in lower case, as `normalized_name` gives them
+		local
+			i: INTEGER
+		once
+			create Result.make_filled ({STRING_32} "", 0, 15)
+			from
+				i := 0
+			until
+				i > 15
+			loop
+				Result.put (Ansi_names.item (i).as_lower.to_string_32, i)
+				i := i + 1
+			end
+		ensure
+			instance_free: class
+			sixteen: Result.lower = 0 and Result.count = 16
 		end
 
 feature {COLOR} -- Implementation

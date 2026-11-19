@@ -164,7 +164,7 @@ feature -- Viewport Scrolling
 			-- Automatically adjust `offset` so that `selected` is within the visible window,
 			-- respecting `scroll_padding`.
 		require
-			positive_height: a_visible_height > 0
+			positive_height: a_visible_height > 0 and a_visible_height < {INTEGER}.max_value
 		do
 			adjust_viewport_with_padding (a_visible_height, a_total_count, scroll_padding)
 		ensure
@@ -172,18 +172,14 @@ feature -- Viewport Scrolling
 		end
 
 	adjust_viewport_with_padding (a_visible_height: INTEGER; a_total_count: INTEGER; a_padding: INTEGER)
-			-- Automatically adjust `offset` with specific padding.
+			-- Automatically adjust `offset` with specific padding, for one-row items (no list of
+			-- heights is built: see `{ROW_VIEWPORT}.adjusted_offset_by`).
 		require
-			positive_height: a_visible_height > 0
+			positive_height: a_visible_height > 0 and a_visible_height < {INTEGER}.max_value
 			non_negative_padding: a_padding >= 0
-		local
-			l_heights: ARRAYED_LIST [INTEGER]
 		do
-			create l_heights.make (a_total_count.max (0))
-			across 1 |..| a_total_count as i loop
-				l_heights.extend (1)
-			end
-			adjust_viewport_for_rows (l_heights, a_visible_height, a_padding)
+			offset := {ROW_VIEWPORT}.adjusted_offset_by (a_total_count.max (0), agent (i: INTEGER): INTEGER do Result := 1 end,
+				offset, selected, a_visible_height, a_padding, True)
 		ensure
 			offset_valid: offset >= 1
 		end
@@ -192,70 +188,50 @@ feature -- Viewport Scrolling
 			-- Adjust `offset` for items of `a_heights` rows each shown in `a_visible_rows` rows:
 			-- the selection is fully visible with up to `a_padding` items around it (the padding is
 			-- reduced when the selection block would not fit), and no rows are left blank at the
-			-- end of the list when earlier items could fill them.
+			-- end of the list when earlier items could fill them (see `{ROW_VIEWPORT}.adjusted_offset`).
 		require
-			positive_rows: a_visible_rows > 0
+			positive_rows: a_visible_rows > 0 and a_visible_rows < {INTEGER}.max_value
 			non_negative_padding: a_padding >= 0
 			positive_heights: across a_heights as h all h >= 1 end
-		local
-			n, s, l_pad, l_first, l_last: INTEGER
 		do
-			n := a_heights.count
-			if n = 0 then
-				offset := 1
-			else
-				offset := offset.max (1).min (n)
-				if has_selection then
-					s := selected.min (n)
-					from
-						l_pad := a_padding.min (n)
-					until
-						l_pad = 0 or else rows_between (a_heights, (s - l_pad).max (1), (s + l_pad).min (n)) <= a_visible_rows
-					loop
-						l_pad := l_pad - 1
-					end
-					l_first := (s - l_pad).max (1)
-					l_last := (s + l_pad).min (n)
-					if offset > l_first then
-						offset := l_first
-					end
-					from
-					until
-						offset >= s or else rows_between (a_heights, offset, l_last) <= a_visible_rows
-					loop
-						offset := offset + 1
-					end
-				end
-				-- Do not leave blank rows at the end when earlier items fit
-				from
-				until
-					offset <= 1 or else rows_between (a_heights, offset - 1, n) > a_visible_rows
-				loop
-					offset := offset - 1
-				end
-			end
+			offset := {ROW_VIEWPORT}.adjusted_offset (a_heights, offset, selected, a_visible_rows, a_padding, True)
 		ensure
 			offset_valid: offset >= 1
 			offset_in_list: a_heights.count > 0 implies offset <= a_heights.count
 		end
 
-feature {NONE} -- Implementation
+feature -- Scrolling
 
-	rows_between (a_heights: ARRAYED_LIST [INTEGER]; a_from, a_to: INTEGER): INTEGER
-			-- Rows taken by items `a_from` .. `a_to`
+	scroll_down_by (a_amount: INTEGER; a_total_count: INTEGER)
+			-- Move the selection down by `a_amount` items, saturating at `a_total_count`; with
+			-- nothing selected, start from item 1 (Ratatui `ListState::scroll_down_by`).
+			-- Nothing happens when the list is empty.
 		require
-			valid_range: a_from >= 1 and a_to <= a_heights.count
-		local
-			i: INTEGER
+			non_negative_amount: a_amount >= 0
 		do
-			from
-				i := a_from
-			until
-				i > a_to
-			loop
-				Result := Result + a_heights.i_th (i)
-				i := i + 1
+			if a_total_count > 0 then
+				select_index ({ROW_VIEWPORT}.index_down_by (selected, a_amount, a_total_count))
 			end
+		ensure
+			selected_when_not_empty: a_total_count > 0 implies has_selection
+			selection_valid: a_total_count > 0 implies (selected >= 1 and selected <= a_total_count)
+			unchanged_when_empty: a_total_count <= 0 implies (selected = old selected and has_selection = old has_selection)
+		end
+
+	scroll_up_by (a_amount: INTEGER; a_total_count: INTEGER)
+			-- Move the selection up by `a_amount` items, saturating at item 1; with nothing
+			-- selected, select item 1 (Ratatui `ListState::scroll_up_by`).
+			-- Nothing happens when the list is empty.
+		require
+			non_negative_amount: a_amount >= 0
+		do
+			if a_total_count > 0 then
+				select_index ({ROW_VIEWPORT}.index_up_by (selected, a_amount, a_total_count))
+			end
+		ensure
+			selected_when_not_empty: a_total_count > 0 implies has_selection
+			selection_valid: a_total_count > 0 implies (selected >= 1 and selected <= a_total_count)
+			unchanged_when_empty: a_total_count <= 0 implies (selected = old selected and has_selection = old has_selection)
 		end
 
 invariant

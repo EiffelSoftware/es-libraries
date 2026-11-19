@@ -4,11 +4,15 @@ note
 		Demonstrates non-blocking background data fetching with animated Braille spinner,
 		loading states, responsive table navigation, and on-demand refresh.
 
-		Note: Currently simulates asynchronous latency via non-blocking heartbeat ticks
-		to keep core EiffelTUI free from external HTTP/TLS network dependencies.
-		Future enhancement: Build a real async GitHub client example integrating
-		an asynchronous HTTP worker thread (e.g., via libcurl or SCOOP) to query
-		the live GitHub REST API.
+		A WORKER_THREAD simulates network latency, then posts a CUSTOM_EVENT via
+		{TUI_APPLICATION}.post_event so the main loop applies the result without
+		polling shared counters. No real HTTP/TLS dependency.
+
+		Worker lifecycle (P2 B2): each fetch has a generation number. A refresh starts a
+		new generation, and a quit cancels them all; the worker reads both, behind
+		`fetch_mutex', between short sleeps, and stops early without posting. A result
+		posted by an older fetch is dropped in `process'. The workers are kept and joined
+		(with a timeout) in `stop_background_work', so `run' returns only once they have ended.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -20,7 +24,8 @@ class
 inherit
 	TUI_APPLICATION
 		redefine
-			make
+			make,
+			stop_background_work
 		end
 
 create
@@ -37,6 +42,9 @@ feature {NONE} -- Initialization
 		do
 			init_state
 			Precursor
+				-- The worker's agent targets Current, so start it only once
+				-- TUI_APPLICATION is initialized (and `post_event` has a queue).
+			trigger_fetch
 			set_tick_rate (50) -- 20 FPS
 			create l_args
 			auto_exit_frames := -1
@@ -53,9 +61,7 @@ feature {NONE} -- Initialization
 	make_batch (a_frames: INTEGER)
 			-- Initialize and run for `a_frames` frames in batch mode.
 		do
-			init_state
-			-- In batch mode, pre-populate data immediately
-			simulate_load_complete
+			init_state_loaded
 			make_with_viewport (create {VIEWPORT}.make_fullscreen)
 			set_tick_rate (50)
 			auto_exit_frames := a_frames
@@ -69,8 +75,11 @@ feature {NONE} -- State
 	frame_counter: INTEGER
 
 	is_loading: BOOLEAN
-	loading_ticks_remaining: INTEGER
 	spinner_index: INTEGER
+
+	Fetch_payload: STRING_8 = "prs_loaded"
+			-- Token of the CUSTOM_EVENT payload posted by the fetch worker, with the fetch's
+			-- generation (see `new_fetch_result`)
 
 	pull_requests: ARRAYED_LIST [TUPLE [id, title, author, status, updated: STRING_8]]
 	table_state: TABLE_STATE
@@ -78,20 +87,164 @@ feature {NONE} -- State
 feature {NONE} -- Setup
 
 	init_state
-			-- Setup initial async request.
+			-- Setup the empty table; `make` starts the fetch.
 		do
 			create table_state.make
 			create pull_requests.make (10)
-			trigger_fetch
+			init_fetching
 		end
 
-	trigger_fetch
-			-- Trigger async fetch.
+	init_state_loaded
+			-- Setup with data already present (batch mode).
 		do
-			is_loading := True
-			loading_ticks_remaining := 10 -- ~500ms simulated async fetch
-			spinner_index := 1
+			create table_state.make
+			create pull_requests.make (10)
+			init_fetching
+			simulate_load_complete
 		end
+
+	init_fetching
+			-- No fetch yet, and no worker.
+		do
+			create fetch_mutex.make
+			create fetch_workers.make (2)
+			fetch_generation := 0
+			is_fetch_cancelled := False
+		end
+
+feature {NONE} -- Fetching (P2 B2)
+
+	fetch_generation: INTEGER
+			-- Number of the latest fetch; a result tagged with another number is stale.
+			-- Written by the main thread only, under `fetch_mutex` (workers read it)
+
+	is_fetch_cancelled: BOOLEAN
+			-- Have all fetches been cancelled (the application is quitting)?
+			-- Written by the main thread only, under `fetch_mutex` (workers read it)
+
+	fetch_mutex: MUTEX
+			-- Guards `fetch_generation` and `is_fetch_cancelled`, shared with the workers
+
+	fetch_workers: ARRAYED_LIST [WORKER_THREAD]
+			-- Fetch workers that may still be running (main thread only)
+
+	fetch_latency_ms: INTEGER
+			-- Simulated network latency of one fetch (a test redefines it)
+		do
+			Result := 500
+		ensure
+			positive: Result > 0
+		end
+
+	Fetch_poll_ms: INTEGER = 10
+			-- Sleep between two looks at `is_fetch_wanted`: how soon a worker stops once
+			-- its fetch is stale or cancelled
+
+	Worker_join_timeout_ms: NATURAL_64 = 500
+			-- Longest wait for each worker in `stop_background_work`
+
+	trigger_fetch
+			-- Start a new fetch on a background worker thread. A fetch still running
+			-- becomes stale: its worker stops without posting, and a result it already
+			-- posted is dropped by `process`.
+		local
+			l_worker: WORKER_THREAD
+			l_generation: INTEGER
+		do
+			forget_ended_workers
+			fetch_mutex.lock
+			fetch_generation := fetch_generation + 1
+			l_generation := fetch_generation
+			is_fetch_cancelled := False
+			fetch_mutex.unlock
+			is_loading := True
+			spinner_index := 1
+			create l_worker.make (agent fetch_worker_body (l_generation))
+			fetch_workers.extend (l_worker)
+			l_worker.launch
+		ensure
+			new_generation: fetch_generation = old fetch_generation + 1
+			loading: is_loading
+			worker_kept: fetch_workers.count >= 1
+		end
+
+	fetch_worker_body (a_generation: INTEGER)
+			-- Simulate network latency, then wake the main loop with a CUSTOM_EVENT tagged
+			-- with `a_generation`. Runs on the worker thread: stops early, without posting,
+			-- once the fetch is stale or cancelled.
+		local
+			l_waited: INTEGER
+		do
+			from
+			until
+				l_waited >= fetch_latency_ms or not is_fetch_wanted (a_generation)
+			loop
+				(create {EXECUTION_ENVIRONMENT}).sleep (Fetch_poll_ms * 1_000_000)
+				l_waited := l_waited + Fetch_poll_ms
+			end
+			if is_fetch_wanted (a_generation) then
+				post_event (new_fetch_result (a_generation))
+			end
+		end
+
+	is_fetch_wanted (a_generation: INTEGER): BOOLEAN
+			-- Is fetch `a_generation` the latest, and not cancelled? (Thread-safe.)
+		do
+			fetch_mutex.lock
+			Result := a_generation = fetch_generation and not is_fetch_cancelled
+			fetch_mutex.unlock
+		end
+
+	new_fetch_result (a_generation: INTEGER): CUSTOM_EVENT
+			-- Event carrying the result of fetch `a_generation`
+		do
+			create Result.make_with_payload ([Fetch_payload, a_generation])
+		ensure
+			tagged: attached {TUPLE [token: STRING_8; generation: INTEGER]} Result.payload as r
+				and then r.generation = a_generation
+		end
+
+	forget_ended_workers
+			-- Remove the workers that have ended from `fetch_workers`.
+		do
+			from
+				fetch_workers.start
+			until
+				fetch_workers.after
+			loop
+				if fetch_workers.item.join_with_timeout (0) then
+					fetch_workers.remove
+				else
+					fetch_workers.forth
+				end
+			end
+		end
+
+	worker_join_timed_out: BOOLEAN
+			-- Did the last `stop_background_work` leave a worker running, because it did not
+			-- end within `Worker_join_timeout_ms`? (It stays in `fetch_workers`.)
+
+	stop_background_work
+			-- Cancel every fetch and join its worker (at most `Worker_join_timeout_ms` each),
+			-- so that `run` returns only once they have ended.
+		local
+			l_joined: BOOLEAN
+		do
+			fetch_mutex.lock
+			is_fetch_cancelled := True
+			fetch_mutex.unlock
+			l_joined := True
+			across fetch_workers as w loop
+				l_joined := w.join_with_timeout (Worker_join_timeout_ms) and l_joined
+			end
+			worker_join_timed_out := not l_joined
+			forget_ended_workers
+		ensure then
+			cancelled: is_fetch_cancelled
+			joined_unless_timed_out: not worker_join_timed_out implies fetch_workers.is_empty
+		end
+
+feature {NONE} -- Data
 
 	simulate_load_complete
 			-- Populate PR dataset upon async completion.
@@ -130,17 +283,6 @@ feature {NONE} -- Application Hooks
 				frame_counter := frame_counter + 1
 				if frame_counter >= auto_exit_frames then
 					stop
-				end
-			end
-
-			-- Advance async simulation timer
-			if is_loading then
-				spinner_index := (spinner_index \\ 10) + 1
-				if loading_ticks_remaining > 0 then
-					loading_ticks_remaining := loading_ticks_remaining - 1
-					if loading_ticks_remaining = 0 then
-						simulate_load_complete
-					end
 				end
 			end
 
@@ -252,9 +394,22 @@ feature {NONE} -- Application Hooks
 		end
 
 	process (a_event: EVENT)
-			-- Process navigation, refresh, and quit keys.
+			-- Process navigation, refresh, custom fetch results, and quit keys.
 		do
-			if attached {KEY_EVENT} a_event as k then
+			if a_event.is_tick then
+				if is_loading then
+					spinner_index := (spinner_index \\ 10) + 1
+				end
+			elseif attached {CUSTOM_EVENT} a_event as c then
+				if attached {TUPLE [token: STRING_8; generation: INTEGER]} c.payload as r
+					and then r.token.same_string (Fetch_payload)
+					and then r.generation = fetch_generation
+				then
+					-- Only the latest fetch's result: an older one is stale and dropped.
+					-- `fetch_generation` needs no lock here: only this thread writes it
+					simulate_load_complete
+				end
+			elseif attached {KEY_EVENT} a_event as k then
 				if k.is_press then
 					if k.code.is_escape or else (k.code.is_char and then (k.code.character = 'q' or k.code.character = 'Q')) then
 						stop

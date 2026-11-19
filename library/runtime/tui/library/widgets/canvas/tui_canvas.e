@@ -2,6 +2,11 @@ note
 	description: "[
 		Canvas widget allowing arbitrary 2D vector drawing and plotting using
 		sub-pixel Unicode Braille patterns (U+2800..U+28FF) and agent-based painters.
+		Other markers ({CANVAS_MARKER}): Quadrant (2 x 2), Sextant (2 x 3) and Octant (2 x 4)
+		pseudo-pixels per cell (SYMBOLS_PIXEL), HalfBlock (1 x 2), Dot, Block and Bar (1 x 1), and
+		Custom (1 x 1, `custom_marker_char` in every painted cell, Ratatui `Marker::Custom`).
+		Sextant and Octant need a terminal font with "Symbols for Legacy Computing" and its
+		Supplement (Unicode 16.0); without one the terminal shows replacement characters.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -37,6 +42,7 @@ feature {NONE} -- Initialization
 			create shape_store.make (4)
 			create layer_store.make (2)
 			marker := {CANVAS_MARKER}.braille
+			custom_marker_char := {CANVAS_MARKER}.default_custom_char
 			color_policy := {BRAILLE_CANVAS}.policy_last_wins
 		ensure
 			x_min_default: x_bounds.min = 0.0
@@ -46,6 +52,7 @@ feature {NONE} -- Initialization
 			shapes_empty: shapes.is_empty
 			layers_empty: layers.is_empty
 			default_marker: marker = {CANVAS_MARKER}.braille
+			default_custom_char: custom_marker_char = {CANVAS_MARKER}.default_custom_char
 			no_block: block = Void
 		end
 
@@ -79,6 +86,7 @@ feature -- Duplication
 				and y_bounds.min = a_other.y_bounds.min
 				and y_bounds.max = a_other.y_bounds.max
 				and marker = a_other.marker
+				and custom_marker_char = a_other.custom_marker_char
 				and color_policy = a_other.color_policy
 				and same_block (a_other)
 				and background_style.is_equal (a_other.background_style)
@@ -214,6 +222,10 @@ feature -- Access
 	marker: NATURAL_8
 			-- Marker type for subpixel dots ({CANVAS_MARKER}.braille, dot, block, etc.).
 
+	custom_marker_char: CHARACTER_32
+			-- Character drawn in every painted cell when `marker` is {CANVAS_MARKER}.custom
+			-- (also used by layers without a marker of their own). One column wide.
+
 	color_policy: NATURAL_8
 			-- Subpixel dot color resolution policy ({BRAILLE_CANVAS}.policy_last_wins or first_wins).
 
@@ -276,13 +288,27 @@ feature -- Configuration
 		end
 
 	set_marker (a_marker: NATURAL_8)
-			-- Set marker type ({CANVAS_MARKER}.braille, dot, block, etc.).
+			-- Set marker type ({CANVAS_MARKER}.braille, dot, block, ..., quadrant, sextant, octant, custom).
+			-- Custom keeps `custom_marker_char` ({CANVAS_MARKER}.default_custom_char unless
+			-- `set_custom_marker` gave another one).
 		require
 			valid_marker: {CANVAS_MARKER}.is_valid (a_marker)
 		do
 			marker := a_marker
 		ensure
 			marker_set: marker = a_marker
+		end
+
+	set_custom_marker (a_char: CHARACTER_32)
+			-- Draw with the Custom marker, `a_char` in every painted cell (Ratatui `Marker::Custom`).
+		require
+			one_column: {CANVAS_MARKER}.is_valid_custom_char (a_char)
+		do
+			marker := {CANVAS_MARKER}.custom
+			custom_marker_char := a_char
+		ensure
+			custom_marker: marker = {CANVAS_MARKER}.custom
+			char_set: custom_marker_char = a_char
 		end
 
 	set_color_policy (a_policy: NATURAL_8)
@@ -361,6 +387,18 @@ feature -- Fluent Builders
 			marker_set: Result.marker = a_marker
 		end
 
+	with_custom_marker (a_char: CHARACTER_32): like Current
+			-- Canvas with the Custom marker `a_char`.
+		require
+			one_column: {CANVAS_MARKER}.is_valid_custom_char (a_char)
+		do
+			Result := twin
+			Result.set_custom_marker (a_char)
+		ensure
+			custom_marker: Result.marker = {CANVAS_MARKER}.custom
+			char_set: Result.custom_marker_char = a_char
+		end
+
 	with_color_policy (a_policy: NATURAL_8): like Current
 			-- Canvas with `a_policy`.
 		require
@@ -377,17 +415,24 @@ feature -- Rendering
 	render (a_area: RECT; a_buffer: BUFFER)
 			-- Render canvas inside `a_area` into `a_buffer`.
 			-- The painter agent and the direct shapes form the base layer; each CANVAS_LAYER is
-			-- painted on its own grid and stacked on top (a cell a later layer draws in replaces the
-			-- cell below, as with Ratatui `Context::layer`). Each grid has the resolution of its
-			-- marker: Braille 2 x 4 dots per cell, HalfBlock 1 x 2, Dot / Block / Bar 1 x 1.
+			-- painted on its own grid and stacked on top, as with Ratatui `Context::layer`: where a
+			-- later layer draws, it sets the symbol and patches the style below with what its cell
+			-- sets (Ratatui `LayerCell`, see `layer_cell_style`), so a Block layer's bg stays under
+			-- the symbol of a pattern layer drawn over it. Each grid has the resolution of its
+			-- marker: Braille and Octant 2 x 4 dots per cell, Sextant 2 x 3, Quadrant 2 x 2,
+			-- HalfBlock 1 x 2, Dot / Block / Bar / Custom 1 x 1. A layer with its own marker uses its
+			-- own custom character; a layer without one uses the canvas marker and character. A cell with no dot is not drawn, so the
+			-- grids below show through (Ratatui: pattern 0 is skipped).
 			-- Text drawn with `draw_text` is clipped to the canvas area.
 		local
 			l_target: RECT
-			l_grids: ARRAYED_LIST [TUPLE [grid: BRAILLE_CANVAS; marker: NATURAL_8]]
+			l_grids: ARRAYED_LIST [TUPLE [grid: BRAILLE_CANVAS; marker: NATURAL_8; custom_char: CHARACTER_32]]
 			l_painters: ARRAYED_LIST [CANVAS_PAINTER]
 			l_painter: CANVAS_PAINTER
 			l_grid: BRAILLE_CANVAS
 			l_marker: NATURAL_8
+			l_custom_char, l_char: CHARACTER_32
+			l_style: STYLE
 			r, c, l_abs_row, l_abs_col, l_rows, l_cols, l_left, l_right: INTEGER
 		do
 			if not a_area.is_empty then
@@ -411,20 +456,22 @@ feature -- Rendering
 					across shape_store as sh loop
 						sh.paint (l_painter)
 					end
-					l_grids.extend ([l_grid, marker])
+					l_grids.extend ([l_grid, marker, custom_marker_char])
 					l_painters.extend (l_painter)
 
 					-- Stacked layers
 					across layer_store as lay loop
 						if lay.marker /= 0 then
 							l_marker := lay.marker
+							l_custom_char := lay.custom_marker_char
 						else
 							l_marker := marker
+							l_custom_char := custom_marker_char
 						end
 						l_grid := new_grid (l_cols, l_rows, l_marker)
 						create l_painter.make (l_grid, x_bounds, y_bounds)
 						lay.paint (l_painter)
-						l_grids.extend ([l_grid, l_marker])
+						l_grids.extend ([l_grid, l_marker, l_custom_char])
 						l_painters.extend (l_painter)
 					end
 
@@ -442,13 +489,18 @@ feature -- Rendering
 							c >= l_cols or l_left + c >= a_buffer.width
 						loop
 							l_abs_col := l_left + c
-							a_buffer.put_char (l_abs_row, l_abs_col, ' ', background_style)
+							-- Each grid that drew here sets the symbol and patches what its cell
+							-- sets (Ratatui `LayerCell`): a lower grid's bg stays under the symbol of
+							-- a grid above that sets no bg.
+							l_char := ' '
+							l_style := background_style
 							across l_grids as g loop
 								if g.grid.cell_mask (c, r) /= 0 then
-									a_buffer.put_char (l_abs_row, l_abs_col, cell_glyph (g.grid, g.marker, c, r),
-										background_style.patch (g.grid.cell_style (c, r)))
+									l_char := cell_glyph (g.grid, g.marker, g.custom_char, c, r)
+									l_style := l_style.patch (layer_cell_style (g.grid, g.marker, c, r))
 								end
 							end
+							a_buffer.put_char (l_abs_row, l_abs_col, l_char, l_style)
 							c := c + 1
 						end
 						r := r + 1
@@ -470,36 +522,81 @@ feature -- Rendering
 feature {NONE} -- Implementation
 
 	new_grid (a_cols, a_rows: INTEGER; a_marker: NATURAL_8): BRAILLE_CANVAS
-			-- Empty grid for `a_marker` (Braille 2 x 4 dots per cell, HalfBlock 1 x 2, others 1 x 1)
+			-- Empty grid for `a_marker`, at the resolution of {CANVAS_MARKER}.dots_x / dots_y.
+			-- Braille keeps its own bit order; every other grid is row-major (Ratatui `marker_to_grid`).
+		require
+			valid_marker: {CANVAS_MARKER}.is_valid (a_marker)
 		do
-			if a_marker = {CANVAS_MARKER}.half_block then
-				create Result.make_with_resolution (a_cols, a_rows, 1, 2)
-			elseif a_marker = {CANVAS_MARKER}.braille then
+			if a_marker = {CANVAS_MARKER}.braille then
 				create Result.make (a_cols, a_rows)
 			else
-				create Result.make_with_resolution (a_cols, a_rows, 1, 1)
+				create Result.make_with_pattern (a_cols, a_rows, {CANVAS_MARKER}.dots_x (a_marker), {CANVAS_MARKER}.dots_y (a_marker))
 			end
 			Result.set_color_policy (color_policy)
+		ensure
+			dots_x: Result.dots_x = {CANVAS_MARKER}.dots_x (a_marker)
+			dots_y: Result.dots_y = {CANVAS_MARKER}.dots_y (a_marker)
+			braille_order: Result.is_braille_order = (a_marker = {CANVAS_MARKER}.braille)
 		end
 
-	cell_glyph (a_grid: BRAILLE_CANVAS; a_marker: NATURAL_8; a_col, a_row: INTEGER): CHARACTER_32
+	cell_glyph (a_grid: BRAILLE_CANVAS; a_marker: NATURAL_8; a_custom_char: CHARACTER_32; a_col, a_row: INTEGER): CHARACTER_32
 			-- Character for the drawn cell (`a_col`, `a_row`) of `a_grid` with `a_marker`
+			-- (`a_custom_char` for the Custom marker)
 		require
 			drawn: a_grid.cell_mask (a_col, a_row) /= 0
+			valid_custom_char: a_marker = {CANVAS_MARKER}.custom implies {CANVAS_MARKER}.is_valid_custom_char (a_custom_char)
 		do
 			if a_marker = {CANVAS_MARKER}.braille then
 				Result := a_grid.cell_char (a_col, a_row)
+			elseif a_marker = {CANVAS_MARKER}.quadrant then
+				Result := {SYMBOLS_PIXEL}.quadrant (a_grid.cell_mask (a_col, a_row).to_integer_32)
+			elseif a_marker = {CANVAS_MARKER}.sextant then
+				Result := {SYMBOLS_PIXEL}.sextant (a_grid.cell_mask (a_col, a_row).to_integer_32)
+			elseif a_marker = {CANVAS_MARKER}.octant then
+				Result := {SYMBOLS_PIXEL}.octant (a_grid.cell_mask (a_col, a_row).to_integer_32)
 			elseif a_marker = {CANVAS_MARKER}.half_block then
+				-- Ratatui `HalfBlockGrid::save`
 				inspect a_grid.cell_mask (a_col, a_row)
 				when 1 then
 					Result := (0x2580).to_character_32 -- '▀' upper half
 				when 2 then
 					Result := (0x2584).to_character_32 -- '▄' lower half
 				else
-					Result := (0x2588).to_character_32 -- '█' both halves
+					if a_grid.cell_style (a_col, a_row).foreground.same_rendering (a_grid.lower_style (a_col, a_row).foreground) then
+						Result := (0x2588).to_character_32 -- '█' both halves, one colour
+					else
+						Result := (0x2580).to_character_32 -- '▀' upper colour as fg, lower as bg
+					end
 				end
+			elseif a_marker = {CANVAS_MARKER}.custom then
+				Result := a_custom_char
 			else
 				Result := {CANVAS_MARKER}.marker_symbol (a_marker)
+			end
+		end
+
+	layer_cell_style (a_grid: BRAILLE_CANVAS; a_marker: NATURAL_8; a_col, a_row: INTEGER): STYLE
+			-- Style that the drawn cell (`a_col`, `a_row`) of `a_grid` with `a_marker` patches onto
+			-- the cell below (Ratatui `LayerCell`; a dot's colour is the fg of its style):
+			-- HalfBlock: one half, its style; both halves, the upper style with the lower fg as bg
+			-- (`HalfBlockGrid::save`). Block: the style with its fg as bg too
+			-- (`CharGrid::apply_color_to_bg`). Every other marker: the style (fg only in Ratatui).
+		require
+			drawn: a_grid.cell_mask (a_col, a_row) /= 0
+			half_block_grid: a_marker = {CANVAS_MARKER}.half_block implies a_grid.is_half_block_grid
+		do
+			Result := a_grid.cell_style (a_col, a_row)
+			if a_marker = {CANVAS_MARKER}.half_block then
+				inspect a_grid.cell_mask (a_col, a_row)
+				when 1 then
+					-- Upper half only: `Result` already
+				when 2 then
+					Result := a_grid.lower_style (a_col, a_row)
+				else
+					Result := Result.with_background (a_grid.lower_style (a_col, a_row).foreground)
+				end
+			elseif a_marker = {CANVAS_MARKER}.block and then not Result.foreground.is_default then
+				Result := Result.with_background (Result.foreground)
 			end
 		end
 
@@ -510,5 +607,6 @@ invariant
 	shapes_not_void: shape_store /= Void
 	layers_not_void: layer_store /= Void
 	valid_marker: {CANVAS_MARKER}.is_valid (marker)
+	one_column_custom_char: {CANVAS_MARKER}.is_valid_custom_char (custom_marker_char)
 
 end
