@@ -788,6 +788,7 @@ feature {NONE} -- Initialization
 			run_test ("test_backspace_after_extend_leaves_no_selection", agent l_t45.test_backspace_after_extend_leaves_no_selection)
 			run_test ("test_delete_with_stale_anchor_keeps_invariant", agent l_t45.test_delete_with_stale_anchor_keeps_invariant)
 			run_test ("test_scroll_follows_wrapped_rows", agent l_t45.test_scroll_follows_wrapped_rows)
+			run_test ("test_trailing_line_break_gives_one_empty_row", agent l_t45.test_trailing_line_break_gives_one_empty_row)
 			run_test ("test_scroll_row_inside_bordered_block", agent l_t45.test_scroll_row_inside_bordered_block)
 			run_test ("test_cursor_keeps_character_under_it", agent l_t45.test_cursor_keeps_character_under_it)
 			run_test ("test_selection_highlights_only_the_range", agent l_t45.test_selection_highlights_only_the_range)

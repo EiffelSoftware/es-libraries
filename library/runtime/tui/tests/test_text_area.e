@@ -175,6 +175,28 @@ feature -- State
 			assert_rows ("short text", l_buf, <<"one       ", "two       ", "          ">>)
 		end
 
+	test_trailing_line_break_gives_one_empty_row
+			-- A text ending with a line break has one empty row after its last line, not two: with
+			-- exactly the rows needed, the first line stays on screen and the cursor is on that empty row.
+		local
+			l_state: TEXT_AREA_STATE
+			l_widget: TUI_TEXT_AREA
+			l_buf: BUFFER
+		do
+			create l_state.make_with_text ("First line%N")
+			create l_widget.make
+			create l_buf.make (12, 2)
+			l_widget.render_stateful (l_buf.area, l_buf, l_state)
+			assert ("not scrolled", l_state.scroll_row = 0)
+			assert_rows ("first line shown", l_buf, <<"First line  ", "            ">>)
+			if attached l_widget.cursor_screen_position (l_buf.area, l_state) as c then
+				assert ("cursor at the start", c.col = 0)
+				assert ("cursor on the empty row", c.row = 1)
+			else
+				assert ("cursor visible", False)
+			end
+		end
+
 	test_scroll_row_inside_bordered_block
 			-- H2: the viewport height is the inner area of the block.
 		local

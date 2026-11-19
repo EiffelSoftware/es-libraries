@@ -298,8 +298,10 @@ feature {NONE} -- Layout helpers
 					if i <= a_text.count and then a_text.code (i) = 10 then
 						l_pos := i
 						if l_pos = a_text.count then
+								-- (The text ends with a line break: one empty row after it, and the end.)
 							l_lines.extend (create {STRING_32}.make_empty)
 							l_starts.extend (l_pos)
+							l_pos := a_text.count + 1
 						end
 					else
 						l_pos := a_text.count + 1
