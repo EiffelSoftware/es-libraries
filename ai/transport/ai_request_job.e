@@ -238,6 +238,7 @@ feature -- Basic operations
 				finished_at := create {DATE_TIME}.make_now_utc
 				l_locked := False
 				mutex.unlock
+				notify_finished
 			else
 				if not l_locked then
 					mutex.lock
@@ -248,13 +249,38 @@ feature -- Basic operations
 				internal_is_finished := True
 				finished_at := create {DATE_TIME}.make_now_utc
 				mutex.unlock
+				notify_finished
 			end
 		rescue
 			retried := True
 			retry
 		end
 
+feature -- Notification
+
+	Finished_notification: CELL [detachable PROCEDURE]
+			-- Action called, in the thread of the job, when a job finishes (if set): to wake a user
+			-- interface waiting for its result, for instance. It must be safe to call from any thread.
+		once ("PROCESS")
+			create Result.put (Void)
+		ensure
+			instance_free: class
+		end
+
 feature {NONE} -- Implementation
+
+	notify_finished
+			-- Call `Finished_notification', if set (its failures are ignored).
+		local
+			retried: BOOLEAN
+		do
+			if not retried and then attached Finished_notification.item as a then
+				a.call (Void)
+			end
+		rescue
+			retried := True
+			retry
+		end
 
 	decoder: detachable AI_STREAM_DECODER
 			-- Decoder of the streamed answer
