@@ -34,6 +34,13 @@ An Anthropic provider may have a `workspace_id` (or use the environment variable
   in the conversation, an error forgets the question. With `set_tools`, the model may call tools: after its answer,
   `pending_tool_calls` are run by the application, and `answer_tool_calls` sends their results (the model goes on, up to
   `max_rounds` times per question). `AI_TRANSCRIPT` appends the questions and answers to a Markdown file.
+- `mcp`: clients of MCP servers (Model Context Protocol), started as programs (stdio). `AI_MCP_CONFIGURATION` reads
+  configuration files in the format of `.mcp.json` (`command`, `args`, `env` with `${VARIABLE}`, `cwd`, and the
+  options `tools`, `timeout`, `disabled`); `AI_MCP_STDIO_TRANSPORT` runs the server with pipes (the `process`
+  library), its output and error read by threads, calling `Message_notification` after each line;
+  `AI_MCP_CLIENT` never waits: `start`, then `poll` (initialization, `tools/list` with its pages, the
+  notifications and requests of the server), `call_tool` and later `take_result`, with a timeout per call;
+  `AI_MCP_TOOL` gives a tool to the model as `mcp__SERVER__TOOL` (`definition`).
 
 ```eiffel
 	p := (create {AI_PROVIDER_FACTORY}).new_provider (settings.provider_named ("anthropic"))
@@ -60,3 +67,6 @@ The tests use answers recorded from the providers, and a local server for the re
 ```bash
 ec -batch -config Src/framework/ai/ai.ecf -target es_ai_tests -project_path <dir> -tests
 ```
+
+The tests of the MCP client (`AI_MCP_TEST_SET`) run the fake server `tests/mcp_fake_server.py` with `python3`,
+found from the variable `EIFFEL_SRC` (or `ISE_LIBRARY`).
