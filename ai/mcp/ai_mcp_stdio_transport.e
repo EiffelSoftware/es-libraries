@@ -80,24 +80,16 @@ feature -- Basic operations
 			l_environment: HASH_TABLE [STRING_32, STRING_32]
 			l_env: EXECUTION_ENVIRONMENT
 			l_output, l_error: WORKER_THREAD
+			l_launch: TUPLE [program: STRING_32; arguments: ARRAYED_LIST [STRING_32]]
 		do
 			last_error := Void
-			l_program := program_path (definition.command)
+			l_program := {AI_PROGRAMS}.program_path (definition.command)
 			if not attached l_program then
 				last_error := {STRING_32} "Program not found: " + definition.command
 			else
-				create l_arguments.make (definition.arguments.count + 2)
-				if {PLATFORM}.is_windows and then (l_program.as_lower.ends_with ({STRING_32} ".cmd") or l_program.as_lower.ends_with ({STRING_32} ".bat")) then
-						-- (A batch file is run by the command interpreter.)
-					l_arguments.extend ({STRING_32} "/c")
-					l_arguments.extend (l_program)
-					if attached (create {EXECUTION_ENVIRONMENT}).item ("ComSpec") as l_comspec then
-						l_program := l_comspec.to_string_32
-					else
-						l_program := {STRING_32} "cmd.exe"
-					end
-				end
-				l_arguments.append (definition.arguments)
+				l_launch := {AI_PROGRAMS}.launch_arguments (l_program, definition.arguments)
+				l_program := l_launch.program
+				l_arguments := l_launch.arguments
 				l_process := (create {BASE_PROCESS_FACTORY}).process_launcher (l_program, l_arguments, definition.working_directory)
 				if not definition.environment.is_empty then
 						-- (The variables of the client, and those of the server.)
@@ -219,9 +211,14 @@ feature {NONE} -- Implementation
 					create l_buffer.make_filled (0, Buffer_size)
 					p.read_output_to_special (l_buffer)
 				until
-					l_buffer.count = 0 or p.has_output_stream_closed or p.has_output_stream_error
+					p.has_output_stream_closed or p.has_output_stream_error
 				loop
-					add_bytes (l_buffer, l_line, False)
+					if l_buffer.count > 0 then
+						add_bytes (l_buffer, l_line, False)
+					else
+							-- (Nothing read, but the stream is not closed: read again a bit later.)
+						(create {EXECUTION_ENVIRONMENT}).sleep (5_000_000)
+					end
 					l_buffer := l_buffer.aliased_resized_area_with_default (0, Buffer_size)
 					p.read_output_to_special (l_buffer)
 				end
@@ -254,9 +251,14 @@ feature {NONE} -- Implementation
 					create l_buffer.make_filled (0, Buffer_size)
 					p.read_error_to_special (l_buffer)
 				until
-					l_buffer.count = 0 or p.has_error_stream_closed or p.has_error_stream_error
+					p.has_error_stream_closed or p.has_error_stream_error
 				loop
-					add_bytes (l_buffer, l_line, True)
+					if l_buffer.count > 0 then
+						add_bytes (l_buffer, l_line, True)
+					else
+							-- (Nothing read, but the stream is not closed: read again a bit later.)
+						(create {EXECUTION_ENVIRONMENT}).sleep (5_000_000)
+					end
 					l_buffer := l_buffer.aliased_resized_area_with_default (0, Buffer_size)
 					p.read_error_to_special (l_buffer)
 				end
@@ -321,57 +323,6 @@ feature {NONE} -- Implementation
 		rescue
 			retried := True
 			retry
-		end
-
-	program_path (a_command: STRING_32): detachable STRING_32
-			-- Path of the program `a_command': as is if it has a folder, otherwise found in the folders of PATH
-		local
-			l_env: EXECUTION_ENVIRONMENT
-			l_extensions: ARRAYED_LIST [STRING_32]
-			l_separator: CHARACTER_32
-			p: PATH
-		do
-			if a_command.has ('/') or a_command.has ('\') then
-				Result := a_command
-			elseif not a_command.is_empty then
-				create l_env
-				if {PLATFORM}.is_windows then
-					l_separator := ';'
-					create l_extensions.make (6)
-					l_extensions.extend ({STRING_32} "")
-					if attached l_env.item ("PATHEXT") as l_ext then
-						l_extensions.append (l_ext.as_lower.split (';'))
-					else
-						l_extensions.append (({STRING_32} ".com;.exe;.bat;.cmd").split (';'))
-					end
-				else
-					l_separator := ':'
-					create l_extensions.make (1)
-					l_extensions.extend ({STRING_32} "")
-				end
-				if attached l_env.item ("PATH") as l_path then
-					across l_path.split (l_separator) as d until Result /= Void loop
-						if not d.is_empty then
-							across l_extensions as e until Result /= Void loop
-								create p.make_from_string (d)
-								p := p.extended (a_command + e)
-								if is_program (p) then
-									Result := p.name
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-
-	is_program (p: PATH): BOOLEAN
-			-- Is `p' a file that can be run?
-		local
-			f: RAW_FILE
-		do
-			create f.make_with_path (p)
-			Result := f.exists and then not f.is_directory and then ({PLATFORM}.is_windows or else f.is_executable)
 		end
 
 invariant
