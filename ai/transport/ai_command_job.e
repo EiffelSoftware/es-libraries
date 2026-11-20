@@ -260,13 +260,14 @@ feature {NONE} -- Implementation
 		end
 
 	wait_for_end (p: BASE_PROCESS)
-			-- Wait for the end of `p' and of its output, then set `exit_code' (in a thread).
+			-- Wait for the end of the output of `p', then for its end, and set `exit_code' (in a thread).
 		local
 			retried: BOOLEAN
 			l_streams: INTEGER
 		do
 			if not retried then
-				p.wait_for_exit
+					-- (The end of the output first: waiting for the end of the program closes its pipes, and would lose
+					-- the output not read yet. A program leaving a child holding its output is stopped by its timeout.)
 				from
 					mutex.lock
 					l_streams := open_streams
@@ -274,12 +275,12 @@ feature {NONE} -- Implementation
 				until
 					l_streams <= 0
 				loop
-						-- (The last output, read after the end of the program.)
 					(create {EXECUTION_ENVIRONMENT}).sleep (10_000_000)
 					mutex.lock
 					l_streams := open_streams
 					mutex.unlock
 				end
+				p.wait_for_exit
 				exit_code := p.exit_code
 			end
 			mutex.lock

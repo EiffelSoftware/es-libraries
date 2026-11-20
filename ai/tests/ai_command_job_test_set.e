@@ -28,6 +28,23 @@ feature -- Tests
 			end
 		end
 
+	test_quick_program_output_kept
+			-- The output of a program ending at once is not lost (the end of the program closes its pipes).
+		local
+			j: AI_COMMAND_JOB
+			i: INTEGER
+		do
+			if not {PLATFORM}.is_windows then
+				from i := 1 until i > 30 loop
+					create j.make ("sh", <<"-c", "echo 42">>, Void, 10, 100)
+					j.start
+					wait (j, 500)
+					assert ("output " + i.out + " [" + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (j.output) + "]", j.is_finished and j.exit_code = 0 and j.output.same_string ({STRING_32} "42%N"))
+					i := i + 1
+				end
+			end
+		end
+
 	test_output_cut
 			-- The output is cut after `max_output' bytes.
 		local
