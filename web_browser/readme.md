@@ -24,6 +24,17 @@ Note: WebKitGTK uses the signal `SIGUSR1` for its garbage collector, and prints
 "Overriding existing handler for signal 10" at start-up. Set the environment variable
 `JSC_SIGNAL_FOR_GC` to use another signal.
 
+Windows
+-------
+
+The WebView2 Runtime is located through `WebView2Loader.dll` when it is found (next to the executable,
+or in the `PATH`), otherwise directly from the registry: no DLL needs to be distributed with the application.
+The data of the web view (cache, cookies, ...) is stored in `%LOCALAPPDATA%\Eiffel Software\WebView2\<executable name>`.
+
+The C part (`Clib/eif_webview2.c`) is compiled with `finish_freezing -library` in `Clib`.
+`spec/include/eif_webview2_api.h` is generated from the `WebView2.h` header of the WebView2 SDK
+(NuGet package `Microsoft.Web.WebView2`) by `Clib/generate_webview2_header.py`.
+
 Usage
 -----
 

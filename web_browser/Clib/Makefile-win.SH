@@ -4,7 +4,7 @@ OUTDIR= .
 INDIR= .
 CC = $cc
 OUTPUT_CMD = $output_cmd
-CFLAGS = -I"$rt_include" -I. -D_UNICODE -DUNICODE
+CFLAGS = -I"$rt_include" -I. -I..$(DIR)spec$(DIR)include -D_UNICODE -DUNICODE
 JCFLAGS = $(CFLAGS) $optimize $ccflags
 JMTCFLAGS = $(CFLAGS) $optimize $mtccflags 
 JILCFLAGS = $(CFLAGS) $optimize $mtccflags  -DEIF_IL_DLL
@@ -13,7 +13,7 @@ MV = $mv
 RM = $del
 MAKE = $make
 MKDIR = $mkdir
-OBJECTS = ole_ie.$obj
+OBJECTS = eif_webview2.$obj
 
 .c.$obj:
 	$(CC) -c $(JCFLAGS) $<
@@ -21,14 +21,14 @@ OBJECTS = ole_ie.$obj
 all:: $output_libraries
 	$(MAKE) clean
 
-standard:: ole_ie.lib
-mtstandard:: ole_ie.lib
+standard:: eif_webview2.lib
+mtstandard:: eif_webview2.lib
 
 clean:
 	$(RM) *.$obj
 	$(RM) *.lib
 
-ole_ie.lib: $(OBJECTS)
+eif_webview2.lib: $(OBJECTS)
 	$alib_line
 	$(MKDIR) ..$(DIR)spec$(DIR)$(ISE_C_COMPILER)$(DIR)$(ISE_PLATFORM)$(DIR)lib
 	$(MV) $@ ..$(DIR)spec$(DIR)$(ISE_C_COMPILER)$(DIR)$(ISE_PLATFORM)$(DIR)lib$(DIR)$@
