@@ -35,6 +35,32 @@
 #include "eif_webview2_api.h"
 
 /* -------------------------------------------------------------------------- */
+/* Trace, enabled by the environment variable EIF_WEBVIEW2_TRACE (to stderr and the debugger output). */
+
+#include <stdio.h>
+#include <stdarg.h>
+
+static void trace (const char *format, ...)
+{
+	static int is_enabled = -1;
+	char buffer [512];
+	va_list args;
+	if (is_enabled < 0) {
+		is_enabled = GetEnvironmentVariableA ("EIF_WEBVIEW2_TRACE", NULL, 0) > 0;
+	}
+	if (is_enabled) {
+		va_start (args, format);
+		_vsnprintf (buffer, sizeof (buffer) - 1, format, args);
+		va_end (args);
+		buffer [sizeof (buffer) - 1] = 0;
+		fprintf (stderr, "[webview2] %s\n", buffer);
+		fflush (stderr);
+		OutputDebugStringA (buffer);
+		OutputDebugStringA ("\n");
+	}
+}
+
+/* -------------------------------------------------------------------------- */
 /* Context */
 
 struct eif_webview2 {
@@ -62,10 +88,15 @@ static void context_release (eif_webview2 *ctx)
 static EIF_INTEGER notify (eif_webview2 *ctx, EIF_INTEGER kind, LPCWSTR text, EIF_INTEGER flag)
 	/* Notify the Eiffel object of the event `kind`. */
 {
+	EIF_INTEGER result;
 	if (ctx->is_destroyed || !ctx->eiffel_object || !ctx->dispatch) {
+		trace ("event %d ignored (destroyed)", (int) kind);
 		return 0;
 	}
-	return (ctx->dispatch) (eif_access (ctx->eiffel_object), kind, (EIF_POINTER) text, flag);
+	trace ("event %d, flag 0x%lx: calling Eiffel", (int) kind, (unsigned long) flag);
+	result = (ctx->dispatch) (eif_access (ctx->eiffel_object), kind, (EIF_POINTER) text, flag);
+	trace ("event %d: back from Eiffel", (int) kind);
+	return result;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -246,7 +277,7 @@ static void register_handler (eif_webview2 *ctx, void *handler, HRESULT (STDMETH
 	register_handler (ctx, new_handler (&vtbl, &iid, ctx), \
 		(HRESULT (STDMETHODCALLTYPE *) (ICoreWebView2 *, void *, EventRegistrationToken *)) (ctx)->webview->lpVtbl->method)
 
-static HRESULT STDMETHODCALLTYPE on_controller_created (ICoreWebView2CreateCoreWebView2ControllerCompletedHandler *This, HRESULT result, ICoreWebView2Controller *controller)
+static HRESULT controller_created (ICoreWebView2CreateCoreWebView2ControllerCompletedHandler *This, HRESULT result, ICoreWebView2Controller *controller)
 {
 	eif_webview2 *ctx = CTX (This);
 	ICoreWebView2Settings *settings = NULL;
@@ -282,6 +313,16 @@ static HRESULT STDMETHODCALLTYPE on_controller_created (ICoreWebView2CreateCoreW
 	return S_OK;
 }
 
+static HRESULT STDMETHODCALLTYPE on_controller_created (ICoreWebView2CreateCoreWebView2ControllerCompletedHandler *This, HRESULT result, ICoreWebView2Controller *controller)
+	/* Controller created; release the reference kept by `on_environment_created`. */
+{
+	HRESULT hr;
+	trace ("controller created: 0x%lx", (unsigned long) result);
+	hr = controller_created (This, result, controller);
+	handler_release ((eif_handler *) This);
+	return hr;
+}
+
 static const ICoreWebView2CreateCoreWebView2ControllerCompletedHandlerVtbl controller_created_vtbl = {
 	HANDLER_IUNKNOWN (ICoreWebView2CreateCoreWebView2ControllerCompletedHandler),
 	on_controller_created
@@ -289,7 +330,7 @@ static const ICoreWebView2CreateCoreWebView2ControllerCompletedHandlerVtbl contr
 
 /* Environment created. */
 
-static HRESULT STDMETHODCALLTYPE on_environment_created (ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *This, HRESULT result, ICoreWebView2Environment *environment)
+static HRESULT environment_created (ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *This, HRESULT result, ICoreWebView2Environment *environment)
 {
 	eif_webview2 *ctx = CTX (This);
 	ICoreWebView2CreateCoreWebView2ControllerCompletedHandler *handler;
@@ -307,12 +348,26 @@ static HRESULT STDMETHODCALLTYPE on_environment_created (ICoreWebView2CreateCore
 		notify (ctx, EIF_WEBVIEW2_READY, NULL, (EIF_INTEGER) E_OUTOFMEMORY);
 		return S_OK;
 	}
+		/* The reference of `handler` is kept until it is invoked (see `on_controller_created`). */
 	hr = environment->lpVtbl->CreateCoreWebView2Controller (environment, ctx->parent, handler);
-	handler->lpVtbl->Release (handler);
+	trace ("CreateCoreWebView2Controller: 0x%lx", (unsigned long) hr);
 	if (FAILED (hr)) {
+		handler->lpVtbl->Release (handler);
 		notify (ctx, EIF_WEBVIEW2_READY, NULL, (EIF_INTEGER) hr);
 	}
 	return S_OK;
+}
+
+static HRESULT STDMETHODCALLTYPE on_environment_created (ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *This, HRESULT result, ICoreWebView2Environment *environment)
+	/* Environment created; release the reference kept by `eif_webview2_new`.
+	   Keeping this reference until now is required with `CreateWebViewEnvironmentWithOptionsInternal`,
+	   which, unlike WebView2Loader.dll, does not keep its own reference to the handler. */
+{
+	HRESULT hr;
+	trace ("environment created: 0x%lx", (unsigned long) result);
+	hr = environment_created (This, result, environment);
+	handler_release ((eif_handler *) This);
+	return hr;
 }
 
 static const ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandlerVtbl environment_created_vtbl = {
@@ -400,6 +455,7 @@ static HRESULT create_environment (LPCWSTR user_data_folder, ICoreWebView2Create
 		EIF_CREATE_WEBVIEW2_ENVIRONMENT_WITH_OPTIONS create = (EIF_CREATE_WEBVIEW2_ENVIRONMENT_WITH_OPTIONS) (void (*) (void))
 			GetProcAddress (module, "CreateCoreWebView2EnvironmentWithOptions");
 		if (create) {
+			trace ("using WebView2Loader.dll");
 			return create (NULL, user_data_folder, NULL, handler);
 		}
 	}
@@ -409,6 +465,7 @@ static HRESULT create_environment (LPCWSTR user_data_folder, ICoreWebView2Create
 			EIF_CREATE_WEBVIEW_ENVIRONMENT_INTERNAL create = (EIF_CREATE_WEBVIEW_ENVIRONMENT_INTERNAL) (void (*) (void))
 				GetProcAddress (module, "CreateWebViewEnvironmentWithOptionsInternal");
 			if (create) {
+				trace ("using %ls", path);
 					/* Runtime type 0: installed (Evergreen) runtime. */
 				return create (TRUE, 0, user_data_folder, NULL, handler);
 			}
@@ -476,9 +533,11 @@ eif_webview2 *eif_webview2_new (EIF_POINTER parent, EIF_REFERENCE eiffel_object,
 		return NULL;
 	}
 	default_user_data_folder (folder, sizeof (folder) / sizeof (folder [0]));
+		/* The reference of `handler` is kept until it is invoked (see `on_environment_created`). */
 	hr = create_environment (folder [0] ? folder : NULL, handler);
-	handler->lpVtbl->Release (handler);
+	trace ("create environment: 0x%lx", (unsigned long) hr);
 	if (FAILED (hr)) {
+		handler->lpVtbl->Release (handler);
 		eif_webview2_destroy (ctx);
 		return NULL;
 	}

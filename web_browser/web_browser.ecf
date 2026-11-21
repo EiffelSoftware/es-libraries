@@ -18,6 +18,13 @@
 		<external_library location="$(ISE_LIBRARY)\library\web_browser\spec\$(ISE_C_COMPILER)\$(ISE_PLATFORM)\lib\eif_webview2.lib">
 			<condition>
 				<platform value="windows"/>
+				<concurrency value="none"/>
+			</condition>
+		</external_library>
+		<external_library location="$(ISE_LIBRARY)\library\web_browser\spec\$(ISE_C_COMPILER)\$(ISE_PLATFORM)\lib\mteif_webview2.lib">
+			<condition>
+				<platform value="windows"/>
+				<concurrency excluded_value="none"/>
 			</condition>
 		</external_library>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
