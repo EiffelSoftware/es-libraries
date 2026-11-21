@@ -1,5 +1,11 @@
 note
-	description: "Vision2 Web browser for Mac OS X."
+	description: "[
+			Eiffel Vision web browser. Cocoa implementation.
+			Not supported: `is_browser_usable` is False.
+			(EiffelStudio on macOS uses the GTK3 implementation of Vision2.)
+		]"
+	legal: "See notice at end of class."
+	status: "See notice at end of class."
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -7,7 +13,7 @@ class
 	EV_WEB_BROWSER_IMP
 
 inherit
-	EV_WEB_BROWSER_I
+	EV_UNAVAILABLE_WEB_BROWSER_I
 		redefine
 			interface
 		end
@@ -20,67 +26,13 @@ inherit
 create
 	make
 
-feature -- Query
-
-	is_browser_usable: BOOLEAN
-			-- Is current browser usable?
-		do
-			Result := False
-		end
-
-feature -- Command
-
-	load_uri (a_uri: READABLE_STRING_GENERAL)
-			-- <Precursor>
-		do
-			check implemented: False end
-		end
-
-	back
-			-- <Precursor>
-		do
-			check implemented: False end
-		end
-
-	forth
-			-- <Precursor>
-		do
-			check implemented: False end
-		end
-
-	home
-			-- <Precursor>
-		do
-			check implemented: False end
-		end
-
-	search
-			-- <Precursor>
-		do
-			check implemented: False end
-		end
-
-	refresh
-			-- <Precursor>
-		do
-			check implemented: False end
-		end
-
-	stop
-			-- <Precursor>
-		do
-			check implemented: False end
-		end
-
 feature {EV_ANY, EV_ANY_I} -- Implementation
 
 	interface: detachable EV_WEB_BROWSER note option: stable attribute end
 			-- <Precursor>
 
-invariant
-
 note
-	copyright:	"Copyright (c) 1984-2013, Eiffel Software and others"
+	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"
 	source: "[
 			Eiffel Software
@@ -90,4 +42,4 @@ note
 			Customer support http://support.eiffel.com
 		]"
 
-end -- class EV_WEB_BROWSER_IMP
+end
