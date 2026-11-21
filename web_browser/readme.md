@@ -35,6 +35,14 @@ The C part (`Clib/eif_webview2.c`) is compiled with `finish_freezing -library` i
 `spec/include/eif_webview2_api.h` is generated from the `WebView2.h` header of the WebView2 SDK
 (NuGet package `Microsoft.Web.WebView2`) by `Clib/generate_webview2_header.py`.
 
+macOS
+-----
+
+EiffelStudio on macOS uses the GTK3 implementation of Vision2. The WKWebView is placed over the
+GTK widget, in the native window (`NSView`) of the GTK window: this requires the Quartz backend of GDK
+(not X11). The Objective-C runtime and WebKit are used through the C API of the Objective-C runtime
+(`spec/include/eif_wkwebview.h`), so no Objective-C compiler and no link option are needed.
+
 Usage
 -----
 
