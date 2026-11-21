@@ -107,8 +107,10 @@ static EIF_INTEGER notify (eif_webview2 *ctx, EIF_INTEGER kind, LPCWSTR text, EI
 typedef struct eif_handler {
 	const void *lpVtbl;
 	LONG ref_count;
-	eif_webview2 *ctx;
+	eif_webview2 *ctx;		/* NULL once detached. */
 	const IID *iid;
+	const char *name;		/* For the trace. */
+	int is_persistent;		/* Never freed (see `new_creation_handler`). */
 } eif_handler;
 
 static HRESULT STDMETHODCALLTYPE handler_query_interface (eif_handler *This, REFIID riid, void **ppv)
@@ -127,17 +129,34 @@ static HRESULT STDMETHODCALLTYPE handler_query_interface (eif_handler *This, REF
 
 static ULONG STDMETHODCALLTYPE handler_add_ref (eif_handler *This)
 {
-	return (ULONG) InterlockedIncrement (&This->ref_count);
+	LONG n = InterlockedIncrement (&This->ref_count);
+	if (This->is_persistent) {
+		trace ("%s: AddRef -> %ld", This->name, (long) n);
+	}
+	return (ULONG) n;
 }
 
 static ULONG STDMETHODCALLTYPE handler_release (eif_handler *This)
 {
 	LONG n = InterlockedDecrement (&This->ref_count);
-	if (n == 0) {
-		context_release (This->ctx);
+	if (This->is_persistent) {
+		trace ("%s: Release -> %ld", This->name, (long) n);
+	} else if (n == 0) {
+		if (This->ctx) {
+			context_release (This->ctx);
+		}
 		free (This);
 	}
-	return (ULONG) n;
+	return (ULONG) (n < 0 ? 0 : n);
+}
+
+static void detach_handler (eif_handler *h)
+	/* Release the reference of `h` to its context. */
+{
+	if (h->ctx) {
+		context_release (h->ctx);
+		h->ctx = NULL;
+	}
 }
 
 static void *new_handler (const void *vtbl, const IID *iid, eif_webview2 *ctx)
@@ -149,7 +168,22 @@ static void *new_handler (const void *vtbl, const IID *iid, eif_webview2 *ctx)
 		h->ref_count = 1;
 		h->ctx = ctx;
 		h->iid = iid;
+		h->name = "handler";
 		context_add_ref (ctx);
+	}
+	return h;
+}
+
+static void *new_creation_handler (const void *vtbl, const IID *iid, eif_webview2 *ctx, const char *name)
+	/* New handler for the completion of an asynchronous creation, invoked once.
+	   It is never freed (whatever its reference count), and is detached from `ctx` once invoked:
+	   CreateWebViewEnvironmentWithOptionsInternal, used without WebView2Loader.dll,
+	   does not follow the usual reference counting rules for its handler. */
+{
+	eif_handler *h = (eif_handler *) new_handler (vtbl, iid, ctx);
+	if (h) {
+		h->name = name;
+		h->is_persistent = 1;
 	}
 	return h;
 }
@@ -267,8 +301,10 @@ static void register_handler (eif_webview2 *ctx, void *handler, HRESULT (STDMETH
 	/* Register `handler` with `add`, and release the reference of the creation. */
 {
 	EventRegistrationToken token;
+	HRESULT hr;
 	if (handler) {
-		add (ctx->webview, handler, &token);
+		hr = add (ctx->webview, handler, &token);
+		trace ("event handler registered: 0x%lx", (unsigned long) hr);
 		((IUnknown *) handler)->lpVtbl->Release ((IUnknown *) handler);
 	}
 }
@@ -294,10 +330,12 @@ static HRESULT controller_created (ICoreWebView2CreateCoreWebView2ControllerComp
 	}
 	controller->lpVtbl->AddRef (controller);
 	ctx->controller = controller;
+	trace ("get_CoreWebView2");
 	if (FAILED (controller->lpVtbl->get_CoreWebView2 (controller, &ctx->webview)) || !ctx->webview) {
 		notify (ctx, EIF_WEBVIEW2_READY, NULL, (EIF_INTEGER) E_FAIL);
 		return S_OK;
 	}
+	trace ("settings");
 	if (SUCCEEDED (ctx->webview->lpVtbl->get_Settings (ctx->webview, &settings)) && settings) {
 		settings->lpVtbl->put_IsWebMessageEnabled (settings, TRUE);
 		settings->lpVtbl->Release (settings);
@@ -308,18 +346,21 @@ static HRESULT controller_created (ICoreWebView2CreateCoreWebView2ControllerComp
 	REGISTER (ctx, title_changed_vtbl, EIF_IID_ICoreWebView2DocumentTitleChangedEventHandler, add_DocumentTitleChanged);
 	REGISTER (ctx, web_message_received_vtbl, EIF_IID_ICoreWebView2WebMessageReceivedEventHandler, add_WebMessageReceived);
 	REGISTER (ctx, new_window_requested_vtbl, EIF_IID_ICoreWebView2NewWindowRequestedEventHandler, add_NewWindowRequested);
+	trace ("put_IsVisible");
 	controller->lpVtbl->put_IsVisible (controller, TRUE);
 	notify (ctx, EIF_WEBVIEW2_READY, NULL, (EIF_INTEGER) S_OK);
 	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE on_controller_created (ICoreWebView2CreateCoreWebView2ControllerCompletedHandler *This, HRESULT result, ICoreWebView2Controller *controller)
-	/* Controller created; release the reference kept by `on_environment_created`. */
+	/* Controller created. */
 {
-	HRESULT hr;
+	HRESULT hr = S_OK;
 	trace ("controller created: 0x%lx", (unsigned long) result);
-	hr = controller_created (This, result, controller);
-	handler_release ((eif_handler *) This);
+	if (CTX (This)) {
+		hr = controller_created (This, result, controller);
+		detach_handler ((eif_handler *) This);
+	}
 	return hr;
 }
 
@@ -343,30 +384,29 @@ static HRESULT environment_created (ICoreWebView2CreateCoreWebView2EnvironmentCo
 		notify (ctx, EIF_WEBVIEW2_READY, NULL, (EIF_INTEGER) (FAILED (result) ? result : E_FAIL));
 		return S_OK;
 	}
-	handler = new_handler (&controller_created_vtbl, &EIF_IID_ICoreWebView2CreateCoreWebView2ControllerCompletedHandler, ctx);
+	handler = new_creation_handler (&controller_created_vtbl, &EIF_IID_ICoreWebView2CreateCoreWebView2ControllerCompletedHandler, ctx, "controller handler");
 	if (!handler) {
 		notify (ctx, EIF_WEBVIEW2_READY, NULL, (EIF_INTEGER) E_OUTOFMEMORY);
 		return S_OK;
 	}
-		/* The reference of `handler` is kept until it is invoked (see `on_controller_created`). */
 	hr = environment->lpVtbl->CreateCoreWebView2Controller (environment, ctx->parent, handler);
 	trace ("CreateCoreWebView2Controller: 0x%lx", (unsigned long) hr);
 	if (FAILED (hr)) {
-		handler->lpVtbl->Release (handler);
+		detach_handler ((eif_handler *) handler);
 		notify (ctx, EIF_WEBVIEW2_READY, NULL, (EIF_INTEGER) hr);
 	}
 	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE on_environment_created (ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *This, HRESULT result, ICoreWebView2Environment *environment)
-	/* Environment created; release the reference kept by `eif_webview2_new`.
-	   Keeping this reference until now is required with `CreateWebViewEnvironmentWithOptionsInternal`,
-	   which, unlike WebView2Loader.dll, does not keep its own reference to the handler. */
+	/* Environment created. */
 {
-	HRESULT hr;
+	HRESULT hr = S_OK;
 	trace ("environment created: 0x%lx", (unsigned long) result);
-	hr = environment_created (This, result, environment);
-	handler_release ((eif_handler *) This);
+	if (CTX (This)) {
+		hr = environment_created (This, result, environment);
+		detach_handler ((eif_handler *) This);
+	}
 	return hr;
 }
 
@@ -527,17 +567,16 @@ eif_webview2 *eif_webview2_new (EIF_POINTER parent, EIF_REFERENCE eiffel_object,
 	ctx->parent = (HWND) parent;
 	ctx->eiffel_object = eif_protect (eiffel_object);
 	ctx->dispatch = (EIF_WEBVIEW2_DISPATCH) dispatch;
-	handler = new_handler (&environment_created_vtbl, &EIF_IID_ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, ctx);
+	handler = new_creation_handler (&environment_created_vtbl, &EIF_IID_ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, ctx, "environment handler");
 	if (!handler) {
 		eif_webview2_destroy (ctx);
 		return NULL;
 	}
 	default_user_data_folder (folder, sizeof (folder) / sizeof (folder [0]));
-		/* The reference of `handler` is kept until it is invoked (see `on_environment_created`). */
 	hr = create_environment (folder [0] ? folder : NULL, handler);
 	trace ("create environment: 0x%lx", (unsigned long) hr);
 	if (FAILED (hr)) {
-		handler->lpVtbl->Release (handler);
+		detach_handler ((eif_handler *) handler);
 		eif_webview2_destroy (ctx);
 		return NULL;
 	}
@@ -607,6 +646,7 @@ void eif_webview2_navigate (eif_webview2 *ctx, EIF_POINTER uri)
 
 void eif_webview2_navigate_to_string (eif_webview2 *ctx, EIF_POINTER html)
 {
+	trace ("NavigateToString");
 	if (eif_webview2_is_ready (ctx)) {
 		ctx->webview->lpVtbl->NavigateToString (ctx->webview, (LPCWSTR) html);
 	}
@@ -614,6 +654,7 @@ void eif_webview2_navigate_to_string (eif_webview2 *ctx, EIF_POINTER html)
 
 void eif_webview2_execute_script (eif_webview2 *ctx, EIF_POINTER script)
 {
+	trace ("ExecuteScript");
 	if (eif_webview2_is_ready (ctx)) {
 		ctx->webview->lpVtbl->ExecuteScript (ctx->webview, (LPCWSTR) script, NULL);
 	}
@@ -621,6 +662,7 @@ void eif_webview2_execute_script (eif_webview2 *ctx, EIF_POINTER script)
 
 void eif_webview2_add_document_start_script (eif_webview2 *ctx, EIF_POINTER script)
 {
+	trace ("AddScriptToExecuteOnDocumentCreated");
 	if (eif_webview2_is_ready (ctx)) {
 		ctx->webview->lpVtbl->AddScriptToExecuteOnDocumentCreated (ctx->webview, (LPCWSTR) script, NULL);
 	}
