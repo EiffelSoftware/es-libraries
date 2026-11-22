@@ -332,6 +332,24 @@ feature -- Basic Operations
 			ignore_cursor_moves := False
 		end
 
+	prefix_selection_lines (a_prefix: READABLE_STRING_GENERAL)
+			-- Prepend `a_prefix' to all the lines included in the selection (or to the line of the cursor),
+			-- recorded in the undo history.
+		require
+			not_empty: not is_empty
+			a_prefix_not_empty: not a_prefix.is_empty
+		do
+			ignore_cursor_moves := True
+			if not has_selection then
+				set_selection_cursor (cursor)
+			end
+			symbol_selection (selection_start, selection_end, a_prefix)
+			if symboled_lines.count > 0 then
+				history.record_symbol (symboled_lines, a_prefix)
+			end
+			ignore_cursor_moves := False
+		end
+
 	uncomment_selection
 			-- Uncomment all lines included in the selection with the string `--'.
 		require
