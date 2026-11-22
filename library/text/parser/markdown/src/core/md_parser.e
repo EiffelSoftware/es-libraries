@@ -116,6 +116,8 @@ feature {NONE} -- Block parsing
 			l_fence: detachable STRING_8
 			l_code_info: detachable STRING_8
 			l_code_buf: detachable STRING_8
+			l_html_end: detachable STRING_8
+			l_html_ended: BOOLEAN
 			l_code_block_list_indent: INTEGER
 				-- Indentation to strip from code block lines when inside a list item (0 if not in list).
 			l_quote_buf: detachable STRING_8
@@ -210,13 +212,19 @@ feature {NONE} -- Block parsing
 						l_para := Void
 						list_stack.wipe_out
 						create l_code_buf.make_empty
+						l_html_end := html_block_end_marker (l_trim)
+						l_html_ended := False
 						from
 						until
-							k > n or else lines [k].is_whitespace
+							k > n or l_html_ended or else (l_html_end = Void and then lines [k].is_whitespace)
 						loop
 							l_line := lines [k]
 							l_code_buf.append (l_line)
 							l_code_buf.append ("%N")
+							if l_html_end /= Void and then l_line.as_lower.has_substring (l_html_end) then
+									-- (CommonMark types 1 to 5: the block ends with the line of its end marker.)
+								l_html_ended := True
+							end
 							k := k + 1
 						end
 						a_document.add_element (create {MD_RAW_HTML}.make (l_code_buf))
@@ -1087,6 +1095,39 @@ feature {NONE} -- Block detection
 						end
 					end
 					i := i + 1
+				end
+			end
+		end
+
+	html_block_end_marker (a_trimmed_line: READABLE_STRING_8): detachable STRING_8
+			-- End marker (in lower case) of the raw HTML block starting with `a_trimmed_line`, if the block
+			-- ends with the line containing it (CommonMark types 1 to 5), or Void if it ends before a blank line
+			-- (types 6 and 7).
+		local
+			l_lower: STRING_8
+		do
+			create l_lower.make_from_string (a_trimmed_line)
+			l_lower.to_lower
+			if l_lower.starts_with ("<!--") then
+				Result := "-->"
+			elseif l_lower.starts_with ("<?") then
+				Result := "?>"
+			elseif l_lower.starts_with ("<![cdata[") then
+				Result := "]]>"
+			elseif l_lower.count > 2 and then l_lower.starts_with ("<!") and then l_lower [3].is_alpha then
+				Result := ">"
+			else
+				across
+					<<"script", "pre", "style", "textarea">> as t
+				until
+					Result /= Void
+				loop
+					if
+						l_lower.starts_with ("<" + t) and then
+						(l_lower.count = t.count + 1 or else not l_lower [t.count + 2].is_alpha_numeric)
+					then
+						Result := "</" + t + ">"
+					end
 				end
 			end
 		end
