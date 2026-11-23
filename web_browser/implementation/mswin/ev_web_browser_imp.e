@@ -536,7 +536,7 @@ feature {NONE} -- Externals
 
 	c_webview2_new (a_parent: POINTER; a_object: ANY; a_dispatch: POINTER): POINTER
 		external
-			"C signature (EIF_POINTER, EIF_REFERENCE, EIF_POINTER): eif_webview2 * use %"eif_webview2.h%""
+			"C signature (EIF_POINTER, EIF_OBJECT, EIF_POINTER): eif_webview2 * use %"eif_webview2.h%""
 		alias
 			"eif_webview2_new"
 		end

@@ -342,7 +342,7 @@ feature {NONE} -- Externals
 
 	c_new (a_object: ANY; a_dispatch: POINTER): POINTER
 		external
-			"C signature (EIF_REFERENCE, EIF_POINTER): EIF_POINTER use %"eif_wkwebview.h%""
+			"C signature (EIF_OBJECT, EIF_POINTER): EIF_POINTER use %"eif_wkwebview.h%""
 		alias
 			"eif_wkwebview_new"
 		end

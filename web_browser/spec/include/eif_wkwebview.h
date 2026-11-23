@@ -283,7 +283,7 @@ static EIF_BOOLEAN eif_wkwebview_is_available (void)
 	return EIF_TEST (display && strcmp (G_OBJECT_TYPE_NAME (display), "GdkQuartzDisplay") == 0 && eif_objc_load ());
 }
 
-static eif_wkwebview *eif_wkwebview_new (EIF_REFERENCE eiffel_object, EIF_POINTER dispatch)
+static eif_wkwebview *eif_wkwebview_new (EIF_OBJECT eiffel_object, EIF_POINTER dispatch)
 {
 	eif_wkwebview *ctx;
 	eif_id configuration;
@@ -310,7 +310,7 @@ static eif_wkwebview *eif_wkwebview_new (EIF_REFERENCE eiffel_object, EIF_POINTE
 	eif_msg_id (ctx->webview, "setNavigationDelegate:", ctx->delegate);
 	eif_msg_bool (ctx->webview, "setHidden:", 1);
 	eif_objc.pool_pop (pool);
-	ctx->eiffel_object = eif_protect (eiffel_object);
+	ctx->eiffel_object = eif_adopt (eiffel_object);
 	ctx->dispatch = (EIF_WKWEBVIEW_DISPATCH) dispatch;
 	return ctx;
 }

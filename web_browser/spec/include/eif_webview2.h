@@ -33,7 +33,7 @@ typedef struct eif_webview2 eif_webview2;
 	/* Eiffel routine receiving the events: (Current, kind, text (wide string, or NULL), flag): result. */
 typedef EIF_INTEGER (*EIF_WEBVIEW2_DISPATCH) (EIF_REFERENCE, EIF_INTEGER, EIF_POINTER, EIF_INTEGER);
 
-extern eif_webview2 *eif_webview2_new (EIF_POINTER parent, EIF_REFERENCE eiffel_object, EIF_POINTER dispatch);
+extern eif_webview2 *eif_webview2_new (EIF_POINTER parent, EIF_OBJECT eiffel_object, EIF_POINTER dispatch);
 extern void eif_webview2_destroy (eif_webview2 *ctx);
 extern EIF_BOOLEAN eif_webview2_is_ready (eif_webview2 *ctx);
 extern void eif_webview2_set_bounds (eif_webview2 *ctx, EIF_INTEGER width, EIF_INTEGER height);

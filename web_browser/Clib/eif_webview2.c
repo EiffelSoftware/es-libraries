@@ -24,6 +24,15 @@
 #ifndef COBJMACROS
 #define COBJMACROS
 #endif
+	/* WebView2 requires Windows 7 or later (the C compiler options of EiffelStudio target older versions). */
+#if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0601
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0601
+#endif
+#if !defined(WINVER) || WINVER < 0x0601
+#undef WINVER
+#define WINVER 0x0601
+#endif
 
 #include <windows.h>
 #include <objbase.h>
@@ -547,7 +556,7 @@ static void default_user_data_folder (wchar_t *folder, DWORD size)
 /* -------------------------------------------------------------------------- */
 /* API */
 
-eif_webview2 *eif_webview2_new (EIF_POINTER parent, EIF_REFERENCE eiffel_object, EIF_POINTER dispatch)
+eif_webview2 *eif_webview2_new (EIF_POINTER parent, EIF_OBJECT eiffel_object, EIF_POINTER dispatch)
 {
 	eif_webview2 *ctx;
 	ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler *handler;
@@ -565,7 +574,7 @@ eif_webview2 *eif_webview2_new (EIF_POINTER parent, EIF_REFERENCE eiffel_object,
 	}
 	ctx->ref_count = 1;
 	ctx->parent = (HWND) parent;
-	ctx->eiffel_object = eif_protect (eiffel_object);
+	ctx->eiffel_object = eif_adopt (eiffel_object);
 	ctx->dispatch = (EIF_WEBVIEW2_DISPATCH) dispatch;
 	handler = new_creation_handler (&environment_created_vtbl, &EIF_IID_ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, ctx, "environment handler");
 	if (!handler) {
