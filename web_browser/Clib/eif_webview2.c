@@ -598,6 +598,7 @@ void eif_webview2_destroy (eif_webview2 *ctx)
 		return;
 	}
 	ctx->is_destroyed = 1;
+	trace ("destroy");
 	if (ctx->webview) {
 		ctx->webview->lpVtbl->Release (ctx->webview);
 		ctx->webview = NULL;

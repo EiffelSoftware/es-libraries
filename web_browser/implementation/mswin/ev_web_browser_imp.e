@@ -87,6 +87,8 @@ inherit
 			show,
 			hide,
 			default_process_message
+		redefine
+			on_destroy
 		end
 
 	WEL_CS_CONSTANTS
@@ -102,6 +104,8 @@ feature {NONE} -- Initialization
 
 	make
 			-- <Precursor>
+		local
+			l_action: PROCEDURE
 		do
 			create pending_operations.make (4)
 			pending_zoom_level := 1.0
@@ -114,6 +118,9 @@ feature {NONE} -- Initialization
 				has_creation_failed := True
 			else
 				add_document_start_script (bridge_script)
+				l_action := agent close_webview
+				application_destroy_action := l_action
+				application_imp.destroy_actions.extend (l_action)
 			end
 		end
 
@@ -356,13 +363,47 @@ feature -- Removal
 	destroy
 			-- <Precursor>
 		do
+			close_webview
+			Precursor {EV_PRIMITIVE_IMP}
+		end
+
+feature {NONE} -- Removal
+
+	close_webview
+			-- Close the web view, if not yet closed: `is_browser_usable` becomes False.
+			-- Called when `Current` or its window is destroyed, and when the application ends
+			-- (`{EV_APPLICATION}.destroy` does not destroy the windows: without this, WebView2
+			-- would still have windows when the process exits).
+		do
 			if not webview.is_default_pointer then
 				c_webview2_destroy (webview)
 				webview := default_pointer
 			end
+			is_ready := False
+			has_creation_failed := True
 			pending_operations.wipe_out
-			Precursor {EV_PRIMITIVE_IMP}
+			if attached application_destroy_action as l_action then
+				application_destroy_action := Void
+				if not application_imp.is_destroyed then
+						-- Not called by the application destroy actions.
+					application_imp.destroy_actions.prune_all (l_action)
+				end
+			end
+		ensure
+			closed: webview.is_default_pointer
+			not_usable: not is_browser_usable
 		end
+
+	on_destroy
+			-- <Precursor>
+			-- The window of `Current` is destroyed (for instance with its parent window).
+		do
+			close_webview
+			Precursor {WEL_WINDOW}
+		end
+
+	application_destroy_action: detachable PROCEDURE
+			-- Action of `{EV_APPLICATION}.destroy_actions` closing the web view.
 
 feature {EV_ANY, EV_ANY_I} -- Implementation
 
