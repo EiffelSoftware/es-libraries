@@ -66,11 +66,20 @@ feature -- Status report
 	poll_interval_ms: INTEGER
 			-- Input poll timeout in milliseconds
 
+	max_osc_size: INTEGER
+			-- Most characters of an OSC 52 reply's data kept (`set_max_osc_size`); also the cap
+			-- of a clipboard read by the driver ({CONSOLE_DRIVER}.read_clipboard_text, P2b K4)
+		do
+			Result := parser.max_osc_size
+		ensure
+			positive: Result > 0
+		end
+
 feature -- Duplication
 
 	renewed: EVENT_THREAD
 			-- A new thread, not yet launched, with the same queue, driver and settings
-			-- (poll interval, paste timeout, paste size). A THREAD object runs only once:
+			-- (poll interval, paste timeout, paste size, OSC size). A THREAD object runs only once:
 			-- use this to read input again after Current has terminated.
 			-- Its parser starts empty: a sequence cut off by the end of Current is dropped.
 		do
@@ -78,6 +87,7 @@ feature -- Duplication
 			Result.set_poll_interval (poll_interval_ms)
 			Result.set_paste_timeout (parser.paste_timeout_ms)
 			Result.set_max_paste_size (parser.max_paste_size)
+			Result.set_max_osc_size (parser.max_osc_size)
 		ensure
 			fresh: Result /= Current and Result.is_launchable and not Result.should_stop
 			same_queue: Result.queue = queue
@@ -127,6 +137,17 @@ feature -- Element change
 			parser.set_max_paste_size (a_size)
 		ensure
 			size_set: parser.max_paste_size = a_size
+		end
+
+	set_max_osc_size (a_size: INTEGER)
+			-- Keep at most `a_size` characters of an OSC 52 clipboard reply's data; a longer
+			-- reply gives a CLIPBOARD_EVENT with `Status_too_large`. Call before `launch`.
+		require
+			positive_size: a_size > 0
+		do
+			parser.set_max_osc_size (a_size)
+		ensure
+			size_set: parser.max_osc_size = a_size
 		end
 
 feature -- Basic operations

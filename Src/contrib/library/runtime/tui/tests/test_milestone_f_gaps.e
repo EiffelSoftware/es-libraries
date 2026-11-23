@@ -86,7 +86,8 @@ feature -- Table
 feature -- BarChart
 
 	test_barchart_vertical_groups_and_group_labels
-			-- Two groups (group gap 2): bars, centred values, labels and centred group labels.
+			-- Two groups (group gap 2): bars, values centred on the bars' bottom row (Ratatui), labels
+			-- and centred group labels. "a" is 4 of 8: 12 of 24 eighths, a full cell and a half.
 		local
 			l_buf: BUFFER
 			l_chart: TUI_BARCHART
@@ -102,8 +103,8 @@ feature -- BarChart
 			l_chart.render (l_buf.area, l_buf)
 			assert_buffer_lines ("grouped vertical chart", l_buf, <<
 				{STRING_32} "    %/0x2588/%/0x2588/%/0x2588/  %/0x2588/%/0x2588/%/0x2588/",
-				{STRING_32} "%/0x2588/%/0x2588/%/0x2588/ %/0x2588/%/0x2588/%/0x2588/  %/0x2588/%/0x2588/%/0x2588/",
-				" 4   8    8 ",
+				{STRING_32} "%/0x2584/%/0x2584/%/0x2584/ %/0x2588/%/0x2588/%/0x2588/  %/0x2588/%/0x2588/%/0x2588/",
+				{STRING_32} "%/0x2588/4%/0x2588/ %/0x2588/8%/0x2588/  %/0x2588/8%/0x2588/",
 				" a   b    c ",
 				"  G1     G2 "
 			>>)
@@ -132,7 +133,7 @@ feature -- BarChart
 		end
 
 	test_barchart_hides_values_wider_than_the_bar
-			-- 1234 does not fit a 3-wide bar: the value row stays empty instead of showing "123".
+			-- 1234 does not fit a 3-wide bar: the bar's bottom row shows no value instead of "123".
 		local
 			l_buf: BUFFER
 			l_chart: TUI_BARCHART
@@ -140,7 +141,7 @@ feature -- BarChart
 			create l_chart.make_with_data (<<create {BAR_ITEM}.make ("x", 1234)>>)
 			create l_buf.make (3, 3)
 			l_chart.render (l_buf.area, l_buf)
-			assert_buffer_lines ("value hidden", l_buf, <<{STRING_32} "%/0x2588/%/0x2588/%/0x2588/", "   ", " x ">>)
+			assert_buffer_lines ("value hidden", l_buf, <<{STRING_32} "%/0x2588/%/0x2588/%/0x2588/", {STRING_32} "%/0x2588/%/0x2588/%/0x2588/", " x ">>)
 		end
 
 feature -- Canvas

@@ -271,10 +271,12 @@ feature -- Test routines
 				(ev_alt.code.is_char and then ev_alt.code.character = 'a' and ev_alt.modifiers.is_shift))
 			l_parser.wipe_out
 
-			-- Flags query reply (CSI ? flags u) is not a key
+			-- Flags query reply (CSI ? flags u) is not a key: since P2 T4 it is a
+			-- KEYBOARD_FLAGS_EVENT (TEST_KEYBOARD_QUERY)
 			l_parser.parse_code (27)
 			l_parser.parse_string ("[?3u")
-			assert ("flags reply is not a key", l_parser.events.is_empty)
+			assert ("flags reply is not a key", l_parser.events.count = 1 and then
+				(not l_parser.events.first.is_key and attached {KEYBOARD_FLAGS_EVENT} l_parser.events.first as ev_flags and then ev_flags.flags = 3))
 		end
 
 	test_tilde_function_keys

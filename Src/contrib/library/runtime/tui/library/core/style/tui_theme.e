@@ -28,10 +28,12 @@ create
 	make_custom
 
 feature -- Predefined Theme Instances
+		-- Not `once`: the setters are exported, so a shared preset could be changed for
+		-- everyone (review/p2_terminal_widgets_plan.md, B1)
 
 	dark: TUI_THEME
-			-- Modern dark terminal theme
-		once
+			-- Modern dark terminal theme: a new theme on each call, so changing it changes no other caller's
+		do
 			create Result.make_dark
 		ensure
 			instance_free: class
@@ -39,8 +41,8 @@ feature -- Predefined Theme Instances
 		end
 
 	light: TUI_THEME
-			-- Clean light terminal theme
-		once
+			-- Clean light terminal theme: a new theme on each call, so changing it changes no other caller's
+		do
 			create Result.make_light
 		ensure
 			instance_free: class
@@ -48,8 +50,8 @@ feature -- Predefined Theme Instances
 		end
 
 	nord: TUI_THEME
-			-- Nord-inspired terminal theme
-		once
+			-- Nord-inspired terminal theme: a new theme on each call, so changing it changes no other caller's
+		do
 			create Result.make_nord
 		ensure
 			instance_free: class
@@ -57,8 +59,8 @@ feature -- Predefined Theme Instances
 		end
 
 	dracula: TUI_THEME
-			-- Dracula-inspired terminal theme
-		once
+			-- Dracula-inspired terminal theme: a new theme on each call, so changing it changes no other caller's
+		do
 			create Result.make_dracula
 		ensure
 			instance_free: class
@@ -103,8 +105,10 @@ feature {NONE} -- Initialization
 			create info.make_fg ({COLOR}.cyan)
 			highlight := (create {STYLE}.make_with_colors ({COLOR}.white, {COLOR}.blue)).with_bold
 			selection := (create {STYLE}.make_with_colors ({COLOR}.black, {COLOR}.light_cyan)).with_bold
-			create muted.make_fg ({COLOR}.gray)
-			create border.make_fg ({COLOR}.gray)
+				-- Not `gray`: in EiffelTUI `gray` is `white` (ANSI 7, Ratatui's `Gray`), the
+				-- background, so muted text and borders would not show
+			create muted.make_fg ({COLOR}.dark_gray)
+			create border.make_fg ({COLOR}.dark_gray)
 			title := (create {STYLE}.make_fg ({COLOR}.blue)).with_bold
 			create text.make_fg ({COLOR}.black)
 		end

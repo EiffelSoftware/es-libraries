@@ -6,3 +6,4 @@ EIFGENs/
 *.ilk
 *.rc
 docker/_build/
+.newflux/*

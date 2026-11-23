@@ -473,8 +473,7 @@ feature -- Rendering
 			-- Columns reserved for the highlight symbol: its width with `Always`, and with
 			-- `When_selected` while something is selected; 0 with `Never` (Ratatui HighlightSpacing).
 		do
-			if highlight_spacing = {HIGHLIGHT_SPACING}.always
-				or else (highlight_spacing = {HIGHLIGHT_SPACING}.when_selected and a_state.has_selection) then
+			if {HIGHLIGHT_SPACING}.should_add (highlight_spacing, a_state.has_selection) then
 				Result := {UNICODE_WIDTH}.string_width (highlight_symbol).to_integer_32
 			end
 		ensure

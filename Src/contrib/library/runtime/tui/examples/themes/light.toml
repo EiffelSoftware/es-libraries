@@ -1,0 +1,44 @@
+[base]
+fg = "Black"
+bg = "Gray"
+
+[primary]
+fg = "Blue"
+
+[secondary]
+fg = "DarkGray"
+
+[success]
+fg = "Green"
+
+[warning]
+fg = "Yellow"
+
+[error]
+fg = "Red"
+
+[info]
+fg = "Cyan"
+
+[highlight]
+fg = "Gray"
+bg = "Blue"
+modifiers = ["bold"]
+
+[selection]
+fg = "Black"
+bg = "LightCyan"
+modifiers = ["bold"]
+
+[muted]
+fg = "DarkGray"
+
+[border]
+fg = "DarkGray"
+
+[title]
+fg = "Blue"
+modifiers = ["bold"]
+
+[text]
+fg = "Black"

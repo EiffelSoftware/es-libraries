@@ -128,25 +128,25 @@ feature -- Text Hierarchy as Widgets Tests
 feature -- Symbols and Themes Tests
 
 	test_symbols_and_themes
-			-- Verify named symbol sets and TUI_THEME palette presets.
+			-- Verify named symbol sets (expanded classes of class features, called on the
+			-- class) and TUI_THEME palette presets.
 		local
-			l_sym_bar: SYMBOLS_BAR
-			l_sym_block: SYMBOLS_BLOCK
-			l_sym_marker: SYMBOLS_MARKER
 			l_theme: TUI_THEME
 		do
 			-- Check vertical fractional bars
-			assert ("bar full", l_sym_bar.vertical_full = '%/0x2588/')
-			assert ("bar index 1", l_sym_bar.vertical_bar (1) = '%/0x2581/')
-			assert ("bar index 8", l_sym_bar.vertical_bar (8) = '%/0x2588/')
+			assert ("bar full", {SYMBOLS_BAR}.vertical_full = '%/0x2588/')
+			assert ("bar index 1", {SYMBOLS_BAR}.vertical_bar (1) = '%/0x2581/')
+			assert ("bar index 8", {SYMBOLS_BAR}.vertical_bar (8) = '%/0x2588/')
+			assert ("bar ratio half", {SYMBOLS_BAR}.vertical_bar_for_ratio (0.5) = '%/0x2584/')
+			assert ("horizontal ratio full", {SYMBOLS_BAR}.horizontal_bar_for_ratio (1.0) = '%/0x2588/')
 
 			-- Check block symbols
-			assert ("half block upper", l_sym_block.upper_half = '%/0x2580/')
-			assert ("half block lower", l_sym_block.lower_half = '%/0x2584/')
+			assert ("half block upper", {SYMBOLS_BLOCK}.upper_half = '%/0x2580/')
+			assert ("half block lower", {SYMBOLS_BLOCK}.lower_half = '%/0x2584/')
 
 			-- Check markers
-			assert ("marker dot", l_sym_marker.dot = '%/0x2022/')
-			assert ("marker check", l_sym_marker.check_mark = '%/0x2714/')
+			assert ("marker dot", {SYMBOLS_MARKER}.dot = '%/0x2022/')
+			assert ("marker check", {SYMBOLS_MARKER}.check_mark = '%/0x2714/')
 
 			-- Check themes
 			l_theme := {TUI_THEME}.nord

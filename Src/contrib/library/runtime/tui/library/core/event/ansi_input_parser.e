@@ -10,6 +10,21 @@ note
 		and most terminals do. So no byte sequence other than 1B decodes to ESC.
 		Pasted text is collected in a buffer of fewer than `max_paste_size` characters: a longer
 		paste is delivered as several PASTE_EVENTs (see {PASTE_EVENT}.is_continued).
+		OSC replies (P2b K2): `ESC ] <digits> ;` starts an operating system command, which
+		ends on BEL or on `ESC \` (ST; the 8-bit ST 9C is not used, it is a UTF-8 continuation
+		byte). The clipboard reply `52 ; <selection> ; <base64>` becomes a CLIPBOARD_EVENT;
+		every other OSC (colour reports, hyperlink echoes, ...) is dropped without an event.
+		No byte of an OSC becomes a key. Until the `;` after the number, the sequence may
+		still be Alt+`]` followed by typed keys: a character that is not a digit (or a `;`
+		right after `ESC ]`), or the lone-ESC timeout (`flush_escape`), emits Alt+`]` and
+		processes the collected digits and that character again as keys. Accepted risk: a
+		person who types `52;` after Alt+`]` faster than the escape timeout starts an OSC.
+		Inside an OSC, an ESC not followed by `\` ends it without an event and starts a new
+		sequence, and CAN (18) or SUB (1A) ends it without an event and is then a key
+		(Ctrl+X, Ctrl+Z), so that a cut-off reply does not swallow what follows. An OSC whose
+		end has not arrived after `paste_timeout_ms` of silence is dropped (`notify_idle`).
+		The OSC 52 data kept is at most `max_osc_size` characters: a longer reply is followed
+		to its end and gives `Status_too_large`. Inside a bracketed paste, `ESC ]` is text.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -35,11 +50,15 @@ feature {NONE} -- Initialization
 			is_in_paste := False
 			paste_timeout_ms := Default_paste_timeout_ms
 			max_paste_size := Default_max_paste_size
+			max_osc_size := Default_max_paste_size
+			create osc_buffer.make (Initial_osc_capacity)
+			osc_selection := Default_selection
 		ensure
 			state_ground: state = State_ground
 			events_empty: events.is_empty
 			default_paste_timeout: paste_timeout_ms = Default_paste_timeout_ms
 			default_max_paste_size: max_paste_size = Default_max_paste_size
+			default_max_osc_size: max_osc_size = Default_max_paste_size
 		end
 
 feature -- Access
@@ -68,7 +87,27 @@ feature -- Access
 			-- PASTE_EVENT with `is_continued` set, and collecting starts again in a new buffer
 
 	Default_max_paste_size: INTEGER = 1_048_576
-			-- Default `max_paste_size` (4 MB of STRING_32)
+			-- Default `max_paste_size` (4 MB of STRING_32), and of `max_osc_size`
+
+	max_osc_size: INTEGER
+			-- Most characters of OSC 52 data (the base64 text) kept for one reply: a longer
+			-- reply is followed to its end and gives a CLIPBOARD_EVENT with `Status_too_large`
+
+	is_in_osc: BOOLEAN
+			-- Is an OSC (`ESC ] <digits> ;` seen) waiting for its end, BEL or `ESC \`?
+		do
+			Result := state = State_osc or state = State_osc_escape
+		ensure
+			not_between_sequences: Result implies not is_between_sequences
+		end
+
+	osc_data_count: INTEGER
+			-- Number of characters of OSC 52 data kept so far for the reply being read
+		do
+			Result := osc_buffer.count
+		ensure
+			bounded: Result <= max_osc_size
+		end
 
 feature -- Settings
 
@@ -91,6 +130,17 @@ feature -- Settings
 			max_paste_size := a_size
 		ensure
 			set: max_paste_size = a_size
+		end
+
+	set_max_osc_size (a_size: INTEGER)
+			-- Set `max_osc_size` to `a_size`.
+		require
+			positive_size: a_size > 0
+			not_in_osc: not is_in_osc
+		do
+			max_osc_size := a_size
+		ensure
+			set: max_osc_size = a_size
 		end
 
 feature -- Operations
@@ -168,7 +218,8 @@ feature -- Operations
 
 	flush_escape
 			-- Flush pending Escape if timeout elapsed without subsequent sequence bytes, and
-			-- replace an unfinished UTF-8 sequence by U+FFFD.
+			-- replace an unfinished UTF-8 sequence by U+FFFD. `ESC ]` with digits and no `;`
+			-- yet becomes Alt+`]` and the digits as keys; a committed OSC is kept.
 			-- Inside a bracketed paste nothing is flushed: a pending sequence is either the
 			-- paste end marker cut by a pause in the input or literal pasted text (a character
 			-- split by the pause, for UTF-8), and both are completed by the bytes still to come.
@@ -183,18 +234,32 @@ feature -- Operations
 				elseif state = State_csi or state = State_csi_param or state = State_ss3 or state = State_sgr_mouse then
 					state := State_ground
 					param_buffer.wipe_out
+				elseif state = State_osc_number then
+					-- `ESC ]` and digits without their `;`: Alt+`]` and typed digits
+					end_osc_number_as_keys
 				end
+				-- A committed OSC (`is_in_osc`) waits for its end: the bytes of a reply may come
+				-- in several reads. `notify_idle` drops it after `paste_timeout_ms`.
 			end
+		ensure
+			osc_kept: old is_in_osc implies is_in_osc
 		end
 
 	notify_idle (a_idle_ms: INTEGER)
 			-- No input has arrived for `a_idle_ms` milliseconds: flush a pending lone ESC, and
 			-- end a bracketed paste whose end marker has not arrived within `paste_timeout_ms`,
 			-- delivering the text collected so far (an unfinished escape sequence is dropped, an
-			-- unfinished UTF-8 sequence becomes U+FFFD).
+			-- unfinished UTF-8 sequence becomes U+FFFD). An OSC whose end has not arrived within
+			-- `paste_timeout_ms` is dropped without an event.
 		require
 			non_negative_idle: a_idle_ms >= 0
 		do
+			if is_in_osc and a_idle_ms >= paste_timeout_ms then
+				-- A reply cut off: drop it, with a UTF-8 character it left unfinished, so
+				-- that what is typed next is read from the ground state
+				utf8_expected_bytes := 0
+				drop_osc
+			end
 			if is_in_paste and a_idle_ms >= paste_timeout_ms then
 				if utf8_expected_bytes > 0 and state = State_ground then
 					replace_utf_8_subpart
@@ -208,6 +273,7 @@ feature -- Operations
 			flush_escape
 		ensure
 			paste_ended: (old is_in_paste and a_idle_ms >= paste_timeout_ms) implies not is_in_paste
+			osc_dropped: a_idle_ms >= paste_timeout_ms implies not is_in_osc
 		end
 
 	wipe_out
@@ -228,6 +294,9 @@ feature -- Operations
 			param_buffer.wipe_out
 			utf8_codepoint := 0
 			utf8_expected_bytes := 0
+			osc_buffer.wipe_out
+			osc_is_clipboard_reply := False
+			osc_is_too_large := False
 			events.wipe_out
 		ensure
 			between_sequences: is_between_sequences
@@ -256,6 +325,12 @@ feature {NONE} -- State Processors
 					process_ss3 (a_code)
 				when State_sgr_mouse then
 					process_sgr_mouse (a_code)
+				when State_osc_number then
+					process_osc_number (a_code)
+				when State_osc then
+					process_osc (a_code)
+				when State_osc_escape then
+					process_osc_escape (a_code)
 				end
 			end
 		end
@@ -320,6 +395,10 @@ feature {NONE} -- State Processors
 			elseif a_code = 27 then
 				-- ESC ESC: the first one is a plain Escape, the second may start a sequence
 				events.extend (create {KEY_EVENT}.make_special ({KEY_CODE}.escape))
+			elseif a_code = 93 then
+				-- ']': an OSC reply if digits and ';' follow, otherwise Alt+']'
+				param_buffer.wipe_out
+				state := State_osc_number
 			else
 				-- ESC followed by a character is how terminals encode Alt+character
 				state := State_ground
@@ -361,6 +440,69 @@ feature {NONE} -- State Processors
 			else
 				dispatch_csi_command (a_code, param_buffer)
 				state := State_ground
+			end
+		end
+
+	process_osc_number (a_code: NATURAL_32)
+			-- Process a character after `ESC ]` and the digits collected in `param_buffer`:
+			-- a digit continues the number, `;` after at least one digit commits to an OSC,
+			-- anything else makes it Alt+`]` and typed keys, then is processed again.
+		require
+			outside_paste: not is_in_paste
+		do
+			if a_code >= 48 and a_code <= 57 and param_buffer.count < Max_param_count then
+				param_buffer.append_character (a_code.to_character_32)
+			elseif a_code = 59 and not param_buffer.is_empty then
+				begin_osc
+			else
+				end_osc_number_as_keys
+				process_byte (a_code)
+			end
+		end
+
+	process_osc (a_code: NATURAL_32)
+			-- Process a character of a committed OSC.
+		require
+			outside_paste: not is_in_paste
+		do
+			if a_code = 7 then
+				-- BEL ends it
+				finish_osc
+			elseif a_code = 27 then
+				-- Maybe the start of ST (`ESC \`)
+				state := State_osc_escape
+			elseif a_code = 24 or a_code = 26 then
+				-- CAN or SUB cancels it (ECMA-48). No terminal puts them in a reply, so they
+				-- were typed: a key
+				drop_osc
+				process_byte (a_code)
+			elseif osc_is_clipboard_reply then
+				if osc_field = Field_selection then
+					if a_code = 59 then
+						osc_field := Field_data
+					elseif not osc_is_selection_seen then
+						osc_selection := a_code.to_character_32
+						osc_is_selection_seen := True
+					end
+				else
+					append_osc_data (a_code)
+				end
+			end
+			-- Characters of other OSCs are dropped as they come
+		end
+
+	process_osc_escape (a_code: NATURAL_32)
+			-- Process the character after an ESC inside a committed OSC: `\` ends the OSC;
+			-- anything else drops it and continues as the character after a new ESC.
+		require
+			outside_paste: not is_in_paste
+		do
+			if a_code = 92 then
+				finish_osc
+			else
+				drop_osc
+				state := State_escape
+				process_escape (a_code)
 			end
 		end
 
@@ -439,9 +581,15 @@ feature {NONE} -- State Processors
 						l_mod.set_control (True)
 					end
 
-					if a_code = 109 then
+					if (l_btn & 32) /= 0 and (l_btn & 64) = 0 and (l_btn & 3) = 3 then
+						-- Motion with no button (mode 1003): crossterm's `Moved`, also with a
+						-- final `m` (crossterm turns only a press into a release). The button
+						-- is `Button_none` (the low bits, 3).
+						l_kind := {MOUSE_EVENT}.kind_move
+					elseif a_code = 109 then
 						l_kind := {MOUSE_EVENT}.kind_up
 					elseif (l_btn & 32) /= 0 then
+						-- Motion with a button held (modes 1002 and 1003)
 						l_kind := {MOUSE_EVENT}.kind_drag
 					elseif (l_btn & 64) /= 0 then
 						inspect l_btn & 3
@@ -517,11 +665,47 @@ feature {NONE} -- State Processors
 				events.extend (create {CURSOR_POSITION_EVENT}.make (
 					(l_parts.i_th (1).to_integer - 1).max (0).min (65535).to_natural_16,
 					(l_parts.i_th (2).to_integer - 1).max (0).min (65535).to_natural_16))
+			elseif (a_cmd = 117 or a_cmd = 99) and then (not a_params.is_empty and then a_params.code (1) = 63) then
+				-- A reply with the private marker '?': 'u' is the Kitty flags reply (answer to
+				-- ESC [ ? u), 'c' the primary device attributes (answer to DA1 ESC [ c).
+				-- Neither is a key (P2 T4)
+				dispatch_private_reply (a_cmd, a_params.substring (2, a_params.count))
 			elseif a_cmd = 117 then
 				-- 'u' -> Kitty keyboard protocol key event: ESC [ key-code ; modifiers : event-type u
 				dispatch_kitty_key (l_parts, l_mod, l_kind)
 			else
 				dispatch_csi_key (a_cmd, l_parts, l_mod, l_kind)
+			end
+		end
+
+	dispatch_private_reply (a_cmd: NATURAL_32; a_params: READABLE_STRING_GENERAL)
+			-- Translate the terminal reply `ESC [ ? a_params a_cmd` (`a_params` without the '?').
+			-- 'u': KEYBOARD_FLAGS_EVENT when `a_params` is one number 0 .. 255, otherwise no
+			-- event (as before T4). 'c': DEVICE_ATTRIBUTES_EVENT with the numbers separated by
+			-- ';', a part that is empty or not a decimal number counting as 0, so that any
+			-- DA1 reply still ends a keyboard support query.
+		require
+			reply_command: a_cmd = 117 or a_cmd = 99
+		local
+			l_list: ARRAYED_LIST [INTEGER]
+			l_value: INTEGER
+		do
+			if a_cmd = 117 then
+				if a_params.is_natural_8 then
+					events.extend (create {KEYBOARD_FLAGS_EVENT}.make (a_params.to_natural_8))
+				end
+			else
+				create l_list.make (4)
+				if not a_params.is_empty then
+					across a_params.split (';') as p loop
+						l_value := 0
+						if p.is_integer then
+							l_value := p.to_integer.max (0)
+						end
+						l_list.extend (l_value)
+					end
+				end
+				events.extend (create {DEVICE_ATTRIBUTES_EVENT}.make (l_list))
 			end
 		end
 
@@ -656,6 +840,122 @@ feature {NONE} -- State Processors
 
 feature {NONE} -- Implementation
 
+	end_osc_number_as_keys
+			-- `ESC ]` and the digits in `param_buffer` were not an OSC: emit Alt+`]`, then each
+			-- digit as a typed key, and return to the ground state.
+		require
+			outside_paste: not is_in_paste
+		local
+			i: INTEGER
+		do
+			state := State_ground
+			emit_key (93, True)
+			from
+				i := 1
+			until
+				i > param_buffer.count
+			loop
+				emit_key (param_buffer.code (i), False)
+				i := i + 1
+			end
+			param_buffer.wipe_out
+		ensure
+			ground: state = State_ground
+			keys_added: events.count = old events.count + old param_buffer.count + 1
+		end
+
+	begin_osc
+			-- `ESC ] <digits> ;` read, digits in `param_buffer`: start reading the OSC's text.
+		require
+			number_read: state = State_osc_number and not param_buffer.is_empty
+		do
+			-- Compared as a number, as xterm does ("052" is 52); a number too long for an
+			-- INTEGER is not 52
+			osc_is_clipboard_reply := param_buffer.is_integer and then param_buffer.to_integer = 52
+			param_buffer.wipe_out
+			osc_field := Field_selection
+			osc_selection := Default_selection
+			osc_is_selection_seen := False
+			osc_is_too_large := False
+			osc_buffer.wipe_out
+			state := State_osc
+		ensure
+			in_osc: is_in_osc
+			no_data: osc_buffer.is_empty
+		end
+
+	append_osc_data (a_code: NATURAL_32)
+			-- Keep `a_code` as the next character of the OSC 52 data, up to `max_osc_size`.
+			-- A character outside ASCII is kept as `*`, which is not base64.
+		do
+			if osc_is_too_large then
+				-- Followed to the end, not kept
+			elseif osc_buffer.count >= max_osc_size then
+				osc_is_too_large := True
+				create osc_buffer.make (Initial_osc_capacity)
+			else
+				if osc_buffer.count = osc_buffer.capacity then
+					-- Grow by doubling, never past the cap
+					osc_buffer.resize ((osc_buffer.capacity * 2).min (max_osc_size).max (osc_buffer.count + 1))
+				end
+				if a_code <= 127 then
+					osc_buffer.append_character (a_code.to_character_8)
+				else
+					osc_buffer.append_character ('*')
+				end
+			end
+		ensure
+			bounded: osc_buffer.count <= max_osc_size
+		end
+
+	finish_osc
+			-- The OSC ended (BEL or ST): emit the CLIPBOARD_EVENT of an OSC 52 reply, and
+			-- return to the ground state.
+		require
+			in_osc: is_in_osc
+		local
+			l_event: CLIPBOARD_EVENT
+		do
+			if osc_is_clipboard_reply then
+				if osc_is_too_large then
+					create l_event.make (osc_selection, {CLIPBOARD_EVENT}.Status_too_large)
+				elseif osc_field = Field_selection then
+					-- `52 ; <selection>` without a data field
+					create l_event.make (osc_selection, {CLIPBOARD_EVENT}.Status_invalid)
+				elseif osc_buffer.is_empty or osc_buffer.same_string ("?") then
+					-- An empty clipboard, or the query echoed back
+					create l_event.make_owned_text (osc_selection, create {STRING_32}.make_empty)
+				elseif {BASE64}.is_valid_encoding (osc_buffer) then
+					create l_event.make_owned_text (osc_selection, {BASE64}.decoded_utf_8 (osc_buffer))
+				else
+					create l_event.make (osc_selection, {CLIPBOARD_EVENT}.Status_invalid)
+				end
+				events.extend (l_event)
+			end
+			drop_osc
+		ensure
+			ground: state = State_ground
+			one_event_per_reply: events.count = old events.count + (if old osc_is_clipboard_reply then 1 else 0 end)
+		end
+
+	drop_osc
+			-- End the OSC being read without an event, release its data and return to the
+			-- ground state.
+		do
+			if osc_buffer.capacity > Initial_osc_capacity then
+				create osc_buffer.make (Initial_osc_capacity)
+			else
+				osc_buffer.wipe_out
+			end
+			osc_is_clipboard_reply := False
+			osc_is_too_large := False
+			param_buffer.wipe_out
+			state := State_ground
+		ensure
+			ground: state = State_ground
+			no_data: osc_buffer.is_empty
+		end
+
 	abandon_sequence_to_paste (a_introducer: STRING_32)
 			-- Append the unfinished sequence (ESC, `a_introducer`, collected parameters) to the
 			-- paste text and return to the ground state.
@@ -730,6 +1030,39 @@ feature {NONE} -- Implementation
 	State_csi_param: INTEGER = 3
 	State_ss3: INTEGER = 4
 	State_sgr_mouse: INTEGER = 5
+	State_osc_number: INTEGER = 6
+			-- After `ESC ]`: digits until `;` commit to an OSC (`param_buffer` holds them)
+	State_osc: INTEGER = 7
+			-- Inside a committed OSC, until BEL or `ESC \`
+	State_osc_escape: INTEGER = 8
+			-- Inside a committed OSC, right after an ESC
+
+	osc_buffer: STRING_8
+			-- OSC 52 data (base64) of the reply being read, at most `max_osc_size` characters
+
+	osc_is_clipboard_reply: BOOLEAN
+			-- Is the OSC being read number 52 (its text is kept)?
+
+	osc_field: INTEGER
+			-- Field of an OSC 52 reply being read: `Field_selection` or `Field_data`
+
+	Field_selection: INTEGER = 1
+	Field_data: INTEGER = 2
+
+	osc_selection: CHARACTER_32
+			-- First character of the selection field of the OSC 52 reply being read
+
+	osc_is_selection_seen: BOOLEAN
+			-- Has the selection field had a character?
+
+	osc_is_too_large: BOOLEAN
+			-- Did the OSC 52 data pass `max_osc_size` (its data dropped)?
+
+	Default_selection: CHARACTER_32 = 'c'
+			-- Selection of a reply whose selection field is empty
+
+	Initial_osc_capacity: INTEGER = 64
+			-- Initial capacity of `osc_buffer`
 
 	state: INTEGER
 	param_buffer: STRING_32
@@ -776,5 +1109,9 @@ invariant
 	positive_max_paste_size: max_paste_size > 0
 	paste_bounded: paste_buffer.count < max_paste_size
 	no_paste_text_outside_paste: not is_in_paste implies paste_buffer.is_empty
+	positive_max_osc_size: max_osc_size > 0
+	osc_bounded: osc_buffer.count <= max_osc_size
+	no_osc_in_paste: (state = State_osc_number or is_in_osc) implies not is_in_paste
+	no_osc_data_outside_osc: not is_in_osc implies osc_buffer.is_empty
 
 end

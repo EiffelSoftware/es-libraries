@@ -13,6 +13,13 @@ note
 		    mutators (its setters and `copy` are exported to {STYLE} only), so it cannot be
 		    changed in place. Clients change a cell's look through `set_style` (which stores a
 		    private copy) or through BUFFER operations.
+
+		Diff option (Ratatui `CellDiffOption`, see CELL_DIFF_OPTION): `diff_option` and
+		`forced_width` tell DIFF_ENGINE how to treat the cell. They are set only through
+		{BUFFER}.set_diff_option. Every change of the cell's content (`set_symbol`, `set_char`,
+		`set_continuation`, `reset` and BUFFER's writes) clears them; a change of style alone
+		(`set_style`, BUFFER's `set_style`) keeps them, and `copy_cell` copies them.
+		`same_content` ignores them: it compares what the cell shows.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -42,10 +49,12 @@ feature {NONE} -- Initialization
 			style := Default_style
 			width := 1
 			is_continuation := False
+			clear_diff_option
 		ensure then
 			symbol_space: symbol.same_string ({STRING_32} " ")
 			width_one: width = 1
 			not_continuation: not is_continuation
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	make_with_char (a_char: CHARACTER_32; a_style: STYLE)
@@ -55,6 +64,7 @@ feature {NONE} -- Initialization
 			style := a_style
 		ensure
 			not_continuation: not is_continuation
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	make_continuation
@@ -64,10 +74,12 @@ feature {NONE} -- Initialization
 			style := Default_style
 			width := 0
 			is_continuation := True
+			clear_diff_option
 		ensure
 			empty_symbol: symbol.is_empty
 			width_zero: width = 0
 			is_continuation: is_continuation
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 feature -- Access
@@ -84,6 +96,26 @@ feature -- Access
 	is_continuation: BOOLEAN
 			-- Is this cell the right half of a wide 2-column character?
 
+	diff_option: NATURAL_8
+			-- How DIFF_ENGINE treats this cell (a CELL_DIFF_OPTION constant; default `None`)
+
+	forced_width: NATURAL_8
+			-- Columns this cell covers when `diff_option` is `Forced_width`; 0 otherwise
+
+	covered_width: INTEGER
+			-- Columns the diff and the serializer count for this cell: `forced_width` when the
+			-- width is forced, else `width`
+		do
+			if diff_option = {CELL_DIFF_OPTION}.Forced_width then
+				Result := forced_width.to_integer_32
+			else
+				Result := width.to_integer_32
+			end
+		ensure
+			forced: diff_option = {CELL_DIFF_OPTION}.Forced_width implies Result = forced_width.to_integer_32
+			natural: diff_option /= {CELL_DIFF_OPTION}.Forced_width implies Result = width.to_integer_32
+		end
+
 feature -- Status report
 
 	same_content (a_other: TERMINAL_CELL): BOOLEAN
@@ -96,6 +128,12 @@ feature -- Status report
 				(style = a_other.style or else style.same_rendering (a_other.style))
 		end
 
+	same_diff_option (a_other: TERMINAL_CELL): BOOLEAN
+			-- Do `Current` and `a_other` have the same diff option (and forced width)?
+		do
+			Result := diff_option = a_other.diff_option and forced_width = a_other.forced_width
+		end
+
 feature -- Element change
 
 	set_symbol (a_symbol: READABLE_STRING_GENERAL)
@@ -105,9 +143,11 @@ feature -- Element change
 			symbol := pooled_symbol ({UNICODE_SCALAR}.scalar_string (a_symbol))
 			width := {UNICODE_WIDTH}.grapheme_width (symbol)
 			is_continuation := False
+			clear_diff_option
 		ensure
 			symbol_set: symbol.same_string_general ({UNICODE_SCALAR}.scalar_string (a_symbol))
 			not_continuation: not is_continuation
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	set_char (a_char: CHARACTER_32)
@@ -120,9 +160,11 @@ feature -- Element change
 			symbol := pooled_char (l_code)
 			width := {UNICODE_WIDTH}.width (l_code)
 			is_continuation := False
+			clear_diff_option
 		ensure
 			symbol_set: symbol.count = 1 and symbol.code (1) = {UNICODE_SCALAR}.scalar_value (a_char.natural_32_code)
 			not_continuation: not is_continuation
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	set_style (a_style: STYLE)
@@ -157,21 +199,25 @@ feature -- Element change
 				symbol := Default_symbol
 				width := 1
 			end
+			clear_diff_option
 		ensure
 			continuation_set: is_continuation = a_val
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	reset
-			-- Reset cell to a single space with default style.
+			-- Reset cell to a single space with default style and no diff option.
 		do
 			symbol := Default_symbol
 			style := Default_style
 			width := 1
 			is_continuation := False
+			clear_diff_option
 		ensure
 			reset_space: symbol.same_string ({STRING_32} " ")
 			width_one: width = 1
 			not_continuation: not is_continuation
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 feature {BUFFER, TERMINAL_CELL} -- In-place update
@@ -187,11 +233,13 @@ feature {BUFFER, TERMINAL_CELL} -- In-place update
 			width := a_width
 			style := a_style
 			is_continuation := False
+			clear_diff_option
 		ensure
 			symbol_set: symbol = a_symbol
 			width_set: width = a_width
 			style_set: style = a_style
 			not_continuation: not is_continuation
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	set_content_style (a_style: STYLE)
@@ -209,9 +257,11 @@ feature {BUFFER, TERMINAL_CELL} -- In-place update
 			width := 1
 			style := a_style
 			is_continuation := False
+			clear_diff_option
 		ensure
 			blank: symbol.same_string ({STRING_32} " ") and width = 1 and not is_continuation
 			style_set: style = a_style
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	make_continuation_in_place
@@ -221,19 +271,53 @@ feature {BUFFER, TERMINAL_CELL} -- In-place update
 			style := Default_style
 			width := 0
 			is_continuation := True
+			clear_diff_option
 		ensure
 			is_continuation: is_continuation and width = 0
+			no_diff_option: diff_option = {CELL_DIFF_OPTION}.None
 		end
 
 	copy_cell (a_other: TERMINAL_CELL)
-			-- Take over the content of `a_other`, sharing its symbol and style.
+			-- Take over the content and the diff option of `a_other`, sharing its symbol and style.
 		do
 			symbol := a_other.symbol
 			style := a_other.style
 			width := a_other.width
 			is_continuation := a_other.is_continuation
+			diff_option := a_other.diff_option
+			forced_width := a_other.forced_width
 		ensure
 			same: same_content (a_other)
+			same_option: same_diff_option (a_other)
+		end
+
+	set_diff_option_in_place (a_option, a_width: NATURAL_8)
+			-- Use diff option `a_option`, with forced width `a_width` (0 unless `a_option` is
+			-- `Forced_width`). The content is unchanged.
+		require
+			valid_option: {CELL_DIFF_OPTION}.is_valid (a_option)
+			valid_width: {CELL_DIFF_OPTION}.is_valid_width (a_option, a_width)
+			forced_not_continuation: a_option = {CELL_DIFF_OPTION}.Forced_width implies not is_continuation
+		do
+			diff_option := a_option
+			forced_width := a_width
+		ensure
+			option_set: diff_option = a_option
+			width_set: forced_width = a_width
+			same_symbol: symbol = old symbol
+			same_style: style = old style
+			same_width: width = old width
+		end
+
+feature {NONE} -- Diff option
+
+	clear_diff_option
+			-- Back to no diff option.
+		do
+			diff_option := {CELL_DIFF_OPTION}.None
+			forced_width := 0
+		ensure
+			cleared: diff_option = {CELL_DIFF_OPTION}.None and forced_width = 0
 		end
 
 feature -- Status report (symbols)
@@ -253,12 +337,14 @@ feature -- Status report (symbols)
 feature -- Comparison
 
 	is_equal (a_other: like Current): BOOLEAN
-			-- Is `Current` identical in content and styling to `a_other`?
+			-- Is `Current` identical in content, styling and diff option to `a_other`?
+			-- (Ratatui's `Cell` equality also compares the diff option.)
 		do
 			Result := width = a_other.width and
 				is_continuation = a_other.is_continuation and
 				symbol.same_string (a_other.symbol) and
-				style.is_equal (a_other.style)
+				style.is_equal (a_other.style) and
+				same_diff_option (a_other)
 		end
 
 feature -- Symbol pool
@@ -368,5 +454,8 @@ invariant
 	valid_width: width <= 2
 	continuation_consistency: is_continuation implies width = 0
 	scalar_symbol: {UNICODE_SCALAR}.is_scalar_string (symbol)
+	valid_diff_option: {CELL_DIFF_OPTION}.is_valid (diff_option)
+	forced_width_only_when_forced: {CELL_DIFF_OPTION}.is_valid_width (diff_option, forced_width)
+	continuation_not_forced: is_continuation implies diff_option /= {CELL_DIFF_OPTION}.Forced_width
 
 end

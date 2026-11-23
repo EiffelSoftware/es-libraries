@@ -102,7 +102,123 @@ feature -- Disagreeing terminal
 			assert ("nothing left further right", l_vt.line (0).item (6) = ' ' and l_vt.line (0).item (7) = ' ')
 		end
 
+feature -- Forced width (V8, CELL_DIFF_OPTION)
+
+	test_move_after_forced_width_cell
+			-- A cell with a forced width of n is followed at once by a move to its column + n,
+			-- also when it ends its span; the backend's cursor is then there.
+		local
+			l_buf: BUFFER
+			l_out: STRING_32
+			l_backend: ANSI_TERMINAL_BACKEND
+			l_link: STRING_32
+		do
+			l_link := osc_8 ("http://example.com", "ab")
+			l_buf := blank_buffer
+			put_symbol (l_buf, 0, 0, l_link)
+			l_buf.set_diff_option (0, 0, {CELL_DIFF_OPTION}.Forced_width, 2)
+			create l_out.make (64)
+			create l_backend.make_with_driver_and_sink (create {FAKE_CONSOLE_DRIVER}, l_out)
+			(create {ANSI_SERIALIZER}).render_spans ((create {DIFF_ENGINE}).diff (blank_buffer, l_buf), l_backend)
+			assert ("move to column 3 after the link", l_out.has_substring (utf_8 (l_link) + csi + "1;3H"))
+			assert ("backend cursor after the link", l_backend.cursor_row = 0 and l_backend.cursor_column = 2)
+
+			-- A cell after the cover starts its own span
+			l_buf.put_char (0, 2, 'c', create {STYLE})
+			l_out.wipe_out;
+			(create {ANSI_SERIALIZER}).render_spans ((create {DIFF_ENGINE}).diff (blank_buffer, l_buf), l_backend)
+			assert ("c at column 3", l_out.has_substring (csi + "1;3Hc"))
+			assert ("backend cursor after c", l_backend.cursor_column = 3)
+		end
+
+	test_cursor_after_forced_width_on_virtual_terminal
+			-- A link whose text is 3 columns, forced to 2: the terminal draws 3 columns, and the
+			-- cursor is put back at column 2, where the buffer's next cell is.
+		local
+			l_vt: VIRTUAL_TERMINAL
+			l_first, l_second: BUFFER
+		do
+			create l_vt.make (20, 2)
+			l_first := blank_buffer
+			put_symbol (l_first, 0, 0, osc_8 ("http://example.com", "abc"))
+			l_first.set_diff_option (0, 0, {CELL_DIFF_OPTION}.Forced_width, 2)
+			draw (l_vt, blank_buffer, l_first)
+			assert ("link text drawn", l_vt.line (0).substring (1, 3).same_string ("abc"))
+			assert ("cursor at column 2", l_vt.cursor_row = 0 and l_vt.cursor_column = 2)
+
+			l_second := blank_buffer
+			put_symbol (l_second, 0, 0, osc_8 ("http://example.com", "abc"))
+			l_second.set_diff_option (0, 0, {CELL_DIFF_OPTION}.Forced_width, 2)
+			l_second.put_string (0, 2, "Z", create {STYLE})
+			draw (l_vt, l_first, l_second)
+			assert ("Z in column 2", l_vt.line (0).substring (1, 4).same_string ("abZ "))
+		end
+
+	test_hyperlink_cells_keep_their_columns
+			-- EXAMPLE_HYPERLINK's pattern: each cell of "link" wrapped in its own OSC 8 link and
+			-- forced to one column. The text lands in the buffer's columns.
+		local
+			l_vt: VIRTUAL_TERMINAL
+			l_buf: BUFFER
+			c: INTEGER
+		do
+			create l_vt.make (20, 1)
+			l_buf := buffer_with ("   link!")
+			from c := 3 until c > 6 loop
+				put_symbol (l_buf, 0, c, osc_8 ("http://example.com", l_buf.cell (0, c).symbol))
+				l_buf.set_diff_option (0, c, {CELL_DIFF_OPTION}.Forced_width, 1)
+				c := c + 1
+			end
+			draw (l_vt, blank_buffer, l_buf)
+			assert ("text in place", l_vt.line (0).substring (1, 9).same_string ("   link! "))
+			draw (l_vt, l_buf, l_buf)
+			assert ("unchanged frame keeps it", l_vt.line (0).substring (1, 9).same_string ("   link! "))
+		end
+
+	test_continuation_at_span_start
+			-- When the left half of a wide character is skipped, a span can start with its
+			-- continuation cell; the next cell is still placed in its own column.
+		local
+			l_buf: BUFFER
+			l_out: STRING_32
+		do
+			l_buf := buffer_with ({STRING_32} "%/0x65E5/x")
+			l_buf.set_diff_option (0, 0, {CELL_DIFF_OPTION}.Skip, 0)
+			l_out := rendered_buffer (l_buf)
+			assert ("span starts at the continuation", l_out.has_substring (csi + "1;2H"))
+			assert ("x moved to column 3", l_out.has_substring (csi + "1;3Hx"))
+			assert ("wide character not written", not l_out.has_substring (utf_8 ({STRING_32} "%/0x65E5/")))
+		end
+
 feature {NONE} -- Helpers
+
+	osc_8 (a_url, a_text: READABLE_STRING_GENERAL): STRING_32
+			-- `a_text` as an OSC 8 link to `a_url` (BEL terminators, as EXAMPLE_HYPERLINK writes)
+		do
+			Result := {STRING_32} "%/27/]8;;"
+			Result.append_string_general (a_url)
+			Result.append_character ((7).to_character_32)
+			Result.append_string_general (a_text)
+			Result.append ({STRING_32} "%/27/]8;;")
+			Result.append_character ((7).to_character_32)
+		end
+
+	put_symbol (a_buffer: BUFFER; a_row, a_col: INTEGER; a_symbol: READABLE_STRING_GENERAL)
+			-- Store `a_symbol` whole in one one-column cell (the buffer's writes drop escapes).
+		do
+			a_buffer.cell (a_row, a_col).set_symbol (a_symbol)
+			a_buffer.cell (a_row, a_col).set_width (1)
+		end
+
+	rendered_buffer (a_buffer: BUFFER): STRING_32
+			-- Bytes (one character each) sent for `a_buffer` drawn over a blank 20x1 buffer
+		local
+			l_backend: ANSI_TERMINAL_BACKEND
+		do
+			create Result.make (64)
+			create l_backend.make_with_driver_and_sink (create {FAKE_CONSOLE_DRIVER}, Result)
+			(create {ANSI_SERIALIZER}).render_spans ((create {DIFF_ENGINE}).diff (blank_buffer, a_buffer), l_backend)
+		end
 
 	family: STRING_32
 			-- MAN ZWJ WOMAN: one 2-column cluster in the buffer

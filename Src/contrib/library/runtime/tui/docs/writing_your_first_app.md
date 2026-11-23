@@ -206,6 +206,8 @@ do
 end
 ```
 
+Each call gives a new theme, so `l_theme.set_primary (...)` changes only yours. Colors can also be read from text, as Ratatui's `Color::from_str` reads them: `create l_color.make_from_string ("#88c0d0")`, `"light-blue"` or `"42"` (test with `{COLOR}.is_valid_color_string` first).
+
 ---
 
 ## 6. Compiling and Running

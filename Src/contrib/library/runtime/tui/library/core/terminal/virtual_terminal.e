@@ -32,6 +32,7 @@ feature {NONE} -- Initialization
 			is_raw := False
 			is_alternate_screen := False
 			is_cursor_visible := True
+			cursor_shape := {CURSOR_SHAPE}.Default_user
 			create operations.make (20)
 			operations.compare_objects
 			create grid.make_filled (' ', height, width)
@@ -78,6 +79,21 @@ feature -- Access
 
 	is_cursor_visible: BOOLEAN
 			-- Is cursor visible?
+
+	cursor_shape: CURSOR_SHAPE
+			-- Cursor shape last set by `set_cursor_shape`
+
+	title: detachable STRING_32
+			-- Window title last set by `set_title`, Void before the first
+
+	is_title_pushed: BOOLEAN
+			-- Did `push_title` run without `pop_title` since?
+
+	clipboard_text: detachable STRING_32
+			-- Text last sent to the clipboard by `set_clipboard`, Void before the first
+
+	primary_selection_text: detachable STRING_32
+			-- Text last sent to the primary selection by `set_clipboard`, Void before the first
 
 	operations: ARRAYED_LIST [STRING_32]
 			-- Log of executed terminal commands for testing assertions
@@ -250,6 +266,28 @@ feature -- Basic operations
 			cursor_column := 0
 		end
 
+	set_clipboard (a_selection: CHARACTER_8; a_text: READABLE_STRING_GENERAL)
+			-- Record `a_text` as the content of `a_selection`, logged as "set_clipboard(s,text)".
+		do
+			operations.extend ({STRING_32} "set_clipboard(" + a_selection.out + "," + a_text.to_string_32 + ")")
+			if a_selection = Clipboard_selection then
+				clipboard_text := a_text.to_string_32
+			else
+				primary_selection_text := a_text.to_string_32
+			end
+		ensure then
+			clipboard_set: a_selection = Clipboard_selection implies
+				(attached clipboard_text as t and then t.same_string_general (a_text))
+			selection_set: a_selection = Primary_selection implies
+				(attached primary_selection_text as t and then t.same_string_general (a_text))
+		end
+
+	request_clipboard_contents (a_selection: CHARACTER_8)
+			-- Log the request as "request_clipboard(s)". A virtual terminal never answers.
+		do
+			operations.extend ("request_clipboard(" + a_selection.out + ")")
+		end
+
 	scroll_up (a_lines: INTEGER)
 			-- Shift the grid up by `a_lines` rows; scrolled-off rows are appended to `scrollback`.
 		local
@@ -372,6 +410,36 @@ feature -- Mode settings
 			is_cursor_visible := True
 		end
 
+	set_cursor_shape (a_shape: CURSOR_SHAPE)
+			-- Record `a_shape`, logged as "set_cursor_shape(n)" with n its code.
+		do
+			operations.extend ("set_cursor_shape(" + a_shape.code.out + ")")
+			cursor_shape := a_shape
+		end
+
+	set_title (a_title: READABLE_STRING_GENERAL)
+			-- Record `a_title`, logged as "set_title(title)".
+		do
+			operations.extend ({STRING_32} "set_title(" + a_title.to_string_32 + ")")
+			title := a_title.to_string_32
+		ensure then
+			title_set: attached title as t and then t.same_string_general (a_title)
+		end
+
+	push_title
+			-- Record the push, logged as "push_title".
+		do
+			operations.extend ("push_title")
+			is_title_pushed := True
+		end
+
+	pop_title
+			-- Record the pop, logged as "pop_title".
+		do
+			operations.extend ("pop_title")
+			is_title_pushed := False
+		end
+
 	refresh_size
 			-- Refresh dimensions (no-op in virtual terminal).
 		do
@@ -386,13 +454,30 @@ feature -- Mode settings
 		end
 
 	disable_mouse_capture
-			-- Disable mouse capture.
+			-- Disable mouse capture, motion reporting included.
 		do
 			operations.extend ("disable_mouse_capture")
+			is_mouse_motion_enabled := False
 			is_mouse_captured := False
 		end
 
 	is_mouse_captured: BOOLEAN
+
+	enable_mouse_motion
+			-- Report motion with no button held too.
+		do
+			operations.extend ("enable_mouse_motion")
+			is_mouse_motion_enabled := True
+		end
+
+	disable_mouse_motion
+			-- Stop reporting motion with no button held.
+		do
+			operations.extend ("disable_mouse_motion")
+			is_mouse_motion_enabled := False
+		end
+
+	is_mouse_motion_enabled: BOOLEAN
 
 	enable_bracketed_paste
 			-- Enable bracketed paste.

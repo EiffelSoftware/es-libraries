@@ -3,6 +3,7 @@ note
 		Tier 1 Foundation Example: Popup (Ratatui 1-to-1).
 		Demonstrates modal dialog overlay rendering using TUI_POPUP,
 		background cell clearing (TUI_CLEAR), and centered rect calculation.
+		The popup's block casts a medium-shade shadow (SHADOW, Ratatui `Shadow`).
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -130,7 +131,8 @@ feature {NONE} -- Application Hooks
 					with_border_type ({BORDER_TYPE}.double).
 					with_border_style (create {STYLE}.make_fg ({COLOR}.Bright_yellow)).
 					with_title (" Modal Popup Dialog ").
-					with_title_alignment ({TEXT_ALIGNMENT}.center)
+					with_title_alignment ({TEXT_ALIGNMENT}.center).
+					with_shadow ((create {SHADOW}.make_medium_shade).with_style (create {STYLE}.make_fg ({COLOR}.Dark_gray)))
 
 				create l_popup_para.make_raw (
 					"Greetings from EiffelTUI Modal Popup!%N%N" +

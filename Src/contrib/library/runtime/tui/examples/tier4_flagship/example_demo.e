@@ -470,10 +470,12 @@ feature {NONE} -- Tab 0: Dashboard
 				with_use_unicode (True)
 			a_frame.render_widget (l_gauge, l_chunks [1])
 
-			-- 2. Sparkline
+			-- 2. Sparkline, drawn with the Braille marker: two samples per cell, four levels
+			-- per row (Ratatui `Sparkline::marker`)
 			create l_sparkline.make_with_data (sparkline_data)
 			l_sparkline := l_sparkline.with_bar_style (create {STYLE}.make_fg ({COLOR}.Bright_green)).
-				with_style (create {STYLE}.make_fg ({COLOR}.Dark_gray))
+				with_style (create {STYLE}.make_fg ({COLOR}.Dark_gray)).
+				with_marker ({CANVAS_MARKER}.braille)
 			a_frame.render_widget (l_sparkline, l_chunks [2])
 
 			-- 3. Line Gauge
@@ -833,7 +835,7 @@ feature {NONE} -- Tab 1: Servers & World Map
 		end
 
 	paint_servers_world_map (p: CANVAS_PAINTER)
-			-- Draw continental outlines and inter-server connection grid.
+			-- Draw the world map coastlines (SHAPE_MAP) and the inter-server connection grid.
 		local
 			l_ny_x, l_ny_y: REAL_64
 			l_pa_x, l_pa_y: REAL_64
@@ -847,34 +849,8 @@ feature {NONE} -- Tab 1: Servers & World Map
 			p.draw_line (-180.0, 45.0, 180.0, 45.0)
 			p.draw_line (-180.0, -45.0, 180.0, -45.0)
 
-			-- Continents
-			p.set_style (create {STYLE}.make_fg ({COLOR}.Dark_gray))
-			-- North America
-			p.draw_line (-130.0, 50.0, -65.0, 45.0)
-			p.draw_line (-65.0, 45.0, -80.0, 25.0)
-			p.draw_line (-80.0, 25.0, -115.0, 30.0)
-			p.draw_line (-115.0, 30.0, -130.0, 50.0)
-
-			-- South America
-			p.draw_line (-80.0, 10.0, -35.0, -5.0)
-			p.draw_line (-35.0, -5.0, -70.0, -55.0)
-			p.draw_line (-70.0, -55.0, -80.0, 10.0)
-
-			-- Eurasia
-			p.draw_line (-10.0, 40.0, 40.0, 60.0)
-			p.draw_line (40.0, 60.0, 140.0, 50.0)
-			p.draw_line (140.0, 50.0, 100.0, 10.0)
-			p.draw_line (100.0, 10.0, -10.0, 40.0)
-
-			-- Africa
-			p.draw_line (-15.0, 35.0, 50.0, 30.0)
-			p.draw_line (50.0, 30.0, 30.0, -35.0)
-			p.draw_line (30.0, -35.0, -15.0, 35.0)
-
-			-- Australia
-			p.draw_line (115.0, -20.0, 150.0, -25.0)
-			p.draw_line (150.0, -25.0, 140.0, -38.0)
-			p.draw_line (140.0, -38.0, 115.0, -20.0)
+			-- Coastlines: the high resolution world map (Ratatui demo `Map`, `MapResolution::High`)
+			world_map.paint (p)
 
 			-- Server Coordinates: (Longitude = X, Latitude = Y)
 			l_ny_x := -74.0; l_ny_y := 40.71  -- New York
@@ -913,6 +889,12 @@ feature {NONE} -- Tab 1: Servers & World Map
 			p.set_style (create {STYLE}.make_fg ({COLOR}.Bright_green))
 			p.draw_circle (l_sg_x, l_sg_y, 2.5)
 			p.draw_text (l_sg_x + 4.0, l_sg_y - 2.0, "Singapore (Up)", create {STYLE}.make_fg ({COLOR}.Bright_green))
+		end
+
+	world_map: SHAPE_MAP
+			-- High resolution world map in dark gray (Ratatui `Map`, `MapResolution::High`).
+		once
+			create Result.make ({MAP_RESOLUTION}.high, create {STYLE}.make_fg ({COLOR}.Dark_gray))
 		end
 
 feature {NONE} -- Tab 2: Colors Matrix

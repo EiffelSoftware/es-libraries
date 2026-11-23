@@ -16,32 +16,9 @@ inherit
 feature -- Rendering
 
 	render (a_area: RECT; a_buffer: BUFFER)
-			-- Clear all cells in `a_area` on `a_buffer`.
-		local
-			r, c, l_max_r, l_max_c: INTEGER
-			l_def_style: STYLE
+			-- Clear all cells in `a_area` on `a_buffer` (the part of it inside the buffer).
 		do
-			if not a_area.is_empty then
-				create l_def_style.default_create
-				l_max_r := (a_area.bottom.to_integer_32).min (a_buffer.height)
-				l_max_c := (a_area.right.to_integer_32).min (a_buffer.width)
-
-				from
-					r := a_area.y.to_integer_32
-				until
-					r >= l_max_r
-				loop
-					from
-						c := a_area.x.to_integer_32
-					until
-						c >= l_max_c
-					loop
-						a_buffer.put_char (r, c, ' ', l_def_style)
-						c := c + 1
-					end
-					r := r + 1
-				end
-			end
+			a_buffer.clear_area (a_area)
 		end
 
 end

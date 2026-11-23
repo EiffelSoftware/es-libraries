@@ -77,9 +77,15 @@ feature -- Status report
 		end
 
 	is_blink: BOOLEAN
-			-- Is blinking enabled?
+			-- Is (slow) blinking enabled?
 		do
 			Result := (bits & Flag_blink) /= 0
+		end
+
+	is_rapid_blink: BOOLEAN
+			-- Is rapid blinking enabled?
+		do
+			Result := (bits & Flag_rapid_blink) /= 0
 		end
 
 	is_reverse: BOOLEAN
@@ -174,6 +180,18 @@ feature {STYLE, STYLE_FLAGS} -- Element change
 			end
 		ensure
 			blink_set: is_blink = a_enabled
+		end
+
+	set_rapid_blink (a_enabled: BOOLEAN)
+			-- Set rapid blinking attribute.
+		do
+			if a_enabled then
+				bits := bits | Flag_rapid_blink
+			else
+				bits := bits & (Flag_rapid_blink.bit_not)
+			end
+		ensure
+			rapid_blink_set: is_rapid_blink = a_enabled
 		end
 
 	set_hidden (a_enabled: BOOLEAN)
@@ -275,6 +293,9 @@ feature -- ANSI Generation
 			if is_blink then
 				append_code (Result, "5")
 			end
+			if is_rapid_blink then
+				append_code (Result, "6")
+			end
 			if is_reverse then
 				append_code (Result, "7")
 			end
@@ -304,6 +325,9 @@ feature -- Constants: Flags
 	Flag_reverse: NATURAL_16 = 32
 	Flag_hidden: NATURAL_16 = 64
 	Flag_strikethrough: NATURAL_16 = 128
+	Flag_rapid_blink: NATURAL_16 = 256
+			-- `Flag_blink` is slow blink (SGR 5), `Flag_rapid_blink` rapid blink (SGR 6), as
+			-- Ratatui's `Modifier::SLOW_BLINK` and `RAPID_BLINK` (crossterm `SlowBlink`, `RapidBlink`)
 
 feature {NONE} -- Implementation
 

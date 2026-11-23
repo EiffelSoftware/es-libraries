@@ -89,9 +89,11 @@ feature -- Duplication
 		end
 
 	is_equal (a_other: like Current): BOOLEAN
-			-- Is `a_other` content-equal to `Current`?
+			-- Is `a_other` content-equal to `Current`? Groups without bars are not compared
+			-- (`visible_groups`): they draw nothing.
 		local
 			i: INTEGER
+			l_mine, l_others: ARRAYED_LIST [BAR_GROUP]
 		do
 			if a_other = Current then
 				Result := True
@@ -107,15 +109,16 @@ feature -- Duplication
 				and bar_style.is_equal (a_other.bar_style)
 				and value_style.is_equal (a_other.value_style)
 				and label_style.is_equal (a_other.label_style)
-				and groups.count = a_other.groups.count
 			then
-				Result := True
+				l_mine := visible_groups
+				l_others := a_other.visible_groups
+				Result := l_mine.count = l_others.count
 				from
 					i := 1
 				until
-					i > groups.count or not Result
+					i > l_mine.count or not Result
 				loop
-					Result := groups [i].is_equal (a_other.groups [i])
+					Result := l_mine [i].is_equal (l_others [i])
 					i := i + 1
 				end
 			end
@@ -124,7 +127,25 @@ feature -- Duplication
 feature -- Access
 
 	groups: ARRAYED_LIST [BAR_GROUP]
-			-- Bar groups displayed in the chart
+			-- Bar groups given to the chart, kept by reference, so bars added to a group later are
+			-- drawn. A group without bars may be here, but it is not part of the chart: see
+			-- `visible_groups`.
+
+	visible_groups: ARRAYED_LIST [BAR_GROUP]
+			-- The groups of `groups` that have bars, in order (a fresh list): the ones the chart
+			-- draws and compares. An empty group takes no room, label or group gap, as Ratatui,
+			-- whose constructors drop empty groups (#2553).
+		do
+			create Result.make (groups.count)
+			across groups as g loop
+				if not g.bars.is_empty then
+					Result.extend (g)
+				end
+			end
+		ensure
+			no_empty_group: across Result as g all not g.bars.is_empty end
+			at_most_groups: Result.count <= groups.count
+		end
 
 	bars: ARRAYED_LIST [BAR_ITEM]
 			-- All bars of all groups, in order (a fresh list; the groups are the only storage)
@@ -191,7 +212,8 @@ feature -- Element change
 		end
 
 	append_group (a_group: BAR_GROUP)
-			-- Add `a_group` to chart.
+			-- Add `a_group` to chart, by reference (an empty one is kept, and drawn once it has
+			-- bars: `visible_groups`).
 		require
 			group_not_void: a_group /= Void
 		do
@@ -202,7 +224,8 @@ feature -- Element change
 		end
 
 	set_groups (a_groups: ITERABLE [BAR_GROUP])
-			-- Replace all groups with `a_groups`.
+			-- Replace all groups with `a_groups`, kept by reference (an empty one is kept, and
+			-- drawn once it has bars: `visible_groups`).
 		require
 			groups_not_void: a_groups /= Void
 		do
@@ -246,7 +269,8 @@ feature -- Element change
 		end
 
 	set_bars (a_bars: ITERABLE [BAR_ITEM])
-			-- Replace bars with `a_bars`.
+			-- Replace bars with `a_bars`, in one unlabelled group; no group when `a_bars` is empty,
+			-- as there is nothing to fill later (Ratatui `BarChart::new(vec![])` has no group, #2553).
 		require
 			bars_not_void: a_bars /= Void
 		local
@@ -259,7 +283,12 @@ feature -- Element change
 			loop
 				l_grp.append_bar (b)
 			end
-			groups.extend (l_grp)
+			if not l_grp.bars.is_empty then
+				groups.extend (l_grp)
+			end
+		ensure
+			one_group_or_none: groups.count <= 1
+			no_empty_group: across groups as g all not g.bars.is_empty end
 		end
 
 	set_bar_width (a_width: NATURAL_16)
@@ -465,10 +494,11 @@ feature -- Rendering
 feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 
 	render_vertical (l_target: RECT; a_buffer: BUFFER)
-			-- Vertical bars, grouped, with rows (bottom-up) for group labels, bar labels and values
-			-- when there is content for them and room left for at least one bar row.
+			-- Vertical bars, grouped, with rows (bottom-up) for group labels and bar labels when
+			-- there is content for them and room left for at least one bar row; values are written
+			-- over the bars' bottom row (Ratatui `render_vertical`).
 		local
-			l_eff_max, l_total_sublevels, l_rem_sublevels: NATURAL_64
+			l_eff_max, l_total_sublevels, l_rem_sublevels, l_ticks: NATURAL_64
 			l_rows, l_bottom, l_group_row, l_label_row, l_value_row, l_bars_bottom_row, l_bar_height: INTEGER
 			l_curr_x, l_bw, l_group_start, l_group_end, l_right: INTEGER
 			b_idx, w_idx, r, g_idx: INTEGER
@@ -478,23 +508,19 @@ feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 			l_val_str: STRING_32
 			l_val_w, l_lbl_w: INTEGER
 			l_group: BAR_GROUP
+			l_groups: ARRAYED_LIST [BAR_GROUP]
 			l_want_labels, l_want_group_labels: BOOLEAN
 		do
 			l_eff_max := effective_max
 			l_right := l_target.right.to_integer_32
 			l_bw := bar_width.to_integer_32
 
-			-- Reserve rows while at least one bar row remains: labels first, then values, then group labels
+			-- Reserve rows while at least one bar row remains: bar labels first, then group labels
+			-- (Ratatui `label_info`). Values take no row: they are written on the bars' bottom row.
 			l_rows := l_target.height.to_integer_32
 			l_want_labels := has_bar_labels and l_rows >= 2
 			if l_want_labels then
 				l_rows := l_rows - 1
-			end
-			if l_rows >= 2 then
-				l_value_row := 0
-				l_rows := l_rows - 1
-			else
-				l_value_row := -1
 			end
 			l_want_group_labels := has_group_labels and l_rows >= 2
 			if l_want_group_labels then
@@ -513,20 +539,18 @@ feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 				l_label_row := l_bottom
 				l_bottom := l_bottom - 1
 			end
-			if l_value_row = 0 then
-				l_value_row := l_bottom
-				l_bottom := l_bottom - 1
-			end
 			l_bars_bottom_row := l_bottom
+			l_value_row := l_bars_bottom_row
 			l_total_sublevels := (l_bar_height * 8).to_natural_64
 
 			l_curr_x := l_target.x.to_integer_32
+			l_groups := visible_groups
 			from
 				g_idx := 1
 			until
-				g_idx > groups.count or l_curr_x >= l_right
+				g_idx > l_groups.count or l_curr_x >= l_right
 			loop
-				l_group := groups.i_th (g_idx)
+				l_group := l_groups.i_th (g_idx)
 				l_group_start := l_curr_x
 				l_group_end := l_curr_x
 				from
@@ -536,11 +560,12 @@ feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 				loop
 					l_bar := l_group.bars.i_th (b_idx)
 					l_b_style := style.patch (bar_style).patch (l_bar.style)
-					l_v_style := style.patch (value_style).patch (l_bar.value_style)
+					l_v_style := l_b_style.patch (value_style).patch (l_bar.value_style)
 					l_l_style := style.patch (label_style).patch (l_bar.label_style)
 
-					-- Bar column, with 1/8 remainders on its top cell
-					l_rem_sublevels := ((l_bar.value.min (l_eff_max) * l_total_sublevels) // l_eff_max)
+					-- Bar column, with 1/8 remainders on its top cell (scaled without overflow, #2546)
+					l_ticks := {TUI_SPARKLINE}.scaled_ticks (l_bar.value, l_eff_max, l_total_sublevels)
+					l_rem_sublevels := l_ticks
 					from
 						r := 0
 					until
@@ -567,11 +592,13 @@ feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 						r := r + 1
 					end
 
-					-- Value, centred, only when it fits the bar width (hidden otherwise, as in Ratatui)
-					if l_value_row >= 0 and l_value_row < a_buffer.height then
+					-- Value, centred on the bars' bottom row over the bar (Ratatui `Bar::render_value`):
+					-- not for a value of 0; narrower than the bar, or as wide when the bar fills that
+					-- cell. Its style patches the bar's, as Ratatui's `set_string` patches the cell.
+					if l_bar.value /= 0 and l_value_row >= 0 and l_value_row < a_buffer.height then
 						l_val_str := value_text (l_bar)
 						l_val_w := {UNICODE_WIDTH}.string_width (l_val_str).to_integer_32
-						if l_val_w <= l_bw then
+						if l_val_w < l_bw or (l_val_w = l_bw and l_ticks >= 8) then
 							a_buffer.set_string_clipped (l_value_row, l_curr_x + (l_bw - l_val_w) // 2, l_val_str,
 								l_curr_x, (l_curr_x + l_bw).min (l_right), l_v_style)
 						end
@@ -611,6 +638,7 @@ feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 			l_bar_start_x, l_label_end_x, l_val_w, b_idx, g_idx, w_idx, r: INTEGER
 			l_bar: BAR_ITEM
 			l_group: BAR_GROUP
+			l_groups: ARRAYED_LIST [BAR_GROUP]
 			l_b_style, l_v_style, l_l_style: STYLE
 			l_val_str: STRING_32
 			l_bar_h: INTEGER
@@ -639,12 +667,13 @@ feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 			l_bar_h := bar_width.to_integer_32.max (1)
 
 			l_curr_y := l_target.y.to_integer_32
+			l_groups := visible_groups
 			from
 				g_idx := 1
 			until
-				g_idx > groups.count or l_curr_y >= l_bottom
+				g_idx > l_groups.count or l_curr_y >= l_bottom
 			loop
-				l_group := groups.i_th (g_idx)
+				l_group := l_groups.i_th (g_idx)
 				if attached l_group.label as gl and then not gl.is_empty then
 					a_buffer.set_string_clipped (l_curr_y, l_left, gl, l_left, l_right, style.patch (label_style))
 					l_curr_y := l_curr_y + 1
@@ -658,7 +687,7 @@ feature {NONE} -- Implementation: Vertical & Horizontal Rendering
 					l_b_style := style.patch (bar_style).patch (l_bar.style)
 					l_v_style := style.patch (value_style).patch (l_bar.value_style)
 					l_l_style := style.patch (label_style).patch (l_bar.label_style)
-					l_bar_len := ((l_bar.value.min (l_eff_max) * l_avail_w.to_natural_64) // l_eff_max).to_integer_32
+					l_bar_len := {TUI_SPARKLINE}.scaled_ticks (l_bar.value, l_eff_max, l_avail_w.to_natural_64).to_integer_32
 
 					from
 						r := 0
@@ -730,9 +759,9 @@ feature {NONE} -- Implementation
 		end
 
 	has_group_labels: BOOLEAN
-			-- Does some group have a non-empty label?
+			-- Does some visible group have a non-empty label?
 		do
-			Result := across groups as g some attached g.label as l and then not l.is_empty end
+			Result := across visible_groups as g some attached g.label as l and then not l.is_empty end
 		end
 
 	value_text (a_bar: BAR_ITEM): STRING_32

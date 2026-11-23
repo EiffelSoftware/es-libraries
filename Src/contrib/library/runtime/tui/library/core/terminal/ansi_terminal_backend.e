@@ -45,8 +45,10 @@ feature {NONE} -- Initialization
 			is_alternate_screen := False
 			is_cursor_visible := True
 			is_mouse_captured := False
+			is_mouse_motion_enabled := False
 			is_bracketed_paste_enabled := False
 			is_focus_change_enabled := False
+			cursor_shape := {CURSOR_SHAPE}.Default_user
 		ensure
 			driver_set: driver = a_driver
 			console_output: output_sink = Void
@@ -98,8 +100,21 @@ feature -- Access
 	is_cursor_visible: BOOLEAN
 			-- Is cursor visible?
 
+	cursor_shape: CURSOR_SHAPE
+			-- Cursor shape last written by `set_cursor_shape`
+
+	is_title_pushed: BOOLEAN
+			-- Did `push_title` save the terminal's title without `pop_title` since? Kept by
+			-- the driver, whose signal handlers pop it too ({CONSOLE_DRIVER}.is_title_pushed).
+		do
+			Result := driver.is_title_pushed
+		end
+
 	is_mouse_captured: BOOLEAN
 			-- Is mouse reporting active?
+
+	is_mouse_motion_enabled: BOOLEAN
+			-- Is motion with no button held reported too (mode 1003)?
 
 	is_bracketed_paste_enabled: BOOLEAN
 			-- Is bracketed paste mode active?
@@ -174,7 +189,13 @@ feature -- Basic operations
 		do
 			if output_sink = Void then
 				io.output.flush
+				if not pending_output.is_empty then
+					driver.write_output (pending_output)
+					pending_output.wipe_out
+				end
 			end
+		ensure then
+			written: pending_output.is_empty
 		end
 
 	clear_line (a_row: INTEGER)
@@ -203,6 +224,21 @@ feature -- Basic operations
 				cursor_row := height - 1
 				cursor_column := 0
 			end
+		end
+
+	set_clipboard (a_selection: CHARACTER_8; a_text: READABLE_STRING_GENERAL)
+			-- Write OSC 52 `ESC ] 52 ; a_selection ; base64 ESC \`, the base64 of `a_text` as
+			-- UTF-8. Buffered like every other sequence: it goes out with the next `flush`.
+		do
+			write (Osc_52_prefix + a_selection.out + ";" + {BASE64}.encoded_utf_8 (a_text) + St)
+		end
+
+	request_clipboard_contents (a_selection: CHARACTER_8)
+			-- Write the OSC 52 query `ESC ] 52 ; a_selection ; ? ESC \`, ended by ST as
+			-- `set_clipboard` is. Buffered like every other sequence: it goes out with the
+			-- next `flush`.
+		do
+			write (Osc_52_prefix + a_selection.out + ";?" + St)
 		end
 
 	query_cursor_position: detachable TUPLE [row, column: INTEGER]
@@ -255,6 +291,105 @@ feature -- Basic operations
 				driver.input_claim.release
 			end
 		end
+
+	query_keyboard_enhancement: detachable TUPLE [flags: NATURAL_8]
+			-- Ask whether the terminal speaks the Kitty keyboard protocol, as crossterm's
+			-- `supports_keyboard_enhancement`: send `ESC [ ? u` (query the flags) then DA1
+			-- `ESC [ c` (primary device attributes), and wait (at most `Keyboard_query_attempts`
+			-- x `Keyboard_query_poll_ms` of silence) for the replies. A flags reply
+			-- `ESC [ ? flags u` before the DA1 reply `ESC [ ? ... c`: the flags now in effect.
+			-- The DA1 reply first (the terminal ignored the query), or no reply: Void; then
+			-- `is_keyboard_query_answered` tells the two apart. Reading goes on after a flags
+			-- reply until the DA1 reply, so that it does not reach the next reader.
+			-- Input other than the replies that arrives meanwhile (keys typed before them) is
+			-- kept, in order, in `keyboard_query_other_events`, for the caller to deliver. Holds
+			-- the driver's `input_claim` while it reads, as `query_cursor_position`; Void,
+			-- without sending the queries, if another reader took it first.
+		require
+			input_not_in_use: not is_input_in_use
+		local
+			l_parser: ANSI_INPUT_PARSER
+			l_code, l_misses: INTEGER
+			l_claimed, l_fenced: BOOLEAN
+		do
+			is_keyboard_query_answered := False
+			is_keyboard_query_fenced := False
+			create internal_keyboard_query_other_events.make (0)
+			if driver.input_claim.try_acquire then
+				l_claimed := True
+				write (Csi + "?u" + Csi + "c")
+				flush
+				create l_parser.make
+				from
+				until
+					l_fenced or l_misses >= Keyboard_query_attempts
+				loop
+					l_code := driver.read_char_with_timeout (Keyboard_query_poll_ms)
+					if l_code < 0 then
+						l_misses := l_misses + 1
+					else
+						l_parser.parse_code (l_code.to_natural_32)
+						across l_parser.events as e loop
+							if l_fenced then
+								-- After the DA1 reply in the same batch: not read by the query
+							elseif attached {KEYBOARD_FLAGS_EVENT} e as l_flags then
+								Result := [l_flags.flags]
+								is_keyboard_query_answered := True
+							elseif attached {DEVICE_ATTRIBUTES_EVENT} e then
+								l_fenced := True
+								is_keyboard_query_answered := True
+								is_keyboard_query_fenced := True
+							else
+								keyboard_query_other_events.extend (e)
+							end
+						end
+						l_parser.wipe_out
+					end
+				end
+				-- An Esc key typed on its own waits in the parser for the bytes of a sequence:
+				-- none are coming from this reader, so deliver it
+				l_parser.flush_escape
+				across l_parser.events as e loop
+					keyboard_query_other_events.extend (e)
+				end
+				l_claimed := False
+				driver.input_claim.release
+			end
+		ensure
+			answered_with_flags: Result /= Void implies is_keyboard_query_answered
+			fenced_is_answered: is_keyboard_query_fenced implies is_keyboard_query_answered
+			no_reply_kept: across keyboard_query_other_events as e all
+				not e.is_keyboard_flags and not e.is_device_attributes end
+		rescue
+			if l_claimed then
+				l_claimed := False
+				driver.input_claim.release
+			end
+		end
+
+	is_keyboard_query_answered: BOOLEAN
+			-- Did the last `query_keyboard_enhancement` get a reply (flags, DA1 or both)? When
+			-- not, whether the terminal speaks the Kitty protocol is unknown.
+
+	is_keyboard_query_fenced: BOOLEAN
+			-- Did the last `query_keyboard_enhancement` read the DA1 reply? When not, the
+			-- replies it waited for may still arrive later, and reach the next reader.
+
+	keyboard_query_other_events: ARRAYED_LIST [EVENT]
+			-- Input other than the replies read by the last `query_keyboard_enhancement`
+			-- (keys typed meanwhile), in order
+		do
+			if attached internal_keyboard_query_other_events as l_keyboard_query_other_events then
+				Result := l_keyboard_query_other_events
+			else
+				create Result.make (0)
+				internal_keyboard_query_other_events := Result
+			end
+		end
+
+	internal_keyboard_query_other_events: detachable ARRAYED_LIST [EVENT]
+			-- Storage of `keyboard_query_other_events`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 feature -- Mode settings
 
@@ -329,6 +464,38 @@ feature -- Mode settings
 			is_cursor_visible := True
 		end
 
+	set_cursor_shape (a_shape: CURSOR_SHAPE)
+			-- Write DECSCUSR `CSI n SP q`, n = `a_shape.code` (0 .. 6).
+		do
+			write (Csi + a_shape.code.out + " q")
+			cursor_shape := a_shape
+		end
+
+	set_title (a_title: READABLE_STRING_GENERAL)
+			-- Write OSC 0 `ESC ] 0 ; title BEL` with `a_title` encoded as UTF-8.
+		do
+			write ({WINDOW_TITLE}.Set_title_prefix
+				+ {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (a_title)
+				+ {WINDOW_TITLE}.Set_title_terminator)
+		end
+
+	push_title
+			-- Write XTWINOPS `CSI 22 ; 0 t`. The driver records the push first: a handler
+			-- that runs before the bytes are out then pops one title too many, which
+			-- terminals ignore on an empty stack, instead of leaving a pushed one behind.
+		do
+			driver.set_title_pushed (True)
+			write ({WINDOW_TITLE}.Push_title)
+		end
+
+	pop_title
+			-- Write XTWINOPS `CSI 23 ; 0 t`, then record that nothing is pushed any more (in
+			-- that order, for the same reason as in `push_title`).
+		do
+			write ({WINDOW_TITLE}.Pop_title)
+			driver.set_title_pushed (False)
+		end
+
 	enable_mouse_capture
 			-- Enable mouse tracking (normal + drag + SGR format).
 		local
@@ -340,13 +507,37 @@ feature -- Mode settings
 		end
 
 	disable_mouse_capture
-			-- Disable mouse tracking and restore driver state.
+			-- Disable mouse tracking and restore driver state. Motion reporting, if on, is
+			-- turned off with the rest, in crossterm's `DisableMouseCapture` order (`?1006l`,
+			-- then `?1003l`, `?1002l`, `?1000l`; crossterm also writes `?1015l`, a mode
+			-- EiffelTUI never turns on).
 		local
 			l_res: BOOLEAN
 		do
-			write (Csi + "?1006l" + Csi + "?1002l" + Csi + "?1000l")
+			if is_mouse_motion_enabled then
+				write (Csi + "?1006l" + Csi + "?1003l" + Csi + "?1002l" + Csi + "?1000l")
+			else
+				write (Csi + "?1006l" + Csi + "?1002l" + Csi + "?1000l")
+			end
+			is_mouse_motion_enabled := False
 			l_res := driver.disable_mouse
 			is_mouse_captured := False
+		end
+
+	enable_mouse_motion
+			-- Write `CSI ? 1003 h` (any-event tracking): the terminal reports motion with no
+			-- button held as well, as SGR reports with button code 35 (32 + 3).
+		do
+			write (Csi + "?1003h")
+			is_mouse_motion_enabled := True
+		end
+
+	disable_mouse_motion
+			-- Write `CSI ? 1003 l`: back to reporting motion only while a button is held
+			-- (mode 1002, still on while the mouse is captured).
+		do
+			write (Csi + "?1003l")
+			is_mouse_motion_enabled := False
 		end
 
 	enable_bracketed_paste
@@ -401,14 +592,39 @@ feature -- Driver Access
 feature {NONE} -- Output
 
 	write (a_text: READABLE_STRING_GENERAL)
-			-- Send `a_text` to `output_sink` if set, otherwise to standard output.
+			-- Send `a_text` to `output_sink` if set, otherwise to standard output: through
+			-- `pending_output` and the driver at the next `flush` where the driver writes the
+			-- output (`writes_output`), so that the rest of a frame interrupted by a stop can
+			-- be dropped (review finding M11).
 		do
 			if attached output_sink as l_sink then
 				l_sink.append_string_general (a_text)
+			elseif driver.writes_output then
+				if attached {READABLE_STRING_8} a_text as l_bytes then
+					pending_output.append (l_bytes)
+				else
+					-- As `print` does
+					pending_output.append ({UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (a_text))
+				end
 			else
 				print (a_text)
 			end
 		end
+
+	pending_output: STRING_8
+			-- UTF-8 output not handed to the driver yet (see `write`)
+		do
+			if attached internal_pending_output as l_pending_output then
+				Result := l_pending_output
+			else
+				create Result.make (4096)
+				internal_pending_output := Result
+			end
+		end
+
+	internal_pending_output: detachable STRING_8
+			-- Storage of `pending_output`, created on first use (rather than a self-initializing
+			-- attribute, which is not initialized when the library is compiled without void safety)
 
 feature {NONE} -- Cursor tracking
 
@@ -478,10 +694,24 @@ feature {NONE} -- Constants
 	Csi: STRING_8 = "%/27/["
 			-- Control Sequence Introducer
 
+	Osc_52_prefix: STRING_8 = "%/27/]52;"
+			-- OSC 52 (manipulate selection data), before the target
+
+	St: STRING_8 = "%/27/\"
+			-- String Terminator `ESC \`, as crossterm's `CopyToClipboard` ends OSC 52
+
 	Cursor_report_attempts: INTEGER = 10
 			-- Number of silent polls before giving up on a cursor position report
 
 	Cursor_report_poll_ms: INTEGER = 25
 			-- Poll timeout while waiting for a cursor position report
+
+	Keyboard_query_attempts: INTEGER = 80
+			-- Number of silent polls before `query_keyboard_enhancement` gives up: with
+			-- `Keyboard_query_poll_ms`, 2 seconds, crossterm's wait for these replies. Only a
+			-- terminal that answers neither query waits that long; every VT terminal answers DA1.
+
+	Keyboard_query_poll_ms: INTEGER = 25
+			-- Poll timeout while waiting for the keyboard query replies
 
 end

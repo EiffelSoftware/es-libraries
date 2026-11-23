@@ -53,4 +53,28 @@ feature -- Status report
 			Result := False
 		end
 
+	is_keyboard_flags: BOOLEAN
+			-- Is this a Kitty keyboard flags reply (answer to `ESC [ ? u`)?
+		do
+			Result := False
+		end
+
+	is_device_attributes: BOOLEAN
+			-- Is this a primary device attributes reply (answer to DA1 `ESC [ c`)?
+		do
+			Result := False
+		end
+
+	is_clipboard: BOOLEAN
+			-- Is this a clipboard read answer (OSC 52 reply, see CLIPBOARD_EVENT)?
+		do
+			Result := False
+		end
+
+	is_custom: BOOLEAN
+			-- Is this an application-defined custom event?
+		do
+			Result := False
+		end
+
 end

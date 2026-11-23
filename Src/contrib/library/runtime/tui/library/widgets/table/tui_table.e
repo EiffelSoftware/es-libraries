@@ -1,7 +1,8 @@
 note
 	description: "[
 		Multi-column tabular data grid widget supporting column constraints,
-		sticky header/footer, row and column selection, scrolling, and block styling.
+		sticky header/footer, row and column selection, scrolling (with scroll padding),
+		a highlight symbol column (see HIGHLIGHT_SPACING), and block styling.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -43,6 +44,8 @@ feature {NONE} -- Initialization
 			create column_highlight_style.default_create
 			create cell_highlight_style.default_create
 			create highlight_symbol.make_empty
+			highlight_spacing := {HIGHLIGHT_SPACING}.when_selected
+			scroll_padding := 0
 		ensure then
 			rows_empty: rows.is_empty
 			widths_empty: widths.is_empty
@@ -50,6 +53,8 @@ feature {NONE} -- Initialization
 			flex_start: flex.is_start
 			no_header: header = Void
 			no_footer: footer = Void
+			spacing_when_selected: highlight_spacing = {HIGHLIGHT_SPACING}.when_selected
+			no_scroll_padding: scroll_padding = 0
 		end
 
 	make_empty
@@ -137,7 +142,6 @@ feature -- Access
 
 	style: STYLE
 			-- Base style for the entire table
-			-- Base style for the entire table
 
 	row_highlight_style: STYLE
 			-- Style applied to the selected row
@@ -150,6 +154,13 @@ feature -- Access
 
 	highlight_symbol: STRING_32
 			-- Prefix symbol rendered before selected row (e.g. "> ")
+
+	highlight_spacing: INTEGER
+			-- When the highlight symbol column is reserved (a HIGHLIGHT_SPACING constant;
+			-- default `When_selected`)
+
+	scroll_padding: INTEGER
+			-- Rows to keep visible before and after the selected row when scrolling (default 0)
 
 	count: INTEGER
 			-- Total number of data rows
@@ -293,6 +304,8 @@ feature -- Duplication
 				and column_highlight_style.is_equal (a_other.column_highlight_style)
 				and cell_highlight_style.is_equal (a_other.cell_highlight_style)
 				and highlight_symbol.same_string (a_other.highlight_symbol)
+				and highlight_spacing = a_other.highlight_spacing
+				and scroll_padding = a_other.scroll_padding
 				and header ~ a_other.header
 				and footer ~ a_other.footer
 				and widths.count = a_other.widths.count
@@ -368,6 +381,26 @@ feature -- Duplication
 			create highlight_symbol.make_from_string_general (a_symbol)
 		ensure
 			symbol_set: highlight_symbol.same_string_general (a_symbol)
+		end
+
+	set_highlight_spacing (a_spacing: INTEGER)
+			-- Set when the highlight symbol column is reserved.
+		require
+			valid_spacing: {HIGHLIGHT_SPACING}.is_valid (a_spacing)
+		do
+			highlight_spacing := a_spacing
+		ensure
+			spacing_set: highlight_spacing = a_spacing
+		end
+
+	set_scroll_padding (a_padding: INTEGER)
+			-- Set the rows to keep visible before and after the selected row.
+		require
+			non_negative: a_padding >= 0
+		do
+			scroll_padding := a_padding
+		ensure
+			padding_set: scroll_padding = a_padding
 		end
 
 feature -- Fluent Builders
@@ -495,6 +528,30 @@ feature -- Fluent Builders
 			result_not_void: Result /= Void
 		end
 
+	with_highlight_spacing (a_spacing: INTEGER): like Current
+			-- Return a copy of Current with highlight symbol spacing `a_spacing`.
+		require
+			valid_spacing: {HIGHLIGHT_SPACING}.is_valid (a_spacing)
+		do
+			Result := twin
+			Result.set_highlight_spacing (a_spacing)
+		ensure
+			spacing_set: Result.highlight_spacing = a_spacing
+			result_not_void: Result /= Void
+		end
+
+	with_scroll_padding (a_padding: INTEGER): like Current
+			-- Return a copy of Current with scroll padding `a_padding`.
+		require
+			non_negative: a_padding >= 0
+		do
+			Result := twin
+			Result.set_scroll_padding (a_padding)
+		ensure
+			padding_set: Result.scroll_padding = a_padding
+			result_not_void: Result /= Void
+		end
+
 feature -- Rendering
 
 	render (a_area: RECT; a_buffer: BUFFER)
@@ -517,7 +574,9 @@ feature -- Rendering
 		end
 
 	render_stateful (a_area: RECT; a_buffer: BUFFER; a_state: TABLE_STATE)
-			-- Render table grid using mutable `a_state`.
+			-- Render table grid using mutable `a_state` (its offsets are adjusted to keep the
+			-- selected row, with `scroll_padding` rows around it, and the selected column visible).
+			-- The highlight symbol column follows `highlight_spacing`.
 		local
 			l_target_area: RECT
 			l_sym_w: NATURAL_16
@@ -539,11 +598,7 @@ feature -- Rendering
 				if not l_target_area.is_empty and l_target_area.width > 0 and l_target_area.height > 0 then
 					apply_cell_style (l_target_area.y.to_integer_32, l_target_area.x.to_integer_32, l_target_area.width.to_integer_32, l_target_area.height.to_integer_32, style, a_buffer)
 
-					if a_state.has_selection and then not highlight_symbol.is_empty then
-						l_sym_w := {UNICODE_WIDTH}.string_width (highlight_symbol)
-					else
-						l_sym_w := 0
-					end
+					l_sym_w := symbol_column_width (a_state)
 
 					if l_target_area.width > l_sym_w then
 						l_avail_cols_width := l_target_area.width - l_sym_w
@@ -596,7 +651,9 @@ feature -- Rendering
 
 					-- 2. Render Rows
 					if l_rows_h > 0 and not row_store.is_empty then
-						a_state.adjust_viewport (l_rows_h, row_store.count)
+						-- Measured in lines, margins included, as the rows are drawn below. Only
+						-- the rows around the selection are measured, not all of `row_store`.
+						a_state.adjust_viewport_by_heights (row_store.count, agent row_lines, l_rows_h, scroll_padding)
 						l_row_idx := a_state.offset
 						l_curr_y := l_rows_y
 
@@ -655,6 +712,31 @@ feature -- Rendering
 					end
 				end
 			end
+		end
+
+	symbol_column_width (a_state: TABLE_STATE): NATURAL_16
+			-- Columns reserved for the highlight symbol: its width with `Always`, and with
+			-- `When_selected` while a row is selected; 0 with `Never` (Ratatui `selection_width`).
+		require
+			state_not_void: a_state /= Void
+		do
+			if {HIGHLIGHT_SPACING}.should_add (highlight_spacing, a_state.has_selection) then
+				Result := {UNICODE_WIDTH}.string_width (highlight_symbol)
+			end
+		ensure
+			never_reserves_nothing: highlight_spacing = {HIGHLIGHT_SPACING}.never implies Result = 0
+		end
+
+feature {NONE} -- Implementation: Rows
+
+	row_lines (a_index: INTEGER): INTEGER
+			-- Lines taken by row `a_index` of `row_store`, margins included (at least 1)
+		require
+			valid_index: a_index >= 1 and a_index <= row_store.count
+		do
+			Result := row_store.i_th (a_index).total_height.to_integer_32.max (1)
+		ensure
+			positive: Result >= 1
 		end
 
 feature {NONE} -- Implementation: Columns
@@ -930,5 +1012,7 @@ invariant
 	column_highlight_style_not_void: column_highlight_style /= Void
 	cell_highlight_style_not_void: cell_highlight_style /= Void
 	highlight_symbol_not_void: highlight_symbol /= Void
+	valid_highlight_spacing: {HIGHLIGHT_SPACING}.is_valid (highlight_spacing)
+	non_negative_scroll_padding: scroll_padding >= 0
 
 end

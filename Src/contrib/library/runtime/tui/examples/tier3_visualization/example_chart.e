@@ -2,7 +2,9 @@ note
 	description: "[
 		Tier 3 Layout & Visualization Example: Chart & Datasets (Ratatui 1-to-1).
 		Real-time animated multi-series oscilloscope plotting sine/cosine signals,
-		scatter datasets, labeled X/Y axes, and floating legends.
+		scatter datasets, labeled X/Y axes, and floating legends. The sine wave is an
+		area dataset filled to 0 V ({CHART_GRAPH_TYPE}.area, Ratatui `GraphType::Area`);
+		[a] switches it between Area and Line.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -66,6 +68,7 @@ feature {NONE} -- Setup
 		do
 			create m
 			is_running_signal := True
+			is_sine_area := True
 			window_width := 20.0
 			window_start := 0.0
 			legend_pos := {CHART_LEGEND_POSITION}.top_right
@@ -95,6 +98,9 @@ feature {NONE} -- State
 
 	is_running_signal: BOOLEAN
 			-- Is real-time waveform animation advancing?
+
+	is_sine_area: BOOLEAN
+			-- Is the sine wave drawn as an area filled to 0 V (else as a line)?
 
 	window_start: REAL_64
 			-- Start of visible X-axis time window
@@ -249,7 +255,11 @@ feature {NONE} -- Rendering
 				(create {STYLE}.make_fg ({COLOR}.Bright_white)).with_bold
 			))
 			l_line.append_span (create {TEXT_SPAN}.make ("  | Datasets: ", create {STYLE}.make_fg ({COLOR}.Gray)))
-			l_line.append_span (create {TEXT_SPAN}.make ("3 Series (2 Continuous, 1 Scatter)", create {STYLE}.make_fg ({COLOR}.Bright_cyan)))
+			if is_sine_area then
+				l_line.append_span (create {TEXT_SPAN}.make ("3 Series (Area, Line, Scatter)", create {STYLE}.make_fg ({COLOR}.Bright_cyan)))
+			else
+				l_line.append_span (create {TEXT_SPAN}.make ("3 Series (2 Lines, 1 Scatter)", create {STYLE}.make_fg ({COLOR}.Bright_cyan)))
+			end
 			l_text.append_line (l_line)
 
 			create l_para.make (l_text)
@@ -272,10 +282,15 @@ feature {NONE} -- Rendering
 				with_border_style (create {STYLE}.make_fg ({COLOR}.Bright_cyan)).
 				with_title (" Real-Time Frequency Waveform Analyzer ")
 
-			-- Series 1: Sine Wave
+			-- Series 1: Sine Wave, an area filled to 0 V (or a line, [a])
 			create l_ds1.make_with_data ("Sine Wave (18V Peak)", data1)
 			l_ds1 := l_ds1.with_style ((create {STYLE}.make_fg ({COLOR}.Bright_cyan)).with_bold)
-			l_ds1.set_graph_type ({CHART_GRAPH_TYPE}.line)
+			if is_sine_area then
+				l_ds1.set_graph_type ({CHART_GRAPH_TYPE}.area)
+				l_ds1.set_fill_to_y (0.0)
+			else
+				l_ds1.set_graph_type ({CHART_GRAPH_TYPE}.line)
+			end
 
 			-- Series 2: Cosine Wave
 			create l_ds2.make_with_data ("Cosine Harmonic (12V)", data2)
@@ -338,6 +353,8 @@ feature {NONE} -- Rendering
 			l_line.append_span (create {TEXT_SPAN}.make ("Pause/Resume  ", create {STYLE}.make_fg ({COLOR}.Gray)))
 			l_line.append_span (create {TEXT_SPAN}.make ("[Tab] ", (create {STYLE}.make_fg ({COLOR}.Bright_yellow)).with_bold))
 			l_line.append_span (create {TEXT_SPAN}.make ("Cycle Legend  ", create {STYLE}.make_fg ({COLOR}.Gray)))
+			l_line.append_span (create {TEXT_SPAN}.make ("[a] ", (create {STYLE}.make_fg ({COLOR}.Bright_yellow)).with_bold))
+			l_line.append_span (create {TEXT_SPAN}.make ("Area/Line  ", create {STYLE}.make_fg ({COLOR}.Gray)))
 			l_line.append_span (create {TEXT_SPAN}.make ("[+/-] ", (create {STYLE}.make_fg ({COLOR}.Bright_yellow)).with_bold))
 			l_line.append_span (create {TEXT_SPAN}.make ("Window Zoom  ", create {STYLE}.make_fg ({COLOR}.Gray)))
 			l_line.append_span (create {TEXT_SPAN}.make ("[q/Esc] ", (create {STYLE}.make_fg ({COLOR}.Bright_yellow)).with_bold))
@@ -365,6 +382,8 @@ feature {NONE} -- Event Handling
 						stop
 					elseif ch = ' ' then
 						is_running_signal := not is_running_signal
+					elseif ch = 'a' or ch = 'A' then
+						is_sine_area := not is_sine_area
 					elseif ch = '%T' then
 						legend_pos := (legend_pos \\ 4) + 1
 					elseif ch = '+' or ch = '=' then

@@ -1,0 +1,44 @@
+[base]
+fg = "#F8F8F2"
+bg = "#282A36"
+
+[primary]
+fg = "#BD93F9"
+
+[secondary]
+fg = "#FF79C6"
+
+[success]
+fg = "#50FA7B"
+
+[warning]
+fg = "#F1FA8C"
+
+[error]
+fg = "#FF5555"
+
+[info]
+fg = "#8BE9FD"
+
+[highlight]
+fg = "#282A36"
+bg = "#BD93F9"
+modifiers = ["bold"]
+
+[selection]
+fg = "#F8F8F2"
+bg = "#44475A"
+modifiers = ["bold"]
+
+[muted]
+fg = "#6272A4"
+
+[border]
+fg = "#6272A4"
+
+[title]
+fg = "#BD93F9"
+modifiers = ["bold"]
+
+[text]
+fg = "#F8F8F2"

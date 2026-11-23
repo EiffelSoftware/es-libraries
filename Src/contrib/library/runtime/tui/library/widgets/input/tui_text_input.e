@@ -19,6 +19,10 @@ inherit
 		redefine
 			default_create
 		end
+	HIT_TARGET
+		redefine
+			default_create
+		end
 
 create
 	default_create,
@@ -35,8 +39,10 @@ feature {NONE} -- Initialization
 			create placeholder_style.default_create
 			placeholder_style := placeholder_style.with_dim
 			shows_cursor := True
+			cursor_shape := {CURSOR_SHAPE}.Steady_bar
 		ensure then
 			shows_cursor_default: shows_cursor
+			bar_by_default: cursor_shape ~ {CURSOR_SHAPE}.Steady_bar
 		end
 
 	make
@@ -67,6 +73,10 @@ feature -- Access
 
 	shows_cursor: BOOLEAN
 			-- Whether cursor is rendered
+
+	cursor_shape: CURSOR_SHAPE
+			-- Hardware cursor shape to ask for with `{FRAME}.set_cursor_shape` when the
+			-- application shows the cursor at `cursor_screen_position` (default: steady bar)
 
 feature -- Element Change
 
@@ -136,6 +146,16 @@ feature -- Element Change
 			shows_cursor := a_val
 		ensure
 			shows_cursor_set: shows_cursor = a_val
+		end
+
+	set_cursor_shape (a_shape: CURSOR_SHAPE)
+			-- Set the hardware cursor shape to `a_shape`.
+		require
+			shape_not_void: a_shape /= Void
+		do
+			cursor_shape := a_shape
+		ensure
+			cursor_shape_set: cursor_shape = a_shape
 		end
 
 feature -- Fluent Builders
@@ -215,6 +235,18 @@ feature -- Fluent Builders
 		ensure
 			result_not_void: Result /= Void
 			shows_cursor_set: Result.shows_cursor = a_val
+		end
+
+	with_cursor_shape (a_shape: CURSOR_SHAPE): like Current
+			-- Return a copy of Current with `cursor_shape` set to `a_shape`.
+		require
+			shape_not_void: a_shape /= Void
+		do
+			Result := twin
+			Result.set_cursor_shape (a_shape)
+		ensure
+			result_not_void: Result /= Void
+			cursor_shape_set: Result.cursor_shape = a_shape
 		end
 
 feature -- Rendering
@@ -396,5 +428,6 @@ invariant
 	style_not_void: style /= Void
 	cursor_style_not_void: cursor_style /= Void
 	placeholder_style_not_void: placeholder_style /= Void
+	cursor_shape_not_void: cursor_shape /= Void
 
 end

@@ -343,7 +343,8 @@ feature {NONE} -- Rendering
 					l_lbl_style := (create {STYLE}.make_with_colors ({COLOR}.Black, {COLOR}.Bright_yellow)).with_bold
 				else
 					create l_bar_style.make_fg (l_col)
-					l_val_style := (create {STYLE}.make_fg (l_col)).with_bold
+						-- Reversed, as in Ratatui's weather app: the value is written over the bar
+					l_val_style := (create {STYLE}.make_fg (l_col)).with_bold.with_reverse
 					create l_lbl_style.make_fg ({COLOR}.Dark_gray)
 				end
 

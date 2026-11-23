@@ -155,6 +155,62 @@
 		<cluster name="examples" location=".\examples\" recursive="true"/>
 	</target>
 
+	<target name="example_text_area" extends="eiffeltui">
+		<description>EiffelTUI Example: Multi-line Text Area</description>
+		<root class="EXAMPLE_TEXT_AREA" feature="make"/>
+		<setting name="executable_name" value="example_text_area"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_modal_dialog" extends="eiffeltui">
+		<description>EiffelTUI Example: Modal Dialog (mouse + keyboard)</description>
+		<root class="EXAMPLE_MODAL_DIALOG" feature="make"/>
+		<setting name="executable_name" value="example_modal_dialog"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_form_controls" extends="eiffeltui">
+		<description>EiffelTUI Example: Form Controls (divider, checkbox, radio group, slider)</description>
+		<root class="EXAMPLE_FORM_CONTROLS" feature="make"/>
+		<setting name="executable_name" value="example_form_controls"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_menu_bar" extends="eiffeltui">
+		<description>EiffelTUI Example: Menu Bar (menu bar, drop-downs, sub-menu, focus scope)</description>
+		<root class="EXAMPLE_MENU_BAR" feature="make"/>
+		<setting name="executable_name" value="example_menu_bar"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_file_tree" extends="eiffeltui">
+		<description>EiffelTUI Example: File Tree (tree with a breadcrumb of the selected path)</description>
+		<root class="EXAMPLE_FILE_TREE" feature="make"/>
+		<setting name="executable_name" value="example_file_tree"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_toasts" extends="eiffeltui">
+		<description>EiffelTUI Example: Toasts (toast queue, levels, expiry on ticks, positions)</description>
+		<root class="EXAMPLE_TOASTS" feature="make"/>
+		<setting name="executable_name" value="example_toasts"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_tooltips" extends="eiffeltui">
+		<description>EiffelTUI Example: Tooltips (hover with mouse motion reporting, F1 for the focused control, edge flips)</description>
+		<root class="EXAMPLE_TOOLTIPS" feature="make"/>
+		<setting name="executable_name" value="example_tooltips"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_settings" extends="eiffeltui">
+		<description>EiffelTUI Example: Settings (menu bar, checkboxes, sliders, dividers, toast on save, theme files and switching)</description>
+		<root class="EXAMPLE_SETTINGS" feature="make"/>
+		<setting name="executable_name" value="example_settings"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
 	<target name="example_table" extends="eiffeltui">
 		<description>EiffelTUI Example: Table</description>
 		<root class="EXAMPLE_TABLE" feature="make"/>
@@ -306,6 +362,13 @@
 		<description>EiffelTUI Example: Async GitHub PR Monitor</description>
 		<root class="EXAMPLE_ASYNC_GITHUB" feature="make"/>
 		<setting name="executable_name" value="example_async_github"/>
+		<cluster name="examples" location=".\examples\" recursive="true"/>
+	</target>
+
+	<target name="example_async_scan" extends="eiffeltui">
+		<description>EiffelTUI Example: Async Directory Scan (worker thread, progress, cancel, generations, join on exit)</description>
+		<root class="EXAMPLE_ASYNC_SCAN" feature="make"/>
+		<setting name="executable_name" value="example_async_scan"/>
 		<cluster name="examples" location=".\examples\" recursive="true"/>
 	</target>
 

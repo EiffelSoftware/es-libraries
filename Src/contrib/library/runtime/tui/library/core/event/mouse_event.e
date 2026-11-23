@@ -1,7 +1,8 @@
 note
 	description: "[
-		Mouse event carrying cell coordinates, action kind (click, release, scroll, drag),
-		and modifier keys.
+		Mouse event carrying cell coordinates, action kind (click, release, scroll, drag,
+		move), and modifier keys. Moves (no button held) are reported only while motion
+		reporting is on ({TUI_APPLICATION}.set_mouse_motion, mode 1003).
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -43,7 +44,8 @@ feature -- Access
 			-- Mouse action kind
 
 	button: NATURAL_8
-			-- Mouse button (0=Left, 1=Middle, 2=Right)
+			-- Mouse button (0=Left, 1=Middle, 2=Right); `Button_none` (3) for a move, which
+			-- has no button (crossterm `MouseEventKind::Moved`)
 
 	column: NATURAL_16
 			-- 0-based column coordinate
@@ -112,5 +114,7 @@ feature -- Constants
 	Button_left: NATURAL_8 = 0
 	Button_middle: NATURAL_8 = 1
 	Button_right: NATURAL_8 = 2
+	Button_none: NATURAL_8 = 3
+			-- Button of a move (no button held); the low bits of an SGR motion report (32 + 3)
 
 end

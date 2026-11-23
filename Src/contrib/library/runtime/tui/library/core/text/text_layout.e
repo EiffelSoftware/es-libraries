@@ -13,14 +13,17 @@ class
 feature -- Alignment calculation
 
 	aligned_offset (a_line_width, a_area_width: NATURAL_16; a_alignment: NATURAL_8): NATURAL_16
-			-- Starting column offset for a line of width `a_line_width` inside area of width `a_area_width`.
+			-- Starting column offset for a line of width `a_line_width` inside area of width `a_area_width`,
+			-- as Ratatui's paragraph `get_line_offset`. Centred is `a_area_width // 2 - a_line_width // 2`,
+			-- which is one column further right than `(a_area_width - a_line_width) // 2` when the area
+			-- is even and the line odd (TEXT_LINE and TEXT centre the other way, as Ratatui's `Line` does).
 		require
 			valid_align: {TEXT_ALIGNMENT}.is_valid (a_alignment)
 		do
 			if a_line_width >= a_area_width then
 				Result := 0
 			elseif a_alignment = {TEXT_ALIGNMENT}.center then
-				Result := (a_area_width - a_line_width) // 2
+				Result := a_area_width // 2 - a_line_width // 2
 			elseif a_alignment = {TEXT_ALIGNMENT}.right then
 				Result := a_area_width - a_line_width
 			else
@@ -98,7 +101,7 @@ feature {NONE} -- Implementation: Character Wrapping
 		do
 			create l_res.make (2)
 			create l_curr_line.make_empty
-			l_curr_line.set_alignment (a_line.alignment)
+			l_curr_line.set_alignment_from (a_line)
 			l_curr_line.set_style (a_line.style)
 			l_curr_width := 0
 
@@ -127,7 +130,7 @@ feature {NONE} -- Implementation: Character Wrapping
 						end
 						l_res.extend (l_curr_line)
 						create l_curr_line.make_empty
-						l_curr_line.set_alignment (a_line.alignment)
+						l_curr_line.set_alignment_from (a_line)
 						l_curr_line.set_style (a_line.style)
 						l_curr_width := 0
 					end
@@ -177,7 +180,7 @@ feature {NONE} -- Implementation: Word Wrapping
 		do
 			create l_res.make (2)
 			create l_curr_line.make_empty
-			l_curr_line.set_alignment (a_line.alignment)
+			l_curr_line.set_alignment_from (a_line)
 			l_curr_line.set_style (a_line.style)
 			l_curr_width := 0
 
@@ -225,7 +228,7 @@ feature {NONE} -- Implementation: Word Wrapping
 							-- Space exceeds line; finish line
 							finish_word_line (l_res, l_curr_line, a_trim)
 							create l_curr_line.make_empty
-							l_curr_line.set_alignment (a_line.alignment)
+							l_curr_line.set_alignment_from (a_line)
 							l_curr_line.set_style (a_line.style)
 							l_curr_width := 0
 						end
@@ -239,7 +242,7 @@ feature {NONE} -- Implementation: Word Wrapping
 							if l_curr_width > 0 then
 								finish_word_line (l_res, l_curr_line, a_trim)
 								create l_curr_line.make_empty
-								l_curr_line.set_alignment (a_line.alignment)
+								l_curr_line.set_alignment_from (a_line)
 								l_curr_line.set_style (a_line.style)
 								l_curr_width := 0
 							end
@@ -250,7 +253,7 @@ feature {NONE} -- Implementation: Word Wrapping
 								l_curr_width := l_tok_width
 							else
 								-- Word is larger than maximum line width: split by character
-								l_curr_line := append_oversized_word (l_res, l_curr_line, l_tok_str, l_span.style, a_max_width, a_line.alignment, a_line.style)
+								l_curr_line := append_oversized_word (l_res, l_curr_line, l_tok_str, l_span.style, a_max_width, a_line, a_line.style)
 								l_curr_width := l_curr_line.width
 							end
 						end
@@ -280,8 +283,9 @@ feature {NONE} -- Implementation: Word Wrapping
 			instance_free: class
 		end
 
-	append_oversized_word (a_res: ARRAYED_LIST [TEXT_LINE]; a_curr_line: TEXT_LINE; a_word: STRING_32; a_style: STYLE; a_max_width: NATURAL_16; a_align: NATURAL_8; a_line_style: STYLE): TEXT_LINE
+	append_oversized_word (a_res: ARRAYED_LIST [TEXT_LINE]; a_curr_line: TEXT_LINE; a_word: STRING_32; a_style: STYLE; a_max_width: NATURAL_16; a_source: TEXT_LINE; a_line_style: STYLE): TEXT_LINE
 			-- Break oversized `a_word` across lines, between grapheme clusters only.
+			-- Each new line takes the alignment of `a_source` (set or not) and `a_line_style`.
 			-- No code point is dropped: zero-width clusters stay with the line they follow.
 		local
 			k, l_end: INTEGER
@@ -307,7 +311,7 @@ feature {NONE} -- Implementation: Word Wrapping
 					end
 					a_res.extend (l_line)
 					create l_line.make_empty
-					l_line.set_alignment (a_align)
+					l_line.set_alignment_from (a_source)
 					l_line.set_style (a_line_style)
 					l_cw_acc := 0
 				end

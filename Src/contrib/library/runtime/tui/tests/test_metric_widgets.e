@@ -141,16 +141,15 @@ feature -- Test routines
 
 			l_chart.render (l_area, l_buf)
 
-			-- Row layout with height 4:
-			-- Row 0..1: Bars (height 2)
-			-- Row 2: Values ("100", "50")
+			-- Row layout with height 4 (as Ratatui):
+			-- Row 0..2: Bars (height 3); values ("100", "50") over the bars' bottom row 2
 			-- Row 3: Labels ("CPU", "MEM")
 
 			-- Bar 1 (CPU = 100%): Top of bar at row 0 is full block '█' (code 9608)
 			assert ("bar1 row 0 full block", l_buf.cell (0, 0).symbol.code (1) = 9608)
 			assert ("bar1 row 1 full block", l_buf.cell (1, 0).symbol.code (1) = 9608)
 
-			-- Bar 1 Value at row 2: "100"
+			-- Bar 1 Value at row 2: "100" (as wide as the bar, shown because that cell is full)
 			assert ("bar1 val 1", l_buf.cell (2, 0).symbol.same_string_general ("1"))
 			assert ("bar1 val 0", l_buf.cell (2, 1).symbol.same_string_general ("0"))
 			assert ("bar1 val 0", l_buf.cell (2, 2).symbol.same_string_general ("0"))
@@ -160,11 +159,15 @@ feature -- Test routines
 			assert ("bar1 label P", l_buf.cell (3, 1).symbol.same_string_general ("P"))
 			assert ("bar1 label U", l_buf.cell (3, 2).symbol.same_string_general ("U"))
 
-			-- Bar 2 (MEM = 50%): Starts at col 4 (width 3 + gap 1 = 4)
+			-- Bar 2 (MEM = 50%, 12 of 24 eighths): Starts at col 4 (width 3 + gap 1 = 4)
 			-- Row 0: empty space
 			assert ("bar2 row 0 empty", l_buf.cell (0, 4).symbol.same_string_general (" "))
-			-- Row 1: full block '█'
-			assert ("bar2 row 1 full block", l_buf.cell (1, 4).symbol.code (1) = 9608)
+			-- Row 1: half block '▄'
+			assert ("bar2 row 1 half block", l_buf.cell (1, 4).symbol.code (1) = 9604)
+			-- Row 2: "50" centred ((3 - 2) // 2 = 0), then the bar
+			assert ("bar2 val 5", l_buf.cell (2, 4).symbol.same_string_general ("5"))
+			assert ("bar2 val 0", l_buf.cell (2, 5).symbol.same_string_general ("0"))
+			assert ("bar2 row 2 full block", l_buf.cell (2, 6).symbol.code (1) = 9608)
 			-- Row 3: Label "MEM"
 			assert ("bar2 label M", l_buf.cell (3, 4).symbol.same_string_general ("M"))
 			assert ("bar2 label E", l_buf.cell (3, 5).symbol.same_string_general ("E"))

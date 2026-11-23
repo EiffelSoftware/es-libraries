@@ -6,6 +6,9 @@ note
 		records how much output the watched sink held at that moment, so tests can check
 		that escape sequences were written before the console modes were restored.
 		Reads happen on the input thread, so all script state is guarded by `lock'.
+		Clipboard (P2b K4): no clipboard read of its own by default, as on Linux;
+		`set_clipboard_provider' makes it read a scripted clipboard as WIN32_CONSOLE_DRIVER
+		reads the system's (on the main thread, so not guarded).
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -17,7 +20,17 @@ class
 inherit
 	CONSOLE_DRIVER
 		redefine
-			default_create
+			default_create,
+			supports_suspend_resume,
+			provides_keyboard_enhancement,
+			has_resume_request,
+			is_foreground,
+			clear_resume_request,
+			suspend_process,
+			writes_output,
+			write_output,
+			provides_clipboard_read,
+			read_clipboard_text
 		end
 
 create
@@ -196,13 +209,33 @@ feature -- Mode Commands
 	enable_raw_mode: BOOLEAN
 		do
 			raw_enable_count := raw_enable_count + 1
+			log_mark ("raw-on")
 			is_raw := True
 			Result := True
+			if attached watched_sink as l_sink then
+				output_at_raw_enable := l_sink.twin
+			end
+			if attached raw_enable_hook as h then
+				h.call
+			end
+		end
+
+	output_at_raw_enable: detachable STRING_32
+			-- Copy of the watched sink when `enable_raw_mode` was last called
+
+	raw_enable_hook: detachable PROCEDURE
+			-- Called at the end of every `enable_raw_mode`
+
+	set_raw_enable_hook (a_hook: like raw_enable_hook)
+			-- Set `raw_enable_hook` to `a_hook`.
+		do
+			raw_enable_hook := a_hook
 		end
 
 	disable_raw_mode: BOOLEAN
 		do
 			raw_disable_count := raw_disable_count + 1
+			log_mark ("raw-off")
 			is_raw := False
 			Result := True
 		end
@@ -221,6 +254,17 @@ feature -- Mode Commands
 
 	is_keyboard_enhancement_enabled: BOOLEAN
 
+	provides_keyboard_enhancement: BOOLEAN
+			-- As a platform driver that builds the enhanced key events itself (Win32), when set
+
+	set_provides_keyboard_enhancement (a_value: BOOLEAN)
+			-- Set `provides_keyboard_enhancement` to `a_value`.
+		do
+			provides_keyboard_enhancement := a_value
+		ensure
+			set: provides_keyboard_enhancement = a_value
+		end
+
 	enable_keyboard_enhancement
 		do
 			is_keyboard_enhancement_enabled := True
@@ -234,6 +278,7 @@ feature -- Mode Commands
 	restore_modes
 		do
 			restore_count := restore_count + 1
+			log_mark ("restore")
 			if attached watched_sink as l_sink then
 				output_at_restore := l_sink.twin
 			end
@@ -241,6 +286,297 @@ feature -- Mode Commands
 			is_mouse_enabled := False
 			is_keyboard_enhancement_enabled := False
 		end
+
+feature -- Mode log
+
+	mode_log: ARRAYED_LIST [TUPLE [name: STRING_8; position: INTEGER]]
+			-- Console mode calls ("raw-on", "raw-off", "restore", "stop") and the marks of
+			-- `log_mark`, in call order, each with the length of the watched sink at that
+			-- moment, so that a test can place them among the escape sequences written
+		attribute
+			create Result.make (16)
+		end
+
+	log_mark (a_name: STRING_8)
+			-- Append `a_name` to `mode_log` at the current length of the watched sink.
+		require
+			name_attached: a_name /= Void
+		do
+			if attached watched_sink as l_sink then
+				mode_log.extend ([a_name, l_sink.count])
+			else
+				mode_log.extend ([a_name, 0])
+			end
+		ensure
+			one_more: mode_log.count = old mode_log.count + 1
+		end
+
+feature -- Suspend / resume
+
+	supports_suspend_resume: BOOLEAN
+			-- Off by default, so that Ctrl+Z reaches `process` in the other tests
+
+	set_supports_suspend_resume (a_on: BOOLEAN)
+			-- Act as a platform that can (or cannot) suspend.
+		do
+			supports_suspend_resume := a_on
+		ensure
+			set: supports_suspend_resume = a_on
+		end
+
+	set_suspend_hook (a_hook: like suspend_hook)
+			-- Call `a_hook` while "stopped" in `suspend_process` (e.g. to script the
+			-- cursor report the resume will ask for).
+		do
+			suspend_hook := a_hook
+		end
+
+	suspend_hook: detachable PROCEDURE
+
+	set_late_continue (a_on: BOOLEAN)
+			-- Deliver the continue that ends a `suspend_process` only once it has returned,
+			-- at the next `has_resume_request` (as a SIGCONT handler running on another thread
+			-- after the stopped thread went on).
+		do
+			is_late_continue := a_on
+		end
+
+	is_late_continue: BOOLEAN
+
+	suspend_process
+			-- Record the call and the state of the console, as POSIX would when stopping.
+			-- Like the POSIX driver, account in advance for the continue that ends the stop.
+		do
+			suspend_count := suspend_count + 1
+			log_mark ("stop")
+			raw_at_suspend := is_raw
+			input_claimed_at_suspend := is_input_claimed
+			if attached watched_sink as l_sink then
+				output_at_suspend := l_sink.twin
+			end
+			handled_continue_count := continue_count + 1
+			if attached suspend_hook as h then
+				h.call
+			end
+			if is_late_continue then
+				has_late_continue := True
+			else
+				continue_count := continue_count + 1
+			end
+		end
+
+	simulate_external_stop
+			-- Act as SIGTSTP from outside followed by SIGCONT: the handler restored the tty
+			-- behind the application's back, and a resume is requested. The handler also
+			-- pops a pushed window title (P2 T2), counted in `external_title_pop_count`.
+		do
+			external_stop_count := external_stop_count + 1
+			if is_title_pushed then
+				external_title_pop_count := external_title_pop_count + 1
+				set_title_pushed (False)
+			end
+			is_raw := False
+			if attached watched_sink as l_sink then
+				output_at_external_stop := l_sink.twin
+			end
+			continue_count := continue_count + 1
+		end
+
+	output_at_external_stop: detachable STRING_32
+			-- Copy of the watched sink when `simulate_external_stop` was last called
+
+	has_resume_request: BOOLEAN
+		do
+			if has_late_continue then
+				has_late_continue := False
+				continue_count := continue_count + 1
+			end
+			Result := continue_count - handled_continue_count > 0
+		end
+
+	clear_resume_request
+		do
+			handled_continue_count := continue_count
+		end
+
+	suspend_count: INTEGER
+			-- Number of `suspend_process` calls
+
+	external_stop_count: INTEGER
+			-- Number of `simulate_external_stop` calls
+
+	external_title_pop_count: INTEGER
+			-- Number of window titles popped by `simulate_external_stop`
+
+	raw_at_suspend: BOOLEAN
+			-- Was the console raw when `suspend_process` was last called?
+
+	input_claimed_at_suspend: BOOLEAN
+			-- Was a reader reading the console when `suspend_process` was last called?
+
+	output_at_suspend: detachable STRING_32
+			-- Copy of the watched sink when `suspend_process` was last called
+
+feature -- Clipboard read
+
+	provides_clipboard_read: BOOLEAN
+			-- Does the driver read a scripted clipboard (`set_clipboard_provider`)? False by
+			-- default, as on Linux.
+		do
+			Result := is_clipboard_provider
+		end
+
+	set_clipboard_provider (a_text: detachable READABLE_STRING_GENERAL; a_status: INTEGER)
+			-- Read the clipboard from now on, as the Windows driver does: `a_text` (Void: empty)
+			-- with `a_status` (`Status_text`, `Status_unavailable`); a text longer than the
+			-- read's cap gives `Status_too_large`.
+		require
+			valid_status: a_status = {CLIPBOARD_EVENT}.Status_text or a_status = {CLIPBOARD_EVENT}.Status_unavailable
+			text_only_with_status_text: a_text /= Void implies a_status = {CLIPBOARD_EVENT}.Status_text
+		do
+			is_clipboard_provider := True
+			if attached a_text then
+				clipboard_text := a_text.as_string_32.twin
+			else
+				clipboard_text := Void
+			end
+			clipboard_status := a_status
+		ensure
+			provides: provides_clipboard_read
+		end
+
+	set_clipboard_read_delay (a_ms: INTEGER)
+			-- Make each clipboard read take `a_ms` milliseconds (another program holding the
+			-- clipboard).
+		require
+			non_negative: a_ms >= 0
+		do
+			clipboard_read_delay_ms := a_ms
+		end
+
+	read_clipboard_text (a_max_count: INTEGER): detachable STRING_32
+			-- The scripted clipboard text (see `set_clipboard_provider`).
+		do
+			clipboard_read_count := clipboard_read_count + 1
+			last_clipboard_max_count := a_max_count
+			if clipboard_read_delay_ms > 0 then
+				(create {EXECUTION_ENVIRONMENT}).sleep (clipboard_read_delay_ms.to_integer_64 * 1_000_000)
+			end
+			last_clipboard_status := clipboard_status
+			if clipboard_status = {CLIPBOARD_EVENT}.Status_text and then attached clipboard_text as t
+				and then not t.is_empty
+			then
+				if t.count > a_max_count then
+					last_clipboard_status := {CLIPBOARD_EVENT}.Status_too_large
+				else
+					Result := t.twin
+				end
+			end
+		end
+
+	clipboard_read_count: INTEGER
+			-- Number of `read_clipboard_text` calls
+
+	last_clipboard_max_count: INTEGER
+			-- Cap given to the last `read_clipboard_text`
+
+feature {NONE} -- Clipboard implementation
+
+	is_clipboard_provider: BOOLEAN
+	clipboard_text: detachable STRING_32
+	clipboard_status: INTEGER
+	clipboard_read_delay_ms: INTEGER
+
+feature -- Foreground
+
+	set_background_for (a_queries: INTEGER)
+			-- Leave the terminal to "the shell" for the next `a_queries` queries of
+			-- `is_foreground`, then give it back without a continue, as `fg` does for a job
+			-- that `kill -CONT` or `bg` continued in the background.
+		require
+			positive: a_queries > 0
+		do
+			background_queries := a_queries
+			is_in_background := True
+		ensure
+			in_background: is_in_background
+		end
+
+	is_foreground: BOOLEAN
+		do
+			if background_queries > 0 then
+				background_queries := background_queries - 1
+				background_query_count := background_query_count + 1
+			else
+				if is_in_background then
+					is_in_background := False
+					raw_enable_count_at_foreground := raw_enable_count
+					read_count_at_foreground := read_count
+					if attached watched_sink as l_sink then
+						output_at_foreground := l_sink.twin
+					end
+				end
+				Result := True
+			end
+		end
+
+	is_in_background: BOOLEAN
+			-- Does "the shell" own the terminal (see `set_background_for`)? Unlike
+			-- `is_foreground`, querying this changes nothing.
+
+	background_query_count: INTEGER
+			-- Number of `is_foreground` queries answered False
+
+	raw_enable_count_at_foreground: INTEGER
+			-- `raw_enable_count` when the terminal was last given back
+
+	output_at_foreground: detachable STRING_32
+			-- Copy of the watched sink when the terminal was last given back
+
+	read_count_at_foreground: INTEGER
+			-- `read_count` when the terminal was last given back
+
+feature -- Output
+
+	writes_output: BOOLEAN
+			-- Does the backend hand its output to `write_output` (see `set_writes_output`)?
+
+	set_writes_output (a_on: BOOLEAN)
+			-- Take the backend's output in `write_output` (`a_on`), as the POSIX driver does.
+		do
+			writes_output := a_on
+		ensure
+			set: writes_output = a_on
+		end
+
+	write_output (a_bytes: STRING_8)
+			-- Record `a_bytes` in `written_output`.
+		do
+			write_output_count := write_output_count + 1
+			written_output.append (a_bytes)
+		end
+
+	written_output: STRING_8
+			-- All bytes passed to `write_output`
+		attribute
+			create Result.make_empty
+		end
+
+	write_output_count: INTEGER
+			-- Number of `write_output` calls
+
+feature {NONE} -- Foreground implementation
+
+	background_queries: INTEGER
+			-- Number of `is_foreground` queries still to answer False
+
+feature {NONE} -- Suspend / resume implementation
+
+	continue_count, handled_continue_count: INTEGER
+			-- Continues received, and accounted for (see POSIX_CONSOLE_DRIVER)
+
+	has_late_continue: BOOLEAN
+			-- Is the continue of the last stop still to be delivered?
 
 feature -- Input & Resize
 

@@ -2,7 +2,8 @@ note
 	description: "[
 		Tier 2 Widget Specialist Example: Gauge (Ratatui 1-to-1).
 		Demonstrates TUI_GAUGE with percentages, ratios, custom labels,
-		and Unicode fractional sub-character block rendering.
+		and Unicode fractional sub-character block rendering. The background is a dotted
+		TUI_FILL (P1 V7) drawn under every widget.
 	]"
 	author: "EiffelTUI Team"
 	date: "$Date$"
@@ -82,6 +83,14 @@ feature {NONE} -- State
 	frame_counter: INTEGER
 			-- Rendered frame count
 
+feature {NONE} -- Background
+
+	Background_fill: TUI_FILL
+			-- Dotted background (U+00B7) in dark grey
+		once
+			Result := (create {TUI_FILL}.make ({STRING_32} "%/0xB7/")).with_style (create {STYLE}.make_fg ({COLOR}.Dark_gray))
+		end
+
 feature {NONE} -- Animation Updates
 
 	update_progress
@@ -124,6 +133,9 @@ feature {NONE} -- Application Hooks
 			end
 
 			update_progress
+
+			-- Background: a dark grey dotted fill, drawn first so the widgets cover it
+			a_frame.render_widget (Background_fill, a_frame.area)
 
 			-- Layout: Header (2), Body (Flex 1), Footer (1)
 			create l_main_layout.make_vertical (<<
@@ -229,7 +241,9 @@ feature {NONE} -- Application Hooks
 				with_border_type ({BORDER_TYPE}.rounded).
 				with_border_style (create {STYLE}.make_fg ({COLOR}.Bright_yellow)).
 				with_title (" Gauge 4: High-Precision Fractional Blocks (Unicode) ")
-			create l_style4.make_with_colors ({COLOR}.Black, create {COLOR}.make_rgb (217, 119, 6))
+			-- The foreground is the filled colour and the background the unfilled track (Ratatui
+			-- `gauge_style`), so this fills in amber over a black track
+			create l_style4.make_with_colors (create {COLOR}.make_rgb (217, 119, 6), {COLOR}.Black)
 			create l_label4.make (16)
 			l_label4.append_integer ((progress_ratio * 100.0).rounded)
 			l_label4.append_string_general ("% % (Sub-cell 1/8 resolution)")

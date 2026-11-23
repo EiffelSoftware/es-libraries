@@ -161,6 +161,7 @@ feature {NONE} -- Helper
 	apply_hyperlink (a_buffer: BUFFER; a_target_text: READABLE_STRING_GENERAL; a_url: READABLE_STRING_GENERAL)
 			-- Find `a_target_text` in `a_buffer` and wrap each cell's symbol with OSC 8 sequences for `a_url`.
 			-- This matches Ratatui's buffer post-processing pattern for OSC 8 hyperlinks.
+			-- Each wrapped cell gets a forced width of 1 (one OSC 8 link per cell, as before).
 		local
 			r, c, k: INTEGER
 			l_found: BOOLEAN
@@ -213,6 +214,11 @@ feature {NONE} -- Helper
 
 							l_cell.set_symbol (l_sym)
 							l_cell.set_width (1)
+							-- The symbol holds escape sequences: tell the diff and the serializer
+							-- that it covers one column, so the cursor is moved to the next column
+							-- after it (CELL_DIFF_OPTION, Ratatui `CellDiffOption::ForcedWidth`).
+							-- Set after the symbol: writing a symbol clears the option.
+							a_buffer.set_diff_option (r, c + k - 1, {CELL_DIFF_OPTION}.Forced_width, 1)
 							k := k + 1
 						end
 					end

@@ -224,103 +224,92 @@ feature -- Fluent Builders
 feature -- Rendering
 
 	render (a_area: RECT; a_buffer: BUFFER)
-			-- Render progress bar within `a_area` into `a_buffer`.
+			-- Render progress bar within `a_area` into `a_buffer`, as Ratatui's `Gauge`: `style`
+			-- over the whole area, then the block, then `gauge_style` over the gauge area, so the
+			-- unfilled part shows the gauge background. Filled cells are full blocks in the gauge
+			-- colours (an unset colour is Reset); under the label they are blanks with the two
+			-- colours swapped, so the label reads as inverted there. The filled width is rounded
+			-- down with `use_unicode` (the next cell then shows the eighth block of the rest) and
+			-- to the nearest cell without. The label is centred, cut to the gauge width, and its
+			-- style is patched over each cell's style.
 		local
 			l_target: RECT
-			l_filled_f: REAL_64
-			l_full_cells: INTEGER
-			l_frac_code: INTEGER
-			l_frac_char: CHARACTER_32
-			r, c, l_col_abs: INTEGER
+			l_end, l_right, l_bottom, r, c, i: INTEGER
 			l_lbl: STRING_32
-			l_lbl_w, l_lbl_col, l_lbl_row: INTEGER
-			l_filled_lbl_style: STYLE
-			l_fill_end, l_filled_start, l_filled_stop: INTEGER
+			l_lbl_w, l_lbl_col, l_lbl_row, l_lbl_right: INTEGER
+			l_fg, l_bg: COLOR
+			l_cell_style: STYLE
+			l_saved: ARRAYED_LIST [STYLE]
 		do
 			if not a_area.is_empty then
+				a_buffer.set_style (a_area, style)
 				render_block (a_area, a_buffer)
 				l_target := inner_area (a_area)
 
-				if not l_target.is_empty and l_target.width > 0 and l_target.height > 0 then
-					l_filled_f := l_target.width.to_integer_32.to_double * ratio
-					l_full_cells := l_filled_f.floor.to_integer_32
+				if not l_target.is_empty and then l_target.intersects (a_buffer.area) then
+					a_buffer.set_style (l_target, gauge_style)
+					l_right := l_target.right.to_integer_32.min (a_buffer.width)
+					l_bottom := l_target.bottom.to_integer_32.min (a_buffer.height)
+					if gauge_style.foreground.is_default then l_fg := {COLOR}.Reset_color else l_fg := gauge_style.foreground end
+					if gauge_style.background.is_default then l_bg := {COLOR}.Reset_color else l_bg := gauge_style.background end
 
-					if use_unicode and ratio < 1.0 then
-						l_frac_code := unicode_block_code (l_filled_f - l_full_cells.to_double)
-						l_frac_char := l_frac_code.to_character_32
-					else
-						l_frac_char := ' '
-					end
-
-					-- Fill cell background
-					from
-						r := l_target.y.to_integer_32
-					until
-						r >= l_target.bottom.to_integer_32 or r >= a_buffer.height
-					loop
-						from
-							c := 0
-						until
-							c >= l_target.width.to_integer_32 or (l_target.x.to_integer_32 + c) >= a_buffer.width
-						loop
-							l_col_abs := l_target.x.to_integer_32 + c
-							if c < l_full_cells then
-								-- Full block U+2588
-								a_buffer.put_char (r, l_col_abs, (9608).to_character_32, gauge_style)
-							elseif c = l_full_cells and use_unicode and ratio < 1.0 and l_frac_char /= ' ' then
-								a_buffer.put_char (r, l_col_abs, l_frac_char, gauge_style)
-							else
-								a_buffer.put_char (r, l_col_abs, ' ', style)
-							end
-							c := c + 1
-						end
-						r := r + 1
-					end
-
-					-- Render centered label (clipped to target area and inverted over filled cells)
+						-- Label place: centred, at most the gauge width
 					if attached label as l then
 						l_lbl := l
 					else
 						l_lbl := percent.out.to_string_32 + "%%"
 					end
+					l_lbl_w := {UNICODE_WIDTH}.string_width (l_lbl).to_integer_32.min (l_target.width.to_integer_32)
+					l_lbl_col := l_target.x.to_integer_32 + (l_target.width.to_integer_32 - l_lbl_w) // 2
+					l_lbl_row := l_target.y.to_integer_32 + l_target.height.to_integer_32 // 2
+					l_lbl_right := l_lbl_col + l_lbl_w
 
-					l_lbl_w := {UNICODE_WIDTH}.string_width (l_lbl).to_integer_32
-					l_lbl_col := l_target.x.to_integer_32 + ((l_target.width.to_integer_32 - l_lbl_w) // 2).max (0)
-					l_lbl_row := l_target.y.to_integer_32 + (l_target.height.to_integer_32 // 2)
-
-					if l_lbl_row >= 0 and l_lbl_row < a_buffer.height then
-						-- Over the filled part the gauge colours are inverted so the label stays readable;
-						-- the label style is patched on top, so an explicit label colour wins.
-						create l_filled_lbl_style
-						if not gauge_style.foreground.is_default then
-							l_filled_lbl_style := l_filled_lbl_style.with_background (gauge_style.foreground)
-							if not gauge_style.background.is_default then
-								l_filled_lbl_style := l_filled_lbl_style.with_foreground (gauge_style.background)
+						-- Filled part
+					if use_unicode then
+						l_end := l_target.x.to_integer_32 + (l_target.width.to_integer_32.to_double * ratio).floor
+					else
+						l_end := l_target.x.to_integer_32 + (l_target.width.to_integer_32.to_double * ratio).rounded
+					end
+					l_end := l_end.min (l_target.right.to_integer_32)
+					from r := l_target.y.to_integer_32 until r >= l_bottom loop
+						from c := l_target.x.to_integer_32 until c >= l_end or c >= l_right loop
+							l_cell_style := a_buffer.cell (r, c).style
+							if c < l_lbl_col or c >= l_lbl_right or r /= l_lbl_row then
+								a_buffer.put_char (r, c, {SYMBOLS_BLOCK}.full, l_cell_style.with_foreground (l_fg).with_background (l_bg))
 							else
-								l_filled_lbl_style := l_filled_lbl_style.with_foreground ({COLOR}.Black)
+								a_buffer.put_char (r, c, ' ', l_cell_style.with_foreground (l_bg).with_background (l_fg))
 							end
-						else
-							l_filled_lbl_style := l_filled_lbl_style.with_reverse
+							c := c + 1
 						end
-						l_filled_lbl_style := l_filled_lbl_style.patch (label_style)
+						if use_unicode and ratio < 1.0 and l_end < l_right then
+							a_buffer.put_char (r, l_end, unicode_block_code (l_target.width.to_integer_32.to_double * ratio
+								- (l_target.width.to_integer_32.to_double * ratio).floor).to_character_32, a_buffer.cell (r, l_end).style.twin)
+						end
+						r := r + 1
+					end
 
-						-- Draw the label once, then restyle its columns over the filled cells. A wide
-						-- character straddling the fill edge is drawn whole, in the style of its
-						-- first column (two clipped passes used to drop it: the first stopped
-						-- before it, the second blanked it).
-						a_buffer.set_string_clipped (l_lbl_row, l_lbl_col, l_lbl, l_target.x.to_integer_32, l_target.right.to_integer_32, style.patch (label_style))
-						l_fill_end := (l_target.x.to_integer_32 + l_full_cells).min (l_target.right.to_integer_32)
-						l_filled_start := l_lbl_col.max (l_target.x.to_integer_32)
-						l_filled_stop := (l_lbl_col + l_lbl_w).min (l_fill_end)
-						if l_filled_stop > l_filled_start then
-							a_buffer.set_style (create {RECT}.make (l_filled_start.to_natural_16, l_lbl_row.to_natural_16,
-								(l_filled_stop - l_filled_start).to_natural_16, 1), l_filled_lbl_style)
+						-- Label: written plain, then each cell gets its own style patched by `label_style`
+					if l_lbl_w > 0 and l_lbl_row < a_buffer.height then
+						create l_saved.make (l_lbl_w)
+						from c := l_lbl_col until c >= l_lbl_right loop
+							if c < a_buffer.width then
+								l_saved.extend (a_buffer.cell (l_lbl_row, c).style.twin)
+							end
+							c := c + 1
+						end
+						a_buffer.set_string_clipped (l_lbl_row, l_lbl_col, l_lbl, l_lbl_col, l_lbl_right.min (a_buffer.width), create {STYLE})
+						i := 1
+						from c := l_lbl_col until c >= l_lbl_right or c >= a_buffer.width loop
+							a_buffer.set_style (create {RECT}.make (c.to_natural_16, l_lbl_row.to_natural_16, 1, 1), l_saved [i].patch (label_style))
+							i := i + 1
+							c := c + 1
 						end
 					end
 				end
 			end
+		ensure then
+			consistent: a_buffer.is_consistent
 		end
-
 feature {NONE} -- Implementation
 
 	unicode_block_code (a_frac: REAL_64): INTEGER

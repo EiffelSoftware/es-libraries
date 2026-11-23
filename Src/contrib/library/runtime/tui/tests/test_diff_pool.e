@@ -105,6 +105,37 @@ feature -- Tests
 			assert ("pool rebuilt for the new size", l_term.diff_engine.pool_size = 1)
 		end
 
+	test_diff_options_reuse_pool
+			-- Diff options (V8) split spans but take them from the pool: repeating the same
+			-- frame neither grows the pool nor its cell capacity.
+		local
+			l_engine: DIFF_ENGINE
+			l_prev, l_curr: BUFFER
+			l_spans: ARRAYED_LIST [DIFF_SPAN]
+			r, l_size, l_capacity: INTEGER
+		do
+			create l_engine
+			create l_prev.make (80, 24)
+			l_curr := sparse_buffer (80, 24, 24)
+			from r := 0 until r >= 24 loop
+				l_curr.put_string (r, 1, "abcdefgh", create {STYLE})
+				l_curr.set_diff_option (r, 3, {CELL_DIFF_OPTION}.Skip, 0)
+				l_curr.set_diff_option (r, 5, {CELL_DIFF_OPTION}.Forced_width, 2)
+				l_curr.set_diff_option (r, 40, {CELL_DIFF_OPTION}.Always_update, 0)
+				r := r + 1
+			end
+			l_spans := l_engine.diff (l_prev, l_curr)
+			assert ("four spans per row", l_spans.count = 4 * 24)
+			l_size := l_engine.pool_size
+			l_capacity := l_engine.pool_cell_capacity
+			from r := 1 until r > 10 loop
+				l_spans := l_engine.diff (l_prev, l_curr)
+				r := r + 1
+			end
+			assert ("same spans", l_spans.count = 4 * 24)
+			assert ("pool not grown", l_engine.pool_size = l_size and l_engine.pool_cell_capacity = l_capacity)
+		end
+
 feature {NONE} -- Helpers
 
 	sparse_buffer (a_width, a_height, a_rows: INTEGER): BUFFER

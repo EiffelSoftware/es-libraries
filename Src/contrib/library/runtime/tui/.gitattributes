@@ -1,0 +1,2 @@
+docker/suspend_check/*.sh text eol=lf
+examples/themes/*.toml text eol=lf
