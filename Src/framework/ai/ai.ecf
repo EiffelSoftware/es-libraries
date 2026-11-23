@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="es_ai" uuid="B7C3E6A4-5F21-4D8E-9A3C-2E6F1B7D4A90" library_target="es_ai">
-	<description>Access to AI models (Anthropic, OpenAI-compatible servers such as OpenAI, NVIDIA, llama-server or LM Studio, Ollama): providers, models, streamed conversations with tools. Independent of the user interface.</description>
+	<description>Access to AI models (Anthropic, OpenAI-compatible servers such as OpenAI, NVIDIA, llama-server or LM Studio, Ollama): providers, models, streamed conversations with tools. Independent of the user interface. MCP clients (tools of other programs, started with pipes).</description>
 	<target name="es_ai">
 		<root all_classes="true"/>
 		<file_rule>
@@ -16,6 +16,7 @@
 			<void_safety support="all"/>
 		</capability>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="base_process" location="$ISE_LIBRARY\library\process\base\base_process.ecf"/>
 		<library name="http_client" location="$ISE_LIBRARY\contrib\library\network\http_client\http_client.ecf"/>
 		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json.ecf"/>
 		<library name="thread" location="$ISE_LIBRARY\library\thread\thread.ecf"/>

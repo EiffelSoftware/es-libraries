@@ -66,6 +66,7 @@ feature {NONE} -- Initialization
 			output_tokens := a_output_tokens
 		end
 
+
 	make_stop (a_reason: READABLE_STRING_GENERAL)
 			-- Reason `a_reason' of the end of the answer (see {AI_STREAM_DECODER}.Stop_*).
 		do
@@ -117,7 +118,24 @@ feature -- Access
 			-- Data of the provider
 
 	input_tokens, output_tokens: INTEGER
-			-- Token usage
+			-- Token usage (`input_tokens': all the tokens read, those of the cache included)
+
+	cache_read_tokens, cache_write_tokens: INTEGER
+			-- Tokens of `input_tokens' read from the cache of the provider, and written to it (0 if not given)
+
+feature -- Element change
+
+	set_cache_tokens (a_read, a_write: INTEGER)
+			-- Set the tokens read from the cache (`a_read') and written to it (`a_write').
+		require
+			usage: kind = Kind_usage
+			non_negative: a_read >= 0 and a_write >= 0
+		do
+			cache_read_tokens := a_read
+			cache_write_tokens := a_write
+		ensure
+			set: cache_read_tokens = a_read and cache_write_tokens = a_write
+		end
 
 feature -- Kinds
 

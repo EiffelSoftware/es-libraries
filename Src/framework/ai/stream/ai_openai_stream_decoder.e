@@ -28,6 +28,7 @@ feature {NONE} -- Implementation
 			o: detachable JSON_OBJECT
 			l_choice: detachable JSON_OBJECT
 			l_index: INTEGER
+			l_usage: AI_STREAM_EVENT
 		do
 			if a_data.same_string ("[DONE]") then
 				if not is_done then
@@ -66,7 +67,10 @@ feature {NONE} -- Implementation
 						end
 					end
 					if attached object_item (o, "usage") as u then
-						events.extend (create {AI_STREAM_EVENT}.make_usage (integer_item (u, "prompt_tokens"), integer_item (u, "completion_tokens")))
+						l_usage := create {AI_STREAM_EVENT}.make_usage (integer_item (u, "prompt_tokens"), integer_item (u, "completion_tokens"))
+							-- (The tokens of the prompt read from the cache, by the servers giving them.)
+						l_usage.set_cache_tokens (integer_item (object_item (u, "prompt_tokens_details"), "cached_tokens").max (0), 0)
+						events.extend (l_usage)
 					end
 				end
 			end

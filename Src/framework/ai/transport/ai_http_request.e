@@ -55,6 +55,9 @@ feature -- Access
 			Result := base_url + path
 		end
 
+	timeout: INTEGER
+			-- Maximum duration of the transfer, in seconds (0: none)
+
 feature -- Status report
 
 	is_streamed: BOOLEAN
@@ -66,6 +69,16 @@ feature -- Element change
 			-- Add header `a_name: a_value'.
 		do
 			headers.extend ([a_name.to_string_8, a_value.to_string_8])
+		end
+
+	set_timeout (a_seconds: INTEGER)
+			-- Set `timeout' to `a_seconds'.
+		require
+			a_seconds_non_negative: a_seconds >= 0
+		do
+			timeout := a_seconds
+		ensure
+			timeout_set: timeout = a_seconds
 		end
 
 note

@@ -48,7 +48,7 @@ feature {NONE} -- Implementation
 					-- (Not a JSON event.)
 			elseif l_type.same_string_general ("message_start") then
 				if attached object_item (object_item (o, "message"), "usage") as u then
-					events.extend (create {AI_STREAM_EVENT}.make_usage (integer_item (u, "input_tokens") + integer_item (u, "cache_read_input_tokens") + integer_item (u, "cache_creation_input_tokens"), 0))
+					events.extend (usage_event (u, False))
 				end
 			elseif l_type.same_string_general ("content_block_start") then
 				if attached object_item (o, "content_block") as b and then attached string_item (b, "type") as l_block_type then
@@ -95,7 +95,8 @@ feature {NONE} -- Implementation
 					events.extend (create {AI_STREAM_EVENT}.make_stop (r))
 				end
 				if attached object_item (o, "usage") as u then
-					events.extend (create {AI_STREAM_EVENT}.make_usage (0, integer_item (u, "output_tokens")))
+						-- (The final counts: the tokens written, and those read when given.)
+					events.extend (usage_event (u, True))
 				end
 			elseif l_type.same_string_general ("message_stop") then
 				events.extend (create {AI_STREAM_EVENT}.make_done)
@@ -119,6 +120,21 @@ feature {NONE} -- Implementation
 			else
 				Result := a_block.block
 			end
+		end
+
+feature {NONE} -- Usage
+
+	usage_event (u: JSON_OBJECT; a_with_output: BOOLEAN): AI_STREAM_EVENT
+			-- Usage event of `u' (the tokens read: those not cached, read from the cache and written to it;
+			-- written, if `a_with_output')
+		local
+			l_output: INTEGER
+		do
+			if a_with_output then
+				l_output := integer_item (u, "output_tokens")
+			end
+			create Result.make_usage (integer_item (u, "input_tokens") + integer_item (u, "cache_read_input_tokens") + integer_item (u, "cache_creation_input_tokens"), l_output)
+			Result.set_cache_tokens (integer_item (u, "cache_read_input_tokens").max (0), integer_item (u, "cache_creation_input_tokens").max (0))
 		end
 
 note

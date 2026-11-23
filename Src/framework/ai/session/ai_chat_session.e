@@ -63,6 +63,12 @@ feature -- Access
 	input_tokens, output_tokens: INTEGER
 			-- Tokens of the last answer
 
+	cache_read_tokens, cache_write_tokens: INTEGER
+			-- Tokens of `input_tokens' read from the cache of the provider, and written to it, by the last answer
+
+	total_cache_read_tokens, total_cache_write_tokens: INTEGER
+			-- Tokens read from the cache, and written to it, by the answers of the conversation
+
 	total_input_tokens, total_output_tokens: INTEGER
 			-- Tokens of all the answers of the session
 
@@ -162,8 +168,47 @@ feature -- Element change
 			last_error := Void
 			total_input_tokens := 0
 			total_output_tokens := 0
+			total_cache_read_tokens := 0
+			total_cache_write_tokens := 0
 		ensure
 			no_messages: conversation.messages.is_empty
+		end
+
+	set_conversation (a_conversation: AI_CONVERSATION; a_input_tokens, a_output_tokens: INTEGER)
+			-- Go on with `a_conversation' (read again), whose questions used `a_input_tokens' and `a_output_tokens'.
+		require
+			idle: not is_answering
+			tokens_non_negative: a_input_tokens >= 0 and a_output_tokens >= 0
+		do
+			conversation := a_conversation
+			pending_tool_calls.wipe_out
+			answer_text.wipe_out
+			answer_version := answer_version + 1
+			last_error := Void
+			total_input_tokens := a_input_tokens
+			total_output_tokens := a_output_tokens
+		ensure
+			conversation_set: conversation = a_conversation
+		end
+
+	compact_with (a_summary: READABLE_STRING_GENERAL)
+			-- Replace the messages of the conversation by `a_summary' of them (and the agreement of the model
+			-- to go on from it), so that the next questions send less.
+		require
+			idle: not is_answering
+			a_summary_not_empty: not a_summary.is_empty
+		local
+			m: AI_MESSAGE
+		do
+			conversation.wipe_out
+			pending_tool_calls.wipe_out
+			conversation.extend_user_text ({STRING_32} "Summary of our conversation so far (the earlier messages are replaced by it):%N%N" + a_summary.to_string_32)
+			create m.make_assistant
+			m.extend_text ("Understood: I go on from this summary.")
+			conversation.extend (m)
+		ensure
+			two_messages: conversation.messages.count = 2
+			no_pending: pending_tool_calls.is_empty
 		end
 
 feature -- Basic operations
@@ -282,6 +327,8 @@ feature {NONE} -- Implementation
 			is_truncated := False
 			input_tokens := 0
 			output_tokens := 0
+			cache_read_tokens := 0
+			cache_write_tokens := 0
 			create builder.make (provider.settings.kind)
 			create j.make (provider.chat_request (conversation, model, tools, 0), provider.new_stream_decoder)
 			job := j
@@ -309,6 +356,10 @@ feature {NONE} -- Implementation
 			answer_version := answer_version + 1
 			input_tokens := builder.input_tokens
 			output_tokens := builder.output_tokens
+			cache_read_tokens := builder.cache_read_tokens
+			cache_write_tokens := builder.cache_write_tokens
+			total_cache_read_tokens := total_cache_read_tokens + cache_read_tokens
+			total_cache_write_tokens := total_cache_write_tokens + cache_write_tokens
 			total_input_tokens := total_input_tokens + input_tokens
 			total_output_tokens := total_output_tokens + output_tokens
 			was_stopped := j.is_cancelled

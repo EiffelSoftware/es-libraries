@@ -51,6 +51,7 @@ feature -- Tests: Anthropic
 			assert ("no error", not b.has_error)
 			assert ("stop tool_use", b.stop_reason.same_string ({AI_STREAM_DECODER}.Stop_tool_use))
 			assert ("input tokens", b.input_tokens = 472 + 10 + 0)
+			assert ("read from the cache", b.cache_read_tokens = 10 and b.cache_write_tokens = 0)
 			assert ("output tokens", b.output_tokens = 89)
 			m := b.message
 			assert ("assistant", m.is_assistant)
@@ -83,6 +84,38 @@ feature -- Tests: Anthropic
 		end
 
 feature -- Tests: OpenAI
+
+	test_anthropic_cache_usage
+			-- The tokens read from the cache and written to it, as given at the start, then (final) at the end.
+		local
+			b: AI_RESPONSE_BUILDER
+		do
+			b := built_answer (create {AI_ANTHROPIC_STREAM_DECODER}.make, {AI_PROVIDER_SETTINGS}.Kind_anthropic,
+				"data: {%"type%":%"message_start%",%"message%":{%"id%":%"msg_02%",%"type%":%"message%",%"role%":%"assistant%",%"content%":[],%"usage%":{%"input_tokens%":50,%"cache_creation_input_tokens%":2000,%"cache_read_input_tokens%":30000,%"output_tokens%":1}}}%N%N" +
+				"data: {%"type%":%"content_block_start%",%"index%":0,%"content_block%":{%"type%":%"text%",%"text%":%"%"}}%N%N" +
+				"data: {%"type%":%"content_block_delta%",%"index%":0,%"delta%":{%"type%":%"text_delta%",%"text%":%"Hi%"}}%N%N" +
+				"data: {%"type%":%"content_block_stop%",%"index%":0}%N%N" +
+				"data: {%"type%":%"message_delta%",%"delta%":{%"stop_reason%":%"end_turn%"},%"usage%":{%"input_tokens%":50,%"cache_creation_input_tokens%":2000,%"cache_read_input_tokens%":30000,%"output_tokens%":12}}%N%N" +
+				"data: {%"type%":%"message_stop%"}%N%N", 3)
+			assert ("complete", b.is_complete and not b.has_error)
+			assert ("input tokens", b.input_tokens = 32050)
+			assert ("cache", b.cache_read_tokens = 30000 and b.cache_write_tokens = 2000)
+			assert ("output tokens", b.output_tokens = 12)
+		end
+
+	test_openai_cached_tokens
+			-- The tokens of the prompt read from the cache (prompt_tokens_details.cached_tokens).
+		local
+			b: AI_RESPONSE_BUILDER
+		do
+			b := built_answer (create {AI_OPENAI_STREAM_DECODER}.make, {AI_PROVIDER_SETTINGS}.Kind_openai,
+				"data: {%"id%":%"c2%",%"object%":%"chat.completion.chunk%",%"choices%":[{%"index%":0,%"delta%":{%"role%":%"assistant%",%"content%":%"Hi%"},%"finish_reason%":%"stop%"}]}%N%N" +
+				"data: {%"id%":%"c2%",%"object%":%"chat.completion.chunk%",%"choices%":[],%"usage%":{%"prompt_tokens%":3000,%"completion_tokens%":5,%"prompt_tokens_details%":{%"cached_tokens%":2048}}}%N%N" +
+				"data: [DONE]%N%N", 2)
+			assert ("input tokens", b.input_tokens = 3000)
+			assert ("cache", b.cache_read_tokens = 2048 and b.cache_write_tokens = 0)
+			assert ("output tokens", b.output_tokens = 5)
+		end
 
 	test_openai_stream
 			-- Text then two tool calls whose arguments are received in parts, then the usage.

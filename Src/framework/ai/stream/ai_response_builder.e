@@ -54,7 +54,10 @@ feature -- Access
 
 	input_tokens: INTEGER
 	output_tokens: INTEGER
-			-- Tokens used
+			-- Tokens used (`input_tokens': all the tokens read, those of the cache included)
+
+	cache_read_tokens, cache_write_tokens: INTEGER
+			-- Tokens of `input_tokens' read from the cache of the provider, and written to it
 
 	error_message: detachable STRING_32
 			-- Error, if any
@@ -103,6 +106,12 @@ feature -- Basic operations
 				end
 				if e.output_tokens > 0 then
 					output_tokens := e.output_tokens
+				end
+				if e.cache_read_tokens > 0 then
+					cache_read_tokens := e.cache_read_tokens
+				end
+				if e.cache_write_tokens > 0 then
+					cache_write_tokens := e.cache_write_tokens
 				end
 			when {AI_STREAM_EVENT}.Kind_stop then
 				stop_reason := e.text

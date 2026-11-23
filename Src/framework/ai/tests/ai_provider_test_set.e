@@ -63,6 +63,7 @@ feature -- Tests: Anthropic
 			assert ("version", header (r, "anthropic-version") ~ {AI_ANTHROPIC_PROVIDER}.Api_version)
 			assert ("key", header (r, "x-api-key") ~ "sk-test")
 			if attached r.body as l_body and then attached parsed_json_object (l_body) as o then
+				assert ("two cache marks (at most 4)", occurrence_count (l_body, "cache_control") = 2)
 				assert ("model", string_item (o, "model") ~ {STRING_32} "claude-opus-5-5")
 				assert ("max_tokens", integer_item (o, "max_tokens") = {AI_ANTHROPIC_PROVIDER}.Default_max_tokens)
 				assert ("stream", boolean_item (o, "stream"))
@@ -89,7 +90,10 @@ feature -- Tests: Anthropic
 					else
 						assert ("assistant content", False)
 					end
+					assert ("assistant not marked", attached array_item (l_messages [2], "content") as c and then
+						across c as x all not attached object_item (x, "cache_control") end)
 					if attached array_item (l_messages [3], "content") as c and then c.count = 1 then
+						assert ("last message cached", string_item (object_item (c [1], "cache_control"), "type") ~ {STRING_32} "ephemeral")
 						assert ("tool_result", string_item (c [1], "type") ~ {STRING_32} "tool_result")
 						assert ("tool_use_id", string_item (c [1], "tool_use_id") ~ {STRING_32} "toolu_01")
 						assert ("result", string_item (c [1], "content") ~ {STRING_32} "class LIST ...")
@@ -253,6 +257,23 @@ feature {NONE} -- Implementation
 					Result := r.headers [i].value
 				end
 				i := i + 1
+			end
+		end
+
+feature {NONE} -- Counting
+
+	occurrence_count (s, a_part: READABLE_STRING_8): INTEGER
+			-- Number of occurrences of `a_part' in `s'
+		local
+			i: INTEGER
+		do
+			from
+				i := s.substring_index (a_part, 1)
+			until
+				i = 0
+			loop
+				Result := Result + 1
+				i := s.substring_index (a_part, i + a_part.count)
 			end
 		end
 
