@@ -218,7 +218,9 @@ feature -- Access
 	uri: detachable READABLE_STRING_32
 			-- <Precursor>
 		do
-			if is_ready then
+			if attached html_base_uri as l_base_uri then
+				Result := l_base_uri
+			elseif is_ready then
 				Result := taken_string (c_webview2_source (webview))
 			end
 		end
@@ -283,21 +285,26 @@ feature -- Basic operations
 	load_html (a_html: READABLE_STRING_GENERAL; a_base_uri: detachable READABLE_STRING_GENERAL)
 			-- <Precursor>
 			-- Note: WebView2 does not support a base URI for a document given as a string:
-			-- a `<base>` element is inserted at the start of the document instead.
+			-- a `<base>` element is inserted at the start of the document instead,
+			-- and `uri` is `a_base_uri` while the document is displayed (as with the other engines).
 		local
 			s: STRING_32
+			b: detachable STRING_32
 		do
 			create s.make (a_html.count + 50)
 			if a_base_uri /= Void then
 				s.append_string_general ("<base href=%"")
 				s.append_string_general (html_attribute_escaped (a_base_uri))
 				s.append_string_general ("%">")
+				create b.make_from_string_general (a_base_uri)
 			end
 			s.append_string_general (a_html)
-			perform (agent (h: READABLE_STRING_GENERAL)
+			perform (agent (h: READABLE_STRING_GENERAL; a_base: detachable STRING_32)
 				do
+					is_loading_html := True
+					pending_html_base_uri := a_base
 					c_webview2_navigate_to_string (webview, (create {WEL_STRING}.make (h)).item)
-				end (s))
+				end (s, b))
 		end
 
 	back
@@ -369,6 +376,7 @@ feature {NONE} -- WebView2 events
 			-- Called by the C code.
 		local
 			l_text: detachable STRING_32
+			l_base_uri: detachable STRING_32
 		do
 			if not a_text.is_default_pointer then
 				l_text := (create {WEL_STRING}.make_by_pointer (a_text)).string
@@ -387,8 +395,19 @@ feature {NONE} -- WebView2 events
 					pending_operations.wipe_out
 				end
 			when Webview2_navigation_starting then
+				l_base_uri := Void
+				if is_loading_html then
+						-- Document of `load_html`: use its base URI, if any.
+					is_loading_html := False
+					l_base_uri := pending_html_base_uri
+					pending_html_base_uri := Void
+					if l_base_uri /= Void then
+						l_text := l_base_uri
+					end
+				end
 				if l_text /= Void then
 					if is_navigation_allowed (l_text) then
+						html_base_uri := l_base_uri
 						is_loading := True
 						is_navigation_cancelled := False
 						on_load_started (l_text)
@@ -440,6 +459,15 @@ feature {NONE} -- Implementation
 
 	is_navigation_cancelled: BOOLEAN
 			-- Was the current navigation cancelled by `navigation_handler`?
+
+	is_loading_html: BOOLEAN
+			-- Is the next navigation the one of a document given to `load_html`?
+
+	pending_html_base_uri: detachable STRING_32
+			-- Base URI of the document given to `load_html`, until its navigation starts.
+
+	html_base_uri: detachable STRING_32
+			-- Base URI of the displayed document, if it was given to `load_html` with a base URI.
 
 	pending_operations: ARRAYED_LIST [PROCEDURE]
 			-- Operations to perform once the web view is ready.
