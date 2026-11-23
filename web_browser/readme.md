@@ -29,6 +29,8 @@ Windows
 
 The WebView2 Runtime is located through `WebView2Loader.dll` when it is found (next to the executable,
 or in the `PATH`), otherwise directly from the registry: no DLL needs to be distributed with the application.
+`get_webview2_loader.ps1` downloads the NuGet package `Microsoft.Web.WebView2` and copies its
+`WebView2Loader.dll` into this folder (or the folder given with `-Destination`, for instance next to an executable).
 The data of the web view (cache, cookies, ...) is stored in `%LOCALAPPDATA%\Eiffel Software\WebView2\<executable name>`.
 
 The C part (`Clib/eif_webview2.c`) is compiled with `finish_freezing -library` in `Clib`
