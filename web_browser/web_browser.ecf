@@ -14,7 +14,16 @@
 			<warning name="obsolete_feature" value="all"/>
 		</option>
 		<setting name="dotnet_naming_convention" value="true"/>
-		<external_include location="$(ISE_LIBRARY)\library\web_browser\spec\include"/>
+		<external_include location="$ECF_CONFIG_PATH\spec\include">
+			<condition>
+				<platform value="windows"/>
+			</condition>
+		</external_include>
+		<external_include location="$ECF_CONFIG_PATH/spec/include">
+			<condition>
+				<platform excluded_value="windows"/>
+			</condition>
+		</external_include>
 		<external_library location="$(ISE_LIBRARY)\library\web_browser\spec\$(ISE_C_COMPILER)\$(ISE_PLATFORM)\lib\eif_webview2.lib">
 			<condition>
 				<platform value="windows"/>
