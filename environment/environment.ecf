@@ -4,6 +4,8 @@
 		<root all_classes="true"/>
 		<file_rule>
 			<exclude>/\..*$</exclude>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/tests$</exclude>
 		</file_rule>
 		<option warning="error" namespace="EiffelSoftware.Framework">
 			<warning name="obsolete_feature" value="all"/>
@@ -40,5 +42,11 @@
 	</target>
 	<target name="environment_unix" extends="environment">
 		<setting name="platform" value="unix"/>
+	</target>
+	<target name="environment_tests" extends="environment">
+		<root class="ANY" feature="default_create"/>
+		<setting name="console_application" value="true"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
+		<tests name="tests" location=".\tests\"/>
 	</target>
 </system>
