@@ -36,6 +36,14 @@
 				<concurrency excluded_value="none"/>
 			</condition>
 		</external_library>
+		<external_linker_flag value="`$(ISE_LIBRARY)/library/api_wrapper/implementation/unix/Clib/dl-config --library`">
+			<description>Library required for dynamic loading of WebKitGTK (dlopen is not in libc before glibc 2.34).</description>
+			<condition>
+				<platform excluded_value="windows macintosh"/>
+				<custom name="vision_implementation" excluded_value="cocoa"/>
+				<custom name="vision_implementation" excluded_value="gtk2"/>
+			</condition>
+		</external_linker_flag>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2.ecf"/>
 		<library name="wel" location="$ISE_LIBRARY\library\wel\wel.ecf">
