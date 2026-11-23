@@ -2,9 +2,10 @@ note
 	description: "[
 			Eiffel Vision web browser. GTK3 implementation on macOS, with WKWebView.
 
-			The WKWebView is displayed over a GTK drawing area, and follows its position and size.
-			It requires the Quartz backend of GDK: with another backend (X11), or without WebKit,
-			a label is displayed instead and `is_browser_usable` is False.
+			The WKWebView is displayed over a GTK drawing area, and follows its position and size:
+			embedded in the native window with the Quartz backend of GDK, or in a borderless window
+			of the application with the X11 backend (XQuartz). Without WebKit, a label is displayed
+			instead and `is_browser_usable` is False.
 		]"
 	legal: "See notice at end of class."
 	status: "See notice at end of class."
@@ -25,7 +26,10 @@ inherit
 			interface,
 			make,
 			destroy,
-			set_focus
+			set_focus,
+			on_size_allocate,
+			on_widget_mapped,
+			on_widget_unmapped
 		end
 
 create
@@ -45,16 +49,10 @@ feature {NONE} -- Initialization
 				set_c_object ({GTK}.gtk_drawing_area_new)
 				add_document_start_script (bridge_script)
 			else
-				create l_label.set_with_eiffel_string ("The web engine (WKWebView) requires the Quartz backend of GTK.")
+				create l_label.set_with_eiffel_string ("The web engine (WKWebView) is not available.")
 				set_c_object ({GTK}.gtk_label_new (l_label.item))
 			end
 			Precursor {EV_PRIMITIVE_IMP}
-			if not webview.is_default_pointer then
-				real_signal_connect (c_object, "size-allocate", agent (n: INTEGER; a: POINTER) do synchronize end)
-				real_signal_connect (c_object, "map", agent (n: INTEGER; a: POINTER) do synchronize end)
-				real_signal_connect (c_object, "unmap", agent (n: INTEGER; a: POINTER) do synchronize end)
-				real_signal_connect (c_object, "hierarchy-changed", agent (n: INTEGER; a: POINTER) do synchronize end)
-			end
 		end
 
 	old_make (an_interface: attached like interface)
@@ -217,6 +215,31 @@ feature {EV_ANY, EV_ANY_I} -- Implementation
 	interface: detachable EV_WEB_BROWSER note option: stable attribute end
 			-- <Precursor>
 
+feature {EV_WINDOW_IMP, EV_INTERMEDIARY_ROUTINES, EV_ANY_I, EV_APPLICATION_IMP} -- Implementation
+
+	on_size_allocate (a_x, a_y, a_width, a_height: INTEGER)
+			-- <Precursor>
+		do
+			Precursor {EV_PRIMITIVE_IMP} (a_x, a_y, a_width, a_height)
+			synchronize
+		end
+
+feature {EV_INTERMEDIARY_ROUTINES, EV_APPLICATION_IMP} -- Implementation
+
+	on_widget_mapped
+			-- <Precursor>
+		do
+			Precursor {EV_PRIMITIVE_IMP}
+			synchronize
+		end
+
+	on_widget_unmapped
+			-- <Precursor>
+		do
+			Precursor {EV_PRIMITIVE_IMP}
+			synchronize
+		end
+
 feature {NONE} -- WKWebView events
 
 	on_webview_event (a_kind: INTEGER; a_text: POINTER; a_flag: INTEGER): INTEGER
@@ -235,10 +258,7 @@ feature {NONE} -- WKWebView events
 				if l_text /= Void and then not is_navigation_allowed (l_text) then
 					Result := 1
 				end
-			when Event_load_committed then
-				notify_changes
 			when Event_load_finished then
-				notify_changes
 				on_load_finished (current_uri)
 			when Event_load_failed then
 				if l_text /= Void then
@@ -253,20 +273,15 @@ feature {NONE} -- WKWebView events
 				if l_text /= Void and then is_navigation_allowed (l_text) then
 					load_uri (l_text)
 				end
+			when Event_title_changed then
+				if attached title as t then
+					on_title_changed (t)
+				else
+					on_title_changed ({STRING_32} "")
+				end
+			when Event_uri_changed then
+				on_uri_changed (current_uri)
 			else
-			end
-		end
-
-	notify_changes
-			-- Call `on_uri_changed` and `on_title_changed` if `uri` or `title` changed since the last call.
-		do
-			if attached uri as u and then not (attached last_uri as l and then l.same_string (u)) then
-				last_uri := u
-				on_uri_changed (u)
-			end
-			if attached title as t and then not (attached last_title as l and then l.same_string (t)) then
-				last_title := t
-				on_title_changed (t)
 			end
 		end
 
@@ -274,9 +289,6 @@ feature {NONE} -- Implementation
 
 	webview: POINTER
 			-- WKWebView context (see eif_wkwebview.h).
-
-	last_uri, last_title: detachable READABLE_STRING_32
-			-- Last `uri` and `title` notified.
 
 	synchronize
 			-- Place the web view over the GTK widget.
@@ -336,6 +348,8 @@ feature {NONE} -- Constants
 	Event_load_committed: INTEGER = 5
 	Event_message_received: INTEGER = 6
 	Event_new_window_requested: INTEGER = 7
+	Event_title_changed: INTEGER = 8
+	Event_uri_changed: INTEGER = 9
 			-- Events of the web view (see eif_wkwebview.h).
 
 feature {NONE} -- Externals

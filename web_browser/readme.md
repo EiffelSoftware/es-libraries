@@ -41,10 +41,20 @@ Set the environment variable `EIF_WEBVIEW2_TRACE` to trace the creation of the w
 macOS
 -----
 
-EiffelStudio on macOS uses the GTK3 implementation of Vision2. The WKWebView is placed over the
-GTK widget, in the native window (`NSView`) of the GTK window: this requires the Quartz backend of GDK
-(not X11). The Objective-C runtime and WebKit are used through the C API of the Objective-C runtime
+EiffelStudio on macOS uses the GTK3 implementation of Vision2, and the web view is a WKWebView:
+
+- with the Quartz backend of GDK (MacPorts `gtk3 +quartz`), it is embedded in the native window (`NSView`)
+  of the GTK window, over the GTK widget;
+- with the X11 backend (MacPorts default `gtk3 +x11`, with XQuartz), the GTK windows belong to the XQuartz
+  process: the WKWebView is displayed in a borderless window of the application, kept over the GTK widget
+  and ordered just above the XQuartz window that contains it.
+
+The Objective-C runtime and WebKit are used through the C API of the Objective-C runtime
 (`spec/include/eif_wkwebview.h`), so no Objective-C compiler and no link option are needed.
+Set the environment variable `EIF_WKWEBVIEW_TRACE` to trace the events of the web view.
+
+Note: the generated C makefiles do not track the dependency on this header: after changing it,
+recompile the application with `-clean` (or delete the object files that include it).
 
 Usage
 -----
