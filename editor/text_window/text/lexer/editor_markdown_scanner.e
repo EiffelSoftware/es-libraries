@@ -105,7 +105,7 @@ feature {NONE} -- Line scanning
 				append_text (s, Kind_code)
 			elseif is_heading (l_rest) then
 				append_text (s, Kind_strong)
-			elseif is_rule (l_rest) then
+			elseif is_rule (l_rest) or is_table_of_contents_marker (l_rest) then
 				append_text (s, Kind_marker)
 			elseif l_rest [1] = '>' then
 				append_text (s, Kind_comment)
@@ -422,6 +422,18 @@ feature {NONE} -- Tokens
 				update_token_list
 				i := j
 			end
+		end
+
+	is_table_of_contents_marker (s: READABLE_STRING_32): BOOLEAN
+			-- Is `s' (a line without its indentation) a table of contents marker: `[TOC]' (any letter case)
+			-- or `[[_TOC_]]', as for the table of contents extension of the markdown library?
+		local
+			l_text: STRING_32
+		do
+			create l_text.make_from_string (s)
+			l_text.to_lower
+			l_text.right_adjust
+			Result := l_text.same_string_general ("[toc]") or l_text.same_string_general ("[[_toc_]]")
 		end
 
 	highlight_end (s: READABLE_STRING_32; i: INTEGER): INTEGER
