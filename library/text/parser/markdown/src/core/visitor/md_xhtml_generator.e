@@ -244,6 +244,13 @@ feature -- Inline
 			output ("</del>")
 		end
 
+	visit_highlight (a_highlight: MD_HIGHLIGHT)
+		do
+			output ("<mark>")
+			visit_composite (a_highlight)
+			output ("</mark>")
+		end
+
 	visit_line_break (a_line_break: MD_LINE_BREAK)
 		do
 			output ("<br/>")
@@ -357,6 +364,8 @@ feature {NONE} -- Output helpers
 					collect_text_from_inlines (img, a_output)
 				elseif attached {MD_STRIKETHROUGH} inline_item as strike then
 					collect_text_from_inlines (strike, a_output)
+				elseif attached {MD_HIGHLIGHT} inline_item as l_highlight then
+					collect_text_from_inlines (l_highlight, a_output)
 				end
 			end
 		end

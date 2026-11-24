@@ -110,6 +110,12 @@ feature -- Inline
 		deferred
 		end
 
+	visit_highlight (a_highlight: MD_HIGHLIGHT)
+		require
+			a_highlight_attached: a_highlight /= Void
+		deferred
+		end
+
 	visit_soft_break (a_soft_break: MD_SOFT_BREAK)
 		require
 			a_soft_break_attached: a_soft_break /= Void

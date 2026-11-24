@@ -102,6 +102,11 @@ feature -- Inline
 			visit_composite (a_strikethrough)
 		end
 
+	visit_highlight (a_highlight: MD_HIGHLIGHT)
+		do
+			visit_composite (a_highlight)
+		end
+
 	visit_line_break (a_line_break: MD_LINE_BREAK)
 		do
 			-- Line breaks have no children

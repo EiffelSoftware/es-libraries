@@ -29,6 +29,7 @@ This library intentionally implements a pragmatic subset of Markdown (close to C
   - Autolinks: `<https://example.com>` and `<user@example.com>`
   - Images: `![alt](url)` with optional title `![alt](url "title")` or reference-style `![alt][ref]`
   - Strikethrough: `~~text~~` (with GitHub extension)
+  - Highlight: `==text==`, as `<mark>` (with the highlight extension, `set_using_highlight_extension`; enabled by `MD_CONTENT_TEXT`)
   - Task lists: `- [ ]` or `- [x]` (with GitHub extension)
   - Full backslash escapes: `\!`, `\"`, `\#`, etc.
   - Soft breaks: single newline within paragraph

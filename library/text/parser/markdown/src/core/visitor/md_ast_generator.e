@@ -355,6 +355,17 @@ feature -- Inline
 			output ("</strikethrough>")
 		end
 
+	visit_highlight (a_highlight: MD_HIGHLIGHT)
+		do
+			newline_indent
+			output ("<highlight>")
+			indent_level := indent_level + 1
+			visit_composite (a_highlight)
+			indent_level := indent_level - 1
+			newline_indent
+			output ("</highlight>")
+		end
+
 	visit_line_break (a_line_break: MD_LINE_BREAK)
 		do
 			newline_indent
@@ -487,6 +498,8 @@ feature {NONE} -- Output helpers
 					collect_text_from_inlines (img, a_output)
 				elseif attached {MD_STRIKETHROUGH} inline_item as strike then
 					collect_text_from_inlines (strike, a_output)
+				elseif attached {MD_HIGHLIGHT} inline_item as l_highlight then
+					collect_text_from_inlines (l_highlight, a_output)
 				end
 			end
 		end

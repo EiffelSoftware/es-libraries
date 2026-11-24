@@ -31,6 +31,21 @@ feature -- GitHub Flavored Markdown
 			using_github_extension_set: using_github_extension = a_enabled
 		end
 
+feature -- Highlight extension
+
+	using_highlight_extension: BOOLEAN
+			-- Enable the highlighted (marked) text `==text==' (as in Obsidian, Pandoc `+mark',
+			-- markdown-it-mark): the opening `==' is followed by a character other than a space, the
+			-- closing `==' preceded by a character other than a space, and neither is next to another `='.
+
+	set_using_highlight_extension (a_enabled: BOOLEAN)
+			-- Set `using_highlight_extension` to `a_enabled`.
+		do
+			using_highlight_extension := a_enabled
+		ensure
+			using_highlight_extension_set: using_highlight_extension = a_enabled
+		end
+
 feature {NONE} -- Link reference definitions
 
 	link_definitions: detachable HASH_TABLE [TUPLE [url: READABLE_STRING_8; title: detachable READABLE_STRING_8], STRING_8]
@@ -1607,6 +1622,7 @@ feature {NONE} -- Inline parsing
 			em: MD_EMPHASIS
 			st: MD_STRONG
 			strike: MD_STRIKETHROUGH
+			l_highlight: MD_HIGHLIGHT
 			lnk: MD_LINK
 			img: MD_IMAGE
 			br: MD_LINE_BREAK
@@ -1705,6 +1721,32 @@ feature {NONE} -- Inline parsing
 							end
 						else
 							buf.append_character ('~')
+							i := i + 1
+						end
+					when '=' then
+							-- Highlight (extension): ==text==
+						j := 0
+						if
+							using_highlight_extension and then i + 2 <= n and then s [i + 1] = '=' and then
+							s [i + 2] /= '=' and then not s [i + 2].is_space and then (i = 1 or else s [i - 1] /= '=')
+						then
+							j := s.substring_index ("==", i + 3)
+							from
+							until
+								j = 0 or else (not s [j - 1].is_space and then s [j - 1] /= '=' and then (j + 2 > n or else s [j + 2] /= '='))
+							loop
+								j := s.substring_index ("==", j + 1)
+							end
+						end
+						if j > 0 then
+							flush_text_buffer_to (buf, Result)
+							inner := s.substring (i + 2, j - 1)
+							create l_highlight.make
+							append_inlines_to (inner, l_highlight)
+							Result.extend (l_highlight)
+							i := j + 2
+						else
+							buf.append_character ('=')
 							i := i + 1
 						end
 					when '%N' then

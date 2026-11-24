@@ -33,6 +33,7 @@ feature -- Access
 			if l_internal_document = Void then
 				create p.make
 				p.set_using_github_extension (True)
+				p.set_using_highlight_extension (True)
 				l_internal_document := p.parse (content)
 				internal_document := l_internal_document
 			end
