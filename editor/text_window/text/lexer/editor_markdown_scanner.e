@@ -5,7 +5,8 @@ note
 		covering several lines (see `in_verbatim_string').
 		Tokens: headings and strong emphasis as keywords, emphasis as characters, code (spans, fenced and
 		indented blocks) as strings, links and images as numbers, block quotes, HTML and strikethrough as
-		comments, markers (lists, tables, rules) as operators.
+		comments, markers (lists, tables, rules) as operators, highlighted text (`==text==') as text on a
+		yellow background.
 	]"
 	legal: "See notice at end of class."
 	status: "See notice at end of class."
@@ -185,6 +186,12 @@ feature {NONE} -- Line scanning
 						j := j + 1
 						append_text (s.substring (l_start, i - 1), Kind_text)
 						append_text (s.substring (i, j), Kind_comment)
+					end
+				elseif c = '=' then
+					j := highlight_end (s, i)
+					if j > 0 then
+						append_text (s.substring (l_start, i - 1), Kind_text)
+						append_text (s.substring (i, j), Kind_highlight)
 					end
 				elseif c = '[' or else (c = '!' and then i < n and then s [i + 1] = '[') then
 					j := link_end (s, i)
@@ -384,6 +391,7 @@ feature {NONE} -- Tokens
 		local
 			i, j, n: INTEGER
 			c: CHARACTER_32
+			l_token: EDITOR_TOKEN
 		do
 			n := s.count
 			from
@@ -400,15 +408,68 @@ feature {NONE} -- Tokens
 					j := j + 1
 				end
 				if c = ' ' then
-					curr_token := create {EDITOR_TOKEN_SPACE}.make (j - i)
+					l_token := create {EDITOR_TOKEN_SPACE}.make (j - i)
 				elseif c = '%T' then
-					curr_token := create {EDITOR_TOKEN_TABULATION}.make (j - i)
+					l_token := create {EDITOR_TOKEN_TABULATION}.make (j - i)
 				else
-					curr_token := new_token (s.substring (i, j - 1), a_kind)
+					l_token := new_token (s.substring (i, j - 1), a_kind)
 				end
+				if a_kind = Kind_highlight then
+						-- (The spaces too, for a continuous background.)
+					l_token.set_background_color (highlight_background_color (l_token.background_color))
+				end
+				curr_token := l_token
 				update_token_list
 				i := j
 			end
+		end
+
+	highlight_end (s: READABLE_STRING_32; i: INTEGER): INTEGER
+			-- Index of the end of the highlighted text `==text==' starting at `i' in `s', or 0 if none
+			-- (as the highlight extension of the markdown library: no space after the opening `==' nor
+			-- before the closing one, and neither next to another `=').
+		local
+			n: INTEGER
+		do
+			n := s.count
+			if
+				i + 2 <= n and then s [i] = '=' and then s [i + 1] = '=' and then s [i + 2] /= '=' and then
+				not s [i + 2].is_space and then (i = 1 or else s [i - 1] /= '=')
+			then
+				from
+					Result := s.substring_index ({STRING_32} "==", i + 3)
+				until
+					Result = 0 or else (not s [Result - 1].is_space and then s [Result - 1] /= '=' and then (Result + 2 > n or else s [Result + 2] /= '='))
+				loop
+					Result := s.substring_index ({STRING_32} "==", Result + 1)
+				end
+				if Result > 0 then
+					Result := Result + 1
+				end
+			end
+		end
+
+	highlight_background_color (a_background: EV_COLOR): EV_COLOR
+			-- Background color of highlighted text, over the background `a_background': a dark yellow
+			-- on a dark background, a light yellow otherwise.
+		do
+			if 299 * a_background.red_8_bit + 587 * a_background.green_8_bit + 114 * a_background.blue_8_bit < 128000 then
+				Result := Dark_highlight_color
+			else
+				Result := Light_highlight_color
+			end
+		end
+
+	Light_highlight_color: EV_COLOR
+			-- Background of highlighted text on a light background.
+		once
+			create Result.make_with_8_bit_rgb (255, 242, 168)
+		end
+
+	Dark_highlight_color: EV_COLOR
+			-- Background of highlighted text on a dark background.
+		once
+			create Result.make_with_8_bit_rgb (107, 91, 0)
 		end
 
 	same_class (a, b: CHARACTER_32): BOOLEAN
@@ -456,6 +517,7 @@ feature {NONE} -- Constants
 	Kind_link: INTEGER = 4
 	Kind_comment: INTEGER = 5
 	Kind_marker: INTEGER = 6
+	Kind_highlight: INTEGER = 7
 			-- Kinds of text.
 
 note
