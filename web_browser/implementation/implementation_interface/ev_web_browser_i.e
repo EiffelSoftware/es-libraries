@@ -303,6 +303,18 @@ feature -- Events
 			end
 		end
 
+	navigation_button_actions: EV_LITE_ACTION_SEQUENCE [TUPLE [is_forward: BOOLEAN]]
+			-- Actions performed when the "back" or "forward" mouse button is released over the browser
+			-- (by the implementations whose engine does not give these buttons to the page).
+		do
+			if attached navigation_button_actions_internal as l_result then
+				Result := l_result
+			else
+				create Result
+				navigation_button_actions_internal := Result
+			end
+		end
+
 feature {NONE} -- Event handling (for implementations)
 
 	on_load_started (a_uri: READABLE_STRING_32)
@@ -525,6 +537,9 @@ feature {NONE} -- Implementation
 
 	message_received_actions_internal: detachable like message_received_actions
 			-- Once per object `message_received_actions`.
+
+	navigation_button_actions_internal: detachable like navigation_button_actions
+			-- Once per object `navigation_button_actions`.
 
 ;note
 	copyright:	"Copyright (c) 1984-2026, Eiffel Software and others"

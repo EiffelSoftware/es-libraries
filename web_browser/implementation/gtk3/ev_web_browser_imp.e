@@ -51,6 +51,8 @@ feature {NONE} -- Initialization
 				real_signal_connect (c_object, "notify::uri", agent on_webkit_uri_changed)
 				real_signal_connect (c_object, "notify::title", agent on_webkit_title_changed)
 				real_signal_connect (c_object, "decide-policy", agent on_webkit_decide_policy)
+				real_signal_connect (c_object, "button-press-event", agent on_webkit_button_press)
+				real_signal_connect (c_object, "button-release-event", agent on_webkit_button_release)
 				real_signal_connect (webkit.user_content_manager, "script-message-received::" + message_handler_name, agent on_webkit_script_message_received)
 			end
 		end
@@ -230,6 +232,42 @@ feature {NONE} -- WebKitGTK signals
 				on_title_changed (t)
 			else
 				on_title_changed ({STRING_32} "")
+			end
+		end
+
+	on_webkit_button_press (n: INTEGER; a_args: POINTER): BOOLEAN
+			-- "button-press-event" (GdkEvent *event): the "back" and "forward" mouse buttons are not given
+			-- to WebKit when `navigation_button_actions` handles them (on their release).
+		local
+			l_event: POINTER
+			l_button: INTEGER
+		do
+			l_event := {GOBJECT}.g_value_pointer ({GOBJECT}.g_value_array_i_th (a_args, 1))
+			if l_event /= default_pointer then
+				l_button := {GDK}.gdk_event_button_struct_button (l_event)
+				Result := (l_button = 8 or l_button = 9) and then
+					attached navigation_button_actions_internal as l_actions and then not l_actions.is_empty
+			end
+		end
+
+	on_webkit_button_release (n: INTEGER; a_args: POINTER): BOOLEAN
+			-- "button-release-event" (GdkEvent *event): the "back" (8) and "forward" (9) mouse buttons
+			-- for `navigation_button_actions` (WebKitGTK does not give them to the page).
+			-- Result: True when the event is handled (WebKit does not use it).
+		local
+			l_event: POINTER
+			l_button: INTEGER
+		do
+			l_event := {GOBJECT}.g_value_pointer ({GOBJECT}.g_value_array_i_th (a_args, 1))
+			if l_event /= default_pointer then
+				l_button := {GDK}.gdk_event_button_struct_button (l_event)
+				if
+					(l_button = 8 or l_button = 9) and then
+					attached navigation_button_actions_internal as l_actions and then not l_actions.is_empty
+				then
+					l_actions.call ([l_button = 9])
+					Result := True
+				end
 			end
 		end
 

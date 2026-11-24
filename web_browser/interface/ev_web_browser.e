@@ -291,6 +291,14 @@ feature -- Events
 			Result := implementation.message_received_actions
 		end
 
+	navigation_button_actions: EV_LITE_ACTION_SEQUENCE [TUPLE [is_forward: BOOLEAN]]
+			-- Actions performed when the "back" (`is_forward` False) or "forward" mouse button is released
+			-- over the browser, when the engine does not give these buttons to the page (WebKitGTK);
+			-- the engine then does not go back or forth in its own history.
+		do
+			Result := implementation.navigation_button_actions
+		end
+
 feature {EV_ANY, EV_ANY_I} -- Implementation
 
 	implementation: EV_WEB_BROWSER_I
