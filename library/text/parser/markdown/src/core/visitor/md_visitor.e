@@ -66,6 +66,12 @@ feature -- Processing
 		deferred
 		end
 
+	visit_table_of_contents (a_toc: MD_TABLE_OF_CONTENTS)
+		require
+			a_toc_attached: a_toc /= Void
+		deferred
+		end
+
 feature -- Inline
 
 	visit_text (a_text: MD_TEXT)

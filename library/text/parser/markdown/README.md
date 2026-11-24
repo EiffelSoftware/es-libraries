@@ -30,6 +30,7 @@ This library intentionally implements a pragmatic subset of Markdown (close to C
   - Images: `![alt](url)` with optional title `![alt](url "title")` or reference-style `![alt][ref]`
   - Strikethrough: `~~text~~` (with GitHub extension)
   - Highlight: `==text==`, as `<mark>` (with the highlight extension, `set_using_highlight_extension`; enabled by `MD_CONTENT_TEXT`)
+  - Table of contents: a paragraph made only of `[TOC]` (any case) or `[[_TOC_]]`, replaced by the nested list of the headings, linked to their identifiers (with the table of contents extension, `set_using_table_of_contents_extension`; enabled by `MD_CONTENT_TEXT`). The XHTML generator then gives the headings an `id`, as on GitHub (`set_heading_identifier_enabled` does it without a table of contents; `set_table_of_contents_levels` chooses the levels listed)
   - Task lists: `- [ ]` or `- [x]` (with GitHub extension)
   - Full backslash escapes: `\!`, `\"`, `\#`, etc.
   - Soft breaks: single newline within paragraph

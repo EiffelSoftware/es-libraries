@@ -18,6 +18,9 @@ feature {NONE} -- Initialization
 			a_buffer_attached: a_buffer /= Void
 		do
 			buffer := a_buffer
+			table_of_contents_min_level := 1
+			table_of_contents_max_level := 6
+			create heading_identifiers.make (0)
 		ensure
 			buffer_set: buffer = a_buffer
 		end
@@ -26,6 +29,61 @@ feature -- Output
 
 	buffer: STRING
 			-- Output buffer.
+
+feature -- Settings
+
+	is_heading_identifier_enabled: BOOLEAN
+			-- Do the headings have an identifier (`id' attribute, as on GitHub: "## Getting started" is
+			-- "getting-started", see `heading_identifier')? Always the case in a document with a table of
+			-- contents (its links use them).
+
+	table_of_contents_min_level, table_of_contents_max_level: INTEGER
+			-- Levels of the headings listed in a table of contents (1 to 6 by default).
+
+	set_heading_identifier_enabled (b: BOOLEAN)
+			-- Set `is_heading_identifier_enabled' to `b'.
+		do
+			is_heading_identifier_enabled := b
+		ensure
+			set: is_heading_identifier_enabled = b
+		end
+
+	set_table_of_contents_levels (a_min, a_max: INTEGER)
+			-- List the headings of level `a_min' to `a_max' in a table of contents.
+		require
+			valid_levels: 1 <= a_min and a_min <= a_max and a_max <= 6
+		do
+			table_of_contents_min_level := a_min
+			table_of_contents_max_level := a_max
+		ensure
+			min_set: table_of_contents_min_level = a_min
+			max_set: table_of_contents_max_level = a_max
+		end
+
+feature -- Conversion
+
+	heading_identifier (a_text: READABLE_STRING_8): STRING_8
+			-- Identifier of a heading of plain text `a_text' (UTF-8), as on GitHub: in lower case, the
+			-- spaces replaced by `-', the other characters removed except letters, digits, `-', `_'
+			-- and the non-ASCII characters.
+		local
+			c: CHARACTER_8
+		do
+			create Result.make (a_text.count)
+			across
+				a_text as ic
+			loop
+				c := ic.item
+				if c = ' ' then
+					Result.append_character ('-')
+				elseif c.code > 127 or c = '-' or c = '_' then
+						-- (Bytes of the UTF-8 sequences kept as they are.)
+					Result.append_character (c)
+				elseif c.is_alpha_numeric then
+					Result.append_character (c.as_lower)
+				end
+			end
+		end
 
 feature -- Processing
 
@@ -44,8 +102,95 @@ feature -- Processing
 		end
 
 	visit_document (a_document: MD_DOCUMENT)
+		local
+			l_collector: MD_HEADINGS_COLLECTOR
+			l_ids: STRING_TABLE [INTEGER]
+			l_id: STRING_8
 		do
+			create l_collector.make
+			a_document.process (l_collector)
+			create heading_identifiers.make (0)
+			if is_heading_identifier_enabled or not l_collector.tables_of_contents.is_empty then
+					-- Unique identifiers ("-1", "-2"... added to the repeated ones).
+				create l_ids.make (l_collector.headings.count)
+				create heading_identifiers.make (l_collector.headings.count)
+				across
+					l_collector.headings as h
+				loop
+					l_id := heading_identifier (h.text)
+					if l_ids.has (l_id) then
+						l_ids.force (l_ids [l_id] + 1, l_id)
+						l_id := l_id + "-" + l_ids [l_id].out
+					else
+						l_ids.force (0, l_id)
+					end
+					heading_identifiers.extend ([h, l_id])
+				end
+			end
 			visit_composite (a_document)
+		end
+
+	visit_table_of_contents (a_toc: MD_TABLE_OF_CONTENTS)
+			-- A navigation element with the nested list of the headings (of the levels to list),
+			-- linked to their identifier.
+		local
+			l_base, l_depth, d: INTEGER
+			l_headings: ARRAYED_LIST [MD_HEADING]
+		do
+			create l_headings.make (a_toc.headings.count)
+			l_base := 7
+			across
+				a_toc.headings as h
+			loop
+				if h.level >= table_of_contents_min_level and h.level <= table_of_contents_max_level then
+					l_headings.extend (h)
+					l_base := l_base.min (h.level)
+				end
+			end
+			if not l_headings.is_empty then
+				output ("<nav class=%"toc%">")
+				across
+					l_headings as h
+				loop
+					d := h.level - l_base + 1
+					if d > l_depth then
+						from
+						until
+							l_depth >= d
+						loop
+							output ("<ul>")
+							l_depth := l_depth + 1
+							if l_depth < d then
+								output ("<li>")
+							end
+						end
+					else
+						output ("</li>")
+						from
+						until
+							l_depth <= d
+						loop
+							output ("</ul></li>")
+							l_depth := l_depth - 1
+						end
+					end
+					output ("<li><a href=%"#")
+					if attached identifier_of (h) as l_id then
+						output_attribute_escaped (l_id)
+					end
+					output ("%">")
+					output_escaped (h.text)
+					output ("</a>")
+				end
+				from
+				until
+					l_depth = 0
+				loop
+					output ("</li></ul>")
+					l_depth := l_depth - 1
+				end
+				output ("</nav>%N")
+			end
 		end
 
 	visit_paragraph (a_paragraph: MD_PARAGRAPH)
@@ -59,7 +204,13 @@ feature -- Processing
 
 	visit_heading (a_heading: MD_HEADING)
 		do
-			output ("<h" + a_heading.level.out + ">")
+			if attached identifier_of (a_heading) as l_id then
+				output ("<h" + a_heading.level.out + " id=%"")
+				output_attribute_escaped (l_id)
+				output ("%">")
+			else
+				output ("<h" + a_heading.level.out + ">")
+			end
 			visit_composite (a_heading)
 			output ("</h" + a_heading.level.out + ">%N")
 		end
@@ -295,6 +446,25 @@ feature -- Block
 			output (" <a href=%"#")
 			output_attribute_escaped (ref_id)
 			output ("%">↩</a></div>%N")
+		end
+
+feature {NONE} -- Headings
+
+	heading_identifiers: ARRAYED_LIST [TUPLE [heading: MD_HEADING; id: STRING_8]]
+			-- Identifiers of the headings of the document being generated, if any.
+
+	identifier_of (a_heading: MD_HEADING): detachable STRING_8
+			-- Identifier of `a_heading', if the headings have one.
+		do
+			across
+				heading_identifiers as h
+			until
+				Result /= Void
+			loop
+				if h.heading = a_heading then
+					Result := h.id
+				end
+			end
 		end
 
 feature {NONE} -- Output helpers

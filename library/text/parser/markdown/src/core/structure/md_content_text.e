@@ -34,6 +34,7 @@ feature -- Access
 				create p.make
 				p.set_using_github_extension (True)
 				p.set_using_highlight_extension (True)
+				p.set_using_table_of_contents_extension (True)
 				l_internal_document := p.parse (content)
 				internal_document := l_internal_document
 			end

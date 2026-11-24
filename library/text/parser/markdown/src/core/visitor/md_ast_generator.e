@@ -208,6 +208,12 @@ feature -- Processing
 			output ("<thematic_break/>")
 		end
 
+	visit_table_of_contents (a_toc: MD_TABLE_OF_CONTENTS)
+		do
+			newline_indent
+			output ("<table_of_contents headings=%"" + a_toc.headings.count.out + "%"/>")
+		end
+
 feature -- Table
 
 	visit_table (a_table: MD_TABLE)

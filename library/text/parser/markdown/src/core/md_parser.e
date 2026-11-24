@@ -46,6 +46,21 @@ feature -- Highlight extension
 			using_highlight_extension_set: using_highlight_extension = a_enabled
 		end
 
+feature -- Table of contents extension
+
+	using_table_of_contents_extension: BOOLEAN
+			-- Enable the table of contents: a paragraph made only of `[TOC]' (any letter case, unless a
+			-- link reference `TOC' is defined) or `[[_TOC_]]' is a {MD_TABLE_OF_CONTENTS} (as in
+			-- Python-Markdown, GitLab, Typora...).
+
+	set_using_table_of_contents_extension (a_enabled: BOOLEAN)
+			-- Set `using_table_of_contents_extension` to `a_enabled`.
+		do
+			using_table_of_contents_extension := a_enabled
+		ensure
+			using_table_of_contents_extension_set: using_table_of_contents_extension = a_enabled
+		end
+
 feature {NONE} -- Link reference definitions
 
 	link_definitions: detachable HASH_TABLE [TUPLE [url: READABLE_STRING_8; title: detachable READABLE_STRING_8], STRING_8]
@@ -97,6 +112,9 @@ feature -- Parsing
 
 			create doc.make
 			parse_blocks_into (l_text, doc)
+			if using_table_of_contents_extension then
+				set_tables_of_contents (doc)
+			end
 
 				-- Add footnote definitions to document (as blocks at the end).
 			if attached footnote_definitions as defs then
@@ -618,10 +636,43 @@ feature {NONE} -- List detection
 			processed: STRING_8
 		do
 			if a_para /= Void and then not a_para.is_empty then
-				processed := process_hard_line_breaks (a_para)
-				create p.make
-				append_inlines_to (processed, p)
-				a_document.add_element (p)
+				if using_table_of_contents_extension and then is_table_of_contents_marker (a_para) then
+					a_document.add_element (create {MD_TABLE_OF_CONTENTS}.make)
+				else
+					processed := process_hard_line_breaks (a_para)
+					create p.make
+					append_inlines_to (processed, p)
+					a_document.add_element (p)
+				end
+			end
+		end
+
+	is_table_of_contents_marker (a_para: READABLE_STRING_8): BOOLEAN
+			-- Is paragraph `a_para' a table of contents marker: `[TOC]' (any letter case, unless a link
+			-- reference `TOC' is defined) or `[[_TOC_]]'?
+		local
+			s: STRING_8
+		do
+			create s.make_from_string (trimmed (a_para))
+			s.to_lower
+			if s.same_string ("[[_toc_]]") then
+				Result := True
+			elseif s.same_string ("[toc]") then
+				Result := not (attached link_definitions as l_defs and then l_defs.has ("toc"))
+			end
+		end
+
+	set_tables_of_contents (a_document: MD_DOCUMENT)
+			-- Give the headings of `a_document' to its tables of contents.
+		local
+			l_collector: MD_HEADINGS_COLLECTOR
+		do
+			create l_collector.make
+			a_document.process (l_collector)
+			across
+				l_collector.tables_of_contents as t
+			loop
+				t.set_headings (l_collector.headings)
 			end
 		end
 
