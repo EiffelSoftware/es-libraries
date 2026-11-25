@@ -50,6 +50,10 @@ feature -- Event names
 			-- unmap signal name constant.
 			--| The ::unmap signal is emitted when widget is going to be unmapped, which means that either it or any of its parents up to the toplevel widget have been set as hidden.
 
+	drag_data_received_event_name: STRING = "drag-data-received"
+			-- drag_data_received_event_name constant.
+			--| Emitted on a drag destination when the dropped data has been received.
+
 	map_event_name: STRING = "map-event"
 			-- map_event_name constant.
 			--| The ::map-event signal will be emitted when the widget 's window is mapped

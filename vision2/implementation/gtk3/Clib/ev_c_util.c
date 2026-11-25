@@ -428,6 +428,46 @@ ev_gdk_event_get (void)
 	return gdk_event_get ();
 }
 
+/*
+ * Files dropped on a widget (GTK+ drag destination with the "text/uri-list" target,
+ * see `{EV_WIDGET_IMP}.enable_file_drop'), on every GDK backend.
+ * `a_args' are the arguments of the "drag-data-received" signal, after the widget:
+ * context, x, y, selection data, info, time.
+ * Finish the drop, and return the local file names (NULL terminated, to be freed
+ * with `g_strfreev'), or NULL if none.
+ */
+gchar **
+ev_gtk_drag_data_received_file_names (const GValue *a_args)
+{
+	GdkDragContext *l_context = (GdkDragContext *) g_value_get_object (&a_args [0]);
+	GtkSelectionData *l_data = (GtkSelectionData *) g_value_get_boxed (&a_args [3]);
+	guint l_time = g_value_get_uint (&a_args [5]);
+	gchar **l_uris = (l_data != NULL) ? gtk_selection_data_get_uris (l_data) : NULL;
+	GPtrArray *l_names = g_ptr_array_new ();
+	gchar *l_name;
+	gint i;
+
+	if (l_uris != NULL) {
+		for (i = 0; l_uris [i] != NULL; i++) {
+				/* Only local files (file:// URIs). */
+			l_name = g_filename_from_uri (l_uris [i], NULL, NULL);
+			if (l_name != NULL) {
+				g_ptr_array_add (l_names, l_name);
+			}
+		}
+		g_strfreev (l_uris);
+	}
+	if (l_context != NULL) {
+		gtk_drag_finish (l_context, l_names->len > 0, FALSE, l_time);
+	}
+	if (l_names->len == 0) {
+		g_ptr_array_free (l_names, TRUE);
+		return NULL;
+	}
+	g_ptr_array_add (l_names, NULL);
+	return (gchar **) g_ptr_array_free (l_names, FALSE);
+}
+
 #ifdef GDK_WINDOWING_QUARTZ
 #include <objc/runtime.h>
 #include <objc/message.h>

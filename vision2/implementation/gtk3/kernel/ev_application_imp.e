@@ -1016,19 +1016,14 @@ feature {EV_ANY_I} -- Implementation
 							l_gtk_window_imp.call_close_request_actions
 							l_gtk_window_imp := Void
 						end
-					when GDK_DESTROY, GDK_DRAG_ENTER, GDK_DRAG_LEAVE, GDK_DRAG_MOTION, GDK_DRAG_STATUS, GDK_DROP_FINISHED, GDK_NOTHING then
+					when GDK_DESTROY, GDK_DRAG_ENTER, GDK_DRAG_LEAVE, GDK_DRAG_MOTION, GDK_DRAG_STATUS, GDK_DROP_START, GDK_DROP_FINISHED, GDK_NOTHING then
+							-- The drops are handled by the GTK+ drag destinations
+							-- (dropped files: see `{EV_WIDGET_IMP}.enable_file_drop').
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
 						l_call_event := False
 						{GTK}.gtk_main_do_event (gdk_event)
-					when GDK_DROP_START then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "GDK_DROP_START", event_widget)
-						end
-							-- Some text has been drag dropped on a widget.
-						l_call_event := False
-						handle_dnd (gdk_event)
 					when GDK_SETTING then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_SETTING", event_widget)
@@ -1406,98 +1401,6 @@ feature -- Basic operation
 			end
 			use_stored_display_data := False
 		end
-
-	file_names_of_uri_list (a_data: POINTER): ARRAYED_LIST [STRING_32]
-			-- Names of the local files of the list of URIs `a_data' (a C string, one URI per line,
-			-- such as "file:///tmp/a%20b.png"), decoded.
-		require
-			a_data_not_null: a_data /= default_pointer
-		local
-			l_line: STRING_8
-			l_uri: C_STRING
-		do
-			create Result.make (1)
-			across
-				(create {STRING_8}.make_from_c (a_data)).split ('%N') as l
-			loop
-				l_line := l
-				l_line.prune_all ('%R')
-				if l_line.starts_with ("file://") then
-					create l_uri.make (l_line)
-					if attached {EV_GTK_DEPENDENT_ROUTINES}.file_path_of_uri (l_uri.item) as l_path then
-						Result.extend (l_path.name)
-					end
-				end
-			end
-		end
-
-	handle_dnd (a_event: POINTER)
-			-- Handle drag and drop event.
-		local
-			a_context: POINTER
-			a_target_list: POINTER
-			a_target: POINTER
-			src_window, dest_window, a_selection, gtkwid: POINTER
-			a_time: NATURAL_32
-			prop_data: POINTER
-			prop_type, prop_format, prop_length: INTEGER
-			a_string: STRING_32
-			l_file_list: detachable LIST [STRING_32]
-			l_success: BOOLEAN
-			l_widget_imp: detachable EV_WIDGET_IMP
-			l_string: STRING_8
-		do
-			from
-				a_context := {GDK}.gdk_event_dnd_struct_context (a_event)
-				src_window := {GDK}.gdk_drag_context_get_source_window (a_context)
-				a_selection := {GDK}.gdk_drag_get_selection (a_context)
-				a_time := {GDK}.gdk_event_dnd_struct_time (a_event)
-				a_target_list := {GDK}.gdk_drag_context_list_targets (a_context)
-				l_string := "STRING"
-			until
-				a_target_list.is_default_pointer
-			loop
-				a_target := {GLIB}.glist_struct_data (a_target_list)
-				if not a_target.is_default_pointer then
-						-- This is a target atom indicating the type of the drop.
-					{GDK}.gdk_selection_convert (src_window, a_selection, a_target, a_time)
-					prop_length := {GDK}.gdk_selection_property_get (src_window, $prop_data, $prop_type, $prop_format)
-					if not prop_data.is_default_pointer then
-						create a_string.make_from_c ({GDK}.gdk_atom_name (a_target))
-						if a_string.is_equal (l_string) then
-							l_file_list := file_names_of_uri_list (prop_data)
-							l_success := not l_file_list.is_empty
-						end
-					end
-				end
-				a_target_list := {GLIB}.glist_struct_next (a_target_list)
-			end
-			if l_success and then attached l_file_list then
-				dest_window := {GDK}.gdk_drag_context_get_dest_window (a_context)
-				if not dest_window.is_default_pointer then
-					{GDK}.gdk_window_get_user_data (dest_window, $gtkwid)
-					if not gtkwid.is_default_pointer then
-						l_widget_imp ?= eif_object_from_gtk_object (gtkwid)
-						if
-							l_widget_imp /= Void and then
-							not l_widget_imp.is_destroyed
-						then
-							if l_widget_imp.file_drop_actions_internal /= Void then
-								l_widget_imp.file_drop_actions.call ([l_file_list])
-							end
-							if file_drop_actions_internal /= Void then
-								file_drop_actions_internal.call ([l_widget_imp.attached_interface, l_file_list])
-							end
-						end
-					end
-				end
-			end
-			{GDK}.gdk_drop_finish (a_context, l_success, a_time)
-			{GTK}.gtk_drag_finish (a_context, l_success, False, a_time)
-			{GLIB}.g_free (prop_data)
-			{GLIB}.g_free (a_target_list)
-		end
-
 
 	GDK_NOTHING: INTEGER_8 = -1
 	GDK_DELETE: INTEGER_8 = 0

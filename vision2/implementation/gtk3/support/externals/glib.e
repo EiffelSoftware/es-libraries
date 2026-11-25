@@ -40,6 +40,7 @@ feature -- Memory
 		end
 
 	frozen g_strfreev (a_str_array: POINTER)
+			-- Free the NULL terminated string array `a_str_array' and its strings.
 		external
 			"C signature (gchar**) use <ev_gtk.h>"
 		end
