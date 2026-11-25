@@ -39,6 +39,16 @@ feature -- Memory
 			"C (gpointer) | <ev_gtk.h>"
 		end
 
+	frozen g_strfreev (a_str_array: POINTER)
+		external
+			"C signature (gchar**) use <ev_gtk.h>"
+		end
+
+	frozen g_filename_from_uri (a_uri, a_hostname, a_error: POINTER): POINTER
+		external
+			"C signature (gchar*, gchar**, GError**): gchar* use <ev_gtk.h>"
+		end
+
 	frozen g_malloc (a_size: INTEGER_32): POINTER
 		external
 			"C (gulong): gpointer | <ev_gtk.h>"

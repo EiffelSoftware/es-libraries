@@ -9,6 +9,9 @@ note
 class
 	EV_GTK_DEPENDENT_ROUTINES
 
+inherit
+	NATIVE_STRING_HANDLER
+
 feature -- Implementation
 
 	frozen add_g_type_string (an_array: POINTER; a_pos: INTEGER)
@@ -51,6 +54,59 @@ feature -- Implementation
 			"C inline use <ev_gtk.h>"
 		alias
 			"sizeof(GType)"
+		end
+
+	file_path_of_uri (a_uri: POINTER): detachable PATH
+			-- Local file of the URI `a_uri' (a C string, such as "file:///tmp/a%20b.png"), if any.
+		require
+			a_uri_not_null: a_uri /= default_pointer
+		local
+			l_file_name: POINTER
+		do
+			l_file_name := {GTK}.g_filename_from_uri (a_uri, default_pointer, default_pointer)
+			if l_file_name /= default_pointer then
+				create Result.make_from_pointer (l_file_name)
+				{GTK}.g_free (l_file_name)
+			end
+		ensure
+			is_class: class
+		end
+
+	file_paths_of_uris (a_uris: POINTER): ARRAYED_LIST [PATH]
+			-- Local files of the URIs of `a_uris', a C array of C strings ended by a null pointer.
+		require
+			a_uris_not_null: a_uris /= default_pointer
+		local
+			i: INTEGER
+			l_uri: POINTER
+		do
+			create Result.make (1)
+			from
+				l_uri := c_pointer_at (a_uris, 0)
+			until
+				l_uri = default_pointer
+			loop
+				if attached file_path_of_uri (l_uri) as l_path then
+					Result.extend (l_path)
+				end
+				i := i + 1
+				l_uri := c_pointer_at (a_uris, i)
+			end
+		ensure
+			is_class: class
+		end
+
+	frozen c_pointer_at (a_array: POINTER; i: INTEGER): POINTER
+			-- Pointer at index `i' (from 0) of the C array of pointers `a_array'.
+		require
+			a_array_not_null: a_array /= default_pointer
+			i_non_negative: i >= 0
+		external
+			"C inline"
+		alias
+			"((void **) $a_array) [$i]"
+		ensure
+			is_class: class
 		end
 
 	create_gtk_dialog: POINTER
