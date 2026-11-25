@@ -39,6 +39,38 @@ feature -- Access
 			cloned: Result /= implementation.text
 		end
 
+	has_image: BOOLEAN
+			-- Does the clipboard currently contain an image?
+		require
+			not_destroyed: not is_destroyed
+		do
+			Result := implementation.has_image
+		end
+
+	image: detachable EV_PIXEL_BUFFER
+			-- Image of the clipboard, if any (a new pixel buffer at each call).
+		require
+			not_destroyed: not is_destroyed
+		do
+			Result := implementation.image
+		end
+
+	has_files: BOOLEAN
+			-- Does the clipboard currently contain files (copied in a file manager)?
+		require
+			not_destroyed: not is_destroyed
+		do
+			Result := implementation.has_files
+		end
+
+	files: ARRAYED_LIST [PATH]
+			-- Files of the clipboard (copied in a file manager), empty if none.
+		require
+			not_destroyed: not is_destroyed
+		do
+			Result := implementation.files
+		end
+
 feature -- Status setting
 
 	set_text (a_text: READABLE_STRING_GENERAL)

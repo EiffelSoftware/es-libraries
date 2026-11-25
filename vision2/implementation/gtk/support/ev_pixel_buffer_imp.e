@@ -465,7 +465,7 @@ feature {EV_STOCK_PIXMAPS_IMP} -- Implementation
 			end
 		end
 
-feature {EV_PIXEL_BUFFER_IMP, EV_POINTER_STYLE_IMP, EV_DRAWABLE_IMP} -- Implementation
+feature {EV_PIXEL_BUFFER_IMP, EV_POINTER_STYLE_IMP, EV_DRAWABLE_IMP, EV_CLIPBOARD_IMP} -- Implementation
 
 	reusable_managed_pointer: MANAGED_POINTER
 		-- Managed pointer used for inspecting current.

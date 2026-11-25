@@ -1226,6 +1226,20 @@ feature
 			is_class: class
 		end
 
+	frozen g_strfreev (a_str_array: POINTER)
+		external
+			"C signature (gchar**) use <ev_gtk.h>"
+		ensure
+			is_class: class
+		end
+
+	frozen g_filename_from_uri (a_uri, a_hostname, a_error: POINTER): POINTER
+		external
+			"C signature (gchar*, gchar**, GError**): gchar* use <ev_gtk.h>"
+		ensure
+			is_class: class
+		end
+
 	frozen g_list_append (a_list: POINTER; a_data: POINTER): POINTER
 		external
 			"C (GList*, gpointer): GList* | <ev_gtk.h>"
