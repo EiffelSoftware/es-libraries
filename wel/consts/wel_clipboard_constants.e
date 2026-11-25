@@ -36,7 +36,12 @@ feature -- Access
 	
 	Cf_unicodetext: INTEGER = 13
 	
-	Cf_enhmetafile: INTEGER = 14;
+	Cf_enhmetafile: INTEGER = 14
+
+	Cf_hdrop: INTEGER = 15
+			-- Files (copied in the explorer): a handle to read with `DragQueryFile'.
+
+	Cf_dibv5: INTEGER = 17;
 
 note
 	copyright:	"Copyright (c) 1984-2006, Eiffel Software and others"
