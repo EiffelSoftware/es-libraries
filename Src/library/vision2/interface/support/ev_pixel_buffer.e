@@ -73,6 +73,20 @@ feature -- Command
 			actual_implementation.set_with_pointer (a_pointer, a_size)
 		end
 
+	set_with_pixel_buffer (a_pixel_buffer: EV_PIXEL_BUFFER)
+			-- Make `Current' a copy of the image of `a_pixel_buffer', with its size.
+		require
+			a_pixel_buffer_not_destroyed: not a_pixel_buffer.is_destroyed
+			a_pixel_buffer_not_current: a_pixel_buffer /= Current
+			not_locked: not is_locked
+		do
+			actual_implementation.make_with_size (a_pixel_buffer.width, a_pixel_buffer.height)
+			actual_implementation.draw_pixel_buffer_with_x_y (0, 0, a_pixel_buffer)
+		ensure
+			width_set: width = a_pixel_buffer.width
+			height_set: height = a_pixel_buffer.height
+		end
+
 	save_to_named_file (a_file_name: READABLE_STRING_GENERAL)
 			-- Save pixel data to file `a_file_name'.
 		require

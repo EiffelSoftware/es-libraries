@@ -205,6 +205,7 @@ feature {EDITOR_DATA} -- Implementation
 			if l_height > 0 then
 				Result.set_height (l_height)
 			end
+			Result := font_for_editor_dpi (Result)
 		end
 
 	calculate_keyword_font_with_zoom_factor: EV_FONT
@@ -225,6 +226,27 @@ feature {EDITOR_DATA} -- Implementation
 			l_height := Result.height + l_pref_factor.value
 			if l_height > 0 then
 				Result.set_height (l_height)
+			end
+			Result := font_for_editor_dpi (Result)
+		end
+
+feature {NONE} -- Per monitor DPI
+
+	editor_dpi_cell: CELL [NATURAL]
+			-- DPI of the monitor for which the editor fonts are computed,
+			-- 0 to use the fonts of the preferences as they are.
+			--| The fonts are shared by all the editors.
+		once
+			create Result.put (0)
+		end
+
+	font_for_editor_dpi (a_font: EV_FONT): EV_FONT
+			-- `a_font' with the size it has to have for `editor_dpi_cell'.
+		do
+			if editor_dpi_cell.item = 0 then
+				Result := a_font
+			else
+				Result := {EV_MONITOR_DPI_DETECTOR_IMP}.font_for_dpi (a_font, editor_dpi_cell.item)
 			end
 		end
 

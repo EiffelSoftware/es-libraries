@@ -19,6 +19,7 @@ feature {NONE} -- Initialization
 	default_create
 		do
 			create last_string.make_empty
+			create last_files.make (0)
 		end
 
 feature -- Access
@@ -31,9 +32,29 @@ feature -- Access
 			-- Only valid after a successfull call to
 			-- `retrieve_clipboard_text'
 
+	last_data: detachable MANAGED_POINTER
+			-- Data retrieved from the clipboard (a copy), if any.
+			-- Only valid after a call to `retrieve_clipboard_data'.
+
+	last_files: ARRAYED_LIST [PATH]
+			-- Files retrieved from the clipboard.
+			-- Only valid after a call to `retrieve_clipboard_files'.
+
 	is_clipboard_format_available (format: INTEGER): BOOLEAN
 		do
 			Result :=  cwel_is_clipboard_format_available (format)
+		end
+
+	registered_clipboard_format (a_name: READABLE_STRING_GENERAL): INTEGER
+			-- Clipboard format registered with name `a_name' (such as "PNG" or "HTML Format"),
+			-- registered if needed; 0 if it fails.
+		require
+			a_name_not_empty: not a_name.is_empty
+		local
+			l_name: WEL_STRING
+		do
+			create l_name.make (a_name)
+			Result := cwel_register_clipboard_format (l_name.item)
 		end
 
 feature -- Element Change
@@ -86,6 +107,61 @@ feature -- Element Change
 			end
 		ensure
 			last_string_not_void: last_string /= Void
+		end
+
+	retrieve_clipboard_data (a_format: INTEGER)
+			-- Retrieve the data of format `a_format' from the clipboard, as bytes, in `last_data'
+			-- (Void if there is none).
+		require
+			clipboard_open: clipboard_open
+		local
+			l_handle, l_data: POINTER
+			l_size: INTEGER
+			l_unlocked: BOOLEAN
+		do
+			last_data := Void
+			l_handle := cwel_get_clipboard_data (a_format)
+			if l_handle /= default_pointer then
+				l_size := cwel_global_size (l_handle)
+				l_data := cwel_global_lock (l_handle)
+				if l_data /= default_pointer then
+					if l_size > 0 then
+						create last_data.make_from_pointer (l_data, l_size)
+					end
+					l_unlocked := cwel_global_unlock (l_handle)
+				end
+			end
+		end
+
+	retrieve_clipboard_files
+			-- Retrieve the files of the clipboard (copied in the explorer) in `last_files'.
+		require
+			clipboard_open: clipboard_open
+			files_available: is_clipboard_format_available ({WEL_CLIPBOARD_CONSTANTS}.Cf_hdrop)
+		local
+			l_drop: POINTER
+			i, n, l_count: INTEGER
+			l_name: WEL_STRING
+		do
+			create last_files.make (0)
+			l_drop := cwel_get_clipboard_data ({WEL_CLIPBOARD_CONSTANTS}.Cf_hdrop)
+			if l_drop /= default_pointer then
+				n := {WEL_API}.drag_query_file (l_drop, -1, default_pointer, 0)
+				from
+					create last_files.make (n)
+				until
+					i >= n
+				loop
+						-- (Without a buffer: the length of the name, without the final null character.)
+					l_count := {WEL_API}.drag_query_file (l_drop, i, default_pointer, 0)
+					if l_count > 0 then
+						create l_name.make_empty (l_count + 1)
+						l_count := {WEL_API}.drag_query_file (l_drop, i, l_name.item, l_count + 1)
+						last_files.extend (create {PATH}.make_from_string (l_name.substring (1, l_count)))
+					end
+					i := i + 1
+				end
+			end
 		end
 
 	set_clipboard_text (a_text: READABLE_STRING_GENERAL)
@@ -194,6 +270,35 @@ feature {NONE} -- Externals
 			"C signature (UINT, HANDLE) use %"wel.h%""
 		alias
 			"SetClipboardData"
+		end
+
+	cwel_register_clipboard_format (a_name: POINTER): INTEGER
+			-- Register the clipboard format named `a_name' (a wide C string).
+		external
+			"C inline use %"wel.h%""
+		alias
+			"return (EIF_INTEGER) RegisterClipboardFormat ((LPCTSTR) $a_name);"
+		end
+
+	cwel_global_size (a_handle: POINTER): INTEGER
+		external
+			"C inline use %"wel.h%""
+		alias
+			"return (EIF_INTEGER) GlobalSize ((HGLOBAL) $a_handle);"
+		end
+
+	cwel_global_lock (a_handle: POINTER): POINTER
+		external
+			"C inline use %"wel.h%""
+		alias
+			"return GlobalLock ((HGLOBAL) $a_handle);"
+		end
+
+	cwel_global_unlock (a_handle: POINTER): BOOLEAN
+		external
+			"C inline use %"wel.h%""
+		alias
+			"return (EIF_BOOLEAN) GlobalUnlock ((HGLOBAL) $a_handle);"
 		end
 
 	cwel_is_clipboard_format_available (format: INTEGER): BOOLEAN

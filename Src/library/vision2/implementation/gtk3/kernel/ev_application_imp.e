@@ -128,6 +128,10 @@ feature {NONE} -- Initialization
 					-- We do not want X Errors to exit the system so we ignore them indefinitely.
 				if is_x11_backend then
 					{GDK_X11}.gdk_x11_display_error_trap_push ({GDK}.gdk_display_get_default)
+				elseif {GDK}.gdk_display_is_quartz then
+						-- GDK Quartz only dispatches its events to the GDK event handler,
+						-- `gdk_event_get' returns none: queue them for `process_underlying_toolkit_event_queue'.
+					{GDK}.ev_gdk_event_queue_install
 				end
 
 				update_screen_meta_data
@@ -389,6 +393,13 @@ feature {EV_ANY_I} -- Status report
 			Result := {GDK}.gdk_display_is_x11
 		end
 
+	is_quartz_backend: BOOLEAN
+			-- Is the live GDK display driven by the native macOS (Quartz) backend?
+			--| Evaluated once, so it must not be called before `gtk_init_check'.
+		once
+			Result := {GDK}.gdk_display_is_quartz
+		end
+
 	has_x11_support: BOOLEAN
 			-- Has X11 support ?
 		once
@@ -642,7 +653,7 @@ feature {EV_ANY_I} -- Implementation
 					end
 					l_no_more_events := True
 				else
-					gdk_event := {GDK}.gdk_event_get
+					gdk_event := {GDK}.ev_gdk_event_get
 				end
 				if not gdk_event.is_default_pointer then
 						-- GDK events are always handled before gtk events.
@@ -1005,19 +1016,14 @@ feature {EV_ANY_I} -- Implementation
 							l_gtk_window_imp.call_close_request_actions
 							l_gtk_window_imp := Void
 						end
-					when GDK_DESTROY, GDK_DRAG_ENTER, GDK_DRAG_LEAVE, GDK_DRAG_MOTION, GDK_DRAG_STATUS, GDK_DROP_FINISHED, GDK_NOTHING then
+					when GDK_DESTROY, GDK_DRAG_ENTER, GDK_DRAG_LEAVE, GDK_DRAG_MOTION, GDK_DRAG_STATUS, GDK_DROP_START, GDK_DROP_FINISHED, GDK_NOTHING then
+							-- The drops are handled by the GTK+ drag destinations
+							-- (dropped files: see `{EV_WIDGET_IMP}.enable_file_drop').
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_FORWARD_TO_GTK", event_widget)
 						end
 						l_call_event := False
 						{GTK}.gtk_main_do_event (gdk_event)
-					when GDK_DROP_START then
-						debug ("gdk_event")
-							print_debug_event (l_event_type, "GDK_DROP_START", event_widget)
-						end
-							-- Some text has been drag dropped on a widget.
-						l_call_event := False
-						handle_dnd (gdk_event)
 					when GDK_SETTING then
 						debug ("gdk_event")
 							print_debug_event (l_event_type, "GDK_SETTING", event_widget)
@@ -1097,8 +1103,11 @@ feature {EV_ANY_I} -- Implementation
 
 	process_gtk_events
 			-- Process Pending gtk events.
+			-- GDK events dispatched meanwhile are queued (if `{GDK}.ev_gdk_event_queue_install'
+			-- was called) for the next `{GDK}.ev_gdk_event_get'.
 		local
 			l_events_processed: BOOLEAN
+			l_was_queue_enabled: BOOLEAN
 		do
 			if not l_events_processed then
 -- FIXME: check if acquire/release are required.
@@ -1107,8 +1116,11 @@ feature {EV_ANY_I} -- Implementation
 --					{GTK2}.g_main_context_dispatch (ctx)
 --					{GTK2}.g_main_context_release (ctx)
 --				end
+				l_was_queue_enabled := {GDK}.ev_gdk_event_queue_set_enabled (True)
 				{GLIB2}.dispatch_events
 			end
+				-- Restore the status of the enclosing event loop, if any (also after an exception).
+			l_was_queue_enabled := {GDK}.ev_gdk_event_queue_set_enabled (l_was_queue_enabled)
 		rescue
 				-- Catch any exceptions.
 			l_events_processed := True
@@ -1389,88 +1401,6 @@ feature -- Basic operation
 			end
 			use_stored_display_data := False
 		end
-
-	handle_dnd (a_event: POINTER)
-			-- Handle drag and drop event.
-		local
-			a_context: POINTER
-			a_target_list: POINTER
-			a_target: POINTER
-			src_window, dest_window, a_selection, gtkwid: POINTER
-			a_time: NATURAL_32
-			prop_data: POINTER
-			prop_type, prop_format, prop_length: INTEGER
-			a_string: STRING_32
-			l_file_list: detachable LIST [STRING_32]
-			l_success: BOOLEAN
-			l_widget_imp: detachable EV_WIDGET_IMP
-			l_string, l_file: STRING_8
-		do
-			from
-				a_context := {GDK}.gdk_event_dnd_struct_context (a_event)
-				src_window := {GDK}.gdk_drag_context_get_source_window (a_context)
-				a_selection := {GDK}.gdk_drag_get_selection (a_context)
-				a_time := {GDK}.gdk_event_dnd_struct_time (a_event)
-				a_target_list := {GDK}.gdk_drag_context_list_targets (a_context)
-				l_string := "STRING"
-				l_file :=  "file://"
-			until
-				a_target_list.is_default_pointer
-			loop
-				a_target := {GLIB}.glist_struct_data (a_target_list)
-				if not a_target.is_default_pointer then
-						-- This is a target atom indicating the type of the drop.
-					{GDK}.gdk_selection_convert (src_window, a_selection, a_target, a_time)
-					prop_length := {GDK}.gdk_selection_property_get (src_window, $prop_data, $prop_type, $prop_format)
-					if not prop_data.is_default_pointer then
-						create a_string.make_from_c ({GDK}.gdk_atom_name (a_target))
-						if a_string.is_equal (l_string) then
-							create a_string.make_from_c (prop_data)
-							l_file_list := a_string.split ('%N')
-							from
-								l_file_list.start
-							until
-								l_file_list.after
-							loop
-								if l_file_list.item.substring_index (l_file, 1) = 1 then
-									l_file_list.replace (l_file_list.item.substring (8, l_file_list.item.count))
-									l_success := True
-									l_file_list.forth
-								else
-									l_file_list.remove
-								end
-							end
-						end
-					end
-				end
-				a_target_list := {GLIB}.glist_struct_next (a_target_list)
-			end
-			if l_success and then attached l_file_list then
-				dest_window := {GDK}.gdk_drag_context_get_dest_window (a_context)
-				if not dest_window.is_default_pointer then
-					{GDK}.gdk_window_get_user_data (dest_window, $gtkwid)
-					if not gtkwid.is_default_pointer then
-						l_widget_imp ?= eif_object_from_gtk_object (gtkwid)
-						if
-							l_widget_imp /= Void and then
-							not l_widget_imp.is_destroyed
-						then
-							if l_widget_imp.file_drop_actions_internal /= Void then
-								l_widget_imp.file_drop_actions.call ([l_file_list])
-							end
-							if file_drop_actions_internal /= Void then
-								file_drop_actions_internal.call ([l_widget_imp.attached_interface, l_file_list])
-							end
-						end
-					end
-				end
-			end
-			{GDK}.gdk_drop_finish (a_context, l_success, a_time)
-			{GTK}.gtk_drag_finish (a_context, l_success, False, a_time)
-			{GLIB}.g_free (prop_data)
-			{GLIB}.g_free (a_target_list)
-		end
-
 
 	GDK_NOTHING: INTEGER_8 = -1
 	GDK_DELETE: INTEGER_8 = 0

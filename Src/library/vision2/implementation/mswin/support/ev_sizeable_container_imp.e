@@ -130,7 +130,7 @@ feature -- Basic operations
 			top_imp := top_level_window_imp
 			if
 				not do_change and then
-				(a_is_size_forced or (top_imp /= Void and then top_imp.is_displayed))
+				(a_is_size_forced or (top_imp /= Void and then top_imp.is_layout_active))
 			then
 					-- Current width
 				rw := child_cell.width
@@ -167,7 +167,7 @@ feature -- Basic operations
 			top_imp := top_level_window_imp
 			if
 				not do_change and then
-				(a_is_size_forced or (top_imp /= Void and then top_imp.is_displayed))
+				(a_is_size_forced or (top_imp /= Void and then top_imp.is_layout_active))
 			then
 				rh := child_cell.height
 				if value > rh then
@@ -219,7 +219,7 @@ feature -- Basic operations
 			top_imp := top_level_window_imp
 			if
 				not do_change and then
-				(a_is_size_forced or (top_imp /= Void and then top_imp.is_displayed))
+				(a_is_size_forced or (top_imp /= Void and then top_imp.is_layout_active))
 			then
 				rw := child_cell.width
 				rh := child_cell.height
@@ -260,7 +260,7 @@ feature -- Basic operations
 					is_notify_originator := True
 					is_in_notify.put (True)
 					top_imp := top_level_window_imp
-					if (a_is_size_forced or (top_imp /= Void and then top_imp.is_displayed)) then
+					if (a_is_size_forced or (top_imp /= Void and then top_imp.is_layout_active)) then
 						inspect type
 						when Nc_minwidth then
 							set_minwidth_recomputation_needed (False)
@@ -283,7 +283,7 @@ feature -- Basic operations
 							set_minwidth_recomputation_needed (True)
 							set_minheight_recomputation_needed (True)
 						end
-						if top_imp = Void or else not top_imp.is_displayed then
+						if top_imp = Void or else not top_imp.is_layout_active then
 							p_imp := parent_imp
 							if p_imp /= Void then
 								p_imp.notify_change (type, attached_interface.implementation, a_is_size_forced)

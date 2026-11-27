@@ -28,6 +28,26 @@ feature -- Access
 			Result_not_void: Result /= Void
 		end
 
+	has_image: BOOLEAN
+			-- Does the clipboard currently contain an image?
+		deferred
+		end
+
+	image: detachable EV_PIXEL_BUFFER
+			-- Image of the clipboard, if any (a new pixel buffer at each call).
+		deferred
+		end
+
+	has_files: BOOLEAN
+			-- Does the clipboard currently contain files (copied in a file manager)?
+		deferred
+		end
+
+	files: ARRAYED_LIST [PATH]
+			-- Files of the clipboard (copied in a file manager), empty if none.
+		deferred
+		end
+
 feature -- Status setting
 
 	set_text (a_text: READABLE_STRING_GENERAL)

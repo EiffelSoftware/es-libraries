@@ -54,6 +54,8 @@ feature {NONE} -- Implementation
 			end
 			v_imp.wel_set_parent (wel_win)
 			v_imp.set_top_level_window_imp (top_level_window_imp)
+				-- `v_imp' may now be displayed on a monitor with another DPI.
+			v_imp.update_dpi_of_widget_tree_if_needed
 			new_item_actions.call ([v])
 			notify_change (Nc_minsize, Current, False)
 		end

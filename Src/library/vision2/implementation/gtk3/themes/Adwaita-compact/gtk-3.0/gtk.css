@@ -1,0 +1,44 @@
+/*
+ * Adwaita-compact: the GTK+ 3 default theme (Adwaita) with smaller widgets,
+ * for denser EiffelVision2 applications such as EiffelStudio.
+ * Only minimum sizes and paddings change; colors and look stay Adwaita's.
+ * Text fields and combo boxes are 28 pixels high instead of 34.
+ * See ../../README.md for how to use it.
+ */
+
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
+
+entry, spinbutton, combobox entry {
+	min-height: 24px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+}
+
+button, combobox button {
+	min-height: 20px;
+	padding: 2px 6px;
+}
+
+button.image-button {
+	min-width: 20px;
+	padding: 2px;
+}
+
+notebook > header > tabs > tab {
+	min-height: 20px;
+	padding: 2px 8px;
+}
+
+menuitem, menu menuitem, .menuitem {
+	min-height: 20px;
+	padding: 2px 8px;
+}
+
+treeview.view {
+	padding: 1px;
+}
+
+scrollbar slider {
+	min-width: 6px;
+	min-height: 6px;
+}

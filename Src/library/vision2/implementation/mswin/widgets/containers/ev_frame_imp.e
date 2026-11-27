@@ -39,7 +39,8 @@ inherit
 	EV_FONTABLE_IMP
 		redefine
 			interface,
-			set_font
+			set_font,
+			update_font_for_dpi
 		end
 
 	EV_TEXT_ALIGNABLE_IMP
@@ -156,6 +157,18 @@ feature -- Element change
 			invalidate
 		end
 
+	update_font_for_dpi
+			-- <Precursor>
+		do
+			Precursor
+				-- The text of `Current' has a new size, also with the default font.
+			if not text.is_empty then
+				update_text_size
+			end
+			notify_change (nc_minsize, Current, False)
+			invalidate
+		end
+
 	enable_sensitive
 			-- Set `item' sensitive to user actions.
 		do
@@ -196,8 +209,7 @@ feature -- Element change
 			-- Update `text_width' and `text_size' based on
 			-- current font.
 		local
-			font_imp: detachable EV_FONT_IMP
-			t: detachable TUPLE [width: INTEGER; height: INTEGER]
+			t: TUPLE [width: INTEGER; height: INTEGER]
 			l_text: like text
 		do
 			l_text := text
@@ -206,16 +218,7 @@ feature -- Element change
 			l_text.prepend_character (' ')
 			l_text.append_character (' ')
 				-- `l_text' is a copy of `text'.
-			if private_font /= Void then
-				font_imp ?= private_font.implementation
-				check
-					font_not_void: font_imp /= Void then
-				end
-				t := font_imp.string_size (l_text)
-			elseif attached private_wel_font as l_private_wel_font then
-				t := l_private_wel_font.string_size (l_text)
-			end
-			check t /= Void then end
+			t := realized_wel_font.string_size (l_text)
 			text_width := t.width
 			text_height := t.height
 		end
@@ -368,7 +371,6 @@ feature {NONE} -- WEL Implementation
 			r: WEL_RECT
 			bk_brush: detachable WEL_BRUSH
 			pen: WEL_PEN
-			font_imp: detachable EV_FONT_IMP
 			theme_drawer: EV_THEME_DRAWER_IMP
 			text_rect: WEL_RECT
 			drawstate: INTEGER
@@ -460,15 +462,7 @@ feature {NONE} -- WEL Implementation
 			bk_brush.delete
 
 			if not text.is_empty then
-				if attached private_font as l_private_font then
-					font_imp ?= l_private_font.implementation
-					check
-						font_not_void: font_imp /= Void then
-					end
-					memory_dc.select_font (font_imp.wel_font)
-				elseif attached private_wel_font as l_private_wel_font then
-					memory_dc.select_font (l_private_wel_font)
-				end
+				memory_dc.select_font (realized_wel_font)
 				memory_dc.set_text_color (wel_foreground_color)
 				memory_dc.set_background_color (wel_background_color)
 

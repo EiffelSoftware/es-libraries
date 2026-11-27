@@ -94,6 +94,10 @@ feature {EV_GRID_DRAWER_I} -- Implementation
 		-- Must the dimensions of `interface.text' be re-computed
 		-- before drawing.
 
+	text_dimensions_dpi: NATURAL
+		-- `{EV_GRID_I}.drawing_dpi' of the parent when `internal_text_width' and
+		-- `internal_text_height' were computed.
+
 	recompute_text_dimensions
 			-- Recompute `internal_text_width' and `internal_text_height'.
 		local
@@ -102,6 +106,13 @@ feature {EV_GRID_DRAWER_I} -- Implementation
 			l_font: detachable EV_FONT
 			l_empty: BOOLEAN
 		do
+			if
+				not must_recompute_text_dimensions and then
+				attached parent_i as l_grid_i and then l_grid_i.drawing_dpi /= text_dimensions_dpi
+			then
+					-- The grid is now displayed on a monitor with another DPI.
+				must_recompute_text_dimensions := True
+			end
 			if must_recompute_text_dimensions then
 				if attached interface as l_interface then
 					l_text := l_interface.text
@@ -115,7 +126,8 @@ feature {EV_GRID_DRAWER_I} -- Implementation
 					end
 					if attached parent_i as l_parent_i then
 						l_text_dimensions := text_dimensions
-						l_parent_i.string_size (l_text, l_font, l_text_dimensions)
+						l_parent_i.string_size (l_text, l_parent_i.font_for_drawing (l_font), l_text_dimensions)
+						text_dimensions_dpi := l_parent_i.drawing_dpi
 					else
 							-- Item is not parented so we use the slower font implementation directly.
 						l_text_dimensions := l_font.string_size (l_text)
@@ -255,12 +267,19 @@ feature {EV_GRID_DRAWER_I} -- Implementation
 
 	draw_text (a_text: STRING_32; a_drawable: EV_DRAWABLE; a_layout: EV_GRID_LABEL_ITEM_LAYOUT; an_indent: INTEGER)
 			-- Draw text to Current.
+		local
+			l_font: EV_FONT
 		do
-			if attached interface as l_interface and then attached l_interface.font as l_font then
-				a_drawable.set_font (l_font)
+			if attached interface as l_interface and then attached l_interface.font as l_item_font then
+				l_font := l_item_font
 			else
-				a_drawable.set_font (internal_default_font)
+				l_font := internal_default_font
 			end
+			if attached parent_i as l_grid_i then
+					-- The font for the DPI of the grid, as used by `recompute_text_dimensions'.
+				l_font := l_grid_i.font_for_drawing (l_font)
+			end
+			a_drawable.set_font (l_font)
 
 			if a_layout.available_text_width < internal_text_width then
 					-- Clipping width argument have to be at least 1 to have some effect.

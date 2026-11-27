@@ -48,16 +48,33 @@ ev_gtk_clear_pending_menu_trigger_event (void)
 	g_clear_pointer (&ev_gtk_pending_menu_trigger_event, gdk_event_free);
 }
 
+static gboolean
+ev_gtk_is_menu_own_window (GtkMenu *menu, GdkWindow *window)
+{
+	/* Is `window' part of the popup window of `menu' itself?
+	 * GTK makes the menu popup transient for the window it is positioned
+	 * against: with its own window, it would be transient for itself, which
+	 * AppKit refuses with an uncaught exception on the Quartz backend
+	 * ("addChildWindow:ordered: cannot add self as child of itself"). */
+	GtkWidget *l_toplevel = gtk_widget_get_toplevel (GTK_WIDGET (menu));
+	GdkWindow *l_menu_window = l_toplevel != NULL ? gtk_widget_get_window (l_toplevel) : NULL;
+
+	return l_menu_window != NULL && gdk_window_get_toplevel (window) == l_menu_window;
+}
+
 static GdkWindow *
 ev_gtk_menu_popup_window (GtkMenu *menu, GtkWidget *anchor_widget)
 {
+	/* Window that the popup position is relative to: the one of `anchor_widget',
+	 * otherwise of the attach widget of `menu', otherwise the root window
+	 * (the position is then in screen coordinates, see {EV_MENU_IMP}.show_at). */
 	GdkWindow *window = NULL;
 	GtkWidget *widget = anchor_widget;
 
 	if (widget != NULL && GTK_IS_WIDGET (widget)) {
 		gtk_widget_realize (widget);
 		window = gtk_widget_get_window (widget);
-		if (window != NULL) {
+		if (window != NULL && !ev_gtk_is_menu_own_window (menu, window)) {
 			return window;
 		}
 	}
@@ -66,15 +83,9 @@ ev_gtk_menu_popup_window (GtkMenu *menu, GtkWidget *anchor_widget)
 	if (widget != NULL && GTK_IS_WIDGET (widget)) {
 		gtk_widget_realize (widget);
 		window = gtk_widget_get_window (widget);
-		if (window != NULL) {
+		if (window != NULL && !ev_gtk_is_menu_own_window (menu, window)) {
 			return window;
 		}
-	}
-
-	gtk_widget_realize (GTK_WIDGET (menu));
-	window = gtk_widget_get_window (GTK_WIDGET (menu));
-	if (window != NULL) {
-		return window;
 	}
 
 	{
@@ -86,6 +97,37 @@ ev_gtk_menu_popup_window (GtkMenu *menu, GtkWidget *anchor_widget)
 	}
 
 	return NULL;
+}
+
+static GdkWindow *
+ev_gtk_menu_screen_reference_window (GtkMenu *menu, GdkDevice *device)
+{
+	/* A toplevel window to position `menu' given in screen coordinates: the one
+	 * of the event triggering the popup, otherwise the one under the pointer.
+	 * Better than the root window, which some backends (Quartz) do not use
+	 * as a reference for the position of the popup. NULL if none. */
+	GdkWindow *window = NULL;
+	GdkEvent *event;
+
+	if (ev_gtk_pending_menu_trigger_event != NULL) {
+		window = ev_gtk_pending_menu_trigger_event->any.window;
+	} else {
+		event = gtk_get_current_event ();
+		if (event != NULL) {
+			window = event->any.window;
+			gdk_event_free (event);
+		}
+	}
+	if ((window == NULL || ev_gtk_is_menu_own_window (menu, window)) && device != NULL) {
+		window = gdk_device_get_window_at_position (device, NULL, NULL);
+	}
+	if (window != NULL) {
+		window = gdk_window_get_toplevel (window);
+		if (ev_gtk_is_menu_own_window (menu, window) || gdk_window_get_window_type (window) == GDK_WINDOW_ROOT) {
+			window = NULL;
+		}
+	}
+	return window;
 }
 
 static GdkEvent *
@@ -162,11 +204,24 @@ c_ev_gtk_menu_popup (GtkMenu *menu, GtkWidget *anchor_widget, gint x, gint y, gu
 		gtk_menu_attach_to_widget (menu, anchor_widget, NULL);
 	}
 
-	rect_window = ev_gtk_menu_popup_window (menu, anchor_widget);
 	rect.x = x;
 	rect.y = y;
 	rect.width = 1;
 	rect.height = 1;
+	if (anchor_widget == NULL) {
+			/* `x', `y' are screen coordinates (see {EV_MENU_IMP}.show_at):
+			 * make them relative to a toplevel window if possible. */
+		rect_window = ev_gtk_menu_screen_reference_window (menu, device);
+		if (rect_window != NULL) {
+			gdk_window_get_origin (rect_window, &origin_x, &origin_y);
+			rect.x = x - origin_x;
+			rect.y = y - origin_y;
+		} else {
+			rect_window = ev_gtk_menu_popup_window (menu, NULL);
+		}
+	} else {
+		rect_window = ev_gtk_menu_popup_window (menu, anchor_widget);
+	}
 
 	if (rect_window != NULL) {
 		gdk_window_get_origin (rect_window, &origin_x, &origin_y);
@@ -292,6 +347,153 @@ void enable_ev_gtk_log (int a_mode)
 	g_log_set_handler (NULL,  G_LOG_LEVEL_ERROR | G_LOG_LEVEL_CRITICAL |
         	G_LOG_LEVEL_WARNING | G_LOG_LEVEL_MESSAGE | G_LOG_LEVEL_INFO |
         	G_LOG_LEVEL_DEBUG | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION, ev_gtk_log, (gpointer) (rt_int_ptr) a_mode);
+}
+
+/*
+ * GDK event queue.
+ *
+ * EiffelVision2 reads the GDK events itself with `gdk_event_get' before they reach GTK+.
+ * This works when GDK reads its events directly (X11), but with the Quartz backend GDK
+ * only fetches the native events while the GLib main context is polled, and its event
+ * source then dispatches each event to the GDK event handler (`gtk_main_do_event'):
+ * `gdk_event_get' never returns any event.
+ *
+ * Once `ev_gdk_event_queue_install' was called, the GDK event handler keeps a copy of
+ * the events dispatched while the queue is enabled (EiffelVision2 dispatching the main
+ * context), so that `ev_gdk_event_get' returns them, in order, before calling
+ * `gdk_event_get'. When the queue is disabled (e.g. a main loop run by GTK+ itself),
+ * the events go to `gtk_main_do_event' as usual.
+ *
+ * The drag and drop events are never queued: GDK Quartz emits them from the AppKit
+ * drag callbacks, during the native drag loop, and needs them handled at once (it
+ * answers AppKit with the resulting action, and destroys the drag context right after
+ * emitting GDK_DROP_FINISHED). Queued, a drag (of a selected text for instance) never ends.
+ */
+
+static GQueue *ev_gdk_event_queue = NULL;
+static gboolean ev_gdk_event_queue_enabled = FALSE;
+
+static gboolean
+ev_gdk_event_is_dnd (GdkEvent *event)
+{
+	switch (event->type) {
+	case GDK_DRAG_ENTER:
+	case GDK_DRAG_LEAVE:
+	case GDK_DRAG_MOTION:
+	case GDK_DRAG_STATUS:
+	case GDK_DROP_START:
+	case GDK_DROP_FINISHED:
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+static void
+ev_gdk_event_queue_handler (GdkEvent *event, gpointer data)
+{
+	if (ev_gdk_event_queue_enabled && !ev_gdk_event_is_dnd (event)) {
+		g_queue_push_tail (ev_gdk_event_queue, gdk_event_copy (event));
+	} else {
+		gtk_main_do_event (event);
+	}
+}
+
+void
+ev_gdk_event_queue_install (void)
+{
+	if (ev_gdk_event_queue == NULL) {
+		ev_gdk_event_queue = g_queue_new ();
+		gdk_event_handler_set (ev_gdk_event_queue_handler, NULL, NULL);
+	}
+}
+
+gboolean
+ev_gdk_event_queue_set_enabled (gboolean a_enabled)
+{
+	/* Return the previous status, to be restored by the caller (nested event loops). */
+	gboolean l_previous = ev_gdk_event_queue_enabled;
+
+	ev_gdk_event_queue_enabled = (ev_gdk_event_queue != NULL) && a_enabled;
+	return l_previous;
+}
+
+GdkEvent *
+ev_gdk_event_get (void)
+{
+	/* Next event to process (to be freed with `gdk_event_free'), or NULL. */
+	if (ev_gdk_event_queue != NULL && !g_queue_is_empty (ev_gdk_event_queue)) {
+		return (GdkEvent *) g_queue_pop_head (ev_gdk_event_queue);
+	}
+	return gdk_event_get ();
+}
+
+/*
+ * Files dropped on a widget (GTK+ drag destination with the "text/uri-list" target,
+ * see `{EV_WIDGET_IMP}.enable_file_drop'), on every GDK backend.
+ * `a_args' are the arguments of the "drag-data-received" signal, after the widget:
+ * context, x, y, selection data, info, time.
+ * Finish the drop, and return the local file names (NULL terminated, to be freed
+ * with `g_strfreev'), or NULL if none.
+ */
+gchar **
+ev_gtk_drag_data_received_file_names (const GValue *a_args)
+{
+	GdkDragContext *l_context = (GdkDragContext *) g_value_get_object (&a_args [0]);
+	GtkSelectionData *l_data = (GtkSelectionData *) g_value_get_boxed (&a_args [3]);
+	guint l_time = g_value_get_uint (&a_args [5]);
+	gchar **l_uris = (l_data != NULL) ? gtk_selection_data_get_uris (l_data) : NULL;
+	GPtrArray *l_names = g_ptr_array_new ();
+	gchar *l_name;
+	gint i;
+
+	if (l_uris != NULL) {
+		for (i = 0; l_uris [i] != NULL; i++) {
+				/* Only local files (file:// URIs). */
+			l_name = g_filename_from_uri (l_uris [i], NULL, NULL);
+			if (l_name != NULL) {
+				g_ptr_array_add (l_names, l_name);
+			}
+		}
+		g_strfreev (l_uris);
+	}
+	if (l_context != NULL) {
+		gtk_drag_finish (l_context, l_names->len > 0, FALSE, l_time);
+	}
+	if (l_names->len == 0) {
+		g_ptr_array_free (l_names, TRUE);
+		return NULL;
+	}
+	g_ptr_array_add (l_names, NULL);
+	return (gchar **) g_ptr_array_free (l_names, FALSE);
+}
+
+#ifdef GDK_WINDOWING_QUARTZ
+#include <objc/runtime.h>
+#include <objc/message.h>
+	/* Exported by GDK Quartz, but only declared in an Objective-C header
+	 * (gdk/quartz/gdkquartz-cocoa-access.h): the NSWindow of a toplevel window. */
+extern void *gdk_quartz_window_get_nswindow (GdkWindow *window);
+#endif
+
+void
+ev_gtk_window_set_ignore_pointer_events (GtkWidget *a_window)
+{
+	/* Let the pointer events go through the realized window `a_window', to the
+	 * windows below. Callers also set an empty input shape, which is enough with
+	 * X11, but GDK Quartz does not implement input shapes: there the NSWindow
+	 * has to ignore the mouse events itself ([NSWindow setIgnoresMouseEvents: YES]). */
+#ifdef GDK_WINDOWING_QUARTZ
+	GdkWindow *l_window = gtk_widget_get_window (a_window);
+	void *l_nswindow;
+
+	if (l_window != NULL && GDK_IS_QUARTZ_WINDOW (l_window)) {
+		l_nswindow = gdk_quartz_window_get_nswindow (l_window);
+		if (l_nswindow != NULL) {
+			((void (*)(id, SEL, BOOL)) objc_msgSend) ((id) l_nswindow, sel_registerName ("setIgnoresMouseEvents:"), YES);
+		}
+	}
+#endif
 }
 
 /* XPM */

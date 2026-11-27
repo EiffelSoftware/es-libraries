@@ -31,7 +31,8 @@ inherit
 	EV_FONTABLE_IMP
 		redefine
 			interface,
-			set_font
+			set_font,
+			update_font_for_dpi
 		end
 
 	EV_TEXT_COMPONENT_IMP
@@ -275,11 +276,7 @@ feature -- Status report
 	item_height: INTEGER
 			-- height required by an item.
 		do
-			if private_font /= Void then
-				Result := private_font.implementation.height
-			elseif attached private_wel_font as l_private_wel_font then
-				Result := l_private_wel_font.height
-			end
+			Result := realized_wel_font.height
 		end
 
 	is_selected (an_id: INTEGER): BOOLEAN
@@ -899,6 +896,14 @@ feature {NONE} -- Implementation
 			-- Make `ft' new font of `Current'.
 		do
 			Precursor {EV_FONTABLE_IMP} (ft)
+			set_default_minimum_size
+		end
+
+	update_font_for_dpi
+			-- <Precursor>
+		do
+			Precursor
+				-- The text of `Current' has a new size, also with the default font.
 			set_default_minimum_size
 		end
 

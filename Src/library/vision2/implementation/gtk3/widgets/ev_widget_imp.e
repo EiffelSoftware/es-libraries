@@ -76,28 +76,6 @@ feature {NONE} -- Initialization
 			end
 		end
 
-	initialize_file_drop (a_widget: POINTER)
-		external
-			"C inline use <ev_gtk.h>"
-		alias
-			"[
-				GtkTargetEntry target_entry[1];
-				target_entry[0].target = "STRING";
-				target_entry[0].flags = 0;
-				target_entry[0].info = 0;
-			
-				guint n_targets = G_N_ELEMENTS (target_entry);
-				
-				gtk_drag_dest_set (
-					(GtkWidget*) $a_widget,
-					GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP,
-					target_entry,
-					n_targets,
-					GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK
-				);
-			]"
-		end
-
 feature -- Event handling
 
 	init_resize_actions (a_resize_actions: like resize_actions)
@@ -153,6 +131,111 @@ feature -- Event handling
 	init_file_drop_actions (a_file_drop_actions: like file_drop_actions)
 			-- <Precursor>
 		do
+				-- `Current' accepts the files dropped on it while it has file drop actions.
+			a_file_drop_actions.not_empty_actions.extend (agent enable_file_drop)
+			a_file_drop_actions.empty_actions.extend (agent disable_file_drop)
+		end
+
+feature {NONE} -- File drop
+
+	is_file_drop_enabled: BOOLEAN
+			-- Does `Current' accept the files dropped on it?
+
+	file_drop_connected: BOOLEAN
+			-- Is the "drag-data-received" signal of `c_object' connected to `on_file_drop_data_received'?
+
+	enable_file_drop
+			-- Accept the files dropped on `Current' (GTK+ drag destination for URI lists,
+			-- with any GDK backend: X11, Wayland, Quartz).
+		local
+			l_c_object: POINTER
+		do
+			l_c_object := c_object
+			if not is_file_drop_enabled and not l_c_object.is_default_pointer then
+				is_file_drop_enabled := True
+				gtk_drag_dest_set_for_uris (l_c_object)
+				if not file_drop_connected then
+					file_drop_connected := True
+					real_signal_connect (l_c_object, {EV_GTK_EVENT_STRINGS}.drag_data_received_event_name, agent on_file_drop_data_received)
+				end
+			end
+		ensure
+			enabled: not c_object.is_default_pointer implies is_file_drop_enabled
+		end
+
+	disable_file_drop
+			-- Do not accept the files dropped on `Current' anymore.
+		local
+			l_c_object: POINTER
+		do
+			l_c_object := c_object
+			if is_file_drop_enabled and not l_c_object.is_default_pointer then
+				{GTK}.gtk_drag_dest_unset (l_c_object)
+			end
+			is_file_drop_enabled := False
+		ensure
+			disabled: not is_file_drop_enabled
+		end
+
+	on_file_drop_data_received (a_args: POINTER)
+			-- Data dropped on `Current', with `a_args' the arguments of the "drag-data-received" signal:
+			-- call the file drop actions with the dropped files, if any.
+		local
+			l_names: POINTER
+			l_files: ARRAYED_LIST [STRING_32]
+			l_name: EV_GTK_C_STRING
+			i: INTEGER
+		do
+			if not a_args.is_default_pointer then
+				l_names := ev_gtk_drag_data_received_file_names (a_args)
+				if not l_names.is_default_pointer then
+					create l_files.make (1)
+					from
+						i := 0
+					until
+						strv_item (l_names, i).is_default_pointer
+					loop
+						create l_name.share_from_pointer (strv_item (l_names, i))
+						l_files.extend (l_name.string)
+						i := i + 1
+					end
+					{GLIB}.g_strfreev (l_names)
+					if not is_destroyed and then is_file_drop_enabled then
+						if attached file_drop_actions_internal as l_actions then
+							l_actions.call ([l_files])
+						end
+						if attached app_implementation.file_drop_actions_internal as l_app_actions then
+							l_app_actions.call ([attached_interface, l_files])
+						end
+					end
+				end
+			end
+		end
+
+	gtk_drag_dest_set_for_uris (a_widget: POINTER)
+			-- Make `a_widget' a GTK+ drag destination for URI lists (dropped files).
+		external
+			"C inline use <ev_gtk.h>"
+		alias
+			"[
+				gtk_drag_dest_set ((GtkWidget *) $a_widget, GTK_DEST_DEFAULT_ALL, NULL, 0,
+					GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK);
+				gtk_drag_dest_add_uri_targets ((GtkWidget *) $a_widget);
+			]"
+		end
+
+	ev_gtk_drag_data_received_file_names (a_args: POINTER): POINTER
+			-- Dropped file names (NULL terminated), from the "drag-data-received" arguments `a_args'.
+		external
+			"C signature (GValue *): gchar ** use <ev_c_util.h>"
+		end
+
+	strv_item (a_strv: POINTER; i: INTEGER): POINTER
+			-- `i'-th item (0-based) of the NULL terminated string array `a_strv'.
+		external
+			"C inline"
+		alias
+			"return (EIF_POINTER) ((char **) $a_strv) [$i];"
 		end
 
 feature {EV_WINDOW_IMP, EV_INTERMEDIARY_ROUTINES, EV_ANY_I, EV_APPLICATION_IMP} -- Implementation

@@ -19,7 +19,8 @@ inherit
 			{NONE} wel_set_font
 		redefine
 			interface,
-			set_font
+			set_font,
+			update_font_for_dpi
 		end
 
 	EV_DRAWABLE_CONSTANTS
@@ -321,6 +322,18 @@ feature -- Element change
 			check font_imp /= Void end
 			private_wel_font := Void
 			internal_initialized_font := False
+		end
+
+	update_font_for_dpi
+			-- <Precursor>
+			--| Only the default font is realized for the DPI of `Current' (its metrics, through `font',
+			--| are then the ones of the realized font). A font set by the application is used as is:
+			--| the application measures the text drawn with it with its {EV_FONT} metrics.
+		do
+			if private_font = Void then
+				private_wel_font := realized_wel_font
+				internal_initialized_font := False
+			end
 		end
 
 feature -- Clearing and drawing operations

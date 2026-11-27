@@ -27,7 +27,8 @@ inherit
 			wel_set_text,
 			dispose,
 			destroy,
-			load_bounds_rect
+			load_bounds_rect,
+			on_draw_menu_item
 		end
 
 	EV_MENU_ITEM_LIST_IMP
@@ -201,15 +202,15 @@ feature {EV_ANY_I} -- Implementation
 			max_pixmap_width := 16
 				-- Default spacing between text and accelerator, and the right border.
 				-- We use the letter `o' so that the spacing is proportional to the chosen font.
-			space_width := menu_font.string_width ("o")
+			space_width := realized_menu_font.string_width ("o")
 			from
 				ev_children.start
 			until
 				ev_children.after
 			loop
 				a_menu_item_imp := ev_children.item
-				max_plain_text_width := max_plain_text_width.max (menu_font.string_width (a_menu_item_imp.plain_text_without_ampersands))
-				max_accel_text_width := max_accel_text_width.max (menu_font.string_width (a_menu_item_imp.accelerator_text))
+				max_plain_text_width := max_plain_text_width.max (realized_menu_font.string_width (a_menu_item_imp.plain_text_without_ampersands))
+				max_accel_text_width := max_accel_text_width.max (realized_menu_font.string_width (a_menu_item_imp.accelerator_text))
 				if attached a_menu_item_imp.pixmap_imp as l_pixmap_imp then
 					max_pixmap_width := max_pixmap_width.max (l_pixmap_imp.width)
 				end
@@ -243,6 +244,51 @@ feature {EV_ANY_I} -- Implementation
 				ev_children.item.set_accelerator_text_position (accelerator_text_pos)
 				ev_children.forth
 			end
+		end
+
+	on_draw_menu_item (draw_item_struct: WEL_DRAW_ITEM_STRUCT)
+			-- <Precursor>
+			-- Also draw the arrow showing that `Current' opens a sub menu: Windows draws it with
+			-- its size for the system DPI, and not at all when it is higher than the item, as in
+			-- a menu displayed on a monitor with a lower DPI.
+		local
+			l_dc: WEL_CLIENT_DC
+			l_rect: WEL_RECT
+			l_color: WEL_COLOR_REF
+			l_pen: WEL_PEN
+			l_brush: WEL_BRUSH
+			l_dpi, l_half_height, l_x, l_y: INTEGER
+		do
+			Precursor (draw_item_struct)
+			l_dc := draw_item_struct.dc
+			l_rect := draw_item_struct.rect_item
+			l_dpi := menu_dpi.to_integer_32
+			if l_dpi = 0 then
+				l_dpi := {WEL_SCALING_EXTERNALS}.system_dpi.to_integer_32
+			end
+				-- Triangle pointing right, 8 pixels high and 12 pixels away from the right border at 96 DPI.
+			l_half_height := (4 * l_dpi + 48) // 96
+			l_x := l_rect.right - (12 * l_dpi + 48) // 96
+			l_y := l_rect.top + l_rect.height // 2
+			if draw_item_struct.item_state & Wel_ownerdraw_constants.Ods_disabled /= 0 then
+				l_color := system_color_btnshadow
+			elseif draw_item_struct.item_state & Wel_ownerdraw_constants.Ods_selected /= 0 then
+				l_color := system_color_highlighttext
+			else
+				l_color := system_color_menutext
+			end
+			create l_pen.make_solid (1, l_color)
+			create l_brush.make_solid (l_color)
+			l_dc.select_pen (l_pen)
+			l_dc.select_brush (l_brush)
+			l_dc.polygon (<<l_x, l_y - l_half_height, l_x + l_half_height, l_y, l_x, l_y + l_half_height>>)
+			l_dc.unselect_pen
+			l_dc.unselect_brush
+			l_pen.delete
+			l_brush.delete
+				-- Windows draws its own arrow after the item, in the same device context:
+				-- excluding the item from the drawing area prevents it.
+			{WEL_API}.exclude_clip_rect (l_dc.item, l_rect.left, l_rect.top, l_rect.right, l_rect.bottom).do_nothing
 		end
 
 feature {NONE} -- Implementation

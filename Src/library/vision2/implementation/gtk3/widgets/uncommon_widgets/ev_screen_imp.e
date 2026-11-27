@@ -350,21 +350,16 @@ feature -- Basic operation
 	set_pointer_position (a_x, a_y: INTEGER)
 			-- Set pointer position to (a_x, a_y).
 		local
-			a_success_flag: BOOLEAN
-			l_gdk_display_warp_pointer_symbol, l_x_test_fake_motion_event_symbol: POINTER
+			l_pointer: POINTER
 			l_x, l_y: INTEGER
 		do
 				-- Update logical coords to device coords
 			l_x := a_x + device_x_offset
 			l_y := a_y + device_y_offset
-			l_gdk_display_warp_pointer_symbol := gdk_display_warp_pointer_symbol
-			if l_gdk_display_warp_pointer_symbol /= default_pointer then
-				gdk_display_warp_pointer_call (l_gdk_display_warp_pointer_symbol, {GDK_HELPERS}.default_display, {GDK_HELPERS}.default_screen, l_x, l_y)
-			else
-				l_x_test_fake_motion_event_symbol := x_test_fake_motion_event_symbol
-				if l_x_test_fake_motion_event_symbol /= default_pointer then
-					a_success_flag := x_test_fake_motion_event_call (l_x_test_fake_motion_event_symbol, gdk_x_display, -1, l_x, l_y, 0)
-				end
+				-- GDK warps the pointer with X11 and Quartz (not with Wayland, which does not allow it).
+			l_pointer := {GDK}.gdk_seat_get_pointer ({GDK}.gdk_display_get_default_seat ({GDK_HELPERS}.default_display))
+			if not l_pointer.is_default_pointer then
+				gdk_device_warp (l_pointer, {GDK_HELPERS}.default_screen, l_x, l_y)
 			end
 			if app_implementation.use_stored_display_data then
 					-- If we are set to using the stored display data then it needs to be updated.
@@ -581,6 +576,14 @@ feature -- Measurement
 			Result := app_implementation.screen_virtual_width
 		end
 
+feature {NONE} -- Externals
+
+	frozen ev_gtk_window_set_ignore_pointer_events (a_window: POINTER)
+			-- Let the pointer events go through the realized GtkWindow `a_window'.
+		external
+			"C (GtkWidget*) | %"ev_c_util.h%""
+		end
+
 feature {NONE} -- Externals (XTEST extension)
 
 	device_x_offset: INTEGER
@@ -618,22 +621,10 @@ feature {NONE} -- Externals (XTEST extension)
 			Result := app_implementation.symbol_from_symbol_name ("XTestFakeKeyEvent")
 		end
 
-	x_test_fake_motion_event_symbol: POINTER
-			-- Symbol for `XTestFakeMotionEvent'
-		once
-			Result := app_implementation.symbol_from_symbol_name ("XTestFakeMotionEvent")
-		end
-
 	gdk_test_simulate_key_symbol: POINTER
 			-- Symbol for `gdk_test_simulate_key'
 		once
 			Result := app_implementation.symbol_from_symbol_name ("gdk_test_simulate_key")
-		end
-
-	gdk_display_warp_pointer_symbol: POINTER
-			-- Symbol for `gdk_display_warp_pointer'.
-		once
-			Result := app_implementation.symbol_from_symbol_name ("gdk_display_warp_pointer")
 		end
 
 	gdk_test_simulate_call (a_function, a_window: POINTER; a_x, a_y: INTEGER; a_button, a_modifiers: INTEGER; a_press_release: INTEGER): BOOLEAN
@@ -643,11 +634,10 @@ feature {NONE} -- Externals (XTEST extension)
 			"return (FUNCTION_CAST(gboolean, (GdkWindow*, gint, gint, guint, GdkModifierType, GdkEventType)) $a_function) ((GdkWindow*) $a_window, (gint) $a_x, (gint) $a_y, (guint) $a_button, (GdkModifierType) $a_modifiers, (GdkEventType) $a_press_release)"
 		end
 
-	gdk_display_warp_pointer_call (a_function, a_display, a_screen: POINTER; a_x, a_y: INTEGER)
+	gdk_device_warp (a_device, a_screen: POINTER; a_x, a_y: INTEGER)
+			-- Move the pointer of `a_device' to (`a_x', `a_y') on `a_screen'.
 		external
-			"C inline use <ev_gtk.h>"
-		alias
-			"(FUNCTION_CAST(void, (GdkDisplay*, GdkScreen*, gint, gint)) $a_function) ((GdkDisplay*) $a_display, (GdkScreen*) $a_screen, (gint) $a_x, (gint) $a_y)"
+			"C signature (GdkDevice*, GdkScreen*, gint, gint) use <ev_gtk.h>"
 		end
 
 	x_keysym_to_keycode_symbol: POINTER
@@ -668,13 +658,6 @@ feature {NONE} -- Externals (XTEST extension)
 			"C inline use <ev_gtk.h>"
 		alias
 			"return (FUNCTION_CAST(EIF_BOOLEAN, (EIF_POINTER, EIF_INTEGER, EIF_BOOLEAN, EIF_INTEGER)) $a_function) ((EIF_POINTER) $a_display, (EIF_INTEGER) $a_keycode_or_button, (EIF_BOOLEAN) $a_is_press, (EIF_INTEGER) $a_delay)"
-		end
-
-	x_test_fake_motion_event_call (a_function, a_display: POINTER; a_scr_num, a_x, a_y, a_delay: INTEGER): BOOLEAN
-		external
-			"C inline use <ev_gtk.h>"
-		alias
-			"return (FUNCTION_CAST(EIF_BOOLEAN, (EIF_POINTER, EIF_INTEGER, EIF_INTEGER, EIF_INTEGER, EIF_INTEGER)) $a_function) ((EIF_POINTER) $a_display, (EIF_INTEGER) $a_scr_num, (EIF_INTEGER) $a_x, (EIF_INTEGER) $a_x, (EIF_INTEGER) $a_delay)"
 		end
 
 feature {NONE} -- Implementation
@@ -1280,12 +1263,18 @@ feature {NONE} -- Screen feedback overlay
 			--| overlay would come up as an opaque rectangle covering the screen, which
 			--| is a great deal worse than the missing feedback it is meant to replace,
 			--| so this stays False and the drawing routines do nothing, as before.
+			--|
+			--| Off by default with the macOS Quartz backend: there, moving and showing
+			--| the screen-sized overlay window at each pointer motion makes a drag
+			--| (e.g. a resize bar) slow, until the application stops responding.
+			--| EV_SCREEN_OVERLAY=yes enables it anyway, EV_SCREEN_OVERLAY=no disables it.
 		local
 			l_screen: POINTER
 		once
-			Result := True
 			if attached {EXECUTION_ENVIRONMENT}.item (once "EV_SCREEN_OVERLAY") as e then
 				Result := not e.is_case_insensitive_equal_general ("no")
+			else
+				Result := not {GDK}.gdk_display_is_quartz
 			end
 			if Result then
 				l_screen := {GDK}.gdk_screen_get_default
@@ -1378,6 +1367,11 @@ feature {NONE} -- Screen feedback overlay
 				c_region := {CAIRO}.cairo_region_create
 				{GTK}.gtk_widget_input_shape_combine_region (c_window, c_region)
 				{CAIRO}.cairo_region_destroy (c_region)
+					-- Not every backend implements input shapes (Quartz does not):
+					-- otherwise the overlay would take every pointer event, even the
+					-- release ending the drag, and the application would look frozen.
+				{GTK}.gtk_widget_realize (c_window)
+				ev_gtk_window_set_ignore_pointer_events (c_window)
 
 				create d
 				overlay.set_drawing (d)

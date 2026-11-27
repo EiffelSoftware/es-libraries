@@ -976,6 +976,30 @@ feature -- Basic operation
 
 
 
+	file_names_of_uri_list (a_data: POINTER): ARRAYED_LIST [STRING_32]
+			-- Names of the local files of the list of URIs `a_data' (a C string, one URI per line,
+			-- such as "file:///tmp/a%20b.png"), decoded.
+		require
+			a_data_not_null: a_data /= default_pointer
+		local
+			l_line: STRING_8
+			l_uri: C_STRING
+		do
+			create Result.make (1)
+			across
+				(create {STRING_8}.make_from_c (a_data)).split ('%N') as l
+			loop
+				l_line := l
+				l_line.prune_all ('%R')
+				if l_line.starts_with ("file://") then
+					create l_uri.make (l_line)
+					if attached {EV_GTK_DEPENDENT_ROUTINES}.file_path_of_uri (l_uri.item) as l_path then
+						Result.extend (l_path.name)
+					end
+				end
+			end
+		end
+
 	handle_dnd (a_event: POINTER)
 			-- Handle drag and drop event.
 		local
@@ -990,7 +1014,7 @@ feature -- Basic operation
 			l_file_list: detachable LIST [STRING_32]
 			l_success: BOOLEAN
 			l_widget_imp: detachable EV_WIDGET_IMP
-			l_string, l_file: STRING_32
+			l_string: STRING_32
 		do
 			from
 				a_context := {GTK}.gdk_event_dnd_struct_context (a_event)
@@ -999,7 +1023,6 @@ feature -- Basic operation
 				a_time := {GTK}.gdk_event_dnd_struct_time (a_event)
 				a_target_list := {GTK}.gdk_drag_context_list_targets (a_context)
 				l_string := {STRING_32} "STRING"
-				l_file := {STRING_32} "file://"
 			until
 				a_target_list = {GTK}.null_pointer
 			loop
@@ -1014,21 +1037,8 @@ feature -- Basic operation
 							print ("%NTarget Type: " + {UTF_CONVERTER}.utf_32_string_to_utf_8_string_8 (a_string) + " %N" )
 						end
 						if a_string.is_equal (l_string)  then
-							create a_string.make_from_c (prop_data)
-							l_file_list := a_string.split ('%N')
-							from
-								l_file_list.start
-							until
-								l_file_list.after
-							loop
-								if l_file_list.item.substring_index (l_file, 1) = 1 then
-									l_file_list.replace (l_file_list.item.substring (8, l_file_list.item.count))
-									l_success := True
-									l_file_list.forth
-								else
-									l_file_list.remove
-								end
-							end
+							l_file_list := file_names_of_uri_list (prop_data)
+							l_success := not l_file_list.is_empty
 						end
 					end
 				end

@@ -22,12 +22,35 @@ feature {NONE} -- Initlization
 			l_env: EV_ENVIRONMENT
 		do
 			create internal_shared
+			dpi := {EV_MONITOR_DPI_DETECTOR_IMP}.dpi
 			update_tool_bar_font_sizes
 			update_addtional_sizes
 			create l_env
 			if attached l_env.application as l_app then
 				l_app.theme_changed_actions.extend (agent update_all)
 			end
+		end
+
+feature {SD_SHARED} -- Access
+
+	dpi: NATURAL
+			-- DPI of the monitor for which `tool_bar_font' and the other sizes are computed.
+
+feature {SD_SHARED} -- Element change
+
+	update_for_dpi (a_dpi: NATURAL)
+			-- Update all sizes, and the existing widgets, for a monitor with `a_dpi' DPI.
+		do
+			if a_dpi > 0 then
+					-- The icons are sized for their own DPI (they may have been set since).
+				internal_shared.icons.update_for_dpi (a_dpi)
+				if a_dpi /= dpi then
+					dpi := a_dpi
+					update_all
+				end
+			end
+		ensure
+			dpi_set: a_dpi > 0 implies dpi = a_dpi
 		end
 
 feature {NONE} -- Implementation
@@ -49,7 +72,7 @@ feature {NONE} -- Implementation
 			l_title_bar_height: INTEGER
 			l_tool_bar_border_width: INTEGER
 		do
-			l_tool_bar_font := (create {SD_SYSTEM_COLOR_IMP}.make).tool_bar_font
+			l_tool_bar_font := {EV_MONITOR_DPI_DETECTOR_IMP}.font_for_dpi ((create {SD_SYSTEM_COLOR_IMP}.make).tool_bar_font, dpi)
 			tool_bar_font := l_tool_bar_font
 
 			l_tool_bar_font_height := l_tool_bar_font.height

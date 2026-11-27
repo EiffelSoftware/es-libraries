@@ -169,6 +169,12 @@ feature {EV_APPLICATION_IMP} -- Implementation
 		do
 			{GTK}.gtk_window_set_accept_focus (c_object, not is_disconnected_from_window_manager)
 			Precursor
+			if app_implementation.is_quartz_backend and then not is_disconnected_from_window_manager then
+					-- On macOS, a newly shown window does not reliably become the key window
+					-- (e.g. when shown from a mouse event in another window): make it key,
+					-- so that it gets the keyboard focus at once.
+				{GTK2}.gtk_window_present (c_object)
+			end
 			if override_redirect then
 				if not has_focus then
 					grab_keyboard_and_mouse

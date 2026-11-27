@@ -259,23 +259,12 @@ feature {EV_HEADER_ITEM_IMP} -- Implementation
 		local
 			desired_width: INTEGER
 			l_text: STRING_32
-			font_imp: detachable EV_FONT_IMP
 			margin: INTEGER
 		do
 			margin := {WEL_API}.send_message_result_integer (wel_item, hdm_get_bitmap_margin, cwel_integer_to_pointer (0), cwel_integer_to_pointer (0))
 			l_text := header_item.text
 			if not l_text.is_empty then
-				if attached private_font as l_private_font then
-					font_imp ?= l_private_font.implementation
-					check
-						font_not_void: font_imp /= Void then
-					end
-					desired_width := font_imp.string_width (l_text)
-				elseif attached private_wel_font as l_private_wel_font then
-					desired_width := l_private_wel_font.string_width (l_text)
-				else
-					check False end
-				end
+				desired_width := realized_wel_font.string_width (l_text)
 			end
 
 			if header_item.pixmap_imp /= Void then

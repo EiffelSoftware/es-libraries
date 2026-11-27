@@ -382,18 +382,11 @@ feature {EV_SPIN_BUTTON_I} -- Status setting.
 
 	set_font (ft: EV_FONT)
 			-- Make `ft' new font of `Current'.
-		local
-			local_font_windows: detachable EV_FONT_IMP
 		do
 			Precursor {EV_FONTABLE_IMP} (ft)
-			check private_font /= Void then end
-			local_font_windows ?= private_font.implementation
-			check
-				valid_font: local_font_windows /= Void then
-			end
-			internal_text_field.wel_set_font (local_font_windows.wel_font)
-				-- We don't need the WEL private font anymore since it is set by user.
-			private_wel_font := Void
+				-- The text field keeps the font, so that it is realized again
+				-- for its DPI when `Current' is displayed on another monitor.
+			internal_text_field.set_font (ft)
 		end
 
 feature -- action sequences

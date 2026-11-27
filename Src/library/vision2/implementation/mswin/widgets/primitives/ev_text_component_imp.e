@@ -34,7 +34,7 @@ feature {NONE} -- Initialization
 	make
 			-- Initialize `Current'.
 		do
-			wel_set_font ((create {WEL_SHARED_FONTS}).gui_font)
+			wel_set_font ((create {WEL_SHARED_FONTS}).gui_font_for_dpi (realized_dpi))
 			Precursor {EV_PRIMITIVE_IMP}
 		end
 
@@ -299,7 +299,7 @@ feature {EV_ANY_I}-- element change
 		do
 			create screen_dc
 			screen_dc.get
-			screen_dc.select_font ((create {WEL_SHARED_FONTS}).gui_font)
+			screen_dc.select_font ((create {WEL_SHARED_FONTS}).gui_font_for_dpi (realized_dpi))
 			extent := screen_dc.string_size ("W")
 			screen_dc.unselect_font
 			screen_dc.quick_release

@@ -66,12 +66,11 @@ feature -- Initialization
 		local
 			l_result: INTEGER
 			l_process: POINTER
-			l_wel_scaling_externals: WEL_SCALING_EXTERNALS
 		do
-			create l_wel_scaling_externals
-			if l_wel_scaling_externals.is_scaling_installed then
-				l_wel_scaling_externals.set_process_per_monitor_dpi_aware
-			end
+				-- Windows do not get bitmap-stretched (blurry) by the system on HiDPI monitors:
+				-- they are created and resized for the DPI of the monitor they are displayed on,
+				-- see `{EV_WINDOW_IMP}.on_dpi_changed'.
+			{WEL_SCALING_EXTERNALS}.enable_per_monitor_dpi_awareness
 
 			create reusable_message.make
 			init_instance

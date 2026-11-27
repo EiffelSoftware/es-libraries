@@ -239,6 +239,14 @@ feature -- Status report
 
 feature -- Status setting
 
+	update_sizes_for_dpi (a_dpi: NATURAL)
+			-- Update `tool_bar_font', the sizes depending on it, and the docking widgets using them,
+			-- for `a_dpi', the DPI of the monitor on which the main window of a docking manager is displayed.
+			--| The sizes are shared by all the docking managers.
+		do
+			sizes.update_for_dpi (a_dpi)
+		end
+
 	set_icons (a_icons: like icons)
 			-- Set the SD_ICONS_SINGLETON instance
 			-- Client programmers don't have to call this feature since SD_DEFAULT_ICONS will be used by default.

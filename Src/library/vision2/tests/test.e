@@ -24,6 +24,7 @@ feature {NONE} -- Convenience
 	tests: detachable TUPLE [
 		TEST_EV_APPLICATION,
 		TEST_EV_BUTTON,
+		TEST_EV_CLIPBOARD,
 		TEST_EV_COLOR,
 		TEST_EV_CONTAINER,
 		TEST_EV_DIALOG,

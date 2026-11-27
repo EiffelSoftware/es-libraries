@@ -153,9 +153,24 @@ feature {NONE} -- Implementation
 	set_position (a_x, a_y: INTEGER)
 			-- Set horizontal offset to parent to `a_x'.
 			-- Set vertical offset to parent to `a_y'.
+		local
+			l_x, l_y: INTEGER
 		do
-			{GTK2}.gtk_window_move (c_object, app_implementation.to_device_x (a_x), app_implementation.to_device_y (a_y))
+			l_x := app_implementation.to_device_x (a_x)
+			l_y := app_implementation.to_device_y (a_y)
+			{GTK2}.gtk_window_move (c_object, l_x, l_y)
+			if app_implementation.is_quartz_backend and then not {GTK2}.gtk_widget_get_mapped (c_object) then
+					-- GDK Quartz does not always honor a move done before the window is mapped
+					-- (the first time, the window may appear elsewhere): move it again in `show'.
+				pending_quartz_position := [l_x, l_y]
+			else
+				pending_quartz_position := Void
+			end
 		end
+
+	pending_quartz_position: detachable TUPLE [x, y: INTEGER]
+			-- Position in root coordinates, set while `Current' was not mapped, to apply
+			-- again once it is mapped (Quartz backend only), if any.
 
 	configure_event_pending: BOOLEAN
 		-- Has `Current' experienced a configure event?
@@ -206,6 +221,13 @@ feature {NONE} -- Implementation
 			if not is_show_requested then
 				{GTK}.gtk_window_set_position (c_object, window_position_enum)
 				{GTK}.gtk_widget_show (c_object)
+				if attached pending_quartz_position as l_position then
+						-- See `set_position'.
+					pending_quartz_position := Void
+					if window_position_enum = {GTK}.gtk_win_pos_none_enum then
+						{GTK2}.gtk_window_move (c_object, l_position.x, l_position.y)
+					end
+				end
 			end
 		end
 

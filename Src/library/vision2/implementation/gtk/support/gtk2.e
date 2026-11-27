@@ -3575,6 +3575,34 @@ feature -- Externals
 			is_class: class
 		end
 
+	frozen gtk_clipboard_wait_for_image (a_clipboard: POINTER): POINTER
+		external
+			"C signature (GtkClipboard*): GdkPixbuf* use <ev_gtk.h>"
+		ensure
+			is_class: class
+		end
+
+	frozen gtk_clipboard_wait_is_image_available (a_clipboard: POINTER): BOOLEAN
+		external
+			"C signature (GtkClipboard*): gboolean use <ev_gtk.h>"
+		ensure
+			is_class: class
+		end
+
+	frozen gtk_clipboard_wait_for_uris (a_clipboard: POINTER): POINTER
+		external
+			"C signature (GtkClipboard*): gchar** use <ev_gtk.h>"
+		ensure
+			is_class: class
+		end
+
+	frozen gtk_clipboard_wait_is_uris_available (a_clipboard: POINTER): BOOLEAN
+		external
+			"C signature (GtkClipboard*): gboolean use <ev_gtk.h>"
+		ensure
+			is_class: class
+		end
+
 	frozen gtk_text_buffer_cut_clipboard (a_text_buffer: POINTER; a_clipboard: POINTER; default_editable: BOOLEAN)
 		external
 			"C signature (GtkTextBuffer*, GtkClipboard*, gboolean) use <ev_gtk.h>"

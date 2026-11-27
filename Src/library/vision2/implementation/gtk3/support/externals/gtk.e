@@ -809,6 +809,13 @@ feature -- Selection, Drag, Drop
 			is_class: class
 		end
 
+	frozen gtk_drag_dest_unset (a_widget: POINTER)
+		external
+			"C (GtkWidget*) | <ev_gtk.h>"
+		ensure
+			is_class: class
+		end
+
 feature -- Device
 
 	frozen gtk_get_current_event_device: POINTER

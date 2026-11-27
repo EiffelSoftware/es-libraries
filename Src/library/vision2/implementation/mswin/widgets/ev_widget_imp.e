@@ -1345,7 +1345,7 @@ feature -- Deferred features
 		end
 
 	frozen trigger_dpi_actions (a_dpi: NATURAL_32; a_width, a_height: INTEGER)
-			-- `Current' has been resized.
+			-- The DPI of `Current' has changed to `a_dpi', its size is now `a_width' x `a_height'.
 		require
 			exists: exists
 		do
@@ -1353,6 +1353,147 @@ feature -- Deferred features
 				l_actions.call ([a_dpi, screen_x, screen_y, a_width, a_height])
 			end
 		end
+
+feature {EV_ANY_I} -- Per monitor DPI
+
+	realized_dpi: NATURAL_32
+			-- DPI for which the DPI dependent resources of `Current' (fonts) are realized.
+		do
+			Result := realized_dpi_internal
+			if Result = 0 then
+				Result := {WEL_SCALING_EXTERNALS}.system_dpi
+			end
+		end
+
+	update_for_dpi (a_dpi: NATURAL_32)
+			-- Realize the DPI dependent resources of `Current' for `a_dpi',
+			-- the DPI of the monitor on which it is now displayed.
+		require
+			exists: exists
+		do
+			realized_dpi_internal := a_dpi
+			if attached {EV_FONTABLE_IMP} Current as l_fontable then
+				l_fontable.set_font_dpi (a_dpi)
+				l_fontable.update_font_for_dpi
+			else
+				update_native_font_for_dpi (a_dpi)
+			end
+		ensure
+			realized_dpi_set: realized_dpi = a_dpi
+		end
+
+	update_dpi_of_widget_tree (a_dpi: NATURAL_32; a_notify: BOOLEAN)
+			-- Realize `Current' and all the widgets it contains for `a_dpi'.
+			-- If `a_notify', then call their `dpi_changed_actions' (once they are all realized).
+		require
+			exists: exists
+		local
+			l_widgets: like widget_tree
+		do
+				-- The tree is collected first, as updating the widgets may change it.
+			l_widgets := widget_tree
+				-- The new layout is computed while the widgets are updated, so what they
+				-- display has to be saved before any of them is updated.
+			across l_widgets as w loop
+				if w.exists and then not w.is_destroyed then
+					w.save_content_for_dpi_change
+				end
+			end
+			across l_widgets as w loop
+				if w.exists and then not w.is_destroyed then
+					w.update_for_dpi (a_dpi)
+				end
+			end
+			if a_notify then
+				across l_widgets as w loop
+					if w.exists and then not w.is_destroyed then
+						w.notify_dpi_changed (a_dpi)
+					end
+				end
+			end
+		end
+
+	save_content_for_dpi_change
+			-- Save what `Current' displays, if it cannot redraw it by itself, before the widgets
+			-- are realized for another DPI: the new layout may move `Current' without its content.
+		require
+			exists: exists
+		do
+		end
+
+	notify_dpi_changed (a_dpi: NATURAL_32)
+			-- Call `dpi_changed_actions' as the DPI of `Current' has changed to `a_dpi'.
+		require
+			exists: exists
+		do
+			trigger_dpi_actions (a_dpi, width, height)
+		end
+
+	update_dpi_of_widget_tree_if_needed
+			-- Realize `Current' and the widgets it contains for the DPI of the monitor of `Current',
+			-- if needed, for instance after `Current' has been inserted in a window displayed on
+			-- another monitor than the window it comes from (or than the system DPI, for
+			-- which widgets are created), and then call their `dpi_changed_actions'.
+		local
+			l_dpi: NATURAL_32
+		do
+			if exists then
+				l_dpi := {WEL_SCALING_EXTERNALS}.dpi_for_window (wel_item)
+				if l_dpi /= realized_dpi then
+						-- The widgets that adapt themselves to the DPI (such as {EV_GRID})
+						-- have to be notified, as when their window moves to another monitor.
+					update_dpi_of_widget_tree (l_dpi, True)
+				end
+			end
+		end
+
+feature {NONE} -- Per monitor DPI
+
+	realized_dpi_internal: NATURAL_32
+			-- Storage for `realized_dpi', 0 for the system DPI (widgets are created for it).
+
+	widget_tree: ARRAYED_LIST [EV_WIDGET_IMP]
+			-- `Current' and all the widgets displayed in it (in the native window hierarchy).
+		require
+			exists: exists
+		do
+			create Result.make (10)
+			Result.extend (Current)
+			add_child_widgets (wel_item, Result)
+		end
+
+	add_child_widgets (a_hwnd: POINTER; a_widgets: ARRAYED_LIST [EV_WIDGET_IMP])
+			-- Add to `a_widgets' the widgets of the descendants of the window `a_hwnd'.
+		local
+			l_child: POINTER
+		do
+			from
+				l_child := {WEL_API}.get_window (a_hwnd, {WEL_GW_CONSTANTS}.Gw_child)
+			until
+				l_child.is_default_pointer
+			loop
+				if attached {EV_WIDGET_IMP} window_of_item (l_child) as l_widget then
+					a_widgets.extend (l_widget)
+				end
+				add_child_widgets (l_child, a_widgets)
+				l_child := {WEL_API}.get_window (l_child, {WEL_GW_CONSTANTS}.Gw_hwndnext)
+			end
+		end
+
+	update_native_font_for_dpi (a_dpi: NATURAL_32)
+			-- Give the default font for `a_dpi' to the native control of `Current' (list, tree, ...),
+			-- if it draws text: its font cannot be changed through Vision2, it is the default font
+			-- of the control, which is for the system DPI.
+		require
+			exists: exists
+		do
+			if not {WEL_API}.send_message_result (wel_item, {WEL_WM_CONSTANTS}.Wm_getfont, default_pointer, default_pointer).is_default_pointer then
+				{WEL_API}.send_message (wel_item, {WEL_WM_CONSTANTS}.Wm_setfont,
+					(create {WEL_SHARED_FONTS}).gui_font_for_dpi (a_dpi).item, cwin_make_long (1, 0))
+			end
+		end
+
+feature -- Deferred features
 
 	wel_parent: detachable WEL_WINDOW
 			-- The wel parent of `Current'.

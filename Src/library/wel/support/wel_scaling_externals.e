@@ -46,6 +46,8 @@ feature -- Constants
 
 	Mdt_effective_dpi: INTEGER  = 0
 
+	Monitor_defaulttoprimary: INTEGER = 0x00000001
+
 	Monitor_defaulttonearest: INTEGER = 0x00000002
 
 	Default_dpi: INTEGER = 96
@@ -107,7 +109,7 @@ feature -- Access
 		do
 			Result := [1.0, 1.0]
 			if not scaling_handle.is_default_pointer then
-				l_monitor := {WEL_API}.monitor_from_window ({WEL_API}.get_window (hwnd, {WEL_GW_CONSTANTS}.gw_owner), Monitor_defaulttonearest)
+				l_monitor := {WEL_API}.monitor_from_window (hwnd, Monitor_defaulttonearest)
 				if not l_monitor.is_default_pointer then
 					c_get_dpi_for_monitor (scaling_handle, l_monitor, Mdt_effective_dpi, $l_dpi_x, $l_dpi_y)
 					Result := [l_dpi_x / default_dpi, l_dpi_y / default_dpi]
@@ -126,12 +128,109 @@ feature -- Access
 			l_dpi_y: INTEGER
 		do
 			if not scaling_handle.is_default_pointer then
-				l_monitor := {WEL_API}.monitor_from_window ({WEL_API}.get_window (hwnd, {WEL_GW_CONSTANTS}.gw_owner), Monitor_defaulttonearest)
+				l_monitor := {WEL_API}.monitor_from_window (hwnd, Monitor_defaulttonearest)
 				if not l_monitor.is_default_pointer then
 					c_get_dpi_for_monitor (scaling_handle, l_monitor, Mdt_effective_dpi, $l_dpi_x, $l_dpi_y)
 					Result := l_dpi_x
 				end
 			end
+		end
+
+	system_dpi: NATURAL_32
+			-- DPI of the system: the DPI of the primary monitor when the user session started.
+			-- It does not change during the life of the process, and it is the DPI
+			-- at which fonts defined by a point size are realized.
+		do
+			Result := c_system_dpi
+			if Result = 0 then
+				Result := Default_dpi.to_natural_32
+			end
+		ensure
+			instance_free: class
+			positive: Result > 0
+		end
+
+	dpi_for_window (hwnd: POINTER): NATURAL_32
+			-- DPI of the window `hwnd`, i.e. the DPI of the monitor on which it is displayed
+			-- when the process is per monitor DPI aware, `system_dpi` otherwise.
+		require
+			hwnd_exists: not hwnd.is_default_pointer
+		do
+			Result := c_get_dpi_for_window (hwnd)
+			if Result = 0 then
+					-- `GetDpiForWindow' is not available (before Windows 10 1607).
+				Result := dpi_for_monitor_handle ({WEL_API}.monitor_from_window (hwnd, Monitor_defaulttonearest))
+			end
+		ensure
+			instance_free: class
+			positive: Result > 0
+		end
+
+	dpi_for_monitor_handle (a_monitor: POINTER): NATURAL_32
+			-- Effective DPI of the monitor `a_monitor` (a HMONITOR),
+			-- or `system_dpi` if it cannot be retrieved.
+		do
+			if not a_monitor.is_default_pointer then
+				Result := c_get_dpi_for_monitor_handle (a_monitor)
+			end
+			if Result = 0 then
+				Result := system_dpi
+			end
+		ensure
+			instance_free: class
+			positive: Result > 0
+		end
+
+	dpi_at_point (a_x, a_y: INTEGER): NATURAL_32
+			-- Effective DPI of the monitor containing the screen point (`a_x`, `a_y`),
+			-- or of the nearest monitor if the point is outside of all monitors.
+		do
+			Result := dpi_for_monitor_handle (c_monitor_from_point (a_x, a_y, Monitor_defaulttonearest))
+		ensure
+			instance_free: class
+			positive: Result > 0
+		end
+
+	primary_monitor_dpi: NATURAL_32
+			-- Effective DPI of the primary monitor.
+		do
+			Result := dpi_for_monitor_handle (c_monitor_from_point (0, 0, Monitor_defaulttoprimary))
+		ensure
+			instance_free: class
+			positive: Result > 0
+		end
+
+	scaled_for_dpi (a_size: INTEGER; a_dpi: NATURAL_32): INTEGER
+			-- `a_size`, given for `Default_dpi`, scaled to `a_dpi`.
+		do
+			Result := (a_size * a_dpi.to_integer_32 / Default_dpi).rounded
+		ensure
+			instance_free: class
+		end
+
+	rescaled_for_dpi (a_size: INTEGER; a_from_dpi, a_to_dpi: NATURAL_32): INTEGER
+			-- `a_size`, given for `a_from_dpi`, scaled to `a_to_dpi`.
+		require
+			a_from_dpi_positive: a_from_dpi > 0
+		do
+			Result := (a_size * a_to_dpi.to_integer_32 / a_from_dpi.to_integer_32).rounded
+		ensure
+			instance_free: class
+		end
+
+feature -- Status setting
+
+	enable_per_monitor_dpi_awareness
+			-- Make the process per monitor DPI aware, using the best mode available:
+			-- Per Monitor v2 (Windows 10 1703+: scaled non-client area, DPI notifications
+			-- to child windows, scaled theme parts of common controls), Per Monitor
+			-- (Windows 8.1+), or else system DPI aware (Windows Vista+).
+			-- Has no effect if the DPI awareness of the process is already set
+			-- (for instance by its manifest).
+		do
+			c_enable_per_monitor_dpi_awareness
+		ensure
+			instance_free: class
 		end
 
 	set_process_per_monitor_dpi_aware
@@ -278,6 +377,150 @@ feature {NONE} -- C externals
 				#else
 					return 0;
 				#endif
+			]"
+		end
+
+	c_get_dpi_for_window (a_hwnd: POINTER): NATURAL_32
+			-- GetDpiForWindow (Windows 10 1607+), or 0 if not available.
+		external
+			"C inline use <windows.h>"
+		alias
+			"[
+				typedef UINT (WINAPI *EIF_GET_DPI_FOR_WINDOW) (HWND);
+				static EIF_GET_DPI_FOR_WINDOW get_dpi_for_window = NULL;
+				static int is_loaded = 0;
+				HMODULE l_user32;
+
+				if (!is_loaded) {
+					l_user32 = GetModuleHandleW (L"user32.dll");
+					if (l_user32) {
+						get_dpi_for_window = (EIF_GET_DPI_FOR_WINDOW) GetProcAddress (l_user32, "GetDpiForWindow");
+					}
+					is_loaded = 1;
+				}
+				if (get_dpi_for_window) {
+					return (EIF_NATURAL_32) get_dpi_for_window ((HWND) $a_hwnd);
+				} else {
+					return 0;
+				}
+			]"
+		end
+
+	c_get_dpi_for_monitor_handle (a_monitor: POINTER): NATURAL_32
+			-- Effective DPI of `a_monitor` with GetDpiForMonitor (Windows 8.1+), or 0 if not available.
+		external
+			"C inline use <windows.h>"
+		alias
+			"[
+				typedef HRESULT (WINAPI *EIF_GET_DPI_FOR_MONITOR) (HMONITOR, int, UINT *, UINT *);
+				static EIF_GET_DPI_FOR_MONITOR get_dpi_for_monitor = NULL;
+				static int is_loaded = 0;
+				HMODULE l_shcore;
+				UINT l_dpi_x = 0, l_dpi_y = 0;
+
+				if (!is_loaded) {
+					l_shcore = LoadLibraryW (L"shcore.dll");
+					if (l_shcore) {
+						get_dpi_for_monitor = (EIF_GET_DPI_FOR_MONITOR) GetProcAddress (l_shcore, "GetDpiForMonitor");
+					}
+					is_loaded = 1;
+				}
+					/* 0 is MDT_EFFECTIVE_DPI. */
+				if (get_dpi_for_monitor && SUCCEEDED (get_dpi_for_monitor ((HMONITOR) $a_monitor, 0, &l_dpi_x, &l_dpi_y))) {
+					return (EIF_NATURAL_32) l_dpi_x;
+				} else {
+					return 0;
+				}
+			]"
+		end
+
+	c_system_dpi: NATURAL_32
+			-- GetDpiForSystem (Windows 10 1607+), or else the vertical logical pixels of the screen.
+		external
+			"C inline use <windows.h>"
+		alias
+			"[
+				typedef UINT (WINAPI *EIF_GET_DPI_FOR_SYSTEM) (void);
+				static EIF_GET_DPI_FOR_SYSTEM get_dpi_for_system = NULL;
+				static int is_loaded = 0;
+				HMODULE l_user32;
+				HDC l_dc;
+				EIF_NATURAL_32 l_result = 0;
+
+				if (!is_loaded) {
+					l_user32 = GetModuleHandleW (L"user32.dll");
+					if (l_user32) {
+						get_dpi_for_system = (EIF_GET_DPI_FOR_SYSTEM) GetProcAddress (l_user32, "GetDpiForSystem");
+					}
+					is_loaded = 1;
+				}
+				if (get_dpi_for_system) {
+					l_result = (EIF_NATURAL_32) get_dpi_for_system ();
+				} else {
+					l_dc = GetDC (NULL);
+					if (l_dc) {
+						l_result = (EIF_NATURAL_32) GetDeviceCaps (l_dc, LOGPIXELSY);
+						ReleaseDC (NULL, l_dc);
+					}
+				}
+				return l_result;
+			]"
+		end
+
+	c_monitor_from_point (a_x, a_y: INTEGER; a_flags: INTEGER): POINTER
+			-- SDK MonitorFromPoint.
+		external
+			"C inline use <windows.h>"
+		alias
+			"[
+				POINT l_point;
+
+				l_point.x = (LONG) $a_x;
+				l_point.y = (LONG) $a_y;
+				return (EIF_POINTER) MonitorFromPoint (l_point, (DWORD) $a_flags);
+			]"
+		end
+
+	c_enable_per_monitor_dpi_awareness
+			-- Set the DPI awareness of the process to Per Monitor v2, or else Per Monitor,
+			-- or else system DPI aware, depending on what the OS supports.
+		external
+			"C inline use <windows.h>"
+		alias
+			"[
+				typedef BOOL (WINAPI *EIF_SET_PROCESS_DPI_AWARENESS_CONTEXT) (HANDLE);
+				typedef HRESULT (WINAPI *EIF_SET_PROCESS_DPI_AWARENESS) (int);
+				typedef BOOL (WINAPI *EIF_SET_PROCESS_DPI_AWARE) (void);
+				EIF_SET_PROCESS_DPI_AWARENESS_CONTEXT l_set_context = NULL;
+				EIF_SET_PROCESS_DPI_AWARENESS l_set_awareness = NULL;
+				EIF_SET_PROCESS_DPI_AWARE l_set_aware = NULL;
+				HMODULE l_user32, l_shcore;
+				int l_done = 0;
+
+				l_user32 = GetModuleHandleW (L"user32.dll");
+				if (l_user32) {
+					l_set_context = (EIF_SET_PROCESS_DPI_AWARENESS_CONTEXT) GetProcAddress (l_user32, "SetProcessDpiAwarenessContext");
+						/* (HANDLE) -4 is DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2. */
+					if (l_set_context && l_set_context ((HANDLE) (INT_PTR) -4)) {
+						l_done = 1;
+					}
+				}
+				if (!l_done) {
+					l_shcore = LoadLibraryW (L"shcore.dll");
+					if (l_shcore) {
+						l_set_awareness = (EIF_SET_PROCESS_DPI_AWARENESS) GetProcAddress (l_shcore, "SetProcessDpiAwareness");
+							/* 2 is PROCESS_PER_MONITOR_DPI_AWARE. */
+						if (l_set_awareness && SUCCEEDED (l_set_awareness (2))) {
+							l_done = 1;
+						}
+					}
+				}
+				if (!l_done && l_user32) {
+					l_set_aware = (EIF_SET_PROCESS_DPI_AWARE) GetProcAddress (l_user32, "SetProcessDPIAware");
+					if (l_set_aware) {
+						l_set_aware ();
+					}
+				}
 			]"
 		end
 

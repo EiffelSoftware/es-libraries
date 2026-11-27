@@ -88,6 +88,17 @@ feature {NONE} -- WEL Implementation
 			Result := False
 		end
 
+	menu_owner_dpi: NATURAL_32
+			-- <Precursor>
+			-- A popup menu is displayed where the mouse pointer is.
+		local
+			l_point: WEL_POINT
+		do
+			create l_point.make (0, 0)
+			l_point.set_cursor_position
+			Result := {WEL_SCALING_EXTERNALS}.dpi_at_point (l_point.x, l_point.y)
+		end
+
 note
 	copyright:	"Copyright (c) 1984-2006, Eiffel Software and others"
 	license:	"Eiffel Forum License v2 (see http://www.eiffel.com/licensing/forum.txt)"

@@ -2497,6 +2497,18 @@ feature -- Measurements
 			result_positive: Result >= 1
 		end
 
+	font_for_drawing (a_font: EV_FONT): EV_FONT
+			-- `a_font' with the size it has to have to draw text in `Current', for the DPI
+			-- of the monitor on which `Current' is displayed, as for the text of its label items.
+			-- To be used to draw the text of {EV_GRID_DRAWABLE_ITEM} items.
+		require
+			not_destroyed: not is_destroyed
+		do
+			Result := implementation.font_for_drawing (a_font)
+		ensure
+			result_attached: Result /= Void
+		end
+
 feature -- Activation Handling
 
 	propagate_key_press (a_key: EV_KEY)

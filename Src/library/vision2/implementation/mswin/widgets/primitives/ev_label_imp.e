@@ -37,7 +37,8 @@ inherit
 	EV_FONTABLE_IMP
 		redefine
 			interface,
-			set_font
+			set_font,
+			update_font_for_dpi
 		end
 
 	EV_WEL_STATIC_OWNERDRAW
@@ -168,7 +169,7 @@ feature -- Element change
 				l_log_font.set_escapement ((angle * 1800 / 3.14).rounded)
 				--l_log_font.set_orientation ((angle * 1800 / 3.14).rounded)
 				l_font_imp.wel_font.set_indirect (l_log_font)
-				wel_set_font (l_font_imp.wel_font)
+				wel_set_font (l_font_imp.wel_font_for_dpi (font_dpi))
 				set_font (l_font)
 				accommodate_text (text)
 				invalidate
@@ -205,6 +206,24 @@ feature -- Element change
 				if is_displayed then
 					invalidate
 				end
+			end
+		end
+
+feature {EV_ANY_I} -- Per monitor DPI
+
+	update_font_for_dpi
+			-- <Precursor>
+		do
+				-- `set_font' does nothing when the font does not change,
+				-- but the text has to be measured with the font for the new DPI.
+			Precursor
+			if text_length > 0 then
+				accommodate_text (text)
+			else
+				set_default_minimum_size
+			end
+			if is_displayed then
+				invalidate
 			end
 		end
 
@@ -290,11 +309,7 @@ feature {EV_ANY_I} -- Initialization
 			a_width, a_height: INTEGER
 			l_angle: REAL
 		do
-			if attached private_wel_font as l_private_wel_font then
-				t := l_private_wel_font.string_size (a_text)
-			else
-				t := internal_font.string_size (a_text)
-			end
+			t := realized_wel_font.string_size (a_text)
 			a_width := t.width
 			a_height := t.height
 
@@ -326,8 +341,6 @@ feature {EV_CONTAINER_IMP} -- WEL Implementation
 			l_draw_flags: INTEGER
 			l_draw_text_rect: WEL_RECT
 			l_rect: WEL_RECT
-			l_draw_font: detachable WEL_FONT
-			l_font_imp: detachable EV_FONT_IMP
 			l_bk_brush: WEL_BRUSH
 			l_wel_color: WEL_COLOR_REF
 			l_color_imp: detachable EV_COLOR_IMP
@@ -407,15 +420,8 @@ feature {EV_CONTAINER_IMP} -- WEL Implementation
 					-- Need to first clear the area to the background color of `parent_imp'
 				application_imp.theme_drawer.draw_widget_background (Current, l_mem_dc, l_rect, l_bk_brush)
 
-					-- Retrieve the font used to draw the text
-				l_draw_font := private_wel_font
-				if l_draw_font = Void then
-					l_font_imp ?= internal_font.implementation
-					check l_font_imp /= Void then end
-					l_draw_font := l_font_imp.wel_font
-				end
 					 -- Draw the text
-				l_mem_dc.select_font (l_draw_font)
+				l_mem_dc.select_font (realized_wel_font)
 				l_color_imp ?= foreground_color.implementation
 				check l_color_imp /= Void then end
 				l_mem_dc.set_text_color (l_color_imp)

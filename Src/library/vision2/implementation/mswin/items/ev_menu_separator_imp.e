@@ -142,7 +142,7 @@ feature {EV_ANY_I} -- Implementation
 	desired_height: INTEGER
 			-- Desired height.
 		do
-			Result := (menu_font.string_height ("W") // 2) + 2
+			Result := (realized_menu_font.string_height ("W") // 2) + 2
 		end
 
 feature {EV_ANY, EV_ANY_I} -- Implementation

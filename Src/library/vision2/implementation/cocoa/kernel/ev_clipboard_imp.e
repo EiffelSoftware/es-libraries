@@ -40,6 +40,27 @@ feature -- Access
 			create Result.make_empty
 		end
 
+	has_image: BOOLEAN
+			-- <Precursor>
+		do
+		end
+
+	image: detachable EV_PIXEL_BUFFER
+			-- <Precursor>
+		do
+		end
+
+	has_files: BOOLEAN
+			-- <Precursor>
+		do
+		end
+
+	files: ARRAYED_LIST [PATH]
+			-- <Precursor>
+		do
+			create Result.make (0)
+		end
+
 feature -- Status Setting
 
 	set_text (a_text: READABLE_STRING_GENERAL)

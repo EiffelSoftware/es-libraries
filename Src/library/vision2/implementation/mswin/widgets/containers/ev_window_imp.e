@@ -42,7 +42,8 @@ inherit
 			default_process_message,
 			next_tabstop_widget,
 			make,
-			is_shown_by_default
+			is_shown_by_default,
+			notify_dpi_changed
 		end
 
 	WEL_FRAME_WINDOW
@@ -753,7 +754,12 @@ feature {EV_ANY_I} -- Implementation
 			if interface /= Void and then size_type /= Wel_window_constants.Size_minimized then
 				w_rect := window_rect
 				internal_set_size (w_rect.width, w_rect.height)
-
+			end
+			if
+				interface /= Void and then size_type /= Wel_window_constants.Size_minimized and then
+					-- See `on_dpi_changed'.
+				not is_layout_deferred
+			then
 				if not upper_bar.is_empty then
 					bar_imp ?= upper_bar.implementation
 					check
@@ -1218,14 +1224,31 @@ feature {EV_ANY_I} -- Implementation
 		-- and restore them in on_show if necessary.
 
 
-	on_dpi_changed (a_dpi: NATURAL_32;  a_wp: WEL_WINDOW_POS)
-			-- WM_dpichange message.
-			-- This message is sent to a window whose dpi changed,
+	on_dpi_changed (a_dpi: NATURAL_32; a_suggested_rect: WEL_RECT)
+			-- <Precursor>
+			-- Realize the fonts of all the widgets of `Current' for `a_dpi', move and resize `Current'
+			-- to `a_suggested_rect', update the layout, and then call the `dpi_changed_actions'
+			-- of `Current' and of its widgets.
 		local
 			bar_imp: detachable EV_VERTICAL_BOX_IMP
 			w_rect: WEL_RECT
+			l_client_width, l_client_height: INTEGER
 		do
 			if interface /= Void then
+					-- The minimum sizes of the widgets change with their fonts: they are only
+					-- recorded, the layout is done once, for the new size of `Current'.
+				is_layout_deferred := True
+				update_dpi_of_widget_tree (a_dpi, False)
+				compute_minimum_size (False)
+
+				l_client_width := client_width
+				l_client_height := client_height
+				if not maximized then
+						-- Now that its minimum size is computed for `a_dpi', `Current' can take
+						-- the suggested size (`on_size' does not update the layout yet).
+					Precursor (a_dpi, a_suggested_rect)
+				end
+				is_layout_deferred := False
 				w_rect := window_rect
 				internal_set_size (w_rect.width, w_rect.height)
 
@@ -1234,12 +1257,13 @@ feature {EV_ANY_I} -- Implementation
 					check
 						bar_imp_not_void: bar_imp /= Void then
 					end
-					bar_imp.set_move_and_size (0, 0, client_width, client_y)
+					bar_imp.ev_apply_new_size (0, 0, client_width, client_y, True)
 				end
 
 				if attached item_imp as l_item_imp then
-					l_item_imp.set_move_and_size (client_x, client_y,
-						client_width, client_height)
+						-- The size of the widgets may not have changed, but their layout has to be updated.
+					l_item_imp.ev_apply_new_size (client_x, client_y,
+						client_width.max (l_item_imp.minimum_width), client_height.max (l_item_imp.minimum_height), True)
 				end
 
 				if not lower_bar.is_empty then
@@ -1247,20 +1271,67 @@ feature {EV_ANY_I} -- Implementation
 					check
 						bar_imp_not_void: bar_imp /= Void then
 					end
-					bar_imp.set_move_and_size (0,
+					bar_imp.ev_apply_new_size (0,
 						client_y + client_height + 1,
-						client_width, bar_imp.minimum_height)
+						client_width, bar_imp.minimum_height, True)
+				end
+				if client_width /= l_client_width or client_height /= l_client_height then
+					execute_resize_actions (client_width, client_height)
 				end
 
-					-- Calls user actions if any
-				execute_dpi_actions (a_dpi, client_width, client_height)
+					-- Calls user actions if any, now that all the widgets are realized for `a_dpi'.
+				across widget_tree as w loop
+					if w.exists and then not w.is_destroyed then
+						w.notify_dpi_changed (a_dpi)
+					end
+				end
 			end
 		end
 
-	execute_dpi_actions (a_dpi: NATURAL_32; a_width, a_height: INTEGER)
-			-- execute `resize_actions_internal' if not Void.
+	realize_for_monitor_dpi
+			-- If `Current', not displayed, is on a monitor with another DPI than the one its widgets
+			-- are realized for (they are created for the system DPI), realize them for the DPI of
+			-- this monitor, and scale the size of `Current', as if it had moved to this monitor:
+			-- Windows does not always send WM_DPICHANGED to a hidden window (for instance to a
+			-- dialog created at its position).
+		local
+			l_dpi, l_realized_dpi: INTEGER
+			l_rect: WEL_RECT
 		do
-			trigger_dpi_actions  (a_dpi, a_width, a_height)
+			if exists and then not is_displayed then
+				l_dpi := {WEL_SCALING_EXTERNALS}.dpi_for_window (wel_item).to_integer_32
+				l_realized_dpi := realized_dpi.to_integer_32
+				if l_dpi > 0 and l_realized_dpi > 0 and l_dpi /= l_realized_dpi then
+					l_rect := window_rect
+						-- The position is kept, the application may have chosen it.
+					l_rect.set_rect (l_rect.left, l_rect.top,
+						l_rect.left + (l_rect.width * l_dpi + l_realized_dpi // 2) // l_realized_dpi,
+						l_rect.top + (l_rect.height * l_dpi + l_realized_dpi // 2) // l_realized_dpi)
+					on_dpi_changed (l_dpi.to_natural_32, l_rect)
+				end
+			end
+		end
+
+	is_layout_deferred: BOOLEAN
+			-- Are the changes of the minimum sizes of the widgets of `Current' only recorded,
+			-- for a layout done later (while the widgets are realized for another DPI)?
+
+	is_layout_active: BOOLEAN
+			-- Are the changes of the minimum sizes of the widgets of `Current' applied at once?
+		do
+			Result := is_displayed and not is_layout_deferred
+		end
+
+	execute_dpi_actions (a_dpi: NATURAL_32; a_width, a_height: INTEGER)
+			-- Execute `dpi_changed_actions_internal' if not Void.
+		do
+			trigger_dpi_actions (a_dpi, a_width, a_height)
+		end
+
+	notify_dpi_changed (a_dpi: NATURAL_32)
+			-- <Precursor>
+		do
+			execute_dpi_actions (a_dpi, client_width, client_height)
 		end
 
 feature {EV_ANY_I} -- Implementation
@@ -1380,6 +1451,7 @@ feature {NONE} -- Implementation for switch non-parented and parented windows
 		do
 			if not is_displayed then
 				call_show_actions := True
+				realize_for_monitor_dpi
 				cwin_show_window (wel_item, show_flags)
 				if item_imp /= Void then
 					notify_change (nc_minsize, item_imp, False)
@@ -1414,8 +1486,10 @@ feature {NONE} -- Implementation for switch non-parented and parented windows
 			l_result: INTEGER
 			l_menu_bar: detachable EV_MENU_BAR
 		do
-			l_width := {EV_MONITOR_DPI_DETECTOR_IMP}.scaled_size (width)
-			l_height :={EV_MONITOR_DPI_DETECTOR_IMP}.scaled_size (height)
+				-- The window is recreated with the same size: `width' and `height' are
+				-- already in pixels of the monitor it is displayed on, they are not scaled.
+			l_width := width
+			l_height := height
 			l_x := screen_x
 			l_y := screen_y
 

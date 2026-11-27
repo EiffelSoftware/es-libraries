@@ -110,7 +110,8 @@ feature -- Access
 	height_in_points: INTEGER
 			-- Preferred font height measured in points.
 		do
-			Result := wel_font.point.abs
+				-- `point' is computed for the system DPI.
+			Result := {WEL_SCALING_EXTERNALS}.rescaled_for_dpi (wel_font.point.abs, realization_dpi, {WEL_SCALING_EXTERNALS}.system_dpi)
 		end
 
 feature -- Element change
@@ -186,6 +187,8 @@ feature -- Element change
 		do
 			wel_font.set_height_in_points (a_height)
 			wel_log_font.update_by_font (wel_font)
+				-- Points are converted to pixels for the system DPI.
+			realization_dpi_internal := 0
 		end
 
 feature {EV_FONT, EV_ANY_I} -- Implementation
@@ -206,6 +209,7 @@ feature {EV_FONT, EV_ANY_I} -- Implementation
 				log_font := font_imp.wel_font.log_font
 				create new_wel_font.make_indirect (log_font)
 				set_by_wel_font (new_wel_font)
+				realization_dpi_internal := font_imp.realization_dpi
 
 					-- Dispose of `log_font' as it is only required
 					-- temporarily to create the WEL_FONT.
@@ -313,7 +317,82 @@ feature -- Status report
 feature {EV_ANY_I} -- Access
 
 	wel_font: WEL_FONT
-			-- Basic WEL font.
+			-- Basic WEL font, realized for `realization_dpi'.
+
+	realization_dpi: NATURAL_32
+			-- DPI for which the size in pixels of `Current' is given: the system DPI, unless
+			-- `Current' has been scaled for another DPI with `scale_to_dpi'.
+		do
+			Result := realization_dpi_internal
+			if Result = 0 then
+				Result := {WEL_SCALING_EXTERNALS}.system_dpi
+			end
+		ensure
+			positive: Result > 0
+		end
+
+	wel_font_for_dpi (a_dpi: NATURAL_32): WEL_FONT
+			-- `wel_font` realized for a window displayed with `a_dpi` DPI
+			-- (`wel_font` itself for `realization_dpi').
+		local
+			l_log_font: WEL_LOG_FONT
+			l_fonts: like dpi_wel_fonts
+		do
+			if a_dpi = 0 or else a_dpi = realization_dpi then
+				Result := wel_font
+			else
+					-- `wel_font' may have been changed or replaced since the fonts
+					-- for other DPIs were computed: they are only valid for the same LOGFONT.
+				l_log_font := wel_font.log_font
+				l_fonts := dpi_wel_fonts
+				if
+					l_fonts = Void or else
+					not attached dpi_wel_fonts_source as l_source or else
+					not l_source.is_equal (l_log_font)
+				then
+					create l_fonts.make (2)
+					dpi_wel_fonts := l_fonts
+					dpi_wel_fonts_source := l_log_font
+				end
+				if attached l_fonts.item (a_dpi) as l_font then
+					Result := l_font
+				else
+					Result := (create {WEL_SHARED_FONTS}).rescaled_font (wel_font, realization_dpi, a_dpi)
+					l_fonts.force (Result, a_dpi)
+				end
+			end
+		ensure
+			result_exists: Result /= Void and then Result.exists
+		end
+
+feature {EV_ANY_I, EV_MONITOR_DPI_DETECTOR_IMP} -- Per monitor DPI
+
+	scale_to_dpi (a_dpi: NATURAL_32)
+			-- Scale `Current' so that its size in pixels is the one it should have
+			-- on a monitor with `a_dpi' DPI, and make `a_dpi' its `realization_dpi'.
+		require
+			a_dpi_positive: a_dpi > 0
+		do
+			if a_dpi /= realization_dpi then
+				wel_font.set_indirect ((create {WEL_SHARED_FONTS}).rescaled_log_font (wel_font.log_font, realization_dpi, a_dpi))
+				wel_log_font.update_by_font (wel_font)
+				realization_dpi_internal := a_dpi
+				dpi_wel_fonts := Void
+			end
+		ensure
+			realization_dpi_set: realization_dpi = a_dpi
+		end
+
+feature {NONE} -- Implementation: per monitor DPI
+
+	realization_dpi_internal: NATURAL_32
+			-- Storage for `realization_dpi', 0 for the system DPI.
+
+	dpi_wel_fonts: detachable HASH_TABLE [WEL_FONT, NATURAL_32]
+			-- `wel_font` realized for DPIs other than the system DPI, indexed by DPI.
+
+	dpi_wel_fonts_source: detachable WEL_LOG_FONT
+			-- LOGFONT of `wel_font` from which `dpi_wel_fonts` were computed.
 
 feature {EV_FONTABLE_IMP, EV_FONT_DIALOG_IMP, EV_CHARACTER_FORMAT_IMP, EV_ENVIRONMENT_IMP} -- Access
 
@@ -323,6 +402,9 @@ feature {EV_FONTABLE_IMP, EV_FONT_DIALOG_IMP, EV_CHARACTER_FORMAT_IMP, EV_ENVIRO
 			l_log_font: like wel_log_font
 		do
 			wel_font := wf
+				-- `wf' is a font for the system DPI.
+			realization_dpi_internal := 0
+			dpi_wel_fonts := Void
 			l_log_font := wel_log_font
 			l_log_font.update_by_font (wf)
 			shape := convert_font_shape (l_log_font.italic)

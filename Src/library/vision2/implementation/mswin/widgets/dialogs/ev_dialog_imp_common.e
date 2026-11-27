@@ -434,9 +434,14 @@ feature {NONE} -- Implementation
 			end
 			if apply_center_dialog then
 				center_dialog
+					-- Centered on the monitor of the parent window, `Current' takes the size
+					-- for its DPI, and is then centered with this size.
+				realize_for_monitor_dpi
+				center_dialog
 				apply_center_dialog := False
 			else
 				set_position (other_imp.x_position, other_imp.y_position)
+				realize_for_monitor_dpi
 			end
 
 				-- Set the focus to the `default_push_button' if any

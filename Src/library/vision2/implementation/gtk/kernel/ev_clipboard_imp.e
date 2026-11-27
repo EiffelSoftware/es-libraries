@@ -81,6 +81,61 @@ feature -- Access
 			end
 		end
 
+	has_image: BOOLEAN
+			-- <Precursor>
+		do
+				-- (The marshaller is disabled, as in `has_text'.)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (False)
+			Result := {GTK2}.gtk_clipboard_wait_is_image_available (clipboard)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (True)
+		end
+
+	image: detachable EV_PIXEL_BUFFER
+			-- <Precursor>
+		local
+			l_pixbuf: POINTER
+		do
+				-- (The marshaller is disabled, as in `has_text'.)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (False)
+			l_pixbuf := {GTK2}.gtk_clipboard_wait_for_image (clipboard)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (True)
+			if l_pixbuf /= default_pointer then
+				create Result
+				if attached {EV_PIXEL_BUFFER_IMP} Result.implementation as l_imp then
+					l_imp.set_gdkpixbuf (l_pixbuf)
+				end
+					-- (`set_gdkpixbuf' keeps its own reference.)
+				{GOBJECT}.g_object_unref (l_pixbuf)
+			end
+		end
+
+	has_files: BOOLEAN
+			-- <Precursor>
+		do
+				-- (The marshaller is disabled, as in `has_text'.)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (False)
+			Result := {GTK2}.gtk_clipboard_wait_is_uris_available (clipboard)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (True)
+		end
+
+	files: ARRAYED_LIST [PATH]
+			-- <Precursor>
+		local
+			l_uris: POINTER
+		do
+				-- (The marshaller is disabled, as in `has_text'.)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (False)
+			l_uris := {GTK2}.gtk_clipboard_wait_for_uris (clipboard)
+			{EV_GTK_CALLBACK_MARSHAL}.c_ev_gtk_callback_marshal_set_is_enabled (True)
+			if l_uris /= default_pointer then
+					-- (Only the local files: "file:" URIs.)
+				Result := {EV_GTK_DEPENDENT_ROUTINES}.file_paths_of_uris (l_uris)
+				{GTK}.g_strfreev (l_uris)
+			else
+				create Result.make (0)
+			end
+		end
+
 feature -- Status Setting
 
 	set_text (a_text: READABLE_STRING_GENERAL)

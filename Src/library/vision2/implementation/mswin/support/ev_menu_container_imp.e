@@ -17,7 +17,15 @@ inherit
 			{NONE} all
 		end
 
+	EV_SHARED_MENU_DPI
+
 feature {NONE} -- Implementation
+
+	menu_owner_dpi: NATURAL_32
+			-- DPI for which the menus owned by `Current' are measured and drawn:
+			-- the DPI of the monitor on which they are displayed.
+		deferred
+		end
 
 	process_menu_message (msg: INTEGER; wparam, lparam: POINTER): BOOLEAN
 			-- Process `msg' which has not been processed by
@@ -32,10 +40,12 @@ feature {NONE} -- Implementation
 		do
 			if msg = ({WEL_WINDOW_CONSTANTS}.Wm_drawitem) then
 				create draw_item_struct.make_by_pointer (lparam)
+				set_menu_dpi (menu_owner_dpi)
 				on_draw_item (wparam, draw_item_struct)
 				Result := True
 			elseif msg = ({WEL_WINDOW_CONSTANTS}.Wm_measureitem) then
 				create measure_item_struct.make_by_pointer (lparam)
+				set_menu_dpi (menu_owner_dpi)
 				on_measure_item (wparam, measure_item_struct)
 				Result := True
 			elseif msg = ({WEL_WINDOW_CONSTANTS}.Wm_menuchar) then

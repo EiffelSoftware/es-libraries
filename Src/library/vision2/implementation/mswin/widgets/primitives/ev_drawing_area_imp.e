@@ -28,7 +28,7 @@ inherit
 		redefine
 			interface, make, on_left_button_down,
 			on_middle_button_down, on_right_button_down,
-			destroy
+			destroy, save_content_for_dpi_change
 		end
 
 	EV_WEL_CONTROL_WINDOW
@@ -130,6 +130,13 @@ feature {NONE} -- Implementation
 						internal_paint_dc.set_rop2 (wel_drawing_mode)
 					end
 				end
+				if attached dpi_change_content as l_content then
+						-- Something is drawn before the next `on_paint':
+						-- the saved content is restored first.
+					dpi_change_content := Void
+					internal_paint_dc.draw_bitmap (l_content, 0, 0, l_content.width, l_content.height)
+					l_content.delete
+				end
 			end
 		end
 
@@ -167,6 +174,12 @@ feature {NONE} -- Implementation
 			-- the invalid rectangle of the client area that
 			-- needs to be repainted.
 		do
+			if attached dpi_change_content as l_content then
+					-- The whole client area is invalid, see `save_content_for_dpi_change'.
+				dpi_change_content := Void
+				paint_dc.draw_bitmap (l_content, 0, 0, l_content.width, l_content.height)
+				l_content.delete
+			end
 				-- Call registered onPaint actions
 			if expose_actions_internal /= Void then
 					-- Switch the dc from screen_dc to paint_dc.
@@ -305,9 +318,52 @@ feature -- Commands.
 			-- Destroy `Current', but set the parent sensitive
 			-- in case it was set insensitive by the child.
 		do
+			if attached dpi_change_content as l_content then
+				dpi_change_content := Void
+				l_content.delete
+			end
 			Precursor {EV_DRAWABLE_IMP}
 			Precursor {EV_PRIMITIVE_IMP}
 		end
+
+feature {EV_ANY_I} -- Per monitor DPI
+
+	save_content_for_dpi_change
+			-- <Precursor>
+			--| Nothing keeps what is drawn on `Current': it is lost when the new layout moves it,
+			--| and is not redrawn if the application does not draw it from the `expose_actions'.
+			--| It is restored in the next `on_paint' (or before the next drawing), for which the
+			--| whole client area is invalidated.
+		local
+			l_content: WEL_BITMAP
+			l_dc: WEL_MEMORY_DC
+			l_width, l_height: INTEGER
+		do
+			if attached dpi_change_content as l_previous then
+				dpi_change_content := Void
+				l_previous.delete
+			end
+			l_width := client_rect.width
+			l_height := client_rect.height
+			if l_width > 0 and l_height > 0 and is_displayed then
+				get_dc
+				create l_content.make_compatible (dc, l_width, l_height)
+				create l_dc.make_by_dc (dc)
+				l_dc.select_bitmap (l_content)
+				l_dc.bit_blt (0, 0, l_width, l_height, dc, 0, 0, srccopy)
+				l_dc.unselect_bitmap
+				l_dc.delete
+				release_dc
+				dpi_change_content := l_content
+				invalidate
+			end
+		end
+
+feature {NONE} -- Per monitor DPI
+
+	dpi_change_content: detachable WEL_BITMAP
+			-- Content of `Current' saved before the widgets were realized for another DPI,
+			-- to be restored after the new layout.
 
 feature {EV_ANY, EV_ANY_I} -- Implementation
 
