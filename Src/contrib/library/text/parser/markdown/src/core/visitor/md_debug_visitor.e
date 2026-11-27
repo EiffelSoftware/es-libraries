@@ -119,6 +119,11 @@ feature -- Processing
 			output ("THEMATIC_BREAK")
 		end
 
+	visit_table_of_contents (a_toc: MD_TABLE_OF_CONTENTS)
+		do
+			output ("TABLE_OF_CONTENTS(" + a_toc.headings.count.out + ")")
+		end
+
 feature -- Inline
 
 	visit_text (a_text: MD_TEXT)
@@ -167,6 +172,12 @@ feature -- Inline
 		do
 			output ("STRIKETHROUGH")
 			visit_composite (a_strikethrough)
+		end
+
+	visit_highlight (a_highlight: MD_HIGHLIGHT)
+		do
+			output ("HIGHLIGHT")
+			visit_composite (a_highlight)
 		end
 
 	visit_line_break (a_line_break: MD_LINE_BREAK)

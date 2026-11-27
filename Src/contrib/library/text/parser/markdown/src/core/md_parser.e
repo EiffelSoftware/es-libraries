@@ -31,6 +31,36 @@ feature -- GitHub Flavored Markdown
 			using_github_extension_set: using_github_extension = a_enabled
 		end
 
+feature -- Highlight extension
+
+	using_highlight_extension: BOOLEAN
+			-- Enable the highlighted (marked) text `==text==' (as in Obsidian, Pandoc `+mark',
+			-- markdown-it-mark): the opening `==' is followed by a character other than a space, the
+			-- closing `==' preceded by a character other than a space, and neither is next to another `='.
+
+	set_using_highlight_extension (a_enabled: BOOLEAN)
+			-- Set `using_highlight_extension` to `a_enabled`.
+		do
+			using_highlight_extension := a_enabled
+		ensure
+			using_highlight_extension_set: using_highlight_extension = a_enabled
+		end
+
+feature -- Table of contents extension
+
+	using_table_of_contents_extension: BOOLEAN
+			-- Enable the table of contents: a paragraph made only of `[TOC]' (any letter case, unless a
+			-- link reference `TOC' is defined) or `[[_TOC_]]' is a {MD_TABLE_OF_CONTENTS} (as in
+			-- Python-Markdown, GitLab, Typora...).
+
+	set_using_table_of_contents_extension (a_enabled: BOOLEAN)
+			-- Set `using_table_of_contents_extension` to `a_enabled`.
+		do
+			using_table_of_contents_extension := a_enabled
+		ensure
+			using_table_of_contents_extension_set: using_table_of_contents_extension = a_enabled
+		end
+
 feature {NONE} -- Link reference definitions
 
 	link_definitions: detachable HASH_TABLE [TUPLE [url: READABLE_STRING_8; title: detachable READABLE_STRING_8], STRING_8]
@@ -82,6 +112,9 @@ feature -- Parsing
 
 			create doc.make
 			parse_blocks_into (l_text, doc)
+			if using_table_of_contents_extension then
+				set_tables_of_contents (doc)
+			end
 
 				-- Add footnote definitions to document (as blocks at the end).
 			if attached footnote_definitions as defs then
@@ -116,6 +149,8 @@ feature {NONE} -- Block parsing
 			l_fence: detachable STRING_8
 			l_code_info: detachable STRING_8
 			l_code_buf: detachable STRING_8
+			l_html_end: detachable STRING_8
+			l_html_ended: BOOLEAN
 			l_code_block_list_indent: INTEGER
 				-- Indentation to strip from code block lines when inside a list item (0 if not in list).
 			l_quote_buf: detachable STRING_8
@@ -210,13 +245,19 @@ feature {NONE} -- Block parsing
 						l_para := Void
 						list_stack.wipe_out
 						create l_code_buf.make_empty
+						l_html_end := html_block_end_marker (l_trim)
+						l_html_ended := False
 						from
 						until
-							k > n or else lines [k].is_whitespace
+							k > n or l_html_ended or else (l_html_end = Void and then lines [k].is_whitespace)
 						loop
 							l_line := lines [k]
 							l_code_buf.append (l_line)
 							l_code_buf.append ("%N")
+							if l_html_end /= Void and then l_line.as_lower.has_substring (l_html_end) then
+									-- (CommonMark types 1 to 5: the block ends with the line of its end marker.)
+								l_html_ended := True
+							end
 							k := k + 1
 						end
 						a_document.add_element (create {MD_RAW_HTML}.make (l_code_buf))
@@ -595,10 +636,43 @@ feature {NONE} -- List detection
 			processed: STRING_8
 		do
 			if a_para /= Void and then not a_para.is_empty then
-				processed := process_hard_line_breaks (a_para)
-				create p.make
-				append_inlines_to (processed, p)
-				a_document.add_element (p)
+				if using_table_of_contents_extension and then is_table_of_contents_marker (a_para) then
+					a_document.add_element (create {MD_TABLE_OF_CONTENTS}.make)
+				else
+					processed := process_hard_line_breaks (a_para)
+					create p.make
+					append_inlines_to (processed, p)
+					a_document.add_element (p)
+				end
+			end
+		end
+
+	is_table_of_contents_marker (a_para: READABLE_STRING_8): BOOLEAN
+			-- Is paragraph `a_para' a table of contents marker: `[TOC]' (any letter case, unless a link
+			-- reference `TOC' is defined) or `[[_TOC_]]'?
+		local
+			s: STRING_8
+		do
+			create s.make_from_string (trimmed (a_para))
+			s.to_lower
+			if s.same_string ("[[_toc_]]") then
+				Result := True
+			elseif s.same_string ("[toc]") then
+				Result := not (attached link_definitions as l_defs and then l_defs.has ("toc"))
+			end
+		end
+
+	set_tables_of_contents (a_document: MD_DOCUMENT)
+			-- Give the headings of `a_document' to its tables of contents.
+		local
+			l_collector: MD_HEADINGS_COLLECTOR
+		do
+			create l_collector.make
+			a_document.process (l_collector)
+			across
+				l_collector.tables_of_contents as t
+			loop
+				t.set_headings (l_collector.headings)
 			end
 		end
 
@@ -1091,6 +1165,39 @@ feature {NONE} -- Block detection
 			end
 		end
 
+	html_block_end_marker (a_trimmed_line: READABLE_STRING_8): detachable STRING_8
+			-- End marker (in lower case) of the raw HTML block starting with `a_trimmed_line`, if the block
+			-- ends with the line containing it (CommonMark types 1 to 5), or Void if it ends before a blank line
+			-- (types 6 and 7).
+		local
+			l_lower: STRING_8
+		do
+			create l_lower.make_from_string (a_trimmed_line)
+			l_lower.to_lower
+			if l_lower.starts_with ("<!--") then
+				Result := "-->"
+			elseif l_lower.starts_with ("<?") then
+				Result := "?>"
+			elseif l_lower.starts_with ("<![cdata[") then
+				Result := "]]>"
+			elseif l_lower.count > 2 and then l_lower.starts_with ("<!") and then l_lower [3].is_alpha then
+				Result := ">"
+			else
+				across
+					<<"script", "pre", "style", "textarea">> as t
+				until
+					Result /= Void
+				loop
+					if
+						l_lower.starts_with ("<" + t) and then
+						(l_lower.count = t.count + 1 or else not l_lower [t.count + 2].is_alpha_numeric)
+					then
+						Result := "</" + t + ">"
+					end
+				end
+			end
+		end
+
 	is_html_block_start_line (a_trimmed_line: READABLE_STRING_8): BOOLEAN
 			-- Is `a_trimmed_line` the start of a raw HTML block (CommonMark type 2-7)?
 			-- Line must start with `<` followed by letter, `</`+letter, `<!--`, `<?`, or `<!`.
@@ -1566,6 +1673,7 @@ feature {NONE} -- Inline parsing
 			em: MD_EMPHASIS
 			st: MD_STRONG
 			strike: MD_STRIKETHROUGH
+			l_highlight: MD_HIGHLIGHT
 			lnk: MD_LINK
 			img: MD_IMAGE
 			br: MD_LINE_BREAK
@@ -1664,6 +1772,32 @@ feature {NONE} -- Inline parsing
 							end
 						else
 							buf.append_character ('~')
+							i := i + 1
+						end
+					when '=' then
+							-- Highlight (extension): ==text==
+						j := 0
+						if
+							using_highlight_extension and then i + 2 <= n and then s [i + 1] = '=' and then
+							s [i + 2] /= '=' and then not s [i + 2].is_space and then (i = 1 or else s [i - 1] /= '=')
+						then
+							j := s.substring_index ("==", i + 3)
+							from
+							until
+								j = 0 or else (not s [j - 1].is_space and then s [j - 1] /= '=' and then (j + 2 > n or else s [j + 2] /= '='))
+							loop
+								j := s.substring_index ("==", j + 1)
+							end
+						end
+						if j > 0 then
+							flush_text_buffer_to (buf, Result)
+							inner := s.substring (i + 2, j - 1)
+							create l_highlight.make
+							append_inlines_to (inner, l_highlight)
+							Result.extend (l_highlight)
+							i := j + 2
+						else
+							buf.append_character ('=')
 							i := i + 1
 						end
 					when '%N' then

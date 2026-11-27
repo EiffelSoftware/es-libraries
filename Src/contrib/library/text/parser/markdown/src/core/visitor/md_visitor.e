@@ -66,6 +66,12 @@ feature -- Processing
 		deferred
 		end
 
+	visit_table_of_contents (a_toc: MD_TABLE_OF_CONTENTS)
+		require
+			a_toc_attached: a_toc /= Void
+		deferred
+		end
+
 feature -- Inline
 
 	visit_text (a_text: MD_TEXT)
@@ -107,6 +113,12 @@ feature -- Inline
 	visit_strikethrough (a_strikethrough: MD_STRIKETHROUGH)
 		require
 			a_strikethrough_attached: a_strikethrough /= Void
+		deferred
+		end
+
+	visit_highlight (a_highlight: MD_HIGHLIGHT)
+		require
+			a_highlight_attached: a_highlight /= Void
 		deferred
 		end
 

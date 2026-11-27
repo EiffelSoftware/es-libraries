@@ -67,6 +67,10 @@ feature -- Processing
 		do
 		end
 
+	visit_table_of_contents (a_toc: MD_TABLE_OF_CONTENTS)
+		do
+		end
+
 feature -- Inline
 
 	visit_text (a_text: MD_TEXT)
@@ -100,6 +104,11 @@ feature -- Inline
 	visit_strikethrough (a_strikethrough: MD_STRIKETHROUGH)
 		do
 			visit_composite (a_strikethrough)
+		end
+
+	visit_highlight (a_highlight: MD_HIGHLIGHT)
+		do
+			visit_composite (a_highlight)
 		end
 
 	visit_line_break (a_line_break: MD_LINE_BREAK)
