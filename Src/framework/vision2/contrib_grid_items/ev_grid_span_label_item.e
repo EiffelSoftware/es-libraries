@@ -220,7 +220,7 @@ feature {NONE} -- Implementation
 					if is_master then
 						ft := font
 						if ft /= Void then
-							a_drawable.set_font (ft)
+							a_drawable.set_font (g.font_for_drawing (ft))
 						end
 					else
 						if m /= Void then
@@ -229,7 +229,7 @@ feature {NONE} -- Implementation
 							ft := font
 						end
 						if ft /= Void then
-							a_drawable.set_font (ft)
+							a_drawable.set_font (g.font_for_drawing (ft))
 						end
 
 						check
